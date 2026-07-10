@@ -1,0 +1,197 @@
+/* Card Grid */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-width), 1fr));
+  gap: var(--space-md);
+}
+
+/* Skill Card */
+.skill-card {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius);
+  padding: var(--space-lg);
+  min-height: var(--card-min-height);
+  display: flex;
+  flex-direction: column;
+  cursor: default;
+  transition: border-color var(--transition-base),
+              transform var(--transition-base),
+              background-color var(--transition-base);
+  contain: layout style paint;
+}
+
+.skill-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+  background: var(--bg-hover);
+}
+
+/* Card Header */
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.card-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.card-title-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-bottom: 2px;
+}
+
+.card-cn-name {
+  font-family: var(--font-heading);
+  font-size: var(--text-card-title);
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.card-en-name {
+  font-family: var(--font-body);
+  font-size: var(--text-card-sub);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  word-break: break-all;
+}
+
+/* Card Link */
+.card-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  color: var(--text-tertiary);
+  border-radius: 4px;
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.card-link:hover {
+  color: var(--accent);
+  background-color: var(--accent-soft);
+}
+
+/* Card Stars — 内联在英文名后面 */
+.card-stars-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  margin-left: 6px;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+  color: #f5a623;
+  white-space: nowrap;
+  vertical-align: middle;
+  letter-spacing: 0.5px;
+}
+
+/* Card Body — Grid overlay for smooth cross-fade */
+.card-body {
+  flex: 1;
+  display: grid;
+  grid-template-rows: 1fr;
+  margin-top: var(--space-sm);
+}
+
+.card-summary,
+.card-description,
+.card-divider {
+  grid-area: 1 / 1;
+  align-self: start;
+}
+
+.card-summary {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  transition: opacity var(--transition-base);
+  z-index: 1;
+}
+
+.skill-card:hover .card-summary {
+  opacity: 0;
+}
+
+/* Card Description (hover reveal) */
+.card-description {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  z-index: 2;
+}
+
+.skill-card:hover .card-description {
+  opacity: 1;
+}
+
+/* Divider on hover */
+.card-divider {
+  height: 1px;
+  background: var(--border-default);
+  margin: 0;
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  align-self: end;
+  z-index: 3;
+}
+
+.skill-card:hover .card-divider {
+  opacity: 1;
+}
+
+/* Load More Button */
+.load-more-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-top: var(--space-md);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 500;
+  color: var(--accent);
+  background: var(--bg-card);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.load-more-btn:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* Subcategory Skill Count */
+.subcategory-count {
+  font-size: var(--text-small);
+  color: var(--text-tertiary);
+  font-weight: 400;
+}

@@ -1,0 +1,53 @@
+:root {
+  /* Background */
+  --bg-page: #0E0E0E;
+  --bg-card: #181818;
+  --bg-hover: #1F1F1F;
+
+  /* Text */
+  --text-primary: #F5F5F5;
+  --text-secondary: #8A8A8A;
+  --text-tertiary: #5A5A5A;
+
+  /* Border */
+  --border-default: #2A2A2A;
+  --border-hover: rgba(94, 106, 210, 0.5);
+  --border-focus: #5E6AD2;
+
+  /* Accent */
+  --accent: #5E6AD2;
+  --accent-soft: rgba(94, 106, 210, 0.2);
+
+  /* Typography */
+  --font-heading: Inter, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-body: Inter, system-ui, -apple-system, sans-serif;
+
+  /* Scale */
+  --text-hero: 36px;
+  --text-h1: 22px;
+  --text-h2: 14px;
+  --text-card-title: 17px;
+  --text-card-sub: 13px;
+  --text-body: 14px;
+  --text-small: 13px;
+
+  /* Spacing */
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* Layout */
+  --max-width: 1200px;
+  --sidebar-width: 240px;
+  --card-width: 320px;
+  --card-min-height: 160px;
+  --radius: 8px;
+
+  /* Motion */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease-out;
+}

@@ -1,0 +1,83 @@
+/* Tablet */
+@media (max-width: 1024px) {
+  .app-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    position: static;
+    width: 100%;
+    min-width: 100%;
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid var(--border-default);
+    padding: var(--space-md) var(--space-md) var(--space-sm);
+  }
+
+  .sidebar-subcategories {
+    display: none;
+  }
+
+  .sidebar-category-btn.expanded + .sidebar-subcategories {
+    display: block;
+  }
+
+  .main {
+    padding: var(--space-lg) var(--space-md) var(--space-2xl);
+  }
+
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  :root {
+    --text-hero: 28px;
+    --text-h1: 20px;
+  }
+
+  .header {
+    padding: var(--space-2xl) var(--space-md) var(--space-lg);
+  }
+
+  .header-title {
+    margin-bottom: var(--space-lg);
+  }
+
+  .main {
+    padding: 0 var(--space-md) var(--space-2xl);
+  }
+
+  .search-input {
+    padding: 14px 16px 14px 44px;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .skill-card {
+    min-height: auto;
+  }
+
+  .category {
+    margin-bottom: var(--space-xl);
+  }
+
+  .subcategory {
+    margin-bottom: var(--space-lg);
+  }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+  .header-title {
+    font-size: 24px;
+  }
+
+  .search-wrapper {
+    width: 100%;
+  }
+}

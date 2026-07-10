@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Skill 导航</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/cards.css">
+  <link rel="stylesheet" href="css/sidebar.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <!-- 加载指示器 -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner">
+      <div class="loading-text" id="loadingText">正在加载 Skill 数据...</div>
+      <div class="loading-bar">
+        <div class="loading-bar-fill" id="loadingBarFill"></div>
+      </div>
+    </div>
+  </div>
+
+  <header class="header">
+    <h1 class="header-title">AI Skill 导航</h1>
+    <div class="search-wrapper">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.3-4.3"/>
+      </svg>
+      <input type="text" class="search-input" id="searchInput" placeholder="搜索 skill 名称或功能..." autocomplete="off">
+      <div class="search-stats" id="searchStats">
+        <span class="stats-count" id="statsCount"></span>
+        <span class="stats-source">
+          数据来源
+          <div class="stats-tooltip">
+            <div class="tooltip-section">
+              <h4>1. 来源网站</h4>
+              <ul>
+                <li><a href="https://hub.cocoloop.cn" target="_blank" rel="noopener">CoCoLoop</a></li>
+                <li><a href="https://smithery.ai/skills" target="_blank" rel="noopener">Smithery.ai</a></li>
+                <li><a href="https://agentskills.me" target="_blank" rel="noopener">AgentSkills.me</a></li>
+                <li><a href="https://skillsmp.com/zh" target="_blank" rel="noopener">SkillsMP</a></li>
+                <li><a href="https://agent-skills.md" target="_blank" rel="noopener">Agent-Skills.md</a></li>
+                <li><a href="https://skill-cn.com" target="_blank" rel="noopener">SkillHub</a></li>
+                <li><a href="https://skillstore.io/zh-hans" target="_blank" rel="noopener">SkillStore</a></li>
+                <li><a href="https://claudeskills.info" target="_blank" rel="noopener">ClaudeSkills.info</a></li>
+                <li><a href="https://skillsdirectory.com" target="_blank" rel="noopener">Skills Directory</a></li>
+                <li><a href="https://agentskills.best" target="_blank" rel="noopener">AgentSkills.best</a></li>
+              </ul>
+            </div>
+            <div class="tooltip-section">
+              <h4>2. 来源仓库</h4>
+              <ul>
+                <li><a href="https://github.com/anthropics/skills/tree/main/skills" target="_blank" rel="noopener">anthropics/skills</a></li>
+                <li><a href="https://github.com/ComposioHQ/awesome-claude-skills" target="_blank" rel="noopener">ComposioHQ/awesome-claude-skills</a></li>
+                <li><a href="https://github.com/vercel-labs/agent-skills/tree/main/skills" target="_blank" rel="noopener">vercel-labs/agent-skills</a></li>
+                <li><a href="https://github.com/kepano/obsidian-skills/tree/main/skills" target="_blank" rel="noopener">kepano/obsidian-skills</a></li>
+                <li><a href="https://github.com/microsoft/skills" target="_blank" rel="noopener">microsoft/skills</a></li>
+              </ul>
+            </div>
+            <div class="tooltip-section">
+              <h4>3. 个人开发或搜集</h4>
+            </div>
+          </div>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-label">分类导航</span>
+        <button class="sidebar-reset active" id="sidebarReset" title="显示全部">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+          </svg>
+          全部
+        </button>
+      </div>
+      <ul class="sidebar-menu" id="sidebarMenu">
+        <!-- JS 动态渲染 -->
+      </ul>
+    </nav>
+    <main class="main" id="mainContent">
+      <!-- Content rendered by JavaScript -->
+    </main>
+  </div>
+
+  <div class="empty-state" id="emptyState">
+    <svg class="empty-state-icon" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="8"/>
+      <path d="m21 21-4.3-4.3"/>
+    </svg>
+    <p class="empty-state-text">未找到匹配的 Skill</p>
+  </div>
+
+  <!-- 分类元数据 -->
+  <script>
+    function setLoadProgress(pct) {
+      var bar = document.getElementById('loadingBarFill');
+      var txt = document.getElementById('loadingText');
+      if (bar) bar.style.width = pct + '%';
+      if (txt) txt.textContent = '正在加载 Skill 数据... ' + pct + '%';
+    }
+  </script>
+  <script src="js/schema.js"></script>
+  <script>setLoadProgress(5);</script>
+  <script src="js/url-prefixes.js"></script>
+  <script>setLoadProgress(10);</script>
+  <!-- 数据分片 -->
+  <script src="js/data-chunk-0.js"></script>
+  <script>setLoadProgress(18);</script>
+  <script src="js/data-chunk-1.js"></script>
+  <script>setLoadProgress(26);</script>
+  <script src="js/data-chunk-2.js"></script>
+  <script>setLoadProgress(34);</script>
+  <script src="js/data-chunk-3.js"></script>
+  <script>setLoadProgress(42);</script>
+  <script src="js/data-chunk-4.js"></script>
+  <script>setLoadProgress(50);</script>
+  <script src="js/data-chunk-5.js"></script>
+  <script>setLoadProgress(58);</script>
+  <script src="js/data-chunk-6.js"></script>
+  <script>setLoadProgress(66);</script>
+  <script src="js/data-chunk-7.js"></script>
+  <script>setLoadProgress(74);</script>
+  <script src="js/data-chunk-8.js"></script>
+  <script>setLoadProgress(82);</script>
+  <script src="js/data-chunk-9.js"></script>
+  <script>setLoadProgress(90);</script>
+  <!-- 数据合并 -->
+  <script src="js/data-loader.js"></script>
+  <script>
+    setLoadProgress(100);
+    setTimeout(function() {
+      var overlay = document.getElementById('loadingOverlay');
+      if (overlay) {
+        overlay.style.opacity = '0';
+        setTimeout(function() { overlay.style.display = 'none'; }, 300);
+      }
+    }, 150);
+  </script>
+  <!-- 渲染 -->
+  <script src="js/render.js"></script>
+  <script src="js/search.js"></script>
+</body>
+</html>
