@@ -1,0 +1,158 @@
+/* ========================================
+   Vertical Timeline
+   ======================================== */
+.section-experience {
+  background: var(--bg-primary);
+}
+
+.timeline {
+  position: relative;
+  padding: var(--space-md) 0;
+}
+
+/* Central Line */
+.timeline-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--divider);
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+.timeline-line-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0%;
+  background: var(--accent);
+  transition: height 0.1s linear;
+}
+
+/* Timeline Item */
+.timeline-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: var(--space-lg);
+  min-height: 120px;
+}
+
+.timeline-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Node */
+.timeline-node {
+  position: absolute;
+  left: 50%;
+  top: 0.5rem;
+  width: 12px;
+  height: 12px;
+  background: var(--divider);
+  border: 2px solid var(--bg-primary);
+  transform: translateX(-50%);
+  z-index: 2;
+  transition: background var(--transition-base), box-shadow var(--transition-base);
+}
+
+.timeline-node.active {
+  background: var(--accent);
+  box-shadow: 0 0 0 4px rgba(0, 240, 255, 0.15), 0 0 20px rgba(0, 240, 255, 0.3);
+  animation: nodePulse 2s ease-in-out infinite;
+}
+
+/* Content - alternating sides */
+.timeline-content {
+  width: calc(50% - var(--space-lg));
+  padding: var(--space-sm) 0;
+}
+
+.timeline-item[data-side="left"] .timeline-content {
+  margin-right: auto;
+  padding-right: var(--space-lg);
+  text-align: right;
+}
+
+.timeline-item[data-side="right"] .timeline-content {
+  margin-left: auto;
+  padding-left: var(--space-lg);
+  text-align: left;
+}
+
+/* Meta */
+.timeline-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: var(--space-xs);
+}
+
+.timeline-item[data-side="left"] .timeline-meta {
+  align-items: flex-end;
+}
+
+.timeline-item[data-side="right"] .timeline-meta {
+  align-items: flex-start;
+}
+
+.timeline-date {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+}
+
+.timeline-company {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Role & Description */
+.timeline-role {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: var(--space-xs);
+  letter-spacing: -0.01em;
+}
+
+.timeline-desc {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+/* ========================================
+   Mobile: stack to left-axis right-content
+   ======================================== */
+@media (max-width: 768px) {
+  .timeline-line {
+    left: 8px;
+    transform: none;
+  }
+
+  .timeline-node {
+    left: 8px;
+    transform: translateX(-50%);
+  }
+
+  .timeline-content {
+    width: 100%;
+    padding-left: var(--space-lg) !important;
+    padding-right: 0 !important;
+    text-align: left !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .timeline-item[data-side="left"] .timeline-meta,
+  .timeline-item[data-side="right"] .timeline-meta {
+    align-items: flex-start;
+  }
+}

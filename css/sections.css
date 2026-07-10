@@ -1,0 +1,202 @@
+/* ========================================
+   About Section
+   ======================================== */
+.section-about {
+  background: var(--bg-primary);
+}
+
+.about-body {
+  max-width: 720px;
+}
+
+.about-lead {
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+  line-height: 1.5;
+}
+
+.about-body p + p {
+  margin-top: var(--space-sm);
+  color: var(--text-secondary);
+}
+
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-md);
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+  border: 1px solid var(--divider);
+  padding: 0.35rem 0.75rem;
+  letter-spacing: 0.02em;
+}
+
+/* ========================================
+   Projects Section
+   ======================================== */
+.section-projects {
+  background: var(--bg-secondary);
+}
+
+.projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.project-item {
+  border-top: 1px solid var(--divider);
+  padding-top: var(--space-md);
+}
+
+.project-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-xs);
+}
+
+.project-name {
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.project-link {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.project-link:hover {
+  color: var(--accent);
+}
+
+.project-desc {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-xs);
+}
+
+.project-stack {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.stack-item {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  background: var(--bg-primary);
+  padding: 0.2rem 0.5rem;
+}
+
+/* ========================================
+   Services Section
+   ======================================== */
+.section-services {
+  background: var(--bg-primary);
+}
+
+.services-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-md);
+}
+
+.service-item {
+  border-top: 1px solid var(--divider);
+  padding-top: var(--space-md);
+}
+
+.service-name {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: var(--space-xs);
+}
+
+.service-desc {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin-bottom: var(--space-sm);
+}
+
+.service-link {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+/* ========================================
+   Contact Section
+   ======================================== */
+.section-contact {
+  background: var(--bg-secondary);
+  text-align: center;
+}
+
+.section-contact .section-inner {
+  max-width: 600px;
+}
+
+.contact-lead {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-lg);
+}
+
+.contact-links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  align-items: center;
+}
+
+.contact-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--divider);
+  min-width: 280px;
+  transition: border-color var(--transition-base);
+}
+
+.contact-link:hover {
+  border-color: var(--accent);
+  opacity: 1;
+}
+
+.contact-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.contact-handle {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .services-list {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-link {
+    min-width: auto;
+    width: 100%;
+  }
+}

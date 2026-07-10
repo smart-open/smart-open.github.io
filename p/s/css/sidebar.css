@@ -8,12 +8,9 @@
 
 /* ===== Sidebar ===== */
 .sidebar {
-  position: sticky;
-  top: 0;
+  /* 不再 sticky，跟随页面滚动 */
   width: 240px;
   min-width: 240px;
-  max-height: calc(100vh - 200px);
-  overflow-y: auto;
   padding: var(--space-lg) 0 var(--space-2xl) var(--space-md);
   border-right: 1px solid var(--border-default);
   background: var(--bg-page);
