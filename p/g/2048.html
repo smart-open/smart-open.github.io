@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>2048</title>
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --board-size: min(90vw, 90vh - 140px, 500px);
+      --cell-gap: 12px;
+      --cell-radius: 6px;
+      --board-radius: 8px;
+      --board-bg: #bbada0;
+      --cell-bg: rgba(238, 228, 218, 0.35);
+      --page-bg: #faf8ef;
+      --text-dark: #776e65;
+      --text-light: #f9f6f2;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+    }
+
+    @media (max-width: 500px) {
+      :root {
+        --cell-gap: 8px;
+        --cell-radius: 4px;
+        --board-radius: 6px;
+        --board-size: min(92vw, 85vh - 130px, 500px);
+      }
+    }
+
+    @media (max-width: 500px) and (orientation: landscape) {
+      :root {
+        --board-size: min(85vh - 100px, 70vw, 500px);
+      }
+    }
+
+    @media (min-width: 501px) and (orientation: landscape) and (max-height: 500px) {
+      :root {
+        --board-size: min(80vh - 100px, 400px);
+      }
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+      background: var(--page-bg);
+      color: var(--text-dark);
+      overflow: hidden;
+      overscroll-behavior: none;
+      touch-action: none;
+      -webkit-overflow-scrolling: auto;
+      position: fixed;
+      width: 100%;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      -webkit-tap-highlight-color: transparent;
+      padding-top: var(--safe-top);
+      padding-bottom: var(--safe-bottom);
+      padding-left: var(--safe-left);
+      padding-right: var(--safe-right);
+    }
+
+    .game-container {
+      width: var(--board-size);
+      max-width: 500px;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    /* Header */
+    .game-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .game-title {
+      font-size: 72px;
+      font-weight: 700;
+      color: var(--text-dark);
+      line-height: 1;
+    }
+
+    @media (max-width: 500px) {
+      .game-header {
+        margin-bottom: 6px;
+      }
+      .game-title {
+        font-size: 48px;
+      }
+    }
+
+    @media (max-width: 500px) and (orientation: landscape) {
+      .game-header {
+        margin-bottom: 4px;
+      }
+      .game-title {
+        font-size: 36px;
+      }
+    }
+
+    .scores-container {
+      display: flex;
+      gap: 8px;
+    }
+
+    .score-box {
+      background: var(--board-bg);
+      border-radius: var(--cell-radius);
+      padding: 8px 20px;
+      text-align: center;
+      min-width: 80px;
+      position: relative;
+    }
+
+    @media (max-width: 500px) {
+      .score-box {
+        padding: 4px 10px;
+        min-width: 54px;
+      }
+    }
+
+    @media (max-width: 500px) and (orientation: landscape) {
+      .score-box {
+        padding: 3px 8px;
+        min-width: 48px;
+      }
+    }
+
+    .score-box .label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: rgba(238, 228, 218, 0.6);
+      letter-spacing: 0.5px;
+    }
+
+    .score-box .value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    @media (max-width: 500px) {
+      .score-box .value {
+        font-size: 16px;
+      }
+    }
+
+    @media (max-width: 500px) and (orientation: landscape) {
+      .score-box .value {
+        font-size: 14px;
+      }
+      .score-box .label {
+        font-size: 9px;
+      }
+    }
+
+    .score-addition {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 16px;
+      font-weight: 700;
+      color: rgba(119, 110, 101, 0.9);
+      pointer-events: none;
+      animation: score-pop 600ms ease-out forwards;
+      z-index: 10;
+    }
+
+    /* Controls */
+    .game-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .btn-new-game {
+      background: #8f7a66;
+      color: #f9f6f2;
+      border: none;
+      border-radius: var(--cell-radius);
+      padding: 10px 24px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+      touch-action: manipulation;
+    }
+
+    .btn-new-game:hover {
+      background: #9f8b77;
+    }
+
+    .btn-new-game:active {
+      background: #7f6a56;
+    }
+
+    .game-hint {
+      font-size: 13px;
+      color: rgba(119, 110, 101, 0.6);
+    }
+
+    @media (max-width: 500px) {
+      .game-controls {
+        margin-bottom: 6px;
+      }
+      .btn-new-game {
+        padding: 8px 16px;
+        font-size: 13px;
+      }
+      .game-hint {
+        font-size: 11px;
+      }
+    }
+
+    @media (max-width: 500px) and (orientation: landscape) {
+      .game-controls {
+        margin-bottom: 4px;
+      }
+      .btn-new-game {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+    }
+
+    /* Board */
+    .game-board {
+      position: relative;
+      width: var(--board-size);
+      height: var(--board-size);
+      background: var(--board-bg);
+      border-radius: var(--board-radius);
+      padding: var(--cell-gap);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: var(--cell-gap);
+    }
+
+    .grid-cell {
+      background: var(--cell-bg);
+      border-radius: var(--cell-radius);
+    }
+
+    .tile-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    /* Tiles */
+    .tile {
+      position: absolute;
+      border-radius: var(--cell-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      user-select: none;
+      transition: top 100ms ease, left 100ms ease;
+    }
+
+    .tile-2    { background: #eee4da; color: #776e65; }
+    .tile-4    { background: #ede0c8; color: #776e65; }
+    .tile-8    { background: #f2b179; color: #f9f6f2; }
+    .tile-16   { background: #f59563; color: #f9f6f2; }
+    .tile-32   { background: #f67c5f; color: #f9f6f2; }
+    .tile-64   { background: #f65e3b; color: #f9f6f2; }
+    .tile-128  { background: #edcf72; color: #f9f6f2; }
+    .tile-256  { background: #edcc61; color: #f9f6f2; }
+    .tile-512  { background: #edc850; color: #f9f6f2; }
+    .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 90%; }
+    .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 90%; }
+    .tile-super { background: #3c3a32; color: #f9f6f2; font-size: 70%; }
+
+    .tile-new {
+      animation: appear 100ms ease-out;
+    }
+
+    .tile-merged {
+      animation: pop 200ms ease-out;
+      z-index: 2;
+    }
+
+    /* Animations */
+    @keyframes appear {
+      0%   { opacity: 0; transform: scale(0); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes pop {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes score-pop {
+      0%   { opacity: 1; transform: translate(-50%, -50%); }
+      100% { opacity: 0; transform: translate(-50%, -120%); }
+    }
+
+    /* Game Message Overlay */
+    .game-message {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: var(--board-radius);
+      background: rgba(238, 228, 218, 0.73);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 800ms ease;
+    }
+
+    .game-message.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .game-message p {
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 500px) {
+      .game-message p {
+        font-size: 32px;
+        margin-bottom: 12px;
+      }
+    }
+
+    .game-message .btn-retry,
+    .game-message .btn-keep {
+      background: #8f7a66;
+      color: #f9f6f2;
+      border: none;
+      border-radius: var(--cell-radius);
+      padding: 12px 28px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      margin: 4px;
+      transition: background 0.15s;
+      touch-action: manipulation;
+    }
+
+    .game-message .btn-retry:hover,
+    .game-message .btn-keep:hover {
+      background: #9f8b77;
+    }
+
+    .game-message .btn-retry:active,
+    .game-message .btn-keep:active {
+      background: #7f6a56;
+    }
+  </style>
+</head>
+<body>
+
+<div class="game-container">
+  <header class="game-header">
+    <h1 class="game-title">2048</h1>
+    <div class="scores-container">
+      <div class="score-box" id="score-box">
+        <div class="label">分数</div>
+        <div class="value" id="score-value">0</div>
+      </div>
+      <div class="score-box">
+        <div class="label">最高</div>
+        <div class="value" id="best-value">0</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="game-controls">
+    <button class="btn-new-game" id="btn-new">新游戏</button>
+    <span class="game-hint">方向键 / WASD / 滑动</span>
+  </div>
+
+  <div class="game-board" id="game-board">
+    <div class="grid-cell"></div>
+    <div class="grid-cell"></div>
+    <div class="grid-cell"></div>
+    <div class="grid-cell"></div>
+    <div class="grid-cell"></div>
+    <div class="grid-cell"></div>
+    <div class="grid-cell"></div>
+    <div class="grid-cell"></div>
+    <div class="grid-cell"></div>
+    <div class="grid-cell"></div>
+    <div class="grid-cell"></div>
+    <div class="grid-cell"></div>
+    <div class="grid-cell"></div>
+    <div class="grid-cell"></div>
+    <div class="grid-cell"></div>
+    <div class="grid-cell"></div>
+    <div class="tile-container" id="tile-container"></div>
+    <div class="game-message" id="game-message">
+      <p id="message-text"></p>
+      <div>
+        <button class="btn-retry" id="btn-retry">再来一局</button>
+        <button class="btn-keep" id="btn-keep" style="display:none">继续游戏</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ── Constants ──
+  var SIZE = 4;
+  var STORAGE_KEY = 'best2048_score';
+  var ANIM_LOCK_MS = 150;
+
+  // ── Utility ──
+  function deepCopy(grid) {
+    return grid.map(function (row) { return row.slice(); });
+  }
+
+  function transpose(grid) {
+    return grid[0].map(function (_, col) {
+      return grid.map(function (row) { return row[col]; });
+    });
+  }
+
+  function reverseRows(grid) {
+    return grid.map(function (row) { return row.slice().reverse(); });
+  }
+
+  // ── Core: slide and merge a single row to the left ──
+  function slideAndMerge(line) {
+    var filtered = line.filter(function (v) { return v !== 0; });
+    var merged = [];
+    var score = 0;
+    var mergedIndices = [];
+    var i = 0;
+
+    while (i < filtered.length) {
+      if (i + 1 < filtered.length && filtered[i] === filtered[i + 1]) {
+        var val = filtered[i] * 2;
+        merged.push(val);
+        score += val;
+        mergedIndices.push(merged.length - 1);
+        i += 2;
+      } else {
+        merged.push(filtered[i]);
+        i++;
+      }
+    }
+
+    while (merged.length < SIZE) {
+      merged.push(0);
+    }
+
+    return { result: merged, score: score, mergedIndices: mergedIndices };
+  }
+
+  // ── Move in a direction ──
+  function moveGrid(grid, direction) {
+    var prepared;
+    switch (direction) {
+      case 'left':  prepared = grid; break;
+      case 'right': prepared = reverseRows(grid); break;
+      case 'up':    prepared = transpose(grid); break;
+      case 'down':  prepared = reverseRows(transpose(grid)); break;
+    }
+
+    var totalScore = 0;
+    var moved = false;
+    var allMerged = []; // { row, col } in prepared space
+
+    var result = prepared.map(function (row, ri) {
+      var res = slideAndMerge(row);
+      totalScore += res.score;
+      for (var k = 0; k < res.mergedIndices.length; k++) {
+        allMerged.push({ row: ri, col: res.mergedIndices[k] });
+      }
+      for (var c = 0; c < SIZE; c++) {
+        if (row[c] !== res.result[c]) moved = true;
+      }
+      return res.result;
+    });
+
+    // Undo preparation transforms
+    var finalGrid;
+    switch (direction) {
+      case 'left':  finalGrid = result; break;
+      case 'right': finalGrid = reverseRows(result); break;
+      case 'up':    finalGrid = transpose(result); break;
+      case 'down':  finalGrid = transpose(reverseRows(result)); break;
+    }
+
+    // Map merged positions back to original grid space
+    var mergedPositions = allMerged.map(function (pos) {
+      switch (direction) {
+        case 'left':  return { r: pos.row, c: pos.col };
+        case 'right': return { r: pos.row, c: SIZE - 1 - pos.col };
+        case 'up':    return { r: pos.col, c: pos.row };
+        case 'down':  return { r: SIZE - 1 - pos.col, c: pos.row };
+      }
+    });
+
+    return { grid: finalGrid, score: totalScore, moved: moved, merged: mergedPositions };
+  }
+
+  // ── Available moves check ──
+  function movesAvailable(grid) {
+    for (var r = 0; r < SIZE; r++) {
+      for (var c = 0; c < SIZE; c++) {
+        if (grid[r][c] === 0) return true;
+        if (c + 1 < SIZE && grid[r][c] === grid[r][c + 1]) return true;
+        if (r + 1 < SIZE && grid[r][c] === grid[r + 1][c]) return true;
+      }
+    }
+    return false;
+  }
+
+  // ── Add a random tile ──
+  function addRandomTile(grid) {
+    var empty = [];
+    for (var r = 0; r < SIZE; r++) {
+      for (var c = 0; c < SIZE; c++) {
+        if (grid[r][c] === 0) empty.push({ r: r, c: c });
+      }
+    }
+    if (empty.length === 0) return null;
+    var cell = empty[Math.floor(Math.random() * empty.length)];
+    grid[cell.r][cell.c] = Math.random() < 0.9 ? 2 : 4;
+    return cell;
+  }
+
+  // ── DOM refs ──
+  var boardEl = document.getElementById('game-board');
+  var containerEl = document.getElementById('tile-container');
+  var scoreEl = document.getElementById('score-value');
+  var bestEl = document.getElementById('best-value');
+  var scoreBoxEl = document.getElementById('score-box');
+  var messageEl = document.getElementById('game-message');
+  var messageTextEl = document.getElementById('message-text');
+  var btnNew = document.getElementById('btn-new');
+  var btnRetry = document.getElementById('btn-retry');
+  var btnKeep = document.getElementById('btn-keep');
+
+  // ── Game state ──
+  var grid, score, bestScore, won, over, keepPlaying, locked;
+
+  function createEmptyGrid() {
+    var g = [];
+    for (var i = 0; i < SIZE; i++) {
+      g.push([0, 0, 0, 0]);
+    }
+    return g;
+  }
+
+  function loadBest() {
+    try {
+      var val = localStorage.getItem(STORAGE_KEY);
+      bestScore = val ? parseInt(val, 10) : 0;
+    } catch (e) {
+      bestScore = 0;
+    }
+  }
+
+  function saveBest() {
+    try {
+      localStorage.setItem(STORAGE_KEY, bestScore);
+    } catch (e) { /* ignore */ }
+  }
+
+  // ── Tile positioning helpers ──
+  var cachedCellSize = null;
+  var cachedGap = null;
+
+  function computeLayout() {
+    var boardRect = boardEl.getBoundingClientRect();
+    var cs = getComputedStyle(boardEl);
+    var gap = parseFloat(cs.getPropertyValue('padding-left')) || 12;
+    var totalGap = gap * (SIZE + 1);
+    var cellSize = (boardRect.width - totalGap) / SIZE;
+    cachedCellSize = cellSize;
+    cachedGap = gap;
+    return { cellSize: cellSize, gap: gap };
+  }
+
+  function tileLeft(col) {
+    return cachedGap + col * (cachedCellSize + cachedGap);
+  }
+
+  function tileTop(row) {
+    return cachedGap + row * (cachedCellSize + cachedGap);
+  }
+
+  // ── Renderer ──
+  function render(newTilePos, mergedPositions) {
+    computeLayout();
+    containerEl.innerHTML = '';
+    var fontSize = Math.max(cachedCellSize * 0.45, 14);
+    var largeFont = fontSize;
+    if (cachedCellSize < 80) {
+      fontSize = Math.max(cachedCellSize * 0.38, 12);
+      largeFont = fontSize;
+    }
+
+    for (var r = 0; r < SIZE; r++) {
+      for (var c = 0; c < SIZE; c++) {
+        var val = grid[r][c];
+        if (val === 0) continue;
+
+        var tile = document.createElement('div');
+        var cls = val <= 2048 ? 'tile tile-' + val : 'tile tile-super';
+        tile.className = cls;
+
+        // Check if new tile
+        if (newTilePos && newTilePos.r === r && newTilePos.c === c) {
+          tile.classList.add('tile-new');
+        }
+
+        // Check if merged tile
+        for (var m = 0; m < mergedPositions.length; m++) {
+          if (mergedPositions[m].r === r && mergedPositions[m].c === c) {
+            tile.classList.add('tile-merged');
+            break;
+          }
+        }
+
+        tile.style.left = tileLeft(c) + 'px';
+        tile.style.top = tileTop(r) + 'px';
+        tile.style.width = cachedCellSize + 'px';
+        tile.style.height = cachedCellSize + 'px';
+        tile.style.fontSize = (val >= 1024 ? largeFont * 0.75 : fontSize) + 'px';
+        tile.style.lineHeight = cachedCellSize + 'px';
+        tile.textContent = val;
+
+        containerEl.appendChild(tile);
+      }
+    }
+  }
+
+  function updateScore(added) {
+    scoreEl.textContent = score;
+    if (score > bestScore) {
+      bestScore = score;
+      bestEl.textContent = bestScore;
+      saveBest();
+    }
+    // Score pop animation
+    if (added > 0) {
+      var pop = document.createElement('div');
+      pop.className = 'score-addition';
+      pop.textContent = '+' + added;
+      scoreBoxEl.appendChild(pop);
+      setTimeout(function () {
+        if (pop.parentNode) pop.parentNode.removeChild(pop);
+      }, 600);
+    }
+  }
+
+  function showMessage(type) {
+    if (type === 'win') {
+      messageTextEl.textContent = '你赢了!';
+      btnKeep.style.display = 'inline-block';
+    } else {
+      messageTextEl.textContent = '游戏结束!';
+      btnKeep.style.display = 'none';
+    }
+    messageEl.classList.add('active');
+  }
+
+  function hideMessage() {
+    messageEl.classList.remove('active');
+  }
+
+  // ── Game logic ──
+  function init() {
+    loadBest();
+    bestEl.textContent = bestScore;
+    startGame();
+  }
+
+  function startGame() {
+    grid = createEmptyGrid();
+    score = 0;
+    won = false;
+    over = false;
+    keepPlaying = false;
+    locked = false;
+    hideMessage();
+    scoreEl.textContent = '0';
+
+    addRandomTile(grid);
+    addRandomTile(grid);
+    render(null, []);
+  }
+
+  function doMove(direction) {
+    if (locked || over || (won && !keepPlaying)) return;
+
+    var result = moveGrid(grid, direction);
+    if (!result.moved) return;
+
+    grid = result.grid;
+    score += result.score;
+
+    var newTile = addRandomTile(grid);
+
+    render(newTile, result.merged);
+    updateScore(result.score);
+
+    // Check win
+    if (!won && !keepPlaying) {
+      for (var r = 0; r < SIZE; r++) {
+        for (var c = 0; c < SIZE; c++) {
+          if (grid[r][c] === 2048) {
+            won = true;
+            showMessage('win');
+            return;
+          }
+        }
+      }
+    }
+
+    // Check game over
+    if (!movesAvailable(grid)) {
+      over = true;
+      setTimeout(function () { showMessage('lose'); }, 300);
+    }
+
+    // Lock input briefly for animation
+    locked = true;
+    setTimeout(function () { locked = false; }, ANIM_LOCK_MS);
+  }
+
+  // ── Input: Keyboard ──
+  var keyMap = {
+    ArrowLeft:  'left',  ArrowRight: 'right',
+    ArrowUp:    'up',    ArrowDown:  'down',
+    a: 'left', d: 'right', w: 'up', s: 'down',
+    A: 'left', D: 'right', W: 'up', S: 'down'
+  };
+
+  document.addEventListener('keydown', function (e) {
+    var dir = keyMap[e.key];
+    if (dir) {
+      e.preventDefault();
+      doMove(dir);
+    }
+  });
+
+  // ── Input: Touch ──
+  var touchStartX = 0, touchStartY = 0;
+  var touchActive = false;
+
+  // Prevent iOS rubber-band scrolling and pull-to-refresh
+  document.addEventListener('touchmove', function (e) {
+    e.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('touchstart', function (e) {
+    if (e.touches.length === 1) {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      touchActive = true;
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchend', function (e) {
+    if (!touchActive) return;
+    touchActive = false;
+
+    // Ignore taps on buttons
+    var target = e.target;
+    if (target && (target.tagName === 'BUTTON' || target.closest('button'))) return;
+
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    var dy = e.changedTouches[0].clientY - touchStartY;
+    var absDx = Math.abs(dx);
+    var absDy = Math.abs(dy);
+    var threshold = 30;
+
+    if (Math.max(absDx, absDy) < threshold) return;
+
+    if (absDx > absDy) {
+      doMove(dx > 0 ? 'right' : 'left');
+    } else {
+      doMove(dy > 0 ? 'down' : 'up');
+    }
+  }, { passive: true });
+
+  // ── Buttons ──
+  btnNew.addEventListener('click', startGame);
+  btnRetry.addEventListener('click', startGame);
+  btnKeep.addEventListener('click', function () {
+    keepPlaying = true;
+    won = false;
+    hideMessage();
+  });
+
+  // ── Resize & orientation change ──
+  var resizeTimer = null;
+  function handleResize() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () { render(null, []); }, 100);
+  }
+  window.addEventListener('resize', handleResize);
+  window.addEventListener('orientationchange', function () {
+    setTimeout(handleResize, 200);
+  });
+
+  // ── Start ──
+  init();
+})();
+</script>
+
+</body>
+</html>
