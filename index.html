@@ -16,11 +16,14 @@
   <link rel="stylesheet" href="css/sections.css">
   <link rel="stylesheet" href="css/timeline.css">
   <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/preview-rail.css">
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 </head>
 <body>
+
+  <a href="#about" class="skip-link">跳转到内容</a>
 
   <nav class="site-nav" id="nav">
     <div class="nav-inner">
@@ -30,14 +33,22 @@
       </button>
       <ul class="nav-links" id="navLinks">
         <li><a href="#about">关于</a></li>
-        <li><a href="#experience">经历</a></li>
         <li><a href="#projects">项目</a></li>
         <li><a href="#skills">技能</a></li>
+        <li><a href="#experience">经历</a></li>
         <li><a href="#articles">文章</a></li>
         <li><a href="#contact">联系</a></li>
       </ul>
     </div>
   </nav>
+
+  <!-- Right Preview Rail -->
+  <aside class="preview-rail" id="previewRail" aria-label="页面导航轴">
+    <div class="rail-track">
+      <div class="rail-fill" id="railFill"></div>
+    </div>
+    <div class="rail-stops" id="railStops"></div>
+  </aside>
 
   <section class="hero" id="hero">
     <div class="hero-bg">
@@ -71,109 +82,16 @@
         <p>近年聚焦 AI Agent 开发实践，在 Dify、AgentScope、MCP 协议等领域有落地经验，并持续探索 LLM 应用的工程化路径。开源爱好者，维护多个个人项目，相信技术的价值在于开放与共享。</p>
         <div class="about-stats">
           <div class="stat-item">
-            <span class="stat-value">15+</span>
+            <span class="stat-value" data-count="15" data-suffix="+">15+</span>
             <span class="stat-label">年工作经验</span>
           </div>
           <div class="stat-item">
-            <span class="stat-value">7</span>
+            <span class="stat-value" data-count="7" data-suffix="">7</span>
             <span class="stat-label">家公司经历</span>
           </div>
           <div class="stat-item">
-            <span class="stat-value">10+</span>
+            <span class="stat-value" data-count="10" data-suffix="+">10+</span>
             <span class="stat-label">核心项目</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section section-experience" id="experience">
-    <div class="section-inner">
-      <h2 class="section-title">工作经历</h2>
-      <div class="timeline" id="timeline">
-        <div class="timeline-line"><div class="timeline-line-fill" id="timelineFill"></div></div>
-
-        <div class="timeline-item" data-side="left">
-          <div class="timeline-node"></div>
-          <div class="timeline-content">
-            <div class="timeline-meta">
-              <span class="timeline-date">2023 - 至今</span>
-              <span class="timeline-company">用友网络股份有限公司</span>
-            </div>
-            <h3 class="timeline-role">开发专家</h3>
-            <p class="timeline-desc">主导对账协同、企业网络、财务电子凭证、自动化对账平台等核心项目研发，推动 AI 技术在业务场景中的落地与深度融合。</p>
-          </div>
-        </div>
-
-        <div class="timeline-item" data-side="right">
-          <div class="timeline-node"></div>
-          <div class="timeline-content">
-            <div class="timeline-meta">
-              <span class="timeline-date">2022 - 2023</span>
-              <span class="timeline-company">百望股份有限公司</span>
-            </div>
-            <h3 class="timeline-role">开发专家</h3>
-            <p class="timeline-desc">负责百望云4.0-神舟平台网络基础设施搭建，打破PEPPOL网络技术壁垒，实现跨平台企业连接及数据传输能力。</p>
-          </div>
-        </div>
-
-        <div class="timeline-item" data-side="right">
-          <div class="timeline-node"></div>
-          <div class="timeline-content">
-            <div class="timeline-meta">
-              <span class="timeline-date">2018 - 2021</span>
-              <span class="timeline-company">贝壳技术有限公司</span>
-            </div>
-            <h3 class="timeline-role">资深工程师</h3>
-            <p class="timeline-desc">负责门店管理平台-闪店系统，推动会计准则IFRS16、USGAAP落地，支撑公司美国上市财务需求，搭建门店及共享财务线上化系统。</p>
-          </div>
-        </div>
-
-        <div class="timeline-item" data-side="left">
-          <div class="timeline-node"></div>
-          <div class="timeline-content">
-            <div class="timeline-meta">
-              <span class="timeline-date">2016 - 2018</span>
-              <span class="timeline-company">广联达科技股份有限公司</span>
-            </div>
-            <h3 class="timeline-role">架构师</h3>
-            <p class="timeline-desc">统一后端技术栈，重构授权平台、开发者平台、用户中心，引入ELK、Prometheus监控体系，支撑千万用户、日活50W、登录QPS3000+。</p>
-          </div>
-        </div>
-
-        <div class="timeline-item" data-side="right">
-          <div class="timeline-node"></div>
-          <div class="timeline-content">
-            <div class="timeline-meta">
-              <span class="timeline-date">2015 - 2016</span>
-              <span class="timeline-company">域投（北京）科技有限责任公司</span>
-            </div>
-            <h3 class="timeline-role">技术负责人</h3>
-            <p class="timeline-desc">负责域名投资平台技术规划与架构设计，提供域名行情分析、大数据查询、扫米等工具服务。</p>
-          </div>
-        </div>
-
-        <div class="timeline-item" data-side="left">
-          <div class="timeline-node"></div>
-          <div class="timeline-content">
-            <div class="timeline-meta">
-              <span class="timeline-date">2012 - 2015</span>
-              <span class="timeline-company">北京千方信息科技有限公司</span>
-            </div>
-            <h3 class="timeline-role">技术组长</h3>
-            <p class="timeline-desc">负责智能物流平台核心研发与团队管理，参与公司车联网平台技术架构设计，搭建统一认证平台实现单点登录。</p>
-          </div>
-        </div>
-
-        <div class="timeline-item" data-side="right">
-          <div class="timeline-node"></div>
-          <div class="timeline-content">
-            <div class="timeline-meta">
-              <span class="timeline-date">2010 - 2012</span>
-              <span class="timeline-company">CNNIC/北龙中网</span>
-            </div>
-            <h3 class="timeline-role">Java开发工程师</h3>
-            <p class="timeline-desc">负责ZDNS云服务相关产品研发，包括域名验证、解析记录维护、DNS智能解析等系统开发与部署。</p>
           </div>
         </div>
       </div>
@@ -344,12 +262,23 @@
       <h2 class="section-title">技术栈</h2>
       <div class="skills-container">
         <div class="skill-category">
+          <h3 class="skill-category-title">AI / Agent</h3>
+          <div class="skill-tags">
+            <span class="tag tag--ai">Dify</span>
+            <span class="tag tag--ai">AgentScope</span>
+            <span class="tag tag--ai">MCP</span>
+            <span class="tag tag--ai">Agent Skill</span>
+            <span class="tag tag--ai">AI 编码</span>
+            <span class="tag tag--ai">LLM</span>
+            <span class="tag tag--ai">向量数据库</span>
+          </div>
+        </div>
+        <div class="skill-category">
           <h3 class="skill-category-title">技术框架</h3>
           <div class="skill-tags">
             <span class="tag">Spring</span>
             <span class="tag">SpringBoot</span>
             <span class="tag">Spring Cloud Alibaba</span>
-            <span class="tag">SpringCloud</span>
             <span class="tag">MyBatis</span>
             <span class="tag">Dubbo</span>
             <span class="tag">Nacos</span>
@@ -357,33 +286,27 @@
             <span class="tag">Node.js</span>
             <span class="tag">Python</span>
             <span class="tag">Go</span>
+            <span class="tag">Netty</span>
+            <span class="tag">Activiti</span>
           </div>
         </div>
         <div class="skill-category">
-          <h3 class="skill-category-title">数据库</h3>
+          <h3 class="skill-category-title">数据与中间件</h3>
           <div class="skill-tags">
             <span class="tag">MySQL</span>
             <span class="tag">MongoDB</span>
             <span class="tag">Redis</span>
             <span class="tag">PostgreSQL</span>
-            <span class="tag">Oracle</span>
-            <span class="tag">SolrCloud</span>
             <span class="tag">Elasticsearch</span>
             <span class="tag">MinIO</span>
-          </div>
-        </div>
-        <div class="skill-category">
-          <h3 class="skill-category-title">消息中间件</h3>
-          <div class="skill-tags">
             <span class="tag">Kafka</span>
             <span class="tag">RabbitMQ</span>
             <span class="tag">RocketMQ</span>
-            <span class="tag">ActiveMQ</span>
             <span class="tag">Zookeeper</span>
           </div>
         </div>
         <div class="skill-category">
-          <h3 class="skill-category-title">运维/监控</h3>
+          <h3 class="skill-category-title">运维与基础设施</h3>
           <div class="skill-tags">
             <span class="tag">Docker</span>
             <span class="tag">K8s</span>
@@ -391,34 +314,10 @@
             <span class="tag">Jenkins</span>
             <span class="tag">ELK</span>
             <span class="tag">Prometheus</span>
-            <span class="tag">Zipkin</span>
-            <span class="tag">PLG</span>
-            <span class="tag">ChartBI</span>
-            <span class="tag">OpenResty</span>
-          </div>
-        </div>
-        <div class="skill-category">
-          <h3 class="skill-category-title">网络/负载均衡</h3>
-          <div class="skill-tags">
             <span class="tag">Nginx</span>
             <span class="tag">OpenResty</span>
             <span class="tag">LVS</span>
-            <span class="tag">Keepalive</span>
-            <span class="tag">Haproxy</span>
-            <span class="tag">GSLB</span>
-          </div>
-        </div>
-        <div class="skill-category">
-          <h3 class="skill-category-title">AI / Agent</h3>
-          <div class="skill-tags">
-            <span class="tag">Dify</span>
-            <span class="tag">AgentScope</span>
-            <span class="tag">MCP</span>
-            <span class="tag">Agent Skill</span>
-            <span class="tag">AI 编码</span>
-            <span class="tag">AI 辅助工作</span>
-            <span class="tag">LLM</span>
-            <span class="tag">向量数据库</span>
+            <span class="tag">OAuth2</span>
           </div>
         </div>
         <div class="skill-category">
@@ -430,20 +329,100 @@
             <span class="tag tag--xinchuang">国产操作系统</span>
           </div>
         </div>
-        <div class="skill-category">
-          <h3 class="skill-category-title">其他</h3>
-          <div class="skill-tags">
-            <span class="tag">Netty</span>
-            <span class="tag">OCR</span>
-            <span class="tag">向量数据</span>
-            <span class="tag">图数据库</span>
-            <span class="tag">Activiti</span>
-            <span class="tag">OAuth2</span>
-            <span class="tag">CAS</span>
-            <span class="tag">Quartz</span>
+        <p class="skills-summary">从传统 Java 企业级应用到 AI Agent 智能体开发，从微服务架构到信创国产化适配，持续跟踪前沿技术并落地实践。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-experience" id="experience">
+    <div class="section-inner">
+      <h2 class="section-title">工作经历</h2>
+      <div class="timeline" id="timeline">
+        <div class="timeline-line"><div class="timeline-line-fill" id="timelineFill"></div></div>
+
+        <div class="timeline-item" data-side="left">
+          <div class="timeline-node"></div>
+          <div class="timeline-content">
+            <div class="timeline-meta">
+              <span class="timeline-date">2023 - 至今</span>
+              <span class="timeline-company">用友网络股份有限公司</span>
+            </div>
+            <h3 class="timeline-role">开发专家</h3>
+            <p class="timeline-desc">主导对账协同、企业网络、财务电子凭证、自动化对账平台等核心项目研发，推动 AI 技术在业务场景中的落地与深度融合。</p>
           </div>
         </div>
-        <p class="skills-summary">从传统 Java 企业级应用到 AI Agent 智能体开发，从微服务架构到信创国产化适配，持续跟踪前沿技术并落地实践。</p>
+
+        <div class="timeline-item" data-side="right">
+          <div class="timeline-node"></div>
+          <div class="timeline-content">
+            <div class="timeline-meta">
+              <span class="timeline-date">2022 - 2023</span>
+              <span class="timeline-company">百望股份有限公司</span>
+            </div>
+            <h3 class="timeline-role">开发专家</h3>
+            <p class="timeline-desc">负责百望云4.0-神舟平台网络基础设施搭建，打破PEPPOL网络技术壁垒，实现跨平台企业连接及数据传输能力。</p>
+          </div>
+        </div>
+
+        <div class="timeline-item" data-side="left">
+          <div class="timeline-node"></div>
+          <div class="timeline-content">
+            <div class="timeline-meta">
+              <span class="timeline-date">2018 - 2021</span>
+              <span class="timeline-company">贝壳技术有限公司</span>
+            </div>
+            <h3 class="timeline-role">资深工程师</h3>
+            <p class="timeline-desc">负责门店管理平台-闪店系统，推动会计准则IFRS16、USGAAP落地，支撑公司美国上市财务需求，搭建门店及共享财务线上化系统。</p>
+          </div>
+        </div>
+
+        <div class="timeline-item" data-side="right">
+          <div class="timeline-node"></div>
+          <div class="timeline-content">
+            <div class="timeline-meta">
+              <span class="timeline-date">2016 - 2018</span>
+              <span class="timeline-company">广联达科技股份有限公司</span>
+            </div>
+            <h3 class="timeline-role">架构师</h3>
+            <p class="timeline-desc">统一后端技术栈，重构授权平台、开发者平台、用户中心，引入ELK、Prometheus监控体系，支撑千万用户、日活50W、登录QPS3000+。</p>
+          </div>
+        </div>
+
+        <div class="timeline-item" data-side="left">
+          <div class="timeline-node"></div>
+          <div class="timeline-content">
+            <div class="timeline-meta">
+              <span class="timeline-date">2015 - 2016</span>
+              <span class="timeline-company">域投（北京）科技有限责任公司</span>
+            </div>
+            <h3 class="timeline-role">技术负责人</h3>
+            <p class="timeline-desc">负责域名投资平台技术规划与架构设计，提供域名行情分析、大数据查询、扫米等工具服务。</p>
+          </div>
+        </div>
+
+        <div class="timeline-item" data-side="right">
+          <div class="timeline-node"></div>
+          <div class="timeline-content">
+            <div class="timeline-meta">
+              <span class="timeline-date">2012 - 2015</span>
+              <span class="timeline-company">北京千方信息科技有限公司</span>
+            </div>
+            <h3 class="timeline-role">技术组长</h3>
+            <p class="timeline-desc">负责智能物流平台核心研发与团队管理，参与公司车联网平台技术架构设计，搭建统一认证平台实现单点登录。</p>
+          </div>
+        </div>
+
+        <div class="timeline-item" data-side="left">
+          <div class="timeline-node"></div>
+          <div class="timeline-content">
+            <div class="timeline-meta">
+              <span class="timeline-date">2010 - 2012</span>
+              <span class="timeline-company">CNNIC/北龙中网</span>
+            </div>
+            <h3 class="timeline-role">Java开发工程师</h3>
+            <p class="timeline-desc">负责ZDNS云服务相关产品研发，包括域名验证、解析记录维护、DNS智能解析等系统开发与部署。</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -503,6 +482,7 @@
       <h2 class="section-title">联系我</h2>
       <div class="contact-body">
         <p class="contact-lead">有想法？欢迎交流。</p>
+        <p class="contact-status"><span class="status-dot"></span>当前关注 AI 编程 · Skill · Agent · AIGC · AI 落地</p>
         <div class="contact-links">
           <a href="https://github.com/smart-open" class="contact-link" target="_blank" rel="noopener">
             <span class="contact-label">GitHub</span>
@@ -533,5 +513,6 @@
   <script src="js/typewriter.js"></script>
   <script src="js/particles.js"></script>
   <script src="js/scroll-animations.js"></script>
+  <script src="js/preview-rail.js"></script>
 </body>
 </html>

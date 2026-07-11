@@ -149,6 +149,10 @@
   transform: translateY(-4px);
 }
 
+.project-card:active {
+  transform: translateY(-1px) scale(0.99);
+}
+
 .project-card-image {
   position: relative;
   aspect-ratio: 16/10;
@@ -236,6 +240,10 @@
 .article-card:hover {
   border-color: var(--accent);
   transform: translateY(-4px);
+}
+
+.article-card:active {
+  transform: translateY(-1px) scale(0.99);
 }
 
 .article-card-tags {
@@ -382,6 +390,19 @@
   box-shadow: 0 2px 8px rgba(255, 107, 53, 0.15);
 }
 
+/* AI tags — cyan accent with stronger presence */
+.tag--ai {
+  color: var(--accent);
+  border-color: rgba(0, 240, 255, 0.3);
+  background: rgba(0, 240, 255, 0.06);
+}
+
+.tag--ai:hover {
+  border-color: var(--accent);
+  background: rgba(0, 240, 255, 0.15);
+  box-shadow: 0 2px 12px rgba(0, 240, 255, 0.2);
+}
+
 .skills-summary {
   grid-column: 1 / -1;
   color: var(--text-secondary);
@@ -411,6 +432,32 @@
   margin-bottom: var(--space-sm);
 }
 
+.contact-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-md);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+  animation: statusPulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(0, 240, 255, 0.5); }
+  50% { opacity: 0.6; box-shadow: 0 0 14px rgba(0, 240, 255, 0.8); }
+}
+
 .contact-links {
   display: flex;
   flex-wrap: wrap;
@@ -434,7 +481,12 @@
 
 .contact-link:hover {
   border-color: var(--accent);
+  background-color: rgba(0, 240, 255, 0.06);
   opacity: 1;
+}
+
+.contact-link:active {
+  transform: scale(0.98);
 }
 
 .contact-label {

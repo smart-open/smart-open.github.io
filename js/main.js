@@ -52,4 +52,38 @@
 
   window.prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /* Active nav link highlighting via IntersectionObserver */
+  const navLinkMap = {};
+  document.querySelectorAll('.nav-links a').forEach(link => {
+    const href = link.getAttribute('href');
+    if (href && href.startsWith('#') && href.length > 1) {
+      const section = document.querySelector(href);
+      if (section) {
+        navLinkMap[href] = link;
+      }
+    }
+  });
+
+  const observedSections = Object.keys(navLinkMap).map(h => document.querySelector(h)).filter(Boolean);
+
+  if (observedSections.length > 0) {
+    const navObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          const link = navLinkMap['#' + entry.target.id];
+          if (!link) return;
+          if (entry.isIntersecting) {
+            Object.values(navLinkMap).forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+          }
+        });
+      },
+      {
+        rootMargin: '-40% 0% -50% 0%',
+        threshold: 0
+      }
+    );
+    observedSections.forEach(s => navObserver.observe(s));
+  }
+
 })();

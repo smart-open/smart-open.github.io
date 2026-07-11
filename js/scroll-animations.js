@@ -198,6 +198,30 @@
         }
       }
     );
+
+    /* CountUp animation for stat values */
+    const statValues = aboutStats.querySelectorAll('.stat-value[data-count]');
+    statValues.forEach(el => {
+      const target = parseInt(el.getAttribute('data-count'), 10);
+      const suffix = el.getAttribute('data-suffix') || '';
+      const obj = { val: 0 };
+
+      ScrollTrigger.create({
+        trigger: el,
+        start: 'top 85%',
+        once: true,
+        onEnter: () => {
+          gsap.to(obj, {
+            val: target,
+            duration: 1.5,
+            ease: 'power2.out',
+            onUpdate: () => {
+              el.textContent = Math.floor(obj.val) + suffix;
+            }
+          });
+        }
+      });
+    });
   }
 
   /* Articles cards stagger + view more link */

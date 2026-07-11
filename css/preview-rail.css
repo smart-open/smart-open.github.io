@@ -1,0 +1,119 @@
+/* ========================================
+   Right Preview Rail
+   Vertical scroll indicator with clickable stops
+   ======================================== */
+.preview-rail {
+  position: fixed;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  pointer-events: none;
+}
+
+/* Track */
+.rail-track {
+  position: relative;
+  width: 2px;
+  height: 50vh;
+  background: var(--divider);
+  border-radius: 1px;
+  pointer-events: auto;
+}
+
+/* Fill — shows scroll progress */
+.rail-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0%;
+  background: var(--accent);
+  border-radius: 1px;
+  transition: height 0.08s linear;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+}
+
+/* Stops container */
+.rail-stops {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 50vh;
+  pointer-events: auto;
+}
+
+/* Individual stop */
+.rail-stop {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 2px solid var(--divider);
+  cursor: pointer;
+  transition: border-color var(--transition-base), background var(--transition-base), box-shadow var(--transition-base), transform var(--transition-base);
+  z-index: 2;
+}
+
+.rail-stop:hover {
+  border-color: var(--accent);
+  transform: translate(-50%, -50%) scale(1.3);
+}
+
+.rail-stop.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(0, 240, 255, 0.12), 0 0 16px rgba(0, 240, 255, 0.4);
+  animation: railPulse 2s ease-in-out infinite;
+}
+
+/* Stop label (shown on hover) — positioned to the left of the rail */
+.rail-stop-label {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-base), color var(--transition-base);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.rail-stop:hover .rail-stop-label,
+.rail-stop.active .rail-stop-label {
+  opacity: 1;
+}
+
+.rail-stop.active .rail-stop-label {
+  color: var(--accent);
+}
+
+/* Pulse animation for active stop */
+@keyframes railPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 4px rgba(0, 240, 255, 0.12), 0 0 16px rgba(0, 240, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(0, 240, 255, 0.08), 0 0 24px rgba(0, 240, 255, 0.6);
+  }
+}
+
+/* Hide on mobile and tablet */
+@media (max-width: 1024px) {
+  .preview-rail {
+    display: none;
+  }
+}
