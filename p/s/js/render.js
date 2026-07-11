@@ -317,19 +317,28 @@ function updateSidebarActiveState() {
 }
 
 // ===== Search & Filtering =====
-function getMatchPriority(skill, query) {
-  if (!query) return 0;
-  var q = query.toLowerCase();
-  var en = (skill.enName || '').toLowerCase();
-  var cn = (skill.cnName || '').toLowerCase();
-  var summary = (skill.summary || '').toLowerCase();
-  var desc = (skill.description || '').toLowerCase();
+var SEARCH_MAX_RENDER = 500; // 搜索结果最大渲染条数
 
-  if (en.includes(q)) return 4;
-  if (cn.includes(q)) return 3;
-  if (summary.includes(q)) return 2;
-  if (desc.includes(q)) return 1;
-  return 0;
+function searchAndSort(query) {
+  var idx = window._searchIndex;
+  var all = window.allSkills;
+  if (!idx || !all || !query) return [];
+
+  var results = [];
+  // 单次遍历 + 优先级内联
+  for (var i = 0, len = idx.length; i < len; i++) {
+    var item = idx[i];
+    var priority = 0;
+    if (item.enL.indexOf(query) >= 0) priority = 4;
+    else if (item.cnL.indexOf(query) >= 0) priority = 3;
+    else if (item.sumL.indexOf(query) >= 0) priority = 2;
+    else if (item.descL.indexOf(query) >= 0) priority = 1;
+    if (priority > 0) results.push({ sk: all[item.idx], p: priority * 1000 + (item.stars || 0) });
+  }
+
+  // 按优先级+星级排序
+  results.sort(function(a, b) { return b.p - a.p; });
+  return results;
 }
 
 function countTotalSkills() {
@@ -358,20 +367,18 @@ function renderApp(query) {
   var normalizedQuery = query ? query.trim().toLowerCase() : '';
   var totalCount = countTotalSkills();
 
-  // ===== 搜索模式：使用扁平数组 O(n) 一次遍历 =====
-  if (normalizedQuery && window.allSkills) {
-    var matchedSkills = window.allSkills.filter(function(sk) {
-      return getMatchPriority(sk, normalizedQuery) > 0;
-    }).sort(function(a, b) {
-      var pa = getMatchPriority(a, normalizedQuery);
-      var pb = getMatchPriority(b, normalizedQuery);
-      if (pb !== pa) return pb - pa;
-      return (b.stars || 3) - (a.stars || 3);
-    });
+  // ===== 搜索模式：使用预构建索引 + 单次遍历 =====
+  if (normalizedQuery) {
+    var t0 = performance.now();
+    var matched = searchAndSort(normalizedQuery);
+    var searchTime = ((performance.now() - t0)).toFixed(1);
+    var totalMatched = matched.length;
+    var rendered = matched.slice(0, SEARCH_MAX_RENDER);
 
-    // 按分类分组
+    // 按分类分组（仅渲染的部分）
     var groupedBySub = new Map();
-    matchedSkills.forEach(function(sk) {
+    rendered.forEach(function(r) {
+      var sk = r.sk;
       var key = sk.c + '-' + sk.s;
       if (!groupedBySub.has(key)) groupedBySub.set(key, []);
       groupedBySub.get(key).push(sk);
@@ -396,8 +403,13 @@ function renderApp(query) {
       '</div>';
     });
 
-    updateSearchStats(matchedSkills.length, totalCount, true);
-    if (matchedSkills.length === 0) {
+    // 如果结果被截断，显示提示
+    if (totalMatched > SEARCH_MAX_RENDER) {
+      html += '<div class="search-truncated">显示前 ' + SEARCH_MAX_RENDER + ' 条（共 ' + totalMatched + ' 条匹配，' + searchTime + 'ms）。请缩小搜索范围。</div>';
+    }
+
+    updateSearchStats(totalMatched, totalCount, true);
+    if (totalMatched === 0) {
       mainContent.innerHTML = '';
       emptyState.classList.add('active');
     } else {

@@ -1,13 +1,8 @@
-/* ========================================
-   Scroll Animations (GSAP + ScrollTrigger)
-   ======================================== */
-
 (function() {
   'use strict';
 
   if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
     console.warn('GSAP or ScrollTrigger not loaded');
-    // Fallback: reveal all immediately
     document.querySelectorAll('.reveal-up, .stagger-children').forEach(el => {
       el.classList.add('revealed');
     });
@@ -16,13 +11,10 @@
 
   gsap.registerPlugin(ScrollTrigger);
 
-  // ----------------------------------------
-  // Section title reveals
-  // ----------------------------------------
   const sections = document.querySelectorAll('.section');
   sections.forEach(section => {
     const title = section.querySelector('.section-title');
-    const body = section.querySelector('.about-body, .timeline, .projects-list, .services-list, .contact-body');
+    const body = section.querySelector('.about-body, .timeline, .projects-list, .services-list, .contact-body, .skills-container');
 
     if (title) {
       gsap.fromTo(title,
@@ -60,9 +52,6 @@
     }
   });
 
-  // ----------------------------------------
-  // Timeline: line draw + node activation
-  // ----------------------------------------
   const timeline = document.getElementById('timeline');
   const timelineFill = document.getElementById('timelineFill');
 
@@ -70,7 +59,6 @@
     const items = timeline.querySelectorAll('.timeline-item');
     const nodes = timeline.querySelectorAll('.timeline-node');
 
-    // Line draw animation tied to scroll
     ScrollTrigger.create({
       trigger: timeline,
       start: 'top 70%',
@@ -81,7 +69,6 @@
       }
     });
 
-    // Node activation
     items.forEach((item, index) => {
       const node = nodes[index];
       if (!node) return;
@@ -93,7 +80,6 @@
         onLeaveBack: () => node.classList.remove('active')
       });
 
-      // Content reveal
       const content = item.querySelector('.timeline-content');
       if (content) {
         gsap.fromTo(content,
@@ -114,9 +100,6 @@
     });
   }
 
-  // ----------------------------------------
-  // Project items stagger
-  // ----------------------------------------
   const projectList = document.querySelector('.projects-list');
   if (projectList) {
     const items = projectList.querySelectorAll('.project-item');
@@ -137,32 +120,46 @@
     );
   }
 
-  // ----------------------------------------
-  // Service items stagger
-  // ----------------------------------------
-  const serviceList = document.querySelector('.services-list');
-  if (serviceList) {
-    const items = serviceList.querySelectorAll('.service-item');
-    gsap.fromTo(items,
+  const projectGrids = document.querySelectorAll('.projects-grid');
+  projectGrids.forEach(grid => {
+    const cards = grid.querySelectorAll('.project-card');
+    gsap.fromTo(cards,
       { y: 24, opacity: 0 },
       {
         y: 0,
         opacity: 1,
         duration: 0.5,
-        stagger: 0.1,
+        stagger: 0.12,
         ease: 'power2.out',
         scrollTrigger: {
-          trigger: serviceList,
+          trigger: grid,
           start: 'top 80%',
           toggleActions: 'play none none none'
         }
       }
     );
-  }
+  });
 
-  // ----------------------------------------
-  // Contact links stagger
-  // ----------------------------------------
+  const skillCategories = document.querySelectorAll('.skill-category');
+  skillCategories.forEach(category => {
+    const tags = category.querySelectorAll('.tag');
+    gsap.fromTo(tags,
+      { y: 12, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.4,
+        stagger: 0.06,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: category,
+          start: 'top 85%',
+          toggleActions: 'play none none none'
+        }
+      }
+    );
+  });
+
   const contactLinks = document.querySelector('.contact-links');
   if (contactLinks) {
     const items = contactLinks.querySelectorAll('.contact-link');
@@ -183,27 +180,64 @@
     );
   }
 
-  // ----------------------------------------
-  // Skill tags stagger
-  // ----------------------------------------
-  const skillTags = document.querySelector('.skill-tags');
-  if (skillTags) {
-    const tags = skillTags.querySelectorAll('.tag');
-    gsap.fromTo(tags,
-      { y: 12, opacity: 0 },
+  const aboutStats = document.querySelector('.about-stats');
+  if (aboutStats) {
+    const items = aboutStats.querySelectorAll('.stat-item');
+    gsap.fromTo(items,
+      { scale: 0.9, opacity: 0 },
       {
-        y: 0,
+        scale: 1,
         opacity: 1,
-        duration: 0.4,
-        stagger: 0.06,
+        duration: 0.5,
+        stagger: 0.15,
         ease: 'power2.out',
         scrollTrigger: {
-          trigger: skillTags,
-          start: 'top 85%',
+          trigger: aboutStats,
+          start: 'top 80%',
           toggleActions: 'play none none none'
         }
       }
     );
+  }
+
+  /* Articles cards stagger + view more link */
+  const articlesGrid = document.querySelector('.section-articles .articles-grid');
+  if (articlesGrid) {
+    const cards = articlesGrid.querySelectorAll('.article-card');
+    gsap.fromTo(cards,
+      { y: 24, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.5,
+        stagger: 0.12,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: articlesGrid,
+          start: 'top 80%',
+          toggleActions: 'play none none none'
+        }
+      }
+    );
+
+    const moreLink = document.querySelector('.articles-more');
+    if (moreLink) {
+      gsap.fromTo(moreLink,
+        { y: 20, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.5,
+          delay: 0.4,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: moreLink,
+            start: 'top 85%',
+            toggleActions: 'play none none none'
+          }
+        }
+      );
+    }
   }
 
 })();

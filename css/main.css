@@ -67,6 +67,11 @@ img {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--divider);
+  transition: background var(--transition-base);
+}
+
+.site-nav.scrolled {
+  background: rgba(10, 10, 15, 0.95);
 }
 
 .nav-inner {
@@ -85,6 +90,16 @@ img {
   font-weight: 500;
   color: var(--text-primary);
   letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.nav-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  border-radius: 4px;
 }
 
 .nav-brand:hover {
@@ -154,7 +169,7 @@ img {
 }
 
 .section-inner {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto;
 }
 
@@ -176,7 +191,7 @@ img {
 }
 
 .footer-inner {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto;
 }
 

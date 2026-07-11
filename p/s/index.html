@@ -112,41 +112,7 @@
   <script>setLoadProgress(5);</script>
   <script src="js/url-prefixes.js"></script>
   <script>setLoadProgress(10);</script>
-  <!-- 数据分片 -->
-  <script src="js/data-chunk-0.js"></script>
-  <script>setLoadProgress(18);</script>
-  <script src="js/data-chunk-1.js"></script>
-  <script>setLoadProgress(26);</script>
-  <script src="js/data-chunk-2.js"></script>
-  <script>setLoadProgress(34);</script>
-  <script src="js/data-chunk-3.js"></script>
-  <script>setLoadProgress(42);</script>
-  <script src="js/data-chunk-4.js"></script>
-  <script>setLoadProgress(50);</script>
-  <script src="js/data-chunk-5.js"></script>
-  <script>setLoadProgress(58);</script>
-  <script src="js/data-chunk-6.js"></script>
-  <script>setLoadProgress(66);</script>
-  <script src="js/data-chunk-7.js"></script>
-  <script>setLoadProgress(74);</script>
-  <script src="js/data-chunk-8.js"></script>
-  <script>setLoadProgress(82);</script>
-  <script src="js/data-chunk-9.js"></script>
-  <script>setLoadProgress(90);</script>
-  <!-- 数据合并 -->
+  <!-- 异步并行数据加载 -->
   <script src="js/data-loader.js"></script>
-  <script>
-    setLoadProgress(100);
-    setTimeout(function() {
-      var overlay = document.getElementById('loadingOverlay');
-      if (overlay) {
-        overlay.style.opacity = '0';
-        setTimeout(function() { overlay.style.display = 'none'; }, 300);
-      }
-    }, 150);
-  </script>
-  <!-- 渲染 -->
-  <script src="js/render.js"></script>
-  <script src="js/search.js"></script>
 </body>
 </html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Agent 开发框架对比与实践 - 朱天伟</title>
+  <meta name="description" content="对比分析 Dify、AgentScope 等主流 AI Agent 开发框架的优劣势">
+  <link rel="icon" type="image/png" href="../../favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/article.css">
+</head>
+<body>
+
+  <nav class="site-nav" id="nav">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-brand"><img src="../../assets/img/logo.png" alt="Smart Open" class="nav-logo"><span>Smart Open</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="切换导航">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#about">关于</a></li>
+        <li><a href="../../index.html#experience">经历</a></li>
+        <li><a href="../../index.html#projects">项目</a></li>
+        <li><a href="../../index.html#skills">技能</a></li>
+        <li><a href="../index.html">文章</a></li>
+        <li><a href="../../index.html#contact">联系</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="article-hero">
+    <div class="article-hero-content">
+      <h1 class="article-title">AI Agent 开发框架对比与实践</h1>
+      <div class="article-meta">
+        <span class="article-date">2026-07-08</span>
+        <span class="article-tags">
+          <span class="tag">Dify</span>
+          <span class="tag">AgentScope</span>
+          <span class="tag">实践</span>
+        </span>
+      </div>
+      <p class="article-excerpt">对比分析 Dify、AgentScope 等主流 AI Agent 开发框架的优劣势，结合实际项目经验给出选型建议和落地实践方案。</p>
+    </div>
+  </section>
+
+  <div class="article-container">
+    <aside class="article-sidebar" id="articleSidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">文章大纲</h3>
+        <nav class="article-toc" id="articleToc">
+        </nav>
+      </div>
+    </aside>
+
+    <main class="article-content" id="articleContent">
+      <article class="markdown-body">
+        <h2 id="1">1. 背景</h2>
+        <p>随着大语言模型的快速发展，AI Agent 开发框架层出不穷。选择合适的框架对于项目的成功至关重要。本文将对主流框架进行对比分析。</p>
+
+        <h2 id="2">2. Dify 框架</h2>
+        <p>Dify 是一个开源的 LLM 应用开发平台，支持可视化编排和快速部署。</p>
+        <h3 id="2-1">2.1 核心特性</h3>
+        <ul>
+          <li>可视化工作流编排</li>
+          <li>支持多种 LLM 模型接入</li>
+          <li>内置 RAG 知识库管理</li>
+          <li>提供 API 接口和 Web 应用两种模式</li>
+        </ul>
+        <h3 id="2-2">2.2 优势</h3>
+        <ul>
+          <li>低代码门槛，适合快速原型开发</li>
+          <li>社区活跃，生态丰富</li>
+          <li>支持私有化部署</li>
+        </ul>
+        <h3 id="2-3">2.3 劣势</h3>
+        <ul>
+          <li>复杂逻辑编排灵活性不足</li>
+          <li>性能优化空间有限</li>
+        </ul>
+
+        <h2 id="3">3. AgentScope 框架</h2>
+        <p>AgentScope 是阿里开源的 multi-agent 开发框架，专注于多智能体协作场景。</p>
+        <h3 id="3-1">3.1 核心特性</h3>
+        <ul>
+          <li>多 Agent 协作与通信机制</li>
+          <li>支持分布式部署</li>
+          <li>提供丰富的 Agent 模板</li>
+          <li>Python 原生开发体验</li>
+        </ul>
+        <h3 id="3-2">3.2 优势</h3>
+        <ul>
+          <li>代码级控制，灵活性高</li>
+          <li>多 Agent 协作能力强</li>
+          <li>适合复杂业务场景</li>
+        </ul>
+        <h3 id="3-3">3.3 劣势</h3>
+        <ul>
+          <li>学习曲线较陡</li>
+          <li>文档和社区相对较小</li>
+        </ul>
+
+        <h2 id="4">4. 选型建议</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>场景</th>
+              <th>推荐框架</th>
+              <th>理由</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>快速原型验证</td>
+              <td>Dify</td>
+              <td>低代码、可视化、快速迭代</td>
+            </tr>
+            <tr>
+              <td>多 Agent 复杂协作</td>
+              <td>AgentScope</td>
+              <td>多智能体通信机制完善</td>
+            </tr>
+            <tr>
+              <td>企业级生产部署</td>
+              <td>AgentScope</td>
+              <td>代码可控、性能可调</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2 id="5">5. 实践经验</h2>
+        <p>在实际项目中，建议采用混合策略：</p>
+        <ul>
+          <li>使用 Dify 进行需求验证和快速原型开发</li>
+          <li>验证通过后用 AgentScope 进行生产级重构</li>
+          <li>利用 MCP 协议实现框架间的工具共享</li>
+        </ul>
+
+        <h2 id="6">6. 总结</h2>
+        <p>选择 AI Agent 开发框架需要综合考虑团队能力、项目需求和长期维护成本。没有银弹，关键在于找到最适合当前场景的工具。</p>
+      </article>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; 2024-2026 朱天伟 | Smart Open. Built with care.</p>
+      <p class="footer-meta">Last build: <span id="buildDate"></span></p>
+    </div>
+  </footer>
+
+  <script src="../../js/main.js"></script>
+  <script src="../../js/article.js"></script>
+</body>
+</html>

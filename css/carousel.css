@@ -1,40 +1,4 @@
 /* ========================================
-   Carousel Component Styles
-   (Hero carousel is in hero.css)
+   Carousel - Removed (replaced by video background)
    ======================================== */
-
-/* Scanline effect on slide transition */
-.carousel-slide::after {
-  content: '';
-  position: absolute;
-  top: -100%;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: rgba(0, 240, 255, 0.3);
-  opacity: 0;
-  pointer-events: none;
-}
-
-.carousel-slide.scanning::after {
-  animation: scanlinePass 0.6s ease-out forwards;
-}
-
-/* Progress bar segments */
-.carousel-progress-dots {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  margin-top: var(--space-sm);
-}
-
-.progress-dot {
-  width: 32px;
-  height: 2px;
-  background: var(--divider);
-  transition: background var(--transition-base);
-}
-
-.progress-dot.active {
-  background: var(--accent);
-}
+/* This file is kept for backward compatibility */

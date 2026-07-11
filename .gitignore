@@ -3,4 +3,6 @@
 .trae
 .vscode/*
 !.vscode/extensions.json
+.traeterminal/
+.agents/
 

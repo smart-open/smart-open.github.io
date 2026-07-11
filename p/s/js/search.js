@@ -21,7 +21,7 @@
     }
   }
 
-  const debouncedSearch = debounce(handleSearch, 300);
+  const debouncedSearch = debounce(handleSearch, 150);
 
   searchInput.addEventListener('input', debouncedSearch);
 

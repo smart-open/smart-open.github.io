@@ -190,6 +190,17 @@
 }
 
 /* Subcategory Skill Count */
+.search-truncated {
+  padding: 12px 16px;
+  margin-top: var(--space-md);
+  font-size: var(--text-small);
+  color: var(--text-tertiary);
+  background: var(--bg-card);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius);
+  text-align: center;
+}
+
 .subcategory-count {
   font-size: var(--text-small);
   color: var(--text-tertiary);

@@ -1,7 +1,3 @@
-/* ========================================
-   Typewriter Effect
-   ======================================== */
-
 (function() {
   'use strict';
 
@@ -9,8 +5,10 @@
   if (!el) return;
 
   const phrases = [
-    '构建高性能系统',
-    '开源工具作者',
+    '构建高可用分布式系统',
+    'AI Agent 开发实践者',
+    'MCP 服务构建者',
+    '系统架构师',
     '全栈开发工程师'
   ];
 
@@ -20,7 +18,6 @@
   let pauseEnd = 0;
 
   function getTypingSpeed() {
-    // Slight irregularity for human feel
     return 80 + Math.random() * 60;
   }
 
@@ -58,7 +55,6 @@
     }
   }
 
-  // Start after a brief delay
   setTimeout(tick, 800);
 
 })();
