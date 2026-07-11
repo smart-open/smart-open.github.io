@@ -9,6 +9,7 @@
   justify-content: center;
   overflow: hidden;
   background: var(--bg-primary);
+  padding-top: 64px;
 }
 
 /* Hero Background */
@@ -140,12 +141,26 @@
 }
 
 @media (max-width: 768px) {
+  .hero {
+    min-height: 55svh;
+    padding-top: 70px;
+  }
+
   .hero-tags {
     gap: var(--space-xs);
+    margin-bottom: var(--space-sm);
   }
 
   .hero-tag {
     font-size: 0.7rem;
     padding: 0.3rem 0.6rem;
+  }
+
+  .hero-content {
+    padding: var(--space-sm);
+  }
+
+  .hero-brand {
+    font-size: clamp(2.5rem, 10vw, 4rem);
   }
 }

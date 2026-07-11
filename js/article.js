@@ -38,6 +38,9 @@ function setupScrollHighlight() {
   
   if (headings.length === 0 || tocLinks.length === 0) return;
 
+  // Only auto-scroll TOC on desktop where sidebar is sticky
+  const isDesktop = () => window.innerWidth > 1024;
+
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach(entry => {
@@ -49,7 +52,11 @@ function setupScrollHighlight() {
             tocLinks.forEach(l => l.classList.remove('active'));
             link.classList.add('active');
             
-            link.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            // Only scroll the TOC link into view on desktop (sticky sidebar)
+            // On mobile the sidebar is static and scrollIntoView moves the whole page
+            if (isDesktop()) {
+              link.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
           }
         }
       });
