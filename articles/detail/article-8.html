@@ -54,7 +54,7 @@
     <div class="article-hero-content">
       <h1 class="article-title">当机器告警响起：Java服务高负载的系统性排查思路</h1>
       <div class="article-meta">
-        <span class="article-date">2026-07-04</span>
+        <span class="article-date">2026-06-12</span>
         <div class="article-tags">
           <span class="tag">Java</span>
 <span class="tag">JVM</span>
@@ -75,7 +75,8 @@
 
     <article class="article-content">
       <div class="markdown-body">
-        <h1 id="java">当机器告警响起：Java服务高负载的系统性排查思路</h1>
+        <figure class="article-hero-image"><img src="../../assets/img/article-system-troubleshooting.jpg" alt="系统故障排查"></figure>
+
 <p>凌晨两点，监控大屏突然亮起刺眼的红色。手机推送的告警短信接连不断："服务A负载持续飙高"、"服务B响应延迟超过阈值"。值班工程师揉揉眼睛，手忙脚乱地登录服务器，却不知道该敲下哪一条命令。这是每一个运维和开发人员都可能遭遇的场景。负载问题从来不是单一维度的故障，它像一张错综复杂的网，牵一发而动全身。本文将从系统级指标出发，建立一套完整的四维排查体系，帮助你在告警响起的瞬间，快速厘清思路，精准定位根因。</p>
 <h2 id="load-average">一、理解负载：load average 到底在说什么</h2>
 <p>在Linux系统中，<code>uptime</code>或<code>top</code>命令输出的第一行总会出现三个数字：<code>load average: 1.25, 0.90, 0.75</code>。很多工程师对这组数字一知半解，简单地将之等同于CPU使用率，这种理解远远不够准确。</p>
@@ -572,9 +573,10 @@ java -jar arthas-boot.jar
 <p><strong>知识库和Runbook</strong>：将重大故障的排查过程、根因分析、解决方案整理成文档。告警再次响起时，工程师可以第一时间查阅历史案例。</p>
 <p><strong>自动化监控和预警</strong>：配置Prometheus + Grafana等监控体系，对核心指标设置多级阈值告警，并附带最近5分钟的趋势图推送，让值班工程师在登录服务器前就已心中有数。</p>
 <p>负载排查要求你对操作系统、JVM、网络协议、业务架构都有足够的理解，才能在纷繁表象中抽丝剥茧。希望本文的四维定位法和工具链，能成为你面对红色告警时的有力武器。</p>
-<h1 id="java-jvm">Java #JVM #系统排查 #性能优化 #运维实战</h1>
+
       </div>
-    </article>
+    <nav class="article-nav" id="articleNav"></nav>
+  </article>
   </div>
 
   <footer class="site-footer">
@@ -584,6 +586,7 @@ java -jar arthas-boot.jar
   </footer>
 
   <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
   <script src="../../js/article.js"></script>
   <script src="../../js/preview-rail.js"></script>
 </body>

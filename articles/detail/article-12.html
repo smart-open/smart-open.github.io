@@ -54,7 +54,7 @@
     <div class="article-hero-content">
       <h1 class="article-title">版本控制的后悔药：Git reset、revert 与 reflog 的正确打开方式</h1>
       <div class="article-meta">
-        <span class="article-date">2026-07-10</span>
+        <span class="article-date">2026-06-28</span>
         <div class="article-tags">
           <span class="tag">Git</span>
 <span class="tag">版本控制</span>
@@ -75,7 +75,8 @@
 
     <article class="article-content">
       <div class="markdown-body">
-        <h1 id="git-resetrevert-reflog">版本控制的后悔药：Git reset、revert 与 reflog 的正确打开方式</h1>
+        <figure class="article-hero-image"><img src="../../assets/img/article-git-version-control.jpg" alt="Git版本控制"></figure>
+
 <p>版本控制系统是现代软件工程的基石，而 Git 之所以在分布式版本控制领域占据统治地位，很大程度上归功于其强大的历史操作能力。与其他 VCS 将提交历史视为不可触碰的线性记录不同，Git 将每一次提交看作一个可以通过引用直接访问的对象，这使得重写历史、修正错误、调整提交顺序成为可能。然而，强大的能力总是伴随着误用的风险。本文将系统梳理 Git 中几种核心历史操作工具——reset、revert、reflog、rebase 与 cherry-pick——的工作原理、行为差异与实战应用，帮助开发者建立清晰的决策框架，在需要"撤销"或"修正"时选择正确的工具。</p>
 <h2 id="git">一、理解 Git 的三棵树模型</h2>
 <p>在深入具体命令之前，必须先建立 Git 的三棵树（Three Trees）心智模型。这是理解 reset 不同模式差异的关键。Git 管理的文件状态存在于三个不同的"树"中：</p>
@@ -388,9 +389,10 @@ graph LR
 <p>再次，熟悉 <code>git reflog</code> 的输出格式和查找技巧。定期运行 <code>git reflog</code> 可以建立对 Git 内部操作的直觉，也能在真正需要恢复时快速定位目标提交。</p>
 <p>最后，培养"原子提交"的习惯——每个提交只包含一个逻辑变更，提交信息清晰描述"做了什么"和"为什么"。这不仅使 revert 和 cherry-pick 更加精确可控，也使得交互式 rebase 的整理工作事半功倍。</p>
 <p>版本控制系统的终极目的不是保存代码的每一刻状态，而是帮助开发者讲述代码演进的故事。reset、revert、reflog、rebase 和 cherry-pick，是这个故事的编辑工具。掌握它们，意味着你不仅可以编写代码，还可以精心编排代码的历史叙事——在需要时重写过去，在必要时保留痕迹，在出错时挽回一切。这便是 Git 赋予开发者的真正力量。</p>
-<h1 id="git_1">Git #版本控制 #代码管理 #开发工具 #团队协作</h1>
+
       </div>
-    </article>
+    <nav class="article-nav" id="articleNav"></nav>
+  </article>
   </div>
 
   <footer class="site-footer">
@@ -400,6 +402,7 @@ graph LR
   </footer>
 
   <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
   <script src="../../js/article.js"></script>
   <script src="../../js/preview-rail.js"></script>
 </body>

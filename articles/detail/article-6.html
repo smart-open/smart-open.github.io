@@ -54,7 +54,7 @@
     <div class="article-hero-content">
       <h1 class="article-title">消息队列选型指南：Kafka、RocketMQ、RabbitMQ 背后的设计权衡</h1>
       <div class="article-meta">
-        <span class="article-date">2026-07-06</span>
+        <span class="article-date">2026-06-04</span>
         <div class="article-tags">
           <span class="tag">消息队列</span>
 <span class="tag">Kafka</span>
@@ -75,7 +75,8 @@
 
     <article class="article-content">
       <div class="markdown-body">
-        <h1 id="kafkarocketmqrabbitmq">消息队列选型指南：Kafka、RocketMQ、RabbitMQ 背后的设计权衡</h1>
+        <figure class="article-hero-image"><img src="../../assets/img/article-message-queue-comparison.jpg" alt="消息队列架构对比"></figure>
+
 <p>在现代分布式架构中，消息队列（MQ）扮演着系统解耦、流量削峰、异步通信的核心角色。然而，面对Kafka、RocketMQ、RabbitMQ这三款主流产品，技术团队往往陷入选择困境：Kafka吞吐量高但延迟大，RocketMQ功能丰富却生态较窄，RabbitMQ协议成熟却扩展性有限。本文将穿透表面特性，从架构设计哲学、存储模型、可靠性机制到运维复杂度，深度剖析三者背后的权衡逻辑，帮助你在具体场景下做出理性决策。</p>
 <h2 id="vs-vs">一、三种架构哲学：日志存储 vs 代理服务 vs 协议交换机</h2>
 <p>消息队列的核心差异源于其最初的设计目标。Kafka诞生于LinkedIn的日志聚合场景，RocketMQ由阿里电商业务孵化，RabbitMQ则遵循经典的AMQP协议规范。这三种不同的基因决定了它们的架构走向。</p>
@@ -743,9 +744,10 @@ graph TD
 4. 考虑生态兼容性和长期维护成本
 5. 评估云原生部署需求和云厂商锁定风险</p>
 <p>技术的本质是在约束条件下做最优权衡，理解每种MQ的设计哲学，才能在架构选型时心中有数。而当单一MQ无法满足全部需求时，混合架构并非不可接受——关键是明确每种MQ的职责边界，并建立统一的观测和告警体系。</p>
-<h1 id="kafka-rocketmq-rabbitmq">消息队列 #Kafka #RocketMQ #RabbitMQ #分布式系统 #架构选型</h1>
+
       </div>
-    </article>
+    <nav class="article-nav" id="articleNav"></nav>
+  </article>
   </div>
 
   <footer class="site-footer">
@@ -755,6 +757,7 @@ graph TD
   </footer>
 
   <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
   <script src="../../js/article.js"></script>
   <script src="../../js/preview-rail.js"></script>
 </body>

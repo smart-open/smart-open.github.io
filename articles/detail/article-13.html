@@ -54,7 +54,7 @@
     <div class="article-hero-content">
       <h1 class="article-title">高并发系统设计的核心矛盾：线程、协程与事件驱动如何取舍</h1>
       <div class="article-meta">
-        <span class="article-date">2026-07-09</span>
+        <span class="article-date">2026-07-03</span>
         <div class="article-tags">
           <span class="tag">高并发</span>
 <span class="tag">协程</span>
@@ -75,7 +75,8 @@
 
     <article class="article-content">
       <div class="markdown-body">
-        <h1 id="_1">高并发系统设计的核心矛盾：线程、协程与事件驱动如何取舍</h1>
+        <figure class="article-hero-image"><img src="../../assets/img/article-concurrency-system.jpg" alt="高并发系统设计"></figure>
+
 <p>在高并发系统的架构演进过程中，一个永恒的核心矛盾始终摆在工程师面前：如何以有限的硬件资源支撑海量的并发连接与计算请求。操作系统提供的原生线程模型、语言层面的协程抽象、以及基于事件循环的异步架构，各自代表了截然不同的设计哲学。它们并非简单的替代关系，而是在不同约束条件下针对特定问题的最优解。深入理解这三种模型的本质差异、性能边界与适用语境，是构建高吞吐量、低延迟系统的必要前提。</p>
 <h2 id="_2">一、线程池模型：操作系统原生的并发基石</h2>
 <p>线程是操作系统调度的基本单位。每个线程拥有独立的程序计数器、寄存器组和栈空间，共享所属进程的地址空间。当应用程序需要并发处理多个任务时，最直接的方式便是创建多个线程。然而，无限制地创建线程会带来毁灭性的性能后果。线程的创建与销毁涉及内核态操作，开销高昂；大量线程同时存在会导致频繁的上下文切换，CPU时间被耗费在保存和恢复线程状态上，而非实际业务计算。</p>
@@ -360,9 +361,10 @@ graph TD
 <p>现实中的大型系统往往不是单一模型的独奏，而是多种模型的协奏。现代框架和语言正在积极吸收彼此的优点：Java 21 引入的虚拟线程（Virtual Threads）本质上是 JVM 层面的协程实现，使得传统 Java 代码能够以接近 Goroutine 的效率处理海量并发；Go 的 <code>net/http</code> 服务器底层依然使用事件驱动机制，协程只是上层的编程抽象；Rust 的异步运行时（如 Tokio）结合了 Reactor 的事件循环与协程的 <code>async/await</code> 语法，实现了零成本抽象的并发编程。</p>
 <p>这种融合趋势揭示了一个深层洞察：并发模型的竞争终将收敛于"编程体验"与"运行时效率"的平衡点。工程师渴望以同步的方式编写异步代码，运行时渴望以最高效的方式调度执行资源。线程池、协程、Actor 和 Reactor，只是达到这一平衡的不同路径。理解它们的历史渊源、设计取舍和适用边界，才能在面对具体的系统问题时，做出既不盲目追新、也不固步自封的技术决策。</p>
 <p>高并发系统设计没有标准答案，只有对问题域的深刻理解和对技术工具的恰当运用。当一条连接建立、一个请求到达、一段计算启动时，其背后究竟是操作系统线程、用户态协程、Actor 邮箱还是事件回调在承载这份负载，或许已经不那么重要——重要的是整个系统能否在满足业务需求的同时，保持可维护、可扩展和可演进的活力。</p>
-<h1 id="_6">高并发 #协程 #事件驱动 #线程池 #系统架构</h1>
+
       </div>
-    </article>
+    <nav class="article-nav" id="articleNav"></nav>
+  </article>
   </div>
 
   <footer class="site-footer">
@@ -372,6 +374,7 @@ graph TD
   </footer>
 
   <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
   <script src="../../js/article.js"></script>
   <script src="../../js/preview-rail.js"></script>
 </body>

@@ -4,7 +4,7 @@
 
 .article-hero {
   background: var(--bg-secondary);
-  padding: var(--space-xl) var(--space-md);
+  padding: calc(60px + var(--space-md)) var(--space-md) var(--space-md);
   text-align: center;
   border-bottom: 1px solid var(--divider);
 }
@@ -15,7 +15,7 @@
 }
 
 .article-title {
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
   font-weight: 700;
   letter-spacing: -0.02em;
   margin-bottom: var(--space-md);
@@ -65,7 +65,7 @@
   display: flex;
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--space-xl) var(--space-md);
+  padding: var(--space-md) var(--space-md) var(--space-xl);
   gap: var(--space-xl);
 }
 
@@ -95,9 +95,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  max-height: calc(100vh - 200px);
-  overflow-y: auto;
-  padding-right: var(--space-xs);
 }
 
 .article-toc a {
@@ -296,6 +293,136 @@
   color: var(--text-primary);
 }
 
+/* ===== 文章头图 ===== */
+.article-hero-image {
+  margin: 0 0 var(--space-md) 0;
+  text-align: center;
+}
+
+.article-hero-image img {
+  width: 100%;
+  max-width: 800px;
+  border-radius: 12px;
+  border: 1px solid var(--divider);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== 成本优化四象限图 ===== */
+.cost-quadrant {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
+  background: var(--divider);
+  border: 1px solid var(--divider);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: var(--space-md) 0;
+  min-height: 360px;
+}
+
+.quadrant {
+  background: var(--bg-secondary);
+  padding: 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.quadrant-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+}
+
+.quadrant ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.quadrant ul li {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  padding-left: 1rem;
+  position: relative;
+  margin: 0;
+}
+
+.quadrant ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+
+.quadrant-1 {
+  background: rgba(0, 240, 255, 0.08);
+}
+
+.quadrant-4 {
+  background: rgba(0, 240, 255, 0.04);
+}
+
+.quadrant-axis {
+  position: absolute;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.quadrant-axis-x {
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  padding: 0 1rem;
+}
+
+.quadrant-axis-y {
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem 0;
+}
+
+.axis-label {
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--divider);
+}
+
+@media (max-width: 768px) {
+  .cost-quadrant {
+    min-height: auto;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .quadrant-axis {
+    display: none;
+  }
+}
+
 /* ===== Mermaid 图表容器 ===== */
 .mermaid {
   background: var(--bg-secondary);
@@ -318,7 +445,7 @@
 
 @media (max-width: 768px) {
   .article-hero {
-    padding: var(--space-lg) var(--space-md);
+    padding: calc(60px + var(--space-sm)) var(--space-md) var(--space-sm);
   }
 
   .article-title {
@@ -330,7 +457,7 @@
   }
 
   .article-container {
-    padding: var(--space-lg) var(--space-md);
+    padding: var(--space-md) var(--space-md) var(--space-lg);
   }
 
   .markdown-body h2 {
@@ -339,5 +466,133 @@
 
   .markdown-body h3 {
     font-size: 1.1rem;
+  }
+}
+
+/* ========================================
+   Article Navigation (Prev / Next)
+   ======================================== */
+
+.article-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-top: var(--space-xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--divider);
+}
+
+.article-nav-prev,
+.article-nav-next {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  border: 1px solid var(--divider);
+  transition: border-color var(--transition-base);
+  text-decoration: none;
+}
+
+.article-nav-next {
+  text-align: right;
+  align-items: flex-end;
+}
+
+.article-nav-prev:hover,
+.article-nav-next:hover {
+  border-color: var(--accent);
+}
+
+.article-nav-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.article-nav-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .article-nav {
+    flex-direction: column;
+  }
+}
+
+/* ===== 火箭返回顶部按钮 ===== */
+.rocket-top-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--divider);
+  color: var(--accent);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(20px) scale(0.9);
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  z-index: 999;
+  padding: 0;
+}
+
+.rocket-top-btn svg {
+  width: 22px;
+  height: 22px;
+  transition: transform 0.3s ease;
+}
+
+.rocket-top-btn.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+  animation: rocket-glow 2.5s ease-in-out infinite;
+}
+
+.rocket-top-btn:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.35), 0 0 60px rgba(0, 240, 255, 0.1);
+  transform: translateY(-2px) scale(1.05);
+}
+
+.rocket-top-btn:hover svg {
+  transform: translateY(-2px);
+}
+
+.rocket-top-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+@keyframes rocket-glow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(0, 240, 255, 0.15), 0 0 24px rgba(0, 240, 255, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(0, 240, 255, 0.35), 0 0 40px rgba(0, 240, 255, 0.12);
+  }
+}
+
+@media (max-width: 768px) {
+  .rocket-top-btn {
+    bottom: 1.25rem;
+    right: 1.25rem;
+    width: 44px;
+    height: 44px;
+  }
+
+  .rocket-top-btn svg {
+    width: 20px;
+    height: 20px;
   }
 }

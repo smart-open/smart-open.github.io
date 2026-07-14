@@ -54,7 +54,7 @@
     <div class="article-hero-content">
       <h1 class="article-title">微服务迷雾中的指南针：异步场景下的分布式追踪实战</h1>
       <div class="article-meta">
-        <span class="article-date">2026-07-05</span>
+        <span class="article-date">2026-06-08</span>
         <div class="article-tags">
           <span class="tag">SpringCloud</span>
 <span class="tag">分布式追踪</span>
@@ -75,7 +75,8 @@
 
     <article class="article-content">
       <div class="markdown-body">
-        <h1 id="_1">微服务迷雾中的指南针：异步场景下的分布式追踪实战</h1>
+        <figure class="article-hero-image"><img src="../../assets/img/article-distributed-tracing.jpg" alt="分布式追踪架构"></figure>
+
 <p>在微服务架构中，一次用户请求可能跨越数十个服务节点，涉及同步调用、异步任务、消息消费等多种交互模式。当系统出现异常或性能瓶颈时，如果没有完整的调用链路追踪，排查问题无异于大海捞针。Spring Cloud Sleuth与Zipkin/Jaeger的组合为同步调用提供了优雅的解决方案，但异步场景下的Trace传递却成为许多团队的盲区。本文将从原理到实践，深入剖析异步任务链路追踪的核心挑战与完整解决方案。</p>
 <h2 id="traceidspan">一、分布式追踪的基石：TraceId与Span</h2>
 <p>在展开异步场景之前，必须先理解分布式追踪的基础模型。Google的Dapper论文定义了Trace、Span、Annotation三个核心概念，这一模型被OpenTracing和OpenTelemetry继承，并成为行业事实标准。</p>
@@ -819,9 +820,10 @@ public void processWithOtel(String orderId) {
 5. <strong>持续验证链路完整性</strong>：通过Zipkin/Jaeger UI定期抽查端到端链路
 6. <strong>关注OpenTelemetry演进</strong>：新项目优先考虑标准化协议，降低长期维护成本</p>
 <p>当TraceId像一条金色丝线贯穿所有异步边界时，微服务的调用迷雾便被彻底照亮，问题定位从数小时缩短为分钟级——这就是分布式追踪的真正价值。而实现这一目标的过程，也是对异步编程模型深刻理解的过程。</p>
-<h1 id="springcloud-sleuth-zipkin-jaeger-opentelemetry">SpringCloud #分布式追踪 #Sleuth #Zipkin #Jaeger #异步编程 #微服务 #OpenTelemetry</h1>
+
       </div>
-    </article>
+    <nav class="article-nav" id="articleNav"></nav>
+  </article>
   </div>
 
   <footer class="site-footer">
@@ -831,6 +833,7 @@ public void processWithOtel(String orderId) {
   </footer>
 
   <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
   <script src="../../js/article.js"></script>
   <script src="../../js/preview-rail.js"></script>
 </body>

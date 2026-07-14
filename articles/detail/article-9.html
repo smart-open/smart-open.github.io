@@ -54,7 +54,7 @@
     <div class="article-hero-content">
       <h1 class="article-title">生产环境CPU打满怎么办：Java应用的紧急排查手册</h1>
       <div class="article-meta">
-        <span class="article-date">2026-07-03</span>
+        <span class="article-date">2026-06-16</span>
         <div class="article-tags">
           <span class="tag">Java</span>
 <span class="tag">CPU排查</span>
@@ -75,7 +75,8 @@
 
     <article class="article-content">
       <div class="markdown-body">
-        <h1 id="cpujava">生产环境CPU打满怎么办：Java应用的紧急排查手册</h1>
+        <figure class="article-hero-image"><img src="../../assets/img/article-java-cpu-troubleshoot.jpg" alt="Java CPU性能分析"></figure>
+
 <p>生产环境的CPU告警是所有运维和开发工程师的噩梦。与负载高不同，CPU打满意味着计算资源已经被彻底榨干，应用响应延迟会急剧上升，超时和错误如雪崩般涌来。更棘手的是，CPU问题的根因千差万别：可能是一个死循环在疯狂消耗算力，可能是Full GC在反复折腾堆内存，也可能是锁竞争导致大量线程空转。本文将从一线实战经验出发，建立一套可复现、可落地的CPU紧急排查流程，帮助你在最短时间内定位元凶并实施止血。</p>
 <h2 id="_1">一、四步定位法：从进程到线程再到代码行</h2>
 <p>CPU排查的核心挑战在于"层层下钻"。你需要先从整台机器的上百个进程中锁定目标Java进程，再从这个进程的几百个线程中找到那个"罪魁祸首"，最后将线程ID映射到具体的业务代码。这四步有其固定的套路，熟练掌握后可以在10分钟内完成定位。</p>
@@ -353,9 +354,10 @@ thread --state BLOCKED
 <p><strong>测试环节</strong>：在压测环境中模拟高并发场景，观察CPU使用率和负载变化曲线。如果线程数或CPU随并发线性增长而没有平台期，说明系统缺乏有效的资源控制。</p>
 <p><strong>运维环节</strong>：建立CPU使用率的趋势监控和异常检测。不只是简单的阈值告警，还要利用历史数据建立基线模型，识别偏离正常模式的异常波动。同时，定期进行故障演练，让团队在可控环境中熟悉CPU排查的全流程。</p>
 <p>生产环境的CPU问题永远会再来，但每一次扎实的排查和复盘，都会让下一次的应对更加从容。掌握四步定位法，理解线程状态的深层含义，熟练运用Arthas等在线工具，配合规范的应急止血流程，你就能在CPU告警响起的时刻，从慌乱走向有序，从被动走向主动。</p>
-<h1 id="java-cpu-jvm">Java #CPU排查 #生产故障 #性能优化 #JVM调优</h1>
+
       </div>
-    </article>
+    <nav class="article-nav" id="articleNav"></nav>
+  </article>
   </div>
 
   <footer class="site-footer">
@@ -365,6 +367,7 @@ thread --state BLOCKED
   </footer>
 
   <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
   <script src="../../js/article.js"></script>
   <script src="../../js/preview-rail.js"></script>
 </body>

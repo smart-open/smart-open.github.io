@@ -54,7 +54,7 @@
     <div class="article-hero-content">
       <h1 class="article-title">AI热之后的冷思考：企业智能化转型的务实路径</h1>
       <div class="article-meta">
-        <span class="article-date">2026-07-11</span>
+        <span class="article-date">2026-06-24</span>
         <div class="article-tags">
           <span class="tag">人工智能</span>
 <span class="tag">企业转型</span>
@@ -75,7 +75,8 @@
 
     <article class="article-content">
       <div class="markdown-body">
-        <h1 id="ai">AI热之后的冷思考：企业智能化转型的务实路径</h1>
+        <figure class="article-hero-image"><img src="../../assets/img/article-ai-enterprise-transformation.jpg" alt="企业AI转型框架"></figure>
+
 <p>过去两年，生成式AI的浪潮席卷全球。从ChatGPT的惊艳亮相到各类大模型的密集发布，企业界弥漫着一种"不接入AI就会被淘汰"的焦虑。然而，热潮退去后的数据却给出了清醒的答案：据多家行业研究机构统计，超过七成的企业AI项目在完成概念验证后未能走向规模化落地，最终停留在实验室内或仅仅成为演示用的Demo。这不是技术本身的失败，而是企业在战略规划、实施路径和价值衡量上缺乏系统性的思考。AI不是魔法，也不是简单的API调用，它是一场涉及组织架构、数据基础、成本控制和治理体系的深层变革。本文将从六大落地痛点出发，构建一套可执行的五步法框架，探讨企业如何在AI时代保持理性、务实前行。</p>
 <h2 id="ai_1">一、六大痛点：为什么AI项目会搁浅</h2>
 <p>企业AI项目搁置的背后，往往不是单一原因，而是多种因素交织的结果。理解这些痛点的本质，是避免重蹈覆辙的第一步。</p>
@@ -344,24 +345,43 @@ flowchart TD
 <p>通过这种分层架构，企业可以将80%的简单请求用低成本方式处理，仅将20%的高价值请求交给大模型，从而在成本和质量之间取得最优平衡。</p>
 <h2 id="_3">六、成本优化四象限</h2>
 <p>AI成本优化不是简单的"少用API"，而是系统性的资源管理。以下四象限框架帮助企业识别优化机会。</p>
-<div class="mermaid">
-quadrantChart
-    title 成本优化四象限
-    x-axis 低业务价值 --> 高业务价值
-    y-axis 低使用频率 --> 高使用频率
-    quadrant-1 核心投入区：持续优化体验
-    quadrant-2 观察评估区：验证必要性
-    quadrant-3 清理下线区：果断停用
-    quadrant-4 自动化降本区：批量/缓存/压缩
-    &quot;创意写作功能&quot;: [0.8, 0.9]
-    &quot;文档摘要功能&quot;: [0.7, 0.8]
-    &quot;代码生成辅助&quot;: [0.9, 0.7]
-    &quot;内部知识问答&quot;: [0.6, 0.6]
-    &quot;邮件润色功能&quot;: [0.3, 0.2]
-    &quot;实验性图像生成&quot;: [0.2, 0.1]
-    &quot;自动标签分类&quot;: [0.5, 0.9]
-    &quot;日志分析报警&quot;: [0.4, 0.8]
-
+<div class="cost-quadrant">
+  <div class="quadrant-axis quadrant-axis-y">
+    <span class="axis-label axis-label-top">高价值</span>
+    <span class="axis-label axis-label-bottom">低价值</span>
+  </div>
+  <div class="quadrant-axis quadrant-axis-x">
+    <span class="axis-label axis-label-left">低频率</span>
+    <span class="axis-label axis-label-right">高频率</span>
+  </div>
+  <div class="quadrant quadrant-1">
+    <div class="quadrant-title">核心投入区</div>
+    <ul>
+      <li>自动标签分类</li>
+      <li>创意写作功能</li>
+      <li>日志分析报警</li>
+      <li>文档摘要功能</li>
+    </ul>
+  </div>
+  <div class="quadrant quadrant-2">
+    <div class="quadrant-title">观察评估区</div>
+    <ul>
+      <li>代码生成辅助</li>
+      <li>内部知识问答</li>
+    </ul>
+  </div>
+  <div class="quadrant quadrant-3">
+    <div class="quadrant-title">清理下线区</div>
+    <ul>
+      <li>实验性图像生成</li>
+    </ul>
+  </div>
+  <div class="quadrant quadrant-4">
+    <div class="quadrant-title">自动化降本区</div>
+    <ul>
+      <li>邮件润色功能</li>
+    </ul>
+  </div>
 </div>
 <h3 id="61">6.1 第一象限：高价值高频率——核心投入区</h3>
 <p>直接关系到核心业务指标且高频使用。优化策略不是削减，而是持续提升体验，如智能客服的核心问答能力应投入资源做领域微调和RAG优化。</p>
@@ -375,9 +395,10 @@ quadrantChart
 <p>企业AI转型不是百米冲刺，而是一场马拉松。成功者往往不是最早追逐热点的，而是最懂得结合自身实际、循序渐进、持续迭代的。</p>
 <p>在战略层面，领导者需要克制"All in AI"的冲动，将AI定位为解决具体业务问题的工具。在执行层面，团队需要接受AI的不确定性，建立快速试错、及时止损的机制。在文化层面，组织需要弥合技术与业务之间的认知鸿沟。</p>
 <p>真正的竞争力不在于是否使用了最新的大模型，而在于是否建立了一套将AI能力持续转化为业务价值的系统化能力。保持冷静、专注价值、夯实基础，或许才是这场AI马拉松中最重要的配速策略。</p>
-<h1 id="ai_3">人工智能 #企业转型 #AI落地 #数字化 #技术战略</h1>
+
       </div>
-    </article>
+    <nav class="article-nav" id="articleNav"></nav>
+  </article>
   </div>
 
   <footer class="site-footer">
@@ -387,6 +408,7 @@ quadrantChart
   </footer>
 
   <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
   <script src="../../js/article.js"></script>
   <script src="../../js/preview-rail.js"></script>
 </body>

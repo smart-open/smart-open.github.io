@@ -54,7 +54,7 @@
     <div class="article-hero-content">
       <h1 class="article-title">让Elasticsearch飞起来：写入吞吐量的系统性调优</h1>
       <div class="article-meta">
-        <span class="article-date">2026-07-07</span>
+        <span class="article-date">2026-05-30</span>
         <div class="article-tags">
           <span class="tag">Elasticsearch</span>
 <span class="tag">性能优化</span>
@@ -75,7 +75,8 @@
 
     <article class="article-content">
       <div class="markdown-body">
-        <h1 id="elasticsearch">让Elasticsearch飞起来：写入吞吐量的系统性调优</h1>
+        <figure class="article-hero-image"><img src="../../assets/img/article-elasticsearch-optimization.jpg" alt="Elasticsearch性能优化"></figure>
+
 <p>在大数据时代，Elasticsearch（ES）早已不只是全文检索工具，它更是日志分析、监控指标存储、实时搜索的核心底座。然而，当数据洪流涌来时，很多企业都会遇到写入瓶颈：索引速率骤降、集群CPU飙高、甚至节点频繁掉线。本文将深入ES写入的底层机制，从API层到存储层，从软件参数到硬件选型，构建一套完整的写入性能优化体系。</p>
 <h2 id="es">一、理解ES的写入流程：优化前的必修课</h2>
 <p>在动手调参之前，必须先理解文档从客户端到达磁盘的全过程。ES的写入并非简单的"接收-存储"，而是一个涉及内存缓冲、事务日志、段文件、合并策略的复杂流水线。</p>
@@ -697,9 +698,10 @@ esrally race --track=nyc_taxis --target-hosts=es-node1:9200,es-node2:9200,es-nod
 <h2 id="_7">九、写在最后</h2>
 <p>Elasticsearch的写入优化是一项系统工程，没有哪个单一参数能带来质的飞跃。真正的优化路径是：理解写入流程 → 识别瓶颈层级 → 针对性调整 → 压测验证 → 持续监控。在日常运维中，建议建立性能基线，在集群扩容或业务变化时及时对比偏离度。</p>
 <p>对于绝大多数写入密集型场景，核心优化组合是：<strong>Bulk批量5-20MB + 放宽Refresh间隔 + Async Translog + 预定义映射 + NVMe SSD</strong>。这套组合拳通常能带来2-3倍的吞吐提升，且实施成本极低。</p>
-<h1 id="elasticsearch-lucene">Elasticsearch #性能优化 #分布式存储 #Lucene #运维实战</h1>
+
       </div>
-    </article>
+    <nav class="article-nav" id="articleNav"></nav>
+  </article>
   </div>
 
   <footer class="site-footer">
@@ -709,6 +711,7 @@ esrally race --track=nyc_taxis --target-hosts=es-node1:9200,es-node2:9200,es-nod
   </footer>
 
   <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
   <script src="../../js/article.js"></script>
   <script src="../../js/preview-rail.js"></script>
 </body>

@@ -56,14 +56,14 @@
   function renderCards(articles) {
     grid.innerHTML = articles.map(function(article) {
       return '<a href="' + article.detailUrl + '" class="article-card">' +
-        '<div class="article-card-tags">' +
-        article.tags.map(function(tag) { return '<span class="article-tag">' + tag + '</span>'; }).join('') +
-        '</div>' +
         '<h3 class="article-card-title">' + article.title + '</h3>' +
         '<p class="article-card-excerpt">' + article.excerpt + '</p>' +
         '<div class="article-card-footer">' +
         '<span class="article-date">' + article.date + '</span>' +
         '<span class="article-read">阅读全文 &#8599;</span>' +
+        '</div>' +
+        '<div class="article-card-tags">' +
+        article.tags.map(function(tag) { return '<span class="article-tag">' + tag + '</span>'; }).join('') +
         '</div></a>';
     }).join('');
   }

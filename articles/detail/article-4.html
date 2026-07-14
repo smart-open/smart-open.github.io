@@ -54,7 +54,7 @@
     <div class="article-hero-content">
       <h1 class="article-title">从磁盘到内存：索引数据结构的选择哲学</h1>
       <div class="article-meta">
-        <span class="article-date">2026-07-08</span>
+        <span class="article-date">2026-05-26</span>
         <div class="article-tags">
           <span class="tag">数据结构</span>
 <span class="tag">数据库索引</span>
@@ -75,7 +75,8 @@
 
     <article class="article-content">
       <div class="markdown-body">
-        <h1 id="_1">从磁盘到内存：索引数据结构的选择哲学</h1>
+        <figure class="article-hero-image"><img src="../../assets/img/article-index-data-structures.jpg" alt="索引数据结构"></figure>
+
 <p>在计算机系统的存储层次中，磁盘与内存之间存在着数量级的速度鸿沟。一次内存访问耗时约 100 纳秒，而一次磁盘随机寻道则需要 10 毫秒——相差十万倍。这种差异深刻影响了数据密集型系统的设计哲学：任何需要在持久化存储上查找数据的系统，都必须精心选择其索引数据结构，以最小化昂贵的磁盘 I/O 操作。与此同时，纯内存场景下的数据结构选择又遵循另一套逻辑，因为内存的随机访问成本相对低廉，但空间效率和缓存友好性成为关键考量。本文将从数据库索引的磁盘优化出发，逐步深入到内存数据结构的设计权衡，探讨 B 树、B+ 树、红黑树、LSM-Tree 和跳表在不同场景下的选择依据。</p>
 <h2 id="b-b">一、磁盘索引的基石：B 树与 B+ 树</h2>
 <p>B 树（Bayer-McCreight Tree）自 1972 年被提出以来，一直是磁盘存储系统索引的事实标准。其设计核心思想极其简洁而深刻：既然磁盘 I/O 的代价远高于内存计算，那么数据结构应该被设计成"矮胖"的形态，使得每次查找所需的磁盘访问次数尽可能少。</p>
@@ -368,9 +369,10 @@ typedef struct zskiplistNode {
 <p>第五步，审视运维成本。B+ 树作为历经数十年检验的结构，拥有成熟的调优工具和广泛的社区支持。LSM-Tree 的 Compaction 策略调优则需要更深入的专业知识和实验验证。</p>
 <p>索引数据结构的选择，本质上是在时间复杂度、空间复杂度、实现复杂度和运维复杂度之间的多维权衡。B+ 树用略高的写入成本换取了极致的读取性能和成熟的事务支持；红黑树以简洁的平衡策略在内存中提供了可预测的性能；LSM-Tree 用读取的复杂化换来了写入的革命性突破；跳表则以概率之美证明了简单设计同样可以达成高效的目标。</p>
 <p>理解这些结构的设计哲学和权衡取舍，不仅是掌握几棵树的技术细节，更是培养面对系统约束时做出合理工程判断的能力。当下一次站在技术选型十字路口时，这些知识将成为你最可靠的罗盘。</p>
-<h1 id="b">数据结构 #数据库索引 #B树 #红黑树 #算法</h1>
+
       </div>
-    </article>
+    <nav class="article-nav" id="articleNav"></nav>
+  </article>
   </div>
 
   <footer class="site-footer">
@@ -380,6 +382,7 @@ typedef struct zskiplistNode {
   </footer>
 
   <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
   <script src="../../js/article.js"></script>
   <script src="../../js/preview-rail.js"></script>
 </body>
