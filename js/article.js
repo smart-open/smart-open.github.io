@@ -52,10 +52,20 @@ function setupScrollHighlight() {
             tocLinks.forEach(l => l.classList.remove('active'));
             link.classList.add('active');
             
-            // Only scroll the TOC link into view on desktop (sticky sidebar)
-            // On mobile the sidebar is static and scrollIntoView moves the whole page
+            // Auto-scroll TOC link into view on desktop (sticky sidebar)
+            // Scroll only within the sidebar container, not the whole page
             if (isDesktop()) {
-              link.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+              const sidebarSection = document.querySelector('.sidebar-section');
+              const toc = document.getElementById('articleToc');
+              if (sidebarSection && toc) {
+                const tocRect = toc.getBoundingClientRect();
+                const linkRect = link.getBoundingClientRect();
+                const sidebarRect = sidebarSection.getBoundingClientRect();
+                const relativeTop = linkRect.top - sidebarRect.top;
+                if (relativeTop < 0 || relativeTop > sidebarRect.height - linkRect.height) {
+                  toc.scrollTop = link.offsetTop - toc.clientHeight / 2 + link.clientHeight / 2;
+                }
+              }
             }
           }
         }

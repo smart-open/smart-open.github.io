@@ -3,6 +3,14 @@
    ======================================== */
 const ARTICLES_DATA = [
   {
+    id: 'article-15',
+    title: '桌面AI智能体横评：Codex、Trae Work、WorkBuddy 办公场景谁更强？',
+    excerpt: '2025年下半年以来，桌面端AI Agent经历了从概念验证到规模化落地的关键转折。本文聚焦日常办公与个人用户场景，从文件处理、内容创作、任务编排、工具调用等维度深度对比 Codex、Trae Work、WorkBuddy、Claude Code。',
+    tags: ['AI', '桌面端', '办公效率', 'Codex', 'WorkBuddy'],
+    date: '2026-07-14',
+    detailUrl: 'detail/article-15.html'
+  },
+  {
     id: 'article-14',
     title: 'AI Agent的技能引擎：从用户意图到Skill调用的完整链路解析',
     excerpt: '当用户向 AI Agent 发出一条指令——「帮我把这个 PDF 转成 Markdown 并提取其中的表格」——大语言模型本身并不具备读取文件系统、解析 PDF 格式或生成结构化文档的能力。',
