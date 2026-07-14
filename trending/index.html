@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>趋势发现 - GitHub 热门项目 &amp; Skills | Smart Open</title>
+  <meta name="description" content="每周更新的 GitHub 热门项目和热门 Skills 排行">
+  <link rel="icon" type="image/png" href="../favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../css/main.css">
+
+  <style>
+    /* ========================================
+       Trending Page Styles
+       ======================================== */
+    .trending-hero {
+      padding: calc(var(--space-xl) + 64px) var(--space-md) var(--space-lg);
+      text-align: center;
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--divider);
+    }
+
+    .trending-hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: var(--space-xs);
+    }
+
+    .trending-hero .subtitle {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+
+    .trending-hero .update-badge {
+      display: inline-block;
+      margin-top: var(--space-sm);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent);
+      border: 1px solid var(--divider);
+      padding: 0.3rem 0.8rem;
+    }
+
+    .trending-section {
+      padding: var(--space-lg) var(--space-md);
+      border-bottom: 1px solid var(--divider);
+    }
+
+    .trending-section:nth-child(odd) {
+      background: var(--bg-primary);
+    }
+    .trending-section:nth-child(even) {
+      background: var(--bg-secondary);
+    }
+
+    .trending-inner {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .trending-section h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: var(--space-md);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .trending-section h2 .icon {
+      font-size: 1.3rem;
+    }
+
+    .trending-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .trending-table th,
+    .trending-table td {
+      padding: 0.7rem 0.6rem;
+      text-align: left;
+      border-bottom: 1px solid var(--divider);
+      font-size: 0.9rem;
+      vertical-align: top;
+    }
+
+    .trending-table th {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding-bottom: 0.5rem;
+    }
+
+    .trending-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .trending-table .col-rank {
+      width: 40px;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .trending-table .col-rank.top3 {
+      color: var(--accent);
+    }
+
+    .trending-table .col-name {
+      min-width: 200px;
+    }
+
+    .trending-table .col-name a {
+      font-weight: 500;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+    }
+
+    .trending-table .col-name a:hover {
+      color: var(--accent);
+      opacity: 1;
+    }
+
+    .trending-table .col-lang {
+      width: 100px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .trending-table .col-desc {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .trending-table .col-stars {
+      width: 80px;
+      text-align: right;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--accent);
+    }
+
+    .trending-table .col-installs {
+      width: 80px;
+      text-align: right;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--accent);
+    }
+
+    .trending-table .col-source {
+      width: 120px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    /* Skill repo cards */
+    .repo-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: var(--space-sm);
+      margin-top: var(--space-md);
+    }
+
+    .repo-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--divider);
+      padding: var(--space-md);
+      transition: border-color var(--transition-base);
+    }
+
+    .repo-card:hover {
+      border-color: var(--accent);
+    }
+
+    .repo-card-name {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: var(--space-xs);
+    }
+
+    .repo-card-stars {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--accent);
+      margin-bottom: var(--space-xs);
+    }
+
+    .repo-card-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Insight bar */
+    .insight-bar {
+      padding: var(--space-md);
+      text-align: center;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--divider);
+    }
+
+    .insight-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .insight-inner strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .trending-table .col-lang {
+        display: none;
+      }
+      .trending-table .col-source {
+        display: none;
+      }
+      .trending-table .col-desc {
+        font-size: 0.8rem;
+      }
+      .repo-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="site-nav" id="nav">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-brand"><img src="../assets/img/logo.png" alt="Smart Open" class="nav-logo"><span>Smart Open</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="切换导航">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../index.html#about">关于</a></li>
+        <li><a href="../index.html#projects">项目</a></li>
+        <li><a href="../index.html#skills">技能</a></li>
+        <li><a href="../index.html#experience">经历</a></li>
+        <li><a href="../index.html#articles">文章</a></li>
+        <li><a href="index.html" class="active">趋势</a></li>
+        <li><a href="../index.html#contact">联系</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="trending-hero">
+    <h1>趋势发现</h1>
+    <p class="subtitle">GitHub 热门项目 &amp; Skills 每周更新</p>
+    <div class="update-badge" id="updateBadge"></div>
+  </div>
+
+  <div class="insight-bar">
+    <div class="insight-inner" id="insightText"></div>
+  </div>
+
+  <div class="trending-section" id="weeklySection">
+    <div class="trending-inner">
+      <h2><span class="icon">&#9889;</span> GitHub 本周最活跃项目 Top 10</h2>
+      <table class="trending-table">
+        <thead>
+          <tr>
+            <th class="col-rank">#</th>
+            <th class="col-name">项目</th>
+            <th class="col-lang">语言</th>
+            <th class="col-desc">简介</th>
+            <th class="col-stars">本周</th>
+          </tr>
+        </thead>
+        <tbody id="weeklyTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="trending-section" id="monthlySection">
+    <div class="trending-inner">
+      <h2><span class="icon">&#128293;</span> GitHub 本月最活跃项目 Top 10</h2>
+      <table class="trending-table">
+        <thead>
+          <tr>
+            <th class="col-rank">#</th>
+            <th class="col-name">项目</th>
+            <th class="col-lang">语言</th>
+            <th class="col-desc">简介</th>
+          </tr>
+        </thead>
+        <tbody id="monthlyTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="trending-section" id="skillsSection">
+    <div class="trending-inner">
+      <h2><span class="icon">&#129521;</span> 本月最热门 Skill Top 10</h2>
+      <table class="trending-table">
+        <thead>
+          <tr>
+            <th class="col-rank">#</th>
+            <th class="col-name">Skill</th>
+            <th class="col-source">来源</th>
+            <th class="col-desc">简介</th>
+            <th class="col-installs">安装量</th>
+          </tr>
+        </thead>
+        <tbody id="skillsTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="trending-section" id="reposSection">
+    <div class="trending-inner">
+      <h2><span class="icon">&#11088;</span> GitHub 热门 Skill 集合仓库</h2>
+      <div class="repo-cards" id="repoCards"></div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; 2024-2026 朱天伟 | Smart Open. Built with care.</p>
+      <p class="footer-meta">Last build: <span id="buildDate">2026-07-13</span></p>
+    </div>
+  </footer>
+
+  <script src="trending-data.js"></script>
+  <script>
+    (function() {
+      const data = TRENDING_DATA;
+
+      // Update badge
+      document.getElementById('updateBadge').textContent = '更新于 ' + data.updated;
+
+      // Weekly table
+      const weeklyTbody = document.getElementById('weeklyTbody');
+      data.weekly.forEach(item => {
+        const tr = document.createElement('tr');
+        const rankClass = item.rank <= 3 ? ' top3' : '';
+        tr.innerHTML = '<td class="col-rank' + rankClass + '">' + item.rank + '</td>' +
+          '<td class="col-name"><a href="' + item.url + '" target="_blank" rel="noopener">' + item.name + '</a></td>' +
+          '<td class="col-lang">' + item.lang + '</td>' +
+          '<td class="col-desc">' + item.desc + '</td>' +
+          '<td class="col-stars">' + (item.stars ? item.stars + ' ⭐' : '—') + '</td>';
+        weeklyTbody.appendChild(tr);
+      });
+
+      // Monthly table
+      const monthlyTbody = document.getElementById('monthlyTbody');
+      data.monthly.forEach(item => {
+        const tr = document.createElement('tr');
+        const rankClass = item.rank <= 3 ? ' top3' : '';
+        tr.innerHTML = '<td class="col-rank' + rankClass + '">' + item.rank + '</td>' +
+          '<td class="col-name"><a href="' + item.url + '" target="_blank" rel="noopener">' + item.name + '</a></td>' +
+          '<td class="col-lang">' + item.lang + '</td>' +
+          '<td class="col-desc">' + item.desc + '</td>';
+        monthlyTbody.appendChild(tr);
+      });
+
+      // Skills table
+      const skillsTbody = document.getElementById('skillsTbody');
+      data.skills.forEach(item => {
+        const tr = document.createElement('tr');
+        const rankClass = item.rank <= 3 ? ' top3' : '';
+        tr.innerHTML = '<td class="col-rank' + rankClass + '">' + item.rank + '</td>' +
+          '<td class="col-name"><span style="font-weight:500;color:var(--text-primary);">' + item.name + '</span></td>' +
+          '<td class="col-source">' + item.source + '</td>' +
+          '<td class="col-desc">' + item.desc + '</td>' +
+          '<td class="col-installs">' + item.installs + '</td>';
+        skillsTbody.appendChild(tr);
+      });
+
+      // Skill repo cards
+      const repoCards = document.getElementById('repoCards');
+      data.skillRepos.forEach(repo => {
+        const card = document.createElement('div');
+        card.className = 'repo-card';
+        card.innerHTML = '<div class="repo-card-name">' + repo.name + '</div>' +
+          '<div class="repo-card-stars">' + repo.stars + ' ⭐</div>' +
+          '<div class="repo-card-desc">' + repo.desc + '</div>';
+        repoCards.appendChild(card);
+      });
+
+      // Insight text
+      var aiCount = data.weekly.filter(function(item) {
+        return item.desc.indexOf('AI') !== -1 || item.desc.indexOf('Agent') !== -1 || item.desc.indexOf('MCP') !== -1;
+      }).length;
+      var pct = Math.round(aiCount / data.weekly.length * 100);
+      document.getElementById('insightText').innerHTML =
+        '<strong>本周观察</strong>：GitHub Trending 中 AI/Agent 相关项目占比约 <strong>' + pct + '%</strong>，MCP 和 Skills 生态持续高速增长。' +
+        'Skill 生态中 <strong>find-skills</strong> 以 ~190 万安装量稳居第一，<strong>superpowers</strong> 以 252K+ Stars 领跑 Skill 集合仓库。';
+    })();
+  </script>
+</body>
+</html>

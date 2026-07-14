@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>版本控制的后悔药：Git reset、revert 与 reflog 的正确打开方式 - 朱天伟 | Smart Open</title>
+  <meta name="description" content="版本控制的后悔药：Git reset、revert 与 reflog 的正确打开方式">
+  <link rel="icon" type="image/png" href="../../favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/preview-rail.css">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#12121a',
+        primaryTextColor: '#e8e8ec',
+        primaryBorderColor: '#00f0ff',
+        lineColor: '#7a7a85',
+        secondaryColor: '#0a0a0f',
+        tertiaryColor: '#2a2a35',
+        fontFamily: 'Inter, sans-serif'
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <nav class="site-nav" id="nav">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-brand"><img src="../../assets/img/logo.png" alt="Smart Open" class="nav-logo"><span>Smart Open</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="切换导航">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#about">关于</a></li>
+        <li><a href="../../index.html#projects">项目</a></li>
+        <li><a href="../../index.html#skills">技能</a></li>
+        <li><a href="../../index.html#experience">经历</a></li>
+        <li><a href="../index.html">文章</a></li>
+        <li><a href="../../trending/index.html">趋势</a></li>
+        <li><a href="../../index.html#contact">联系</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="article-hero">
+    <div class="article-hero-content">
+      <h1 class="article-title">版本控制的后悔药：Git reset、revert 与 reflog 的正确打开方式</h1>
+      <div class="article-meta">
+        <span class="article-date">2026-07-10</span>
+        <div class="article-tags">
+          <span class="tag">Git</span>
+<span class="tag">版本控制</span>
+<span class="tag">代码管理</span>
+<span class="tag">开发工具</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="article-container">
+    <aside class="article-sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">目录</h3>
+        <nav class="article-toc" id="articleToc"></nav>
+      </div>
+    </aside>
+
+    <article class="article-content">
+      <div class="markdown-body">
+        <h1 id="git-resetrevert-reflog">版本控制的后悔药：Git reset、revert 与 reflog 的正确打开方式</h1>
+<p>版本控制系统是现代软件工程的基石，而 Git 之所以在分布式版本控制领域占据统治地位，很大程度上归功于其强大的历史操作能力。与其他 VCS 将提交历史视为不可触碰的线性记录不同，Git 将每一次提交看作一个可以通过引用直接访问的对象，这使得重写历史、修正错误、调整提交顺序成为可能。然而，强大的能力总是伴随着误用的风险。本文将系统梳理 Git 中几种核心历史操作工具——reset、revert、reflog、rebase 与 cherry-pick——的工作原理、行为差异与实战应用，帮助开发者建立清晰的决策框架，在需要"撤销"或"修正"时选择正确的工具。</p>
+<h2 id="git">一、理解 Git 的三棵树模型</h2>
+<p>在深入具体命令之前，必须先建立 Git 的三棵树（Three Trees）心智模型。这是理解 reset 不同模式差异的关键。Git 管理的文件状态存在于三个不同的"树"中：</p>
+<p>HEAD 指针指向当前分支的最新提交，代表仓库的"最新快照"。它是你在仓库历史中可以"回到"的那个点。索引（Index），也称为暂存区（Staging Area），是准备下一次提交的快照。当你执行 <code>git add</code> 时，文件的修改被写入索引；当你执行 <code>git commit</code> 时，索引的内容被永久保存为一个新的提交对象。工作目录（Working Directory）则是你实际编辑文件的地方，是沙盒，你可以自由修改而不会影响仓库状态。</p>
+<p>这三棵树之间的状态差异，正是 Git 各种操作流程的基础。<code>git status</code> 的本质就是比较这三棵树的差异：工作目录 vs 索引显示未暂存的修改，索引 vs HEAD 显示已暂存但未提交的修改。</p>
+<div class="mermaid">
+graph LR
+    A[工作目录 Working Directory] -->|git add| B[索引 Index]
+    B -->|git commit| C[HEAD / 仓库]
+    C -->|git checkout| A
+    C -->|git reset --soft| B
+    C -->|git reset --mixed| B
+    C -->|git reset --hard| A
+    C -->|git revert| C
+
+</div>
+<h2 id="git-reset">二、git reset：移动指针，重写当下</h2>
+<p><code>git reset</code> 是 Git 中最强大也最危险的命令之一。其核心功能是移动当前分支的 HEAD 指针到指定的提交，并根据不同的模式选择是否同步更新索引和工作目录。理解 reset 的关键在于：它操作的是"当前分支指向哪里"，而不是"删除提交"。被 reset 跳过的提交对象依然存在于 Git 的对象数据库中，只是不再被任何分支或标签引用。</p>
+<h3 id="21-soft">2.1 --soft：温和的重置</h3>
+<p><code>git reset --soft &lt;commit&gt;</code> 将 HEAD 指针移动到指定的提交，但完全保留索引和工作目录的状态。这意味着你之前已经 <code>git add</code> 到暂存区的内容依然保留在暂存区中，工作目录的未暂存修改也纹丝不动。</p>
+<p>这种模式的典型场景是"修正最后一次提交"。假设你刚刚执行了一次提交，但随后发现遗漏了一个文件的修改，或者提交信息写错了。与其创建一个新的修正提交，不如使用 soft reset 将 HEAD 回退到上一次提交，修正后重新提交。</p>
+<pre><code class="language-bash"># 场景：修正刚完成的提交，添加遗漏的文件
+git add forgotten_file.txt
+git commit -m &quot;feat: implement user authentication&quot;
+# 发现遗漏了配置文件
+git add config/auth.yml
+git commit --amend --no-edit  # 等价于 soft reset + 重新提交
+
+# 或者显式使用 soft reset
+git reset --soft HEAD~1      # HEAD 回退一格，但保留暂存区内容
+git add config/auth.yml
+git commit -m &quot;feat: implement user authentication&quot;
+</code></pre>
+<h3 id="22-mixed">2.2 --mixed：默认的平衡</h3>
+<p><code>git reset --mixed &lt;commit&gt;</code>（或不带任何参数的 <code>git reset</code>）将 HEAD 指针移动到指定提交，并将索引重置为该提交的状态，但保留工作目录的修改。换句话说，自目标提交以来的所有修改会被"取消暂存"，变成未暂存状态，但你实际的文件内容保持不变。</p>
+<p>这是最有用的 reset 模式之一。它允许你将一批已经暂存的修改"撤回"到工作目录，重新组织、拆分或重新审查后再决定如何提交。当你发现一次 <code>git add</code> 包含了过多的修改，希望将其拆分为多个独立的提交时，mixed reset 是理想的起点。</p>
+<pre><code class="language-bash"># 场景：将最近三次提交拆分为更小的提交
+git reset --mixed HEAD~3
+# 现在所有修改都在工作目录中，未暂存
+# 可以逐一检查并分批提交
+git add src/auth/login.go
+git commit -m &quot;feat: add login handler&quot;
+
+git add src/auth/jwt.go
+git commit -m &quot;feat: add JWT token generation&quot;
+
+git add tests/auth_test.go
+git commit -m &quot;test: add authentication unit tests&quot;
+</code></pre>
+<h3 id="23-hard">2.3 --hard：毁灭性的回退</h3>
+<p><code>git reset --hard &lt;commit&gt;</code> 是 reset 家族中最激进的成员。它将 HEAD 指针、索引和工作目录全部重置为目标提交的状态。任何自目标提交以来的未提交修改——无论是否已暂存——都会被永久丢弃。</p>
+<p>这个命令的使用场景应该被严格限制：当你确定工作目录和暂存区中的所有内容都不需要时，可以用 hard reset 彻底回到某个历史状态。常见的用例包括放弃当前所有的实验性修改、或者在特性分支开发失败后回退到主干状态重新开始。</p>
+<pre><code class="language-bash"># 场景：彻底放弃所有本地修改，回到上一个干净状态
+git reset --hard HEAD
+# 或者回到某个特定的历史提交
+git reset --hard a1b2c3d
+
+# 危险操作：hard reset 到远程分支，强制丢弃本地提交
+git fetch origin
+git reset --hard origin/main
+</code></pre>
+<p>hard reset 的危险之处在于它的不可逆性（在没有 reflog 的情况下）。一个常见的灾难场景是：开发者执行了 <code>git reset --hard HEAD~1</code>，然后才意识到刚刚丢弃的提交包含了一整天的工作。因此，在执行 hard reset 之前，养成先创建临时分支或标签的习惯是明智的：</p>
+<pre><code class="language-bash"># 安全模式：先备份当前状态再 hard reset
+git branch backup-before-reset
+git reset --hard HEAD~2
+# 如果后悔了，可以从备份分支恢复：git reset --hard backup-before-reset
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>HEAD 移动</th>
+<th>索引重置</th>
+<th>工作目录重置</th>
+<th>数据安全性</th>
+<th>典型场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>--soft</td>
+<td>是</td>
+<td>否</td>
+<td>否</td>
+<td>最安全</td>
+<td>修正提交、合并提交</td>
+</tr>
+<tr>
+<td>--mixed</td>
+<td>是</td>
+<td>是</td>
+<td>否</td>
+<td>安全</td>
+<td>拆分提交、重新组织暂存区</td>
+</tr>
+<tr>
+<td>--hard</td>
+<td>是</td>
+<td>是</td>
+<td>是</td>
+<td>危险</td>
+<td>彻底放弃修改、回退到已知状态</td>
+</tr>
+</tbody>
+</table>
+<h2 id="git-revert">三、git revert：创建抵消提交，保留历史</h2>
+<p>与 reset 的"移动指针"哲学不同，<code>git revert</code> 采取的是"追加历史"的策略。它不会修改已有的提交历史，而是创建一个新的提交，这个新提交的修改恰好抵消目标提交的修改。</p>
+<p>revert 的工作原理是计算目标提交与其父提交之间的差异（diff），然后应用这个差异的反向补丁。如果目标提交添加了三行代码，revert 提交就会删除这三行代码；如果目标提交删除了一个文件，revert 提交就会恢复这个文件。由于这是一个全新的提交，它可以被安全地推送到已经共享的远程分支，而不会造成其他协作者的历史混乱。</p>
+<pre><code class="language-bash"># 撤销某个特定提交的修改
+git revert a1b2c3d
+# Git 会创建一个新的提交，自动填写 revert 信息
+# 如果有冲突，需要手动解决后完成 revert
+
+# 撤销多个不连续的提交
+git revert a1b2c3d e4f5g6h i7j8k9l
+
+# 撤销一个合并提交需要指定父分支
+# -m 1 表示保留主分支的修改，撤销合并带来的变更
+git revert -m 1 merge_commit_hash
+</code></pre>
+<p>revert 最适用于已经推送到共享仓库的提交。在团队协作中，一旦提交被他人拉取，修改历史（如 reset 后再强制推送）会导致所有人的本地仓库与远程产生分叉，需要复杂的协调来修复。revert 则完全避免了这个问题——它只是在前端追加一个"撤销"操作，所有人都能干净地同步。</p>
+<div class="mermaid">
+graph LR
+    subgraph &quot;git reset&quot;
+        A1[C1] --> A2[C2] --> A3[C3]
+        A3 -.->|reset --hard C2| A2
+        A3 -.->|被丢弃| A3
+    end
+
+    subgraph &quot;git revert&quot;
+        B1[C1] --> B2[C2] --> B3[C3]
+        B3 -->|revert C2| B4[C4=反C2]
+        B4 -.->|历史完整保留| B4
+    end
+
+</div>
+<h2 id="git-reflog">四、git reflog：时光机的黑匣子</h2>
+<p>如果说 reset 是可能酿成大祸的利刃，那么 reflog 就是能够挽回一切的时光机。reflog（Reference Log）是 Git 自动维护的操作日志，记录了 HEAD 和分支引用在过去一段时间内的每一次移动。它不是仓库历史的一部分——普通用户不会看到它，也不会被推送到远程——而是 Git 在本地默默记录的"元历史"。</p>
+<p>每一次提交、切换分支、reset、rebase、merge、cherry-pick，甚至修改引用，都会在 reflog 中留下记录。默认情况下，这些记录会被保留 90 天（对于不可达对象则是 30 天），之后由 Git 的垃圾回收机制清理。</p>
+<pre><code class="language-bash"># 查看 HEAD 的操作历史
+git reflog
+
+# 输出示例：
+# a1b2c3d HEAD@{0}: commit: feat: add payment integration
+# e4f5g6h HEAD@{1}: reset: moving to HEAD~2
+# i7j8k9l HEAD@{2}: commit: feat: add checkout flow
+# m0n1o2p HEAD@{3}: checkout: moving from feature-x to main
+</code></pre>
+<p>reflog 的拯救能力在以下场景中体现得淋漓尽致：</p>
+<p><strong>场景一：recover from hard reset</strong>。当你执行了 <code>git reset --hard HEAD~3</code> 后意识到丢弃的提交中有重要内容，可以通过 reflog 找回它们。</p>
+<pre><code class="language-bash">git reflog
+# 找到 reset 之前的 HEAD 位置，例如 HEAD@{2}
+git checkout HEAD@{2}
+# 或者直接从该位置创建分支恢复
+git branch recovered-branch HEAD@{2}
+</code></pre>
+<p><strong>场景二：recover from branch deletion</strong>。误删了一个本地分支？只要该分支上的提交还在 reflog 的保留期内，就能找回来。</p>
+<pre><code class="language-bash"># 查找已删除分支的最后一个提交
+git reflog | grep &quot;branch-name&quot;
+# 或者查看所有引用的 reflog
+git reflog show --all
+
+# 找到提交 hash 后恢复
+git checkout deadbeef
+git branch recovered-branch
+</code></pre>
+<p><strong>场景三：recover from rebase disaster</strong>。一次复杂的交互式 rebase 搞砸了提交历史？reflog 记录了 rebase 开始前的状态。</p>
+<pre><code class="language-bash"># rebase 之前 Git 通常会创建一个 ORIG_HEAD 引用
+git reset --hard ORIG_HEAD
+
+# 或者从 reflog 中找到 rebase 前的状态
+git reflog | grep &quot;rebase&quot;
+git reset --hard HEAD@{5}
+</code></pre>
+<p>reflog 并非绝对可靠——如果 Git 的垃圾回收已经运行并清理了不可达对象，或者 reflog 条目已经过期，那么被引用的提交对象可能已经从对象数据库中物理删除。但对于绝大多数日常开发场景，90 天的保留窗口提供了充足的安全网。养成定期查看 <code>git reflog</code> 的习惯，能够建立对 Git 操作结果的直观感知，也有助于在意外发生时快速定位恢复点。</p>
+<h2 id="rebase">五、交互式 rebase：雕刻提交历史</h2>
+<p>如果说 reset 和 revert 是"做减法"——回退或抵消提交，那么交互式 rebase（<code>git rebase -i</code>）就是"做精细雕塑"——重新排列、拆分、合并和修改提交。rebase 的核心原理是将当前分支的提交逐个"摘下来"，在目标分支的最新提交之上重新"嫁接"。交互式模式则在这一过程中加入了人工审核和编辑的环节。</p>
+<pre><code class="language-bash"># 对当前分支最近的 5 个提交进行交互式整理
+git rebase -i HEAD~5
+</code></pre>
+<p>执行上述命令后，Git 会打开一个文本编辑器，列出最近 5 个提交的摘要，每行一条，格式为 <code>&lt;action&gt; &lt;hash&gt; &lt;message&gt;</code>。可用的 action 包括：</p>
+<ul>
+<li><strong>pick</strong>：保留该提交，不做修改（默认行为）</li>
+<li><strong>reword</strong>：保留提交，但修改提交信息</li>
+<li><strong>edit</strong>：保留提交，但暂停 rebase 以便修改提交内容</li>
+<li><strong>squash</strong>：将该提交合并到前一个提交中，保留两个提交信息供编辑</li>
+<li><strong>fixup</strong>：类似 squash，但直接丢弃当前提交的信息</li>
+<li><strong>drop</strong>：删除该提交</li>
+<li><strong>exec</strong>：在指定位置执行 shell 命令</li>
+</ul>
+<pre><code>pick a1b2c3d feat: implement login page
+reword e4f5g6h feat: add JWT middleware
+edit i7j8k9l fix: correct password validation
+squash m0n1o2p chore: update login styles
+fixup p3q4r5s typo: fix comment spelling
+drop s6t7u8v WIP: debugging session
+</code></pre>
+<p>交互式 rebase 的实战价值在于将混乱的开发历史整理为清晰、可读的提交序列。在特性分支开发过程中，工程师可能会产生大量的"WIP"提交、调试日志和临时修改。在合并到主分支之前，通过 rebase 将这些中间步骤压缩为几个逻辑独立的提交，能够极大提升代码审查的效率和后续问题追溯的便利性。</p>
+<pre><code class="language-bash"># 实战：将特性分支整理后合并到 main
+# 1. 先与 main 同步
+git checkout main
+git pull origin main
+git checkout feature-branch
+
+# 2. 交互式 rebase，整理提交
+git rebase -i main
+# 在编辑器中整理、合并、修改提交信息
+
+# 3. 解决可能的冲突后继续
+git rebase --continue
+
+# 4. 将整理后的分支合并到 main
+git checkout main
+git merge feature-branch --no-ff
+</code></pre>
+<p>需要强调的是，rebase 的黄金法则：<strong>不要对已经推送到共享仓库的提交执行 rebase</strong>。rebase 会重写提交的 hash（因为父提交变了），如果其他开发者已经基于这些提交进行了工作，强制推送 rebase 后的历史将导致严重的同步问题。</p>
+<h2 id="cherry-pick">六、cherry-pick：精选提交的手术刀</h2>
+<p><code>git cherry-pick</code> 允许你将一个或多个现有提交的修改，应用到当前分支上，形成新的提交。这些新提交的内容与原始提交相同（如果无冲突），但拥有不同的提交 hash 和父提交。</p>
+<p>cherry-pick 的典型使用场景包括：将某个特性分支上的关键 bug 修复同步到已发布的稳定分支；从一个废弃的实验分支中提取有价值的代码片段；或者在多个长期维护的版本分支之间移植补丁。</p>
+<pre><code class="language-bash"># 将指定提交应用到当前分支
+git cherry-pick a1b2c3d
+
+# cherry-pick 多个连续提交
+git cherry-pick a1b2c3d^..e4f5g6h
+
+# cherry-pick 时保留原始提交信息
+git cherry-pick -x a1b2c3d
+# 这会在提交信息末尾添加 &quot;(cherry picked from commit a1b2c3d)&quot;
+
+# cherry-pick 时不自动提交，以便修改
+git cherry-pick -n a1b2c3d
+# 修改文件后手动提交
+</code></pre>
+<p>cherry-pick 虽然便捷，但过度使用可能导致分支间的代码差异变得难以追踪。当需要在多个分支间长期同步大量修改时，更推荐采用合并（merge）或变基（rebase）的策略来保持历史的清晰脉络。</p>
+<div class="mermaid">
+graph LR
+    subgraph &quot;cherry-pick 流程&quot;
+        A[main: C1-C2-C3] --> B[feature: C1-C2-C3-F1-F2]
+        B -->|pick F1| C[main: C1-C2-C3-F1']
+        C -->|pick F2| D[main: C1-C2-C3-F1'-F2']
+    end
+
+</div>
+<h2 id="_1">七、实战决策矩阵</h2>
+<p>面对具体的撤销或修正需求，以下决策矩阵可以帮助快速定位合适的工具：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐命令</th>
+<th>备选方案</th>
+<th>注意事项</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>修正最后一次提交（未推送）</td>
+<td><code>git commit --amend</code></td>
+<td><code>git reset --soft HEAD~1</code></td>
+<td>amend 会修改提交 hash</td>
+</tr>
+<tr>
+<td>撤销最后一次提交（未推送）</td>
+<td><code>git reset --mixed HEAD~1</code></td>
+<td><code>git reset --soft HEAD~1</code></td>
+<td>根据是否需要保留暂存区选择</td>
+</tr>
+<tr>
+<td>彻底放弃所有本地修改</td>
+<td><code>git reset --hard HEAD</code></td>
+<td><code>git checkout .</code> + <code>git clean -fd</code></td>
+<td>不可逆，先确认 reflog 可用</td>
+</tr>
+<tr>
+<td>撤销已推送的提交</td>
+<td><code>git revert &lt;commit&gt;</code></td>
+<td>—</td>
+<td>不要 reset 后强制推送共享分支</td>
+</tr>
+<tr>
+<td>整理特性分支提交历史</td>
+<td><code>git rebase -i</code></td>
+<td>—</td>
+<td>确保分支未被他人使用</td>
+</tr>
+<tr>
+<td>将 bug 修复同步到稳定分支</td>
+<td><code>git cherry-pick &lt;commit&gt;</code></td>
+<td><code>git format-patch</code> + <code>git am</code></td>
+<td>考虑长期维护成本</td>
+</tr>
+<tr>
+<td>误操作后恢复丢失的提交</td>
+<td><code>git reflog</code> + <code>git reset --hard</code></td>
+<td><code>git fsck --unreachable</code></td>
+<td>尽快操作，避免垃圾回收</td>
+</tr>
+<tr>
+<td>撤销一次合并</td>
+<td><code>git revert -m 1 &lt;merge&gt;</code></td>
+<td><code>git reset --hard</code>（未推送时）</td>
+<td>revert 合并提交需指定父分支</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">八、安全实践与心态建设</h2>
+<p>Git 的历史操作工具提供了巨大的灵活性，但灵活性也意味着更高的认知负担和误操作风险。建立以下安全习惯，可以在享受强大功能的同时降低事故概率：</p>
+<p>首先，在执行任何可能破坏历史或丢弃数据的操作前，创建一个临时分支作为安全网。分支的创建成本几乎为零，但在关键时刻可以成为救命稻草。</p>
+<p>其次，理解 <code>git stash</code> 作为临时保存未提交修改的工具。当你需要切换分支或执行可能冲突的操作，但又不想立即提交当前的半成品时，stash 提供了一个干净的暂存空间。</p>
+<p>再次，熟悉 <code>git reflog</code> 的输出格式和查找技巧。定期运行 <code>git reflog</code> 可以建立对 Git 内部操作的直觉，也能在真正需要恢复时快速定位目标提交。</p>
+<p>最后，培养"原子提交"的习惯——每个提交只包含一个逻辑变更，提交信息清晰描述"做了什么"和"为什么"。这不仅使 revert 和 cherry-pick 更加精确可控，也使得交互式 rebase 的整理工作事半功倍。</p>
+<p>版本控制系统的终极目的不是保存代码的每一刻状态，而是帮助开发者讲述代码演进的故事。reset、revert、reflog、rebase 和 cherry-pick，是这个故事的编辑工具。掌握它们，意味着你不仅可以编写代码，还可以精心编排代码的历史叙事——在需要时重写过去，在必要时保留痕迹，在出错时挽回一切。这便是 Git 赋予开发者的真正力量。</p>
+<h1 id="git_1">Git #版本控制 #代码管理 #开发工具 #团队协作</h1>
+      </div>
+    </article>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; 2024-2026 朱天伟 | Smart Open. Built with care.</p>
+    </div>
+  </footer>
+
+  <script src="../../js/main.js"></script>
+  <script src="../../js/article.js"></script>
+  <script src="../../js/preview-rail.js"></script>
+</body>
+</html>

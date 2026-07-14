@@ -233,6 +233,86 @@
   }
 }
 
+/* ===== Markdown 扩展元素样式 ===== */
+
+.markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--space-md) 0;
+  font-size: 0.9rem;
+}
+
+.markdown-body th,
+.markdown-body td {
+  border: 1px solid var(--divider);
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+}
+
+.markdown-body th {
+  background: var(--bg-secondary);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.markdown-body tr:nth-child(even) {
+  background: rgba(18, 18, 26, 0.5);
+}
+
+.markdown-body blockquote {
+  border-left: 3px solid var(--accent);
+  background: var(--bg-secondary);
+  padding: var(--space-sm) var(--space-md);
+  margin: var(--space-md) 0;
+  color: var(--text-secondary);
+  border-radius: 0 4px 4px 0;
+}
+
+.markdown-body blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body hr {
+  border: none;
+  border-top: 1px solid var(--divider);
+  margin: var(--space-lg) 0;
+}
+
+.markdown-body img {
+  max-width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--divider);
+  margin: var(--space-md) 0;
+}
+
+.markdown-body h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: var(--space-md);
+  margin-bottom: var(--space-sm);
+  color: var(--text-primary);
+}
+
+/* ===== Mermaid 图表容器 ===== */
+.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--divider);
+  border-radius: 8px;
+  padding: var(--space-md);
+  margin: var(--space-md) 0;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ===== 图表标题/说明 ===== */
+.figure-caption {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: calc(var(--space-sm) * -1);
+  margin-bottom: var(--space-md);
+}
+
 @media (max-width: 768px) {
   .article-hero {
     padding: var(--space-lg) var(--space-md);

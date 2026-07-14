@@ -14,7 +14,7 @@
   const sections = document.querySelectorAll('.section');
   sections.forEach(section => {
     const title = section.querySelector('.section-title');
-    const body = section.querySelector('.about-body, .timeline, .projects-list, .services-list, .contact-body, .skills-container');
+    const body = section.querySelector('.about-lead, .timeline, .projects-list, .services-list, .contact-body, .skills-container');
 
     if (title) {
       gsap.fromTo(title,
