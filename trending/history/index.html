@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>历史趋势记录 | Smart Open</title>
+  <meta name="description" content="每周 GitHub 热门项目和 Skills 趋势的历史记录">
+  <link rel="icon" type="image/png" href="../../favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/main.css">
+
+  <style>
+    .history-hero {
+      padding: calc(var(--space-xl) + 64px) var(--space-md) var(--space-lg);
+      text-align: center;
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--divider);
+    }
+
+    .history-hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: var(--space-xs);
+    }
+
+    .history-hero .subtitle {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+
+    .history-hero .back-link {
+      display: inline-block;
+      margin-top: var(--space-sm);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--accent);
+      text-decoration: none;
+      border: 1px solid var(--divider);
+      padding: 0.3rem 0.8rem;
+      transition: border-color var(--transition-base);
+    }
+
+    .history-hero .back-link:hover {
+      border-color: var(--accent);
+    }
+
+    .history-list {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: var(--space-xl) var(--space-md);
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-md);
+      border: 1px solid var(--divider);
+      margin-bottom: var(--space-sm);
+      background: var(--bg-secondary);
+      transition: border-color var(--transition-base);
+      text-decoration: none;
+    }
+
+    .history-item:hover {
+      border-color: var(--accent);
+    }
+
+    .history-item-date {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .history-item-label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 0.2rem;
+    }
+
+    .history-item-arrow {
+      font-family: var(--font-mono);
+      font-size: 1.2rem;
+      color: var(--accent);
+    }
+
+    .history-empty {
+      text-align: center;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      padding: var(--space-xl) 0;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="site-nav" id="nav">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-brand"><img src="../../assets/img/logo.png" alt="Smart Open" class="nav-logo"><span>Smart Open</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="切换导航">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#about">关于</a></li>
+        <li><a href="../../index.html#projects">项目</a></li>
+        <li><a href="../../index.html#skills">技能</a></li>
+        <li><a href="../../index.html#experience">经历</a></li>
+        <li><a href="../../articles/index.html">文章</a></li>
+        <li><a href="../index.html">趋势</a></li>
+        <li><a href="../../index.html#contact">联系</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="history-hero">
+    <h1>历史趋势记录</h1>
+    <p class="subtitle">每周 GitHub 热门项目 &amp; Skills 排行存档</p>
+    <a href="../index.html" class="back-link">&#8592; 返回最新趋势</a>
+  </div>
+
+  <div class="history-list" id="historyList">
+    <!-- History items will be injected here -->
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; 2024-2026 朱天伟 | Smart Open. Built with care.</p>
+    </div>
+  </footer>
+
+  <script>
+    (function() {
+      // Scan for available history data files
+      // Format: trending-YYYY-MM-DD.js
+      const historyFiles = [
+        { date: '2026-07-14', file: '../trending-data.js', label: '最新一期' },
+        { date: '2026-07-07', file: './trending-2026-07-07.js', label: '往期记录' }
+      ];
+
+      const list = document.getElementById('historyList');
+
+      if (historyFiles.length === 0) {
+        list.innerHTML = '<div class="history-empty">暂无历史记录</div>';
+        return;
+      }
+
+      historyFiles.forEach(item => {
+        const a = document.createElement('a');
+        a.className = 'history-item';
+        a.href = item.file === '../trending-data.js' ? '../index.html' : './view.html?date=' + item.date;
+        a.innerHTML =
+          '<div>' +
+            '<div class="history-item-date">' + item.date + '</div>' +
+            '<div class="history-item-label">' + item.label + '</div>' +
+          '</div>' +
+          '<div class="history-item-arrow">&#8599;</div>';
+        list.appendChild(a);
+      });
+    })();
+  </script>
+</body>
+</html>

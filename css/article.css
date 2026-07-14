@@ -307,6 +307,28 @@
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
+/* ===== 文章内联配图 ===== */
+.article-inline-image {
+  margin: var(--space-lg) 0;
+  text-align: center;
+}
+
+.article-inline-image img {
+  width: 100%;
+  max-width: 760px;
+  border-radius: 12px;
+  border: 1px solid var(--divider);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+.article-inline-image figcaption {
+  margin-top: var(--space-xs);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  line-height: 1.5;
+}
+
 /* ===== 成本优化四象限图 ===== */
 .cost-quadrant {
   position: relative;
@@ -420,6 +442,198 @@
 
   .quadrant-axis {
     display: none;
+  }
+}
+
+/* ===== 演进路线图 ===== */
+.evolution-path {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin: var(--space-md) 0;
+  border: 1px solid var(--divider);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.path-node {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem 0.75rem;
+  text-align: center;
+  position: relative;
+  gap: 0.5rem;
+  background: var(--bg-secondary);
+}
+
+.path-node:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: 20%;
+  height: 60%;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+  opacity: 0.4;
+  z-index: 1;
+}
+
+.path-node-1 { background: rgba(18, 18, 26, 0.8); }
+.path-node-2 { background: rgba(18, 18, 26, 0.5); }
+.path-node-3 { background: rgba(0, 240, 255, 0.06); }
+.path-node-4 { background: rgba(0, 240, 255, 0.12); }
+
+.path-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.path-sub {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.path-arrow {
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid var(--accent);
+  opacity: 0.3;
+}
+
+.path-tag {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--accent);
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  opacity: 0.7;
+}
+
+.path-result {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.path-node-3 .path-tag,
+.path-node-4 .path-tag {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .evolution-path {
+    flex-direction: column;
+  }
+
+  .path-node:not(:last-child)::after {
+    top: auto;
+    bottom: -1px;
+    left: 20%;
+    right: auto;
+    width: 60%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--accent), transparent);
+  }
+
+  .path-arrow {
+    transform: rotate(-90deg);
+  }
+}
+
+/* ===== 数据金字塔 ===== */
+.data-pyramid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin: var(--space-md) 0;
+}
+
+.pyramid-layer {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border: 1px solid var(--divider);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  transition: border-color var(--transition-base);
+}
+
+.pyramid-layer:hover {
+  border-color: var(--accent);
+}
+
+.pyramid-layer-1 {
+  max-width: 320px;
+  background: rgba(0, 240, 255, 0.12);
+  border-radius: 8px;
+}
+
+.pyramid-layer-2 {
+  max-width: 420px;
+  background: rgba(0, 240, 255, 0.09);
+}
+
+.pyramid-layer-3 {
+  max-width: 520px;
+  background: rgba(0, 240, 255, 0.06);
+}
+
+.pyramid-layer-4 {
+  max-width: 620px;
+  background: rgba(0, 240, 255, 0.03);
+}
+
+.pyramid-layer-5 {
+  max-width: 100%;
+  background: rgba(18, 18, 26, 0.5);
+}
+
+.pyramid-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.pyramid-desc {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.pyramid-goal {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+  white-space: nowrap;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--divider);
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .pyramid-layer {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.75rem 1rem;
+  }
+
+  .pyramid-layer-1,
+  .pyramid-layer-2,
+  .pyramid-layer-3,
+  .pyramid-layer-4,
+  .pyramid-layer-5 {
+    max-width: 100%;
   }
 }
 
