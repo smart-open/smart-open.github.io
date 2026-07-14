@@ -29,3 +29,7 @@ All new development must adhere to the following color scheme extracted from the
 **Font Families**:
 - Body: `Inter` (sans-serif)
 - Monospace/code: `JetBrains Mono`
+
+## 4. 首页文章列表同步
+
+每次新增或更新文章后，必须同步更新首页 `index.html` 的文章列表，保持展示**最新的三篇文章**（按日期倒序）。
