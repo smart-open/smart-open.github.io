@@ -33,3 +33,7 @@ All new development must adhere to the following color scheme extracted from the
 ## 4. 首页文章列表同步
 
 每次新增或更新文章后，必须同步更新首页 `index.html` 的文章列表，保持展示**最新的三篇文章**（按日期倒序）。
+
+## 5. 禁止硬编码域名
+
+所有内部链接必须使用**相对路径**（如 `./p/s`、`../articles/index.html`），禁止硬编码域名（如 `https://smart-open.github.io/...`）。域名变更时代码无需修改即可正常访问。
