@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Harness：驯服大模型的六柱驾驭体系——从原理到落地实操 - 朱天伟 | Smart Open</title>
+  <meta name="description" content="AI Harness是包裹在大模型外面的一整套运行管控体系，包含任务流程、规则约束、工具调用、自动纠错、全程监控、复盘迭代六大支柱。本文从原理到落地，系统拆解如何让AI从脱缰野马变成稳定交付的工程工具。">
+  <link rel="icon" type="image/png" href="../../favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/preview-rail.css">
+  <style>
+    /* ===== 六支柱总览 ===== */
+    .harness-pillars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: var(--space-md) 0;
+    }
+    .pillar-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--divider);
+      border-radius: 10px;
+      padding: 1.25rem;
+      transition: border-color var(--transition-base);
+    }
+    .pillar-card:hover {
+      border-color: var(--accent);
+    }
+    .pillar-card-num {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent);
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      padding: 0.15rem 0.5rem;
+      display: inline-block;
+      margin-bottom: 0.5rem;
+    }
+    .pillar-card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.3rem;
+    }
+    .pillar-card-sub {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+    .pillar-card-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ===== 范式对比表格 ===== */
+    .paradigm-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: var(--space-md) 0;
+      font-size: 0.9rem;
+    }
+    .paradigm-table th,
+    .paradigm-table td {
+      border: 1px solid var(--divider);
+      padding: 0.6rem 0.8rem;
+      text-align: left;
+    }
+    .paradigm-table th {
+      background: var(--bg-secondary);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .paradigm-table tr:nth-child(even) {
+      background: rgba(18, 18, 26, 0.5);
+    }
+    .paradigm-table .paradigm-highlight {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ===== 技能卡片网格 ===== */
+    .skill-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: var(--space-md) 0;
+    }
+    .skill-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--divider);
+      border-radius: 10px;
+      padding: 1.25rem;
+      transition: border-color var(--transition-base);
+    }
+    .skill-card:hover {
+      border-color: var(--accent);
+    }
+    .skill-card-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      font-family: var(--font-mono);
+    }
+    .skill-card-title {
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+    .skill-card-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ===== HITL门控流程图 ===== */
+    .hitl-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin: var(--space-md) 0;
+      border: 1px solid var(--divider);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .hitl-stage {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+    }
+    .hitl-auto {
+      flex: 1;
+      padding: 0.85rem 1rem;
+      background: var(--bg-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .hitl-auto-label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      background: rgba(122, 122, 133, 0.15);
+      border: 1px solid var(--divider);
+      border-radius: 4px;
+      padding: 0.15rem 0.5rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .hitl-auto-text {
+      font-size: 0.85rem;
+      color: var(--text-primary);
+    }
+    .hitl-gate {
+      width: 140px;
+      flex-shrink: 0;
+      padding: 0.85rem 1rem;
+      background: rgba(0, 240, 255, 0.1);
+      border-left: 1px solid var(--accent);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+      text-align: center;
+    }
+    .hitl-gate-icon {
+      font-size: 0.7rem;
+      color: var(--accent);
+      font-family: var(--font-mono);
+      background: rgba(0, 240, 255, 0.15);
+      border: 1px solid var(--accent);
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hitl-gate-text {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .hitl-stage:not(:last-child) {
+      border-bottom: 1px solid var(--divider);
+    }
+
+    /* ===== 数据流闭环 ===== */
+    .dataflow-pipeline {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: var(--space-md) 0;
+      border: 1px solid var(--divider);
+      border-radius: 12px;
+      overflow: hidden;
+      flex-wrap: wrap;
+    }
+    .flow-node {
+      padding: 0.75rem 1rem;
+      background: var(--bg-secondary);
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .flow-node-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+    .flow-node-sub {
+      font-size: 0.7rem;
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+      margin-top: 0.2rem;
+    }
+    .flow-arrow {
+      color: var(--accent);
+      font-size: 1rem;
+      flex-shrink: 0;
+      padding: 0 0.25rem;
+      opacity: 0.5;
+    }
+    .flow-node-highlight {
+      background: rgba(0, 240, 255, 0.08);
+      border-color: var(--accent);
+    }
+
+    /* ===== 四阶段实施 ===== */
+    .impl-phases {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin: var(--space-md) 0;
+      border: 1px solid var(--divider);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .impl-phase {
+      padding: 1rem 1.5rem;
+      background: var(--bg-secondary);
+      display: flex;
+      gap: var(--space-md);
+      align-items: flex-start;
+    }
+    .impl-phase-num {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .impl-phase-content { flex: 1; }
+    .impl-phase-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.3rem;
+    }
+    .impl-phase-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    .impl-phase:not(:last-child) {
+      border-bottom: 1px solid var(--divider);
+    }
+
+    /* ===== 成本表格 ===== */
+    .cost-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: var(--space-md) 0;
+      font-size: 0.9rem;
+    }
+    .cost-table th,
+    .cost-table td {
+      border: 1px solid var(--divider);
+      padding: 0.6rem 0.8rem;
+      text-align: left;
+    }
+    .cost-table th {
+      background: var(--bg-secondary);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .cost-table tr:nth-child(even) {
+      background: rgba(18, 18, 26, 0.5);
+    }
+    .cost-table .cost-highlight {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ===== 代码块 ===== */
+    .code-block {
+      background: var(--bg-secondary);
+      border: 1px solid var(--divider);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin: var(--space-md) 0;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      line-height: 1.6;
+      overflow-x: auto;
+      color: var(--text-primary);
+    }
+    .code-block .comment {
+      color: var(--text-secondary);
+    }
+    .code-block .keyword {
+      color: var(--accent);
+    }
+
+    /* ===== 文件树 ===== */
+    .file-tree {
+      background: var(--bg-secondary);
+      border: 1px solid var(--divider);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin: var(--space-md) 0;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      line-height: 1.8;
+      color: var(--text-primary);
+    }
+    .file-tree .dir { color: var(--accent); }
+    .file-tree .file { color: var(--text-secondary); }
+    .file-tree .indent { margin-left: 1.5rem; display: block; }
+
+    /* ===== 响应式 ===== */
+    @media (max-width: 768px) {
+      .harness-pillars {
+        grid-template-columns: 1fr;
+      }
+      .skill-cards {
+        grid-template-columns: 1fr;
+      }
+      .hitl-stage {
+        flex-direction: column;
+      }
+      .hitl-gate {
+        width: 100%;
+        border-left: none;
+        border-top: 1px solid var(--accent);
+        flex-direction: row;
+        padding: 0.75rem 1rem;
+      }
+      .hitl-gate-icon {
+        width: 24px;
+        height: 24px;
+      }
+      .dataflow-pipeline {
+        justify-content: center;
+      }
+      .paradigm-table {
+        font-size: 0.8rem;
+      }
+      .paradigm-table th,
+      .paradigm-table td {
+        padding: 0.4rem 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="site-nav" id="nav">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-brand"><img src="../../assets/img/logo.png" alt="Smart Open" class="nav-logo"><span>Smart Open</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="切换导航">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#about">关于</a></li>
+        <li><a href="../../index.html#projects">项目</a></li>
+        <li><a href="../../index.html#skills">技能</a></li>
+        <li><a href="../../index.html#experience">经历</a></li>
+        <li><a href="../index.html">文章</a></li>
+        <li><a href="../../trending/index.html">趋势</a></li>
+        <li><a href="../../index.html#contact">联系</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="article-hero">
+    <div class="article-hero-content">
+      <h1 class="article-title">AI Harness：驯服大模型的六柱驾驭体系——从原理到落地实操</h1>
+      <div class="article-meta">
+        <span class="article-date">2026-07-16</span>
+        <div class="article-tags">
+          <span class="tag">AI Harness</span>
+          <span class="tag">Agent工程</span>
+          <span class="tag">智能体</span>
+          <span class="tag">落地实践</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="article-container">
+    <aside class="article-sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">目录</h3>
+        <nav class="article-toc" id="articleToc"></nav>
+      </div>
+    </aside>
+
+    <article class="article-content">
+      <div class="markdown-body">
+        <figure class="article-hero-image"><img src="../../assets/img/article-ai-harness.jpg" alt="AI Harness六柱驾驭体系"></figure>
+
+<h2 id="section-1">一、引言：当大模型遇见「马具」</h2>
+
+<p>Harness，这个词的本意是「马具」——缰绳、马鞍、嚼子，一整套驯服烈马、让骑手安全驾驭的装备<sup><a href="#cite-1">[1]</a></sup>。在2026年的AI工程领域，Harness 被赋予了全新的含义：它是包裹在大模型外面的一整套运行管控体系，把只会单次聊天的AI，变成能长期连续完成复杂工作的智能体（Agent）。</p>
+
+<p>2026年出现了一个令人震惊的反常识现象：同一个 Claude 模型，裸跑时花费9美元全部失败；套上 Harness 后花费200美元却完美交付<sup><a href="#cite-2">[2]</a></sup>。这个对比揭示了一个核心命题——<strong>问题不在模型，在模型之外</strong>。大模型很聪明，但像一匹脱缰的野马。AI Harness 就是驯服它、管控它、规范它的整套系统。</p>
+
+<blockquote><p><strong>核心定义</strong>：AI Harness 是包裹在大模型外面的一整套运行管控体系，包含六大支柱——任务流程、规则约束、工具调用、自动纠错、全程监控、复盘迭代。它的目标只有一个：把只会单次聊天的AI，变成能长期连续完成复杂工作的智能体。</p></blockquote>
+
+<p>如果把大模型比作一匹烈马，那么 Prompt Engineering 是「怎么喊话让马听明白」，Context Engineering 是「怎么给马看对路标」，而 Harness Engineering 则是「怎么给马配上全套马具，让它能安全、稳定、可预期地跑完全程」。这不是模型的升级，而是<strong>工程范式的跃迁</strong>。</p>
+
+<h2 id="section-2">二、AI工程范式的三次跃迁</h2>
+
+<p>从2023年到2026年，AI工程领域经历了三次清晰的范式跃迁。每一次跃迁都不是对前一次的否定，而是在更深层面对「如何让AI稳定产出价值」这一问题的回答<sup><a href="#cite-3">[3]</a></sup>。</p>
+
+<table class="paradigm-table">
+<thead>
+<tr>
+<th>维度</th>
+<th>Prompt Engineering（2023-2024）</th>
+<th>Context Engineering（2025）</th>
+<th class="paradigm-highlight">Harness Engineering（2026~）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>核心问题</strong></td>
+<td>怎么把指令说清楚</td>
+<td>怎么给AI喂对信息</td>
+<td class="paradigm-highlight">怎么让Agent稳定交付</td>
+</tr>
+<tr>
+<td><strong>关注焦点</strong></td>
+<td>单轮对话质量</td>
+<td>上下文窗口利用</td>
+<td class="paradigm-highlight">全流程管控与可靠性</td>
+</tr>
+<tr>
+<td><strong>关键技术</strong></td>
+<td>Zero-shot / Few-shot / CoT</td>
+<td>RAG / 长上下文压缩 / Memory</td>
+<td class="paradigm-highlight">任务编排 / 规则约束 / 自动纠错 / HITL</td>
+</tr>
+<tr>
+<td><strong>工程形态</strong></td>
+<td>单次API调用</td>
+<td>多轮对话链</td>
+<td class="paradigm-highlight">长期运行的Agent系统</td>
+</tr>
+<tr>
+<td><strong>成功指标</strong></td>
+<td>单轮回答准确率</td>
+<td>信息检索召回率</td>
+<td class="paradigm-highlight">端到端任务完成率</td>
+</tr>
+<tr>
+<td><strong>失效模式</strong></td>
+<td>答非所问</td>
+<td>上下文丢失 / 幻觉</td>
+<td class="paradigm-highlight">流程中断 / 错误累积 / 不可恢复</td>
+</tr>
+<tr>
+<td><strong>解决思路</strong></td>
+<td>优化Prompt模板</td>
+<td>优化信息注入策略</td>
+<td class="paradigm-highlight">构建完整的运行管控体系</td>
+</tr>
+</tbody>
+</table>
+
+<p>第一次跃迁发生在2023年到2024年。当 ChatGPT 横空出世，整个行业的核心问题变成了「怎么把指令说清楚」。Zero-shot、Few-shot、Chain-of-Thought 等技术轮番登场，研究者们在 Prompt 的措辞、结构、示例选择上下功夫。这个阶段的 AI 工程本质上是「对话工程」——优化单次或少数几轮对话的输出质量。</p>
+
+<p>第二次跃迁发生在2025年。随着上下文窗口的急剧扩大（从4K到200K再到1M token），核心问题转变为「怎么给AI喂对信息」。RAG（检索增强生成）成为标配，长上下文压缩技术涌现，Memory 系统开始被重视。这个阶段的 AI 工程从「对话工程」升级为「信息管理工程」——让AI在更长的上下文中保持对关键信息的准确把握。</p>
+
+<p>第三次跃迁正在2026年发生。当 Agent 开始承担真实生产任务，人们发现：即使 Prompt 写得再好、上下文管理再精细，Agent 仍然会在长周期执行中失败——不是因为某一步错了，而是因为<strong>错误会累积、状态会腐烂、流程会偏离</strong>。Harness Engineering 应运而生，它的核心目标不是让单步更聪明，而是让整个系统更可靠。</p>
+
+<p>正如 Anthropic 工程师总结的那样：「试图一步到位、过早宣布胜利、过早标记已完成」是 Agent 项目的三大翻车场景<sup><a href="#cite-3">[3]</a></sup>。Harness Engineering 正是为了避免这些翻车而诞生的系统性方法论。</p>
+
+<h2 id="section-3">三、AI Harness 的六大支柱</h2>
+
+<p>AI Harness 的六大支柱构成了一个完整的运行管控体系。每一个支柱解决一个特定层面的问题，六个支柱协同工作，形成一个从任务启动到复盘迭代的完整闭环<sup><a href="#cite-1">[1]</a></sup>。</p>
+
+<div class="harness-pillars">
+  <div class="pillar-card">
+    <div class="pillar-card-num">01</div>
+    <div class="pillar-card-title">任务流程</div>
+    <div class="pillar-card-sub">Task Workflow</div>
+    <div class="pillar-card-desc">将复杂任务拆解为可编排、可追踪、可回滚的阶段序列。Explore → Plan → Implement → Commit 四阶段是最小可用单元。</div>
+  </div>
+  <div class="pillar-card">
+    <div class="pillar-card-num">02</div>
+    <div class="pillar-card-title">规则约束</div>
+    <div class="pillar-card-sub">Rule Constraints</div>
+    <div class="pillar-card-desc">通过 AGENTS.md、SOUL.md 等明文文件定义Agent的行为边界、人格设定与安全限制。规则即代码，约束即护栏。</div>
+  </div>
+  <div class="pillar-card">
+    <div class="pillar-card-num">03</div>
+    <div class="pillar-card-title">工具调用</div>
+    <div class="pillar-card-sub">Tool Calling</div>
+    <div class="pillar-card-desc">通过 MCP 协议标准化工具接口，让 Agent 安全地调用 Git、Bash、数据库等外部工具。工具是 Agent 的四肢。</div>
+  </div>
+  <div class="pillar-card">
+    <div class="pillar-card-num">04</div>
+    <div class="pillar-card-title">自动纠错</div>
+    <div class="pillar-card-sub">Auto Correction</div>
+    <div class="pillar-card-desc">Checkpoint 状态快照回滚、构建失败自动重试、测试失败自动修复、Validation Loop 最多3轮自修正。</div>
+  </div>
+  <div class="pillar-card">
+    <div class="pillar-card-num">05</div>
+    <div class="pillar-card-title">全程监控</div>
+    <div class="pillar-card-sub">Full Monitoring</div>
+    <div class="pillar-card-desc">Golden Signals 四大信号、Token 消耗追踪、全链路追踪、Agent 专属指标监控。可观测性是 Harness 的眼睛。</div>
+  </div>
+  <div class="pillar-card">
+    <div class="pillar-card-num">06</div>
+    <div class="pillar-card-title">复盘迭代</div>
+    <div class="pillar-card-sub">Retrospective Iteration</div>
+    <div class="pillar-card-desc">每次真实错误转化为永久系统规则。棘轮迭代法则：错误不回犯，规则只增不减，系统越用越稳。</div>
+  </div>
+</div>
+
+<h3>3.1 任务流程（Task Workflow）</h3>
+
+<p>任务流程是 Harness 的骨架。没有流程的 Agent 就像没有剧本的演员，每一步都在即兴发挥，累积误差直到系统崩溃。一个健壮的任务流程必须具备三个特征：<strong>可编排</strong>（阶段之间可以灵活组合）、<strong>可追踪</strong>（每个阶段的输入输出都被记录）、<strong>可回滚</strong>（任何阶段失败都可以回到上一个稳定状态）。</p>
+
+<p>Claude Code 的 Explore → Plan → Implement → Commit 四阶段工作流是一个极佳的参考实现。Explore 阶段以只读模式分析环境，Plan 阶段输出可审核的实施方案，Implement 阶段执行编码，Commit 阶段提交并触发验收。每个阶段之间都可以插入 HITL 暂停点，让人类在关键节点进行确认。</p>
+
+<h3>3.2 规则约束（Rule Constraints）</h3>
+
+<p>规则约束是 Harness 的缰绳。AI 很聪明，但缺乏边界感——它会为了「完成任务」而绕过安全限制、修改不该修改的文件、执行危险的操作。规则约束通过明文文件（如 AGENTS.md、SOUL.md）定义 Agent 的行为边界，让约束成为代码的一部分，而非口头提醒。</p>
+
+<p>规则约束的典型内容包括：允许操作的文件范围、禁止执行的命令列表、代码风格规范、安全边界（如只读 MCP / 白名单命令）、人格设定（Agent 以什么角色和口吻与用户交互）。这些规则文件被纳入版本控制，变更可追溯，与代码规范一视同仁。</p>
+
+<h3>3.3 工具调用（Tool Calling）</h3>
+
+<p>工具调用是 Harness 的四肢。没有工具的 Agent 只能「说话」，不能「做事」。MCP（Model Context Protocol）协议在2026年已成为 Agent 工具调用的事实标准，3000+ 开源 MCP Server 覆盖了从 Git 操作到数据库查询的绝大多数常见需求<sup><a href="#cite-4">[4]</a></sup>。</p>
+
+<p>工具调用的核心挑战在于<strong>安全与标准化的平衡</strong>。一方面，Agent 需要足够强大的工具来完成任务；另一方面，每一个新增的工具都是潜在的攻击面。Harness 通过沙箱隔离、权限矩阵、敏感操作二次确认等机制，在能力与安全之间建立平衡。</p>
+
+<h3>3.4 自动纠错（Auto Correction）</h3>
+
+<p>自动纠错是 Harness 的免疫系统。长周期执行中，错误不可避免。关键是：错误发生后，系统能否自动检测、自动修复、自动恢复，而不是让错误静默累积直到系统崩溃。</p>
+
+<p>Harness 的自动纠错体系包含四层：L1 Checkpoint 恢复（会话中断/超时后从最近快照恢复）、L2 Fallback 策略（Agent 执行失败时降级到备选方案）、L3 Validation Loop（输出质量不达标时自动重试，最多3轮自修正）、L4 HITL 升级（连续3轮自修正失败后暂停执行，升级为人工处理）。</p>
+
+<h3>3.5 全程监控（Full Monitoring）</h3>
+
+<p>全程监控是 Harness 的眼睛。传统软件工程有成熟的可观测性体系（Metrics / Tracing / Logging），Agent 系统同样需要。但 Agent 监控有其独特性——除了传统的延迟、流量、错误率、饱和度四大 Golden Signals，还需要监控 Agent 专属指标：任务完成率、Agent 响应延迟、工具调用成功率、Token 消耗趋势、Checkpoint 恢复次数、HITL 平均确认时长。</p>
+
+<h3>3.6 复盘迭代（Retrospective Iteration）</h3>
+
+<p>复盘迭代是 Harness 的自我进化机制。每一次任务执行都是一次学习机会——成功的地方提炼为最佳实践，失败的地方转化为系统规则。棘轮迭代法则（Ratcheting Iteration）规定：<strong>每次真实错误必须转化为永久系统规则，错误不回犯，规则只增不减</strong>。这意味着 Harness 系统越用越稳，而非越用越乱。</p>
+
+<h2 id="section-4">四、四大核心组件——Harness 的「护栏」系统</h2>
+
+<p>如果说六大支柱是 Harness 的「功能模块」，那么四大核心组件就是将这些模块粘合为有机整体的「护栏系统」<sup><a href="#cite-2">[2]</a></sup>。它们回答了 Harness 工程中最关键的四个问题：怎么让 AI 理解上下文？怎么防止 AI 越界？怎么让 AI 自己检查自己？怎么防止系统腐烂？</p>
+
+<h3>4.1 上下文工程：AGENTS.md 新员工手册</h3>
+
+<p>上下文工程解决的是「怎么让 Agent 理解它所处的环境」。在 Harness 工程中，AGENTS.md 文件扮演着「新员工手册」的角色——当一个 Agent 接手一个新项目时，它首先读取 AGENTS.md，了解项目结构、技术栈、编码规范、沟通风格和安全边界。</p>
+
+<p>AGENTS.md 的核心设计原则包括：<strong>明文存储</strong>（Markdown 格式，人类可读可编辑）、<strong>版本控制</strong>（纳入 Git，变更可追溯）、<strong>分层组织</strong>（项目级 AGENTS.md + 模块级 AGENTS.md + 个人级 user.md）。这种分层设计确保 Agent 既能理解全局上下文，又能聚焦当前任务的局部上下文。</p>
+
+<h3>4.2 架构约束：依赖层级 + Linter/CI 检查</h3>
+
+<p>架构约束是 Harness 的「缰绳」——它限制 Agent 的行为边界，防止它为了短期目标而破坏长期架构。具体实现包括：依赖层级约束（哪些模块可以依赖哪些模块，禁止循环依赖）、Linter 自动检查（代码风格、类型安全、潜在 bug）、CI 流水线门禁（未通过测试的代码无法合并）。</p>
+
+<p>这些约束不是「建议」，而是「强制」。Agent 生成的代码必须通过 Linter 和 CI 才能进入下一流程，这迫使 Agent 在编码时就考虑质量，而非事后修补。</p>
+
+<h3>4.3 反馈循环：Agent 自查 + 交叉验证</h3>
+
+<p>反馈循环解决的是「怎么让 AI 自己检查自己」。单一 Agent 的自我检查能力有限——就像人很难发现自己的盲点。Harness 通过两种机制建立反馈循环：<strong>Agent 自查</strong>（让 Agent 以「审查者」角色重新审查自己的产出）和<strong>交叉验证</strong>（多个 Agent 分别独立完成同一任务，对比结果找出差异）。</p>
+
+<p>这种「智能体审智能体」的模式在2026年的实践中展现出惊人效果。OpenAI Codex 的3人团队能够在5个月内生成100万行代码并合并1500个PR，核心原因之一就是建立了高效的 Agent 间反馈循环<sup><a href="#cite-5">[5]</a></sup>。</p>
+
+<h3>4.4 熵管理：Doc-gardening Agent + 重构扫描</h3>
+
+<p>熵管理是 Harness 中最容易被忽视却最关键的一环。任何长期运行的系统都会面临「熵增」——文档过时、代码腐烂、规则失效、上下文污染。如果不加以管理，Harness 系统会随着时间推移逐渐退化，最终回到「裸跑」状态。</p>
+
+<p>Harness 的熵管理机制包括：Doc-gardening Agent（定期扫描文档与代码的一致性，标记过时内容）、重构扫描（定期检测技术债务，生成重构建议）、上下文腐烂对抗（自动清理不再相关的历史上下文，保持上下文窗口的「信噪比」）。</p>
+
+<p>八大核心组件进一步扩展了 Harness 的工程实现：文件系统与 Git、Bash 代码执行、沙盒隔离、记忆与搜索、上下文腐烂对抗、长周期执行架构、Hook 强制校验层、规则与工具选择<sup><a href="#cite-3">[3]</a></sup>。这八个组件覆盖了 Agent 从「出生」（加载规则）到「死亡」（任务完成或失败）的全生命周期。</p>
+
+<h2 id="section-5">五、典型工作流程：从一句话需求到自动交付</h2>
+
+<p>Harness 的价值最终体现在「能不能让 Agent 从头到尾完成一个真实任务」。以下是一个完整的六步工作流程，配合 HITL 四道确认门控，展示 Harness 如何将「一句话需求」转化为「自动交付」<sup><a href="#cite-1">[1]</a></sup>。</p>
+
+<div class="impl-phases">
+  <div class="impl-phase">
+    <div class="impl-phase-num">01</div>
+    <div class="impl-phase-content">
+      <div class="impl-phase-title">需求探索（Explore）</div>
+      <div class="impl-phase-desc">Agent 以只读模式分析代码库历史与结构，结合用户原始需求，生成结构化的建议需求描述。输出：需求清单 + 技术可行性分析。</div>
+    </div>
+  </div>
+  <div class="impl-phase">
+    <div class="impl-phase-num">02</div>
+    <div class="impl-phase-content">
+      <div class="impl-phase-title">需求分析（PRD）</div>
+      <div class="impl-phase-desc">基于 RAD 分析框架，自动生成标准 PRD 文档，包含功能列表、接口设计、数据模型与验收标准。PRD 需经 HITL 审核通过。</div>
+    </div>
+  </div>
+  <div class="impl-phase">
+    <div class="impl-phase-num">03</div>
+    <div class="impl-phase-content">
+      <div class="impl-phase-title">计划拆解（Plan）</div>
+      <div class="impl-phase-desc">将 PRD 拆解为 DAG（有向无环图）子任务图，分析任务依赖关系，估算各任务工作量，生成可并行的执行计划。</div>
+    </div>
+  </div>
+  <div class="impl-phase">
+    <div class="impl-phase-num">04</div>
+    <div class="impl-phase-content">
+      <div class="impl-phase-title">实现开发（Implement）</div>
+      <div class="impl-phase-desc">按 Plan 的 DAG 顺序执行开发任务。支持 batch 并行处理独立模块，自动管理 worktree 与分支策略。编码过程中受 Linter 与 CI 约束。</div>
+    </div>
+  </div>
+  <div class="impl-phase">
+    <div class="impl-phase-num">05</div>
+    <div class="impl-phase-content">
+      <div class="impl-phase-title">提交部署（Commit &amp; Deploy）</div>
+      <div class="impl-phase-desc">代码审查、提交 PR、触发 CI/CD 流水线。执行预发环境部署 → 自动化验收测试 → Feature Flags 灰度 → 生产全量发布的标准交付流程。</div>
+    </div>
+  </div>
+  <div class="impl-phase">
+    <div class="impl-phase-num">06</div>
+    <div class="impl-phase-content">
+      <div class="impl-phase-title">可观测运营（Monitor）</div>
+      <div class="impl-phase-desc">基于 Golden Signals 监控生产环境表现，追踪 Token 消耗与工具调用成功率，生成任务复盘报告，沉淀为系统规则。</div>
+    </div>
+  </div>
+</div>
+
+<h3>HITL 四道确认门控</h3>
+
+<p>在上述六步流程中，有四个关键节点设置了 HITL（Human-in-the-Loop）暂停点。Agent 推进到这些节点时自动暂停，等待人类审核确认后方可继续。这四个门控构成了 Harness 的「质量闸门」：</p>
+
+<div class="hitl-flow">
+  <div class="hitl-stage">
+    <div class="hitl-auto">
+      <span class="hitl-auto-label">Auto</span>
+      <span class="hitl-auto-text">Explore 完成：需求清单 + 技术可行性分析</span>
+    </div>
+    <div class="hitl-gate">
+      <div class="hitl-gate-icon">G1</div>
+      <span class="hitl-gate-text">需求确认</span>
+    </div>
+  </div>
+  <div class="hitl-stage">
+    <div class="hitl-auto">
+      <span class="hitl-auto-label">Auto</span>
+      <span class="hitl-auto-text">PRD 完成：功能列表 + 接口设计 + 验收标准</span>
+    </div>
+    <div class="hitl-gate">
+      <div class="hitl-gate-icon">G2</div>
+      <span class="hitl-gate-text">PRD 审核</span>
+    </div>
+  </div>
+  <div class="hitl-stage">
+    <div class="hitl-auto">
+      <span class="hitl-auto-label">Auto</span>
+      <span class="hitl-auto-text">Plan 完成：DAG 子任务图 + 依赖分析</span>
+    </div>
+    <div class="hitl-gate">
+      <div class="hitl-gate-icon">G3</div>
+      <span class="hitl-gate-text">计划审查</span>
+    </div>
+  </div>
+  <div class="hitl-stage">
+    <div class="hitl-auto">
+      <span class="hitl-auto-label">Auto</span>
+      <span class="hitl-auto-text">Deploy 完成：预发环境 + 自动化验收测试</span>
+    </div>
+    <div class="hitl-gate">
+      <div class="hitl-gate-icon">G4</div>
+      <span class="hitl-gate-text">部署验收</span>
+    </div>
+  </div>
+</div>
+
+<p>Checkpoint 状态机确保每次 HITL 暂停时，系统自动保存完整的上下文快照。状态流转路径为：Idle → Exploring → HITL_Paused → Checkpoint_Saved → Approved → Implementing → Completed。若用户拒绝则回滚到上一 Checkpoint；若执行异常则触发自动纠错机制。</p>
+
+<h3>故障恢复四重保障</h3>
+
+<table class="cost-table">
+<thead>
+<tr>
+<th>保障层级</th>
+<th>机制</th>
+<th>触发条件</th>
+<th>恢复方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>L1</strong></td>
+<td>Checkpoint 恢复</td>
+<td>会话中断 / 超时</td>
+<td>从最近快照恢复，重放未完成步骤</td>
+</tr>
+<tr>
+<td><strong>L2</strong></td>
+<td>Fallback 策略</td>
+<td>Agent 执行失败</td>
+<td>降级到备选方案或拆分任务重试</td>
+</tr>
+<tr>
+<td><strong>L3</strong></td>
+<td>Validation Loop</td>
+<td>输出质量不达标</td>
+<td>自动重新执行，最多3轮自修正</td>
+</tr>
+<tr>
+<td><strong>L4</strong></td>
+<td>HITL 升级</td>
+<td>连续3轮自修正失败</td>
+<td>暂停自动执行，升级为人工处理</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="section-6">六、落地实操：构建最小可用 AI Harness</h2>
+
+<p>理论再优美，不如一个可落地的文件结构。以下是最小可用 AI Harness 的完整文件组织，以及核心配置文件的模板示例<sup><a href="#cite-2">[2]</a></sup>。</p>
+
+<h3>6.1 文件结构</h3>
+
+<div class="file-tree">
+<span class="dir">project-root/</span>
+<span class="indent"><span class="file">AGENTS.md</span>          <span class="comment"># 项目级Agent规则手册（新员工手册）</span></span>
+<span class="indent"><span class="file">SOUL.md</span>            <span class="comment"># Agent人格设定与沟通风格</span></span>
+<span class="indent"><span class="file">SKILL.md</span>           <span class="comment"># 技能定义：任务拆解SOP</span></span>
+<span class="indent"><span class="file">.harness.yml</span>       <span class="comment"># Harness主配置：流程 + 门控 + 工具</span></span>
+<span class="indent"><span class="dir">.harness/</span></span>
+<span class="indent">  <span class="file">hooks/</span>             <span class="comment"># Hook强制校验层</span></span>
+<span class="indent">    <span class="file">pre-plan.sh</span>      <span class="comment"># Plan阶段前置校验</span></span>
+<span class="indent">    <span class="file">post-commit.sh</span>   <span class="comment"># Commit阶段后置校验</span></span>
+<span class="indent">  <span class="file">rules/</span>             <span class="comment"># 规则约束清单</span></span>
+<span class="indent">    <span class="file">security.yml</span>     <span class="comment"># 安全边界规则</span></span>
+<span class="indent">    <span class="file">coding.yml</span>       <span class="comment"># 代码风格规则</span></span>
+<span class="indent">  <span class="file">checkpoints/</span>       <span class="comment"># Checkpoint状态快照存储</span></span>
+<span class="indent">  <span class="file">logs/</span>              <span class="comment"># 执行日志与追踪数据</span></span>
+<span class="indent"><span class="file">docker-compose.yml</span> <span class="comment"># 沙箱隔离运行环境</span></span>
+</div>
+
+<h3>6.2 AGENTS.md 模板示例</h3>
+
+<div class="code-block">
+# AGENTS.md — 项目级 Agent 规则手册
+<br><br>
+## 项目概述
+<br>- 技术栈: TypeScript / Next.js / PostgreSQL
+<br>- 架构风格: 模块化微前端，禁止循环依赖
+<br>- 编码规范: ESLint + Prettier，提交前必须过 lint
+<br><br>
+## 安全边界
+<br>- 禁止直接操作生产数据库
+<br>- 禁止执行 rm -rf / 等危险命令
+<br>- 敏感操作（部署、删表）需二次确认
+<br><br>
+## 沟通风格
+<br>- 技术讨论使用中文，代码注释使用英文
+<br>- 报错时先给出根因，再给出修复方案
+<br>- 涉及架构变更时必须输出影响面分析
+<br><br>
+## 工具白名单
+<br>- 允许: git, npm, node, docker, psql (只读)
+<br>- 禁止: curl 外部 API, wget, ssh
+</div>
+
+<h3>6.3 Hook 配置示例</h3>
+
+<div class="code-block">
+# .harness/hooks/pre-plan.sh
+<br># Plan 阶段前置校验：确保输入需求已澄清
+<br><span class="keyword">if</span> [ -z "$REQUIREMENT_CLARITY_SCORE" ]; then
+<br>  <span class="keyword">echo</span> "错误：需求澄清度未评分，无法进入 Plan 阶段"
+<br>  <span class="keyword">exit</span> 1
+<br><span class="keyword">fi</span>
+<br><span class="keyword">if</span> [ "$REQUIREMENT_CLARITY_SCORE" -lt 7 ]; then
+<br>  <span class="keyword">echo</span> "警告：需求澄清度 $REQUIREMENT_CLARITY_SCORE/10，建议返回 Explore 阶段"
+<br>  <span class="keyword">exit</span> 1
+<br><span class="keyword">fi</span>
+<br><span class="keyword">echo</span> "Plan 阶段校验通过，继续执行"
+</div>
+
+<h3>6.4 规则约束清单</h3>
+
+<table class="cost-table">
+<thead>
+<tr>
+<th>规则类别</th>
+<th>规则内容</th>
+<th>校验方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>安全边界</strong></td>
+<td>禁止修改 .env 文件；禁止执行 DROP TABLE</td>
+<td>Hook 前置拦截 + 正则匹配</td>
+</tr>
+<tr>
+<td><strong>代码质量</strong></td>
+<td>所有函数必须有 JSDoc；单函数不超过50行</td>
+<td>Linter + CI 门禁</td>
+</tr>
+<tr>
+<td><strong>架构约束</strong></td>
+<td>禁止跨层直接调用；UI 层禁止直接访问数据库</td>
+<td>依赖扫描 + 架构测试</td>
+</tr>
+<tr>
+<td><strong>测试覆盖</strong></td>
+<td>新代码行覆盖率不低于80%</td>
+<td>CI 流水线自动计算</td>
+</tr>
+<tr>
+<td><strong>文档同步</strong></td>
+<td>API 变更必须同步更新 OpenAPI 文档</td>
+<td>Doc-gardening Agent 扫描</td>
+</tr>
+</tbody>
+</table>
+
+<h3>6.5 Checkpoint 机制设计</h3>
+
+<p>Checkpoint 是 Harness 的「时间机器」。每次 HITL 暂停或阶段完成时，系统自动保存当前完整状态：</p>
+
+<div class="code-block">
+<span class="comment">// checkpoint-schema.json</span>
+<br>{
+<br>  "checkpoint_id": "cp-20260716-001",
+<br>  "task_id": "task-abc123",
+<br>  "stage": "Plan",
+<br>  "timestamp": "2026-07-16T14:32:00Z",
+<br>  "context": { <span class="comment">/* 当前上下文窗口完整内容 */</span> },
+<br>  "artifacts": [
+<br>    { "type": "prd", "path": "./docs/prd-001.md" },
+<br>    { "type": "plan", "path": "./docs/plan-001.json" }
+<br>  ],
+<br>  "tool_history": [ <span class="comment">/* 所有工具调用记录 */</span> ],
+<br>  "validation_result": { "passed": true, "score": 0.85 }
+<br>}
+</div>
+
+<p>Checkpoint 的保存策略采用「分层快照」：内存中的当前状态每30秒异步持久化到磁盘；阶段完成时强制同步保存；HITL 暂停时触发完整快照（含上下文、产物、工具历史）。恢复时按「最近完整快照 + 增量重放」的策略，确保即使会话中断数小时，也能精确恢复到中断点。</p>
+
+<h2 id="section-7">七、行业数据与前沿进展</h2>
+
+<p>Harness Engineering 不是空中楼阁。2026年，多项重量级实验和行业报告为 Harness 的有效性提供了实证支撑<sup><a href="#cite-5">[5]</a></sup>。</p>
+
+<h3>7.1 LangChain 实验：Harness 重构的震撼效果</h3>
+
+<p>LangChain 团队进行了一项极具说服力的对比实验：保持底层模型不变，仅对 Harness（任务编排、工具调用、错误处理、上下文管理）进行重构。结果显示：</p>
+
+<ul>
+<li><strong>Terminal Bench 得分</strong>：52.8% → 66.5%（提升13.7个百分点）</li>
+<li><strong>排名</strong>：第30名 → 第5名（跃升25位）</li>
+<li><strong>关键洞察</strong>：模型没变，变的是模型之外的「马具」</li>
+</ul>
+
+<p>这个实验以最简洁的方式证明了 Harness 的核心命题：<strong>问题不在模型，在模型之外</strong>。</p>
+
+<h3>7.2 OpenAI Codex：3人团队5个月的产出</h3>
+
+<p>OpenAI Codex 团队的数据同样令人震撼：一个仅3人的工程师团队，在5个月内借助 Harness 体系：</p>
+
+<ul>
+<li>生成 <strong>100万行代码</strong></li>
+<li>合并 <strong>1500个 PR</strong></li>
+<li>平均每人每天产出约 <strong>1300行有效代码</strong></li>
+</ul>
+
+<p>这一产出的核心不是「模型写得更快」，而是「Harness 让模型能够持续、稳定、可预期地工作」——自动纠错减少了人工干预，反馈循环保证了代码质量，规则约束防止了方向偏离。</p>
+
+<h3>7.3 Can.ac 实验：从 6.7% 到 68.3%</h3>
+
+<p>在 Can.ac 的独立评测中，同一组 Agent 任务在「裸跑」和「Harness 管控」两种模式下的完成率对比：</p>
+
+<table class="cost-table">
+<thead>
+<tr>
+<th>评测维度</th>
+<th>裸跑（无 Harness）</th>
+<th>Harness 管控</th>
+<th>提升幅度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>端到端任务完成率</td>
+<td>6.7%</td>
+<td class="cost-highlight">68.3%</td>
+<td>10.2x</td>
+</tr>
+<tr>
+<td>平均错误恢复次数</td>
+<td>0（无法恢复）</td>
+<td class="cost-highlight">3.2次/任务</td>
+<td>—</td>
+</tr>
+<tr>
+<td>人工干预频率</td>
+<td>每步需干预</td>
+<td class="cost-highlight">仅4个HITL点</td>
+<td>降低80%+</td>
+</tr>
+<tr>
+<td>任务交付时间</td>
+<td>不可预期</td>
+<td class="cost-highlight">可预期±15%</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+
+<h3>7.4 Self-Harness：AI 自己优化 Harness</h3>
+
+<p>前沿研究正在探索一个更具野心的方向：让 AI 自己优化 Harness。MiniMax 团队在2026年6月发表的论文显示，通过 Self-Harness 机制（AI 自动分析自身错误模式并生成新的规则约束），模型在复杂推理任务上的准确率提升了 <strong>52.6%</strong><sup><a href="#cite-6">[6]</a></sup>。</p>
+
+<p>Self-Harness 的核心逻辑是：Agent 在执行任务时记录所有失败场景 → 分析失败根因 → 自动生成新的规则或 Hook → 将新规则纳入 Harness → 下次执行时自动生效。这标志着 Harness 从「人工设计」向「自动进化」的跃迁。</p>
+
+<h3>7.5 Gartner 报告：Harness Engineering 的战略定位</h3>
+
+<p>Gartner 在2026年的技术趋势报告中，将 <strong>AI Agent Harness Engineering</strong> 列为重要的技术战略方向<sup><a href="#cite-3">[3]</a></sup>。报告指出：</p>
+
+<blockquote><p>「到2027年，70%的企业级 AI Agent 部署将包含某种形式的 Harness 管控体系，而2025年这一比例不足10%。Harness 将成为区分「玩具级 Agent」与「生产级 Agent」的核心标志。」</p></blockquote>
+
+<h2 id="section-8">八、总结与展望</h2>
+
+<p>AI Harness 的本质，是一套让大模型从「脱缰野马」变成「可靠工程工具」的运行管控体系。它不改变模型本身的能力，而是通过任务流程、规则约束、工具调用、自动纠错、全程监控、复盘迭代六大支柱，将模型的能力封装为可预期、可追踪、可回滚的工程化输出。</p>
+
+<p>2026年的关键洞察已经被多项实验反复验证：</p>
+
+<ul>
+<li><strong>模型越强，任务越复杂；任务越复杂，Harness 越重要</strong></li>
+<li>同一个 Claude 模型，裸跑9美元全部失败，Harness 管控下200美元完美交付</li>
+<li>LangChain 只重构 Harness，Terminal Bench 得分提升13.7个百分点，排名从30跃升至5</li>
+<li>OpenAI Codex 3人团队5个月生成100万行代码，核心能力来自 Harness 而非模型</li>
+</ul>
+
+<p>这些数字指向同一个结论：<strong>不要盲目追求更强的模型，先把现有模型跑在更好的 Harness 里</strong>。</p>
+
+<p>展望未来，Harness Engineering 将沿着三个方向持续进化：</p>
+
+<ul>
+<li><strong>标准化</strong>：Harness 的配置格式、Hook 接口、Checkpoint 协议将逐渐标准化，形成跨平台的 Harness 生态</li>
+<li><strong>自动化</strong>：Self-Harness 让 AI 自己分析错误、生成规则、优化流程，Harness 将从「人工设计」走向「自动进化」</li>
+<li><strong>深度集成</strong>：Harness 将与 IDE、CI/CD、监控体系、IM 平台深度集成，成为软件工程基础设施的标准组件</li>
+</ul>
+
+<p>正如马具让骑手能够安全驾驭烈马，Harness 让工程师能够放心地将复杂任务交给 AI。在 AI 工程的三次范式跃迁中，Harness Engineering 是最务实、最可落地、也最能直接产生商业价值的一环。它的时代，才刚刚开始。</p>
+
+<h3>参考资料</h3>
+
+<ol>
+<li id="cite-1">AI Harness工程：2026年智能体开发的真正战场 <a href="http://m.toutiao.com/group/7653829589156545024/" target="_blank" rel="noopener">http://m.toutiao.com/group/7653829589156545024/</a></li>
+<li id="cite-2">Hermes+Harness双重革命 <a href="http://m.toutiao.com/group/7655686551506960931/" target="_blank" rel="noopener">http://m.toutiao.com/group/7655686551506960931/</a></li>
+<li id="cite-3">Agent Harness：模型之外的智能体系统工程 <a href="http://m.toutiao.com/group/7657857375474401826/" target="_blank" rel="noopener">http://m.toutiao.com/group/7657857375474401826/</a></li>
+<li id="cite-4">智能体未来发展核心关键技术全景分析 <a href="http://m.toutiao.com/group/7654415210962272831/" target="_blank" rel="noopener">http://m.toutiao.com/group/7654415210962272831/</a></li>
+<li id="cite-5">AI Agent Skills：Harness原子原语重构高效智能体架构 <a href="http://m.toutiao.com/group/7654946494272815657/" target="_blank" rel="noopener">http://m.toutiao.com/group/7654946494272815657/</a></li>
+<li id="cite-6">OpenAI Codex报告：3人团队5个月生成100万行代码，合并1500个PR（2026年OpenAI官方技术博客）</li>
+<li id="cite-7">Self-Harness论文：AI自主优化Harness机制研究，MiniMax M2.5提升52.6%（2026年6月 arXiv）</li>
+</ol>
+
+      </div>
+    <nav class="article-nav" id="articleNav"></nav>
+  </article>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; 2024-2026 朱天伟 | Smart Open. Built with care.</p>
+    </div>
+  </footer>
+
+  <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
+  <script src="../../js/article.js"></script>
+  <script src="../../js/preview-rail.js"></script>
+</body>
+</html>
