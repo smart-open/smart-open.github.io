@@ -1,6 +1,6 @@
 (function() {
   var CHUNK_COUNT = 40;
-  var MAX_CONCURRENT = 6; // 浏览器并发限制（同域名HTTP/1.1一般6个）
+  var MAX_CONCURRENT = 6;
 
   function setLoadProgress(pct, detail) {
     var bar = document.getElementById('loadingBarFill');
@@ -19,7 +19,7 @@
     });
   }
 
-  // 并行加载所有分片（控制并发数）
+  // 并行加载所有分片（控制并发数，Promise pool 模式）
   function loadAllChunks() {
     var urls = [];
     for (var i = 0; i < CHUNK_COUNT; i++) {
@@ -27,35 +27,39 @@
     }
     var completed = 0;
     var total = urls.length;
+    var nextIdx = 0;
 
-    return new Promise(function(resolve, reject) {
-      var idx = 0;
-
-      function next() {
-        if (idx >= urls.length) {
-          if (completed === total) resolve();
-          return;
-        }
-        var url = urls[idx++];
-        loadScript(url).then(function() {
+    function pickNext() {
+      if (nextIdx < urls.length) {
+        var url = urls[nextIdx++];
+        return loadScript(url).then(function() {
           completed++;
-          var pct = Math.round(10 + (completed / total) * 85); // 10% ~ 95%
+          var pct = Math.round(10 + (completed / total) * 85);
           setLoadProgress(pct, completed + '/' + total);
-          next();
-        }).catch(function(e) {
-          console.error(e);
-          completed++;
-          next();
         });
-        // 启动下一个（如果并发数未满）
       }
+      return Promise.resolve();
+    }
 
-      // 启动 MAX_CONCURRENT 个并发
-      var startCount = Math.min(MAX_CONCURRENT, urls.length);
-      for (var i = 0; i < startCount; i++) {
-        next();
-      }
-    });
+    // Promise pool：始终保持 MAX_CONCURRENT 个并发
+    var workers = [];
+    for (var i = 0; i < MAX_CONCURRENT; i++) {
+      workers.push(pickNext());
+    }
+
+    // 串行链接：每个 worker 完成后启动下一个任务
+    function chain(workerPromise) {
+      return workerPromise.then(function() {
+        if (nextIdx < urls.length) {
+          return chain(pickNext());
+        }
+        return;
+      });
+    }
+
+    // 所有 worker chain 完成 = 全部加载完
+    var chains = workers.map(chain);
+    return Promise.all(chains);
   }
 
   // 数据合并与索引构建
@@ -103,7 +107,7 @@
 
     window.allSkills = A;
 
-    // 预构建搜索索引：预计算小写字段，避免搜索时重复 toLowerCase
+    // 预构建搜索索引
     var searchIndex = new Array(A.length);
     for (var si = 0; si < A.length; si++) {
       var sk = A[si];
@@ -127,12 +131,11 @@
     window.categoryMap = catMap;
   }
 
-  // 加载渲染和搜索脚本
+  // 串行加载渲染和搜索脚本（确保 render.js 先执行完，search.js 后执行）
   function loadRenderScripts() {
-    return Promise.all([
-      loadScript('js/render.js'),
-      loadScript('js/search.js')
-    ]);
+    return loadScript('js/render.js').then(function() {
+      return loadScript('js/search.js');
+    });
   }
 
   // 隐藏 loading overlay
