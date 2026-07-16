@@ -32,7 +32,12 @@ All new development must adhere to the following color scheme extracted from the
 
 ## 4. 首页文章列表同步
 
-每次新增或更新文章后，必须同步更新首页 `index.html` 的文章列表，保持展示**最新的三篇文章**（按日期倒序）。
+首页 `index.html` 的文章卡片是**静态HTML**（非JS动态渲染），每次新增文章时必须手动维护：
+
+1. 在 `index.html` 的 `.articles-grid` 容器**顶部**插入新的文章卡片
+2. 同时**移除最底部**的一张旧卡片，始终保持 `.articles-grid` 内**只有且仅有3张**文章卡片
+3. 保持按日期倒序排列（最新在前）
+4. 新增文章后，同步更新 `articles/articles-data.js` 在数组**顶部**添加新条目
 
 ## 5. 禁止硬编码域名
 
