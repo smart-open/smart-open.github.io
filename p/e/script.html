@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>剧本练习 - 英语对话剧本库</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">🎭</div>
+        <span>英语对话剧本库</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">剧本库</a>
+        <a href="index.html?fav=1" class="nav-link">我的收藏</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主内容区 -->
+  <div class="container" style="padding-bottom: 100px;">
+    <!-- 返回按钮 -->
+    <a href="index.html" class="back-btn">← 返回剧本库</a>
+
+    <!-- 剧本详情头部 -->
+    <div class="script-detail-header" id="detailHeader">
+      <div class="detail-header-top">
+        <div class="detail-header-info">
+          <h1 id="detailTitle">--</h1>
+          <p class="scene" id="detailScene">--</p>
+          <div class="detail-meta" id="detailMeta">--</div>
+        </div>
+        <div class="detail-header-actions">
+          <button class="action-btn" id="btnFavorite" title="收藏">
+            <span class="action-icon">🤍</span>
+            <span class="action-text">收藏</span>
+          </button>
+          <button class="action-btn" id="btnComplete" title="标记完成">
+            <span class="action-icon">⬜</span>
+            <span class="action-text">标记完成</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 控制面板 -->
+    <div class="control-panel">
+      <div class="control-group">
+        <span class="control-label">我的角色：</span>
+        <select class="role-select" id="roleSelect">
+          <!-- 动态生成 -->
+        </select>
+      </div>
+      <div class="control-group">
+        <button class="btn btn-toggle" id="toggleZh">隐藏中文</button>
+        <button class="btn btn-primary" id="btnPlayAll">▶ 逐句播放</button>
+      </div>
+    </div>
+
+    <!-- 对话区域 -->
+    <div class="dialogue-container" id="dialogueContainer">
+      <!-- 动态生成 -->
+    </div>
+
+    <!-- 进度条 -->
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+    </div>
+  </div>
+
+  <!-- 底部播放控制栏 -->
+  <div class="playback-bar" id="playbackBar">
+    <button class="pb-btn secondary" id="pbPrev">⏮</button>
+    <button class="pb-btn" id="pbPlay">▶</button>
+    <button class="pb-btn secondary" id="pbNext">⏭</button>
+    <span class="pb-info" id="pbInfo">0 / 0</span>
+    <button class="pb-btn secondary" id="pbRepeat" title="复读">🔁</button>
+  </div>
+
+  <!-- 页脚 -->
+  <footer class="footer">
+    <p>英语对话剧本库 · 让口语练习更有趣</p>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      App.initScript();
+    });
+  </script>
+</body>
+</html>

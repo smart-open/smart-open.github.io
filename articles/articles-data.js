@@ -3,6 +3,14 @@
    ======================================== */
 const ARTICLES_DATA = [
   {
+    id: 'article-20',
+    title: '从技能堆砌到技能治理：解构 Skill 路由、Skill Map 与专家模式',
+    excerpt: '当 Agent 安装的 Skill 越来越多，调用错乱、上下文污染、语义重叠等问题随之而来。本文从问题剖析出发，系统拆解 Skill Map、Skill Router、腾讯 WorkBuddy 专家模式三种解决方案，并给出构建可控 Skill 体系的最佳实践。',
+    tags: ['Skill Router', 'Agent工程', 'WorkBuddy', '技能治理'],
+    date: '2026-07-18',
+    detailUrl: 'detail/article-20.html'
+  },
+  {
     id: 'article-19',
     title: 'AI Harness：驯服大模型的六柱驾驭体系——从原理到落地实操',
     excerpt: 'AI Harness是包裹在大模型外面的一整套运行管控体系，包含任务流程、规则约束、工具调用、自动纠错、全程监控、复盘迭代六大支柱。本文从AI工程三次范式跃迁到Harness的落地实操，系统拆解如何让AI从脱缰野马变成稳定交付的工程工具。',

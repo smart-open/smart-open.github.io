@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>英语对话剧本库 - 英语口语练习</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">🎭</div>
+        <span>英语对话剧本库</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link active">剧本库</a>
+        <a href="index.html?fav=1" class="nav-link">我的收藏</a>
+        <a href="index.html?done=1" class="nav-link">已完成</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主内容区 -->
+  <div class="container">
+    <!-- 页面标题 -->
+    <div class="page-header">
+      <h1 class="page-title">📚 英语对话剧本库</h1>
+      <p class="page-subtitle">选择感兴趣的剧本，开始你的英语口语练习之旅</p>
+    </div>
+
+    <!-- 搜索栏 -->
+    <div class="search-bar">
+      <input type="text" class="search-input" id="searchInput" placeholder="搜索剧本标题、角色或关键词...">
+      <button class="search-btn" id="searchBtn">🔍</button>
+    </div>
+
+    <!-- 分类标签 -->
+    <div class="category-tabs" id="categoryTabs">
+      <!-- 分类由 JS 动态生成 -->
+    </div>
+
+    <!-- 剧本卡片网格 -->
+    <div class="script-grid" id="scriptGrid">
+      <!-- 卡片由 JS 动态生成 -->
+    </div>
+
+    <!-- 空状态 -->
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <div class="icon">🔍</div>
+      <p>没有找到匹配的剧本，试试其他关键词？</p>
+    </div>
+  </div>
+
+  <!-- 页脚 -->
+  <footer class="footer">
+    <p>英语对话剧本库 · 让口语练习更有趣</p>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // 首页初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      App.initHome();
+    });
+  </script>
+</body>
+</html>
