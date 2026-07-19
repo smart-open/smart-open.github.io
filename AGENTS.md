@@ -2,7 +2,12 @@
 
 ## 1. Protected Directory
 
-**Do NOT modify** any files in the `p` directory (`d:\ai_work\smart-open.github.io\p`). This directory contains existing projects and services that should remain untouched.
+`p` 目录（`d:\ai_work\smart-open.github.io\p`）包含已部署的项目和服务。本 Agent 在常规开发任务中**不应主动修改** `p` 目录下的文件。
+
+**例外**：`p` 目录可能被外部进程或用户直接修改（例如在线服务的运行时数据更新、数据文件分片写入等）。此类外部产生的变更**需要正常提交到 git**，不得忽略。处理方式：
+- 当 `git status` 显示 `p/` 下有修改时，应将其纳入提交
+- 提交信息应注明是「外部数据更新」或具体来源
+- 不要主动 revert 或修改 `p` 目录下的业务逻辑代码
 
 ## 2. Mobile Responsive Design
 

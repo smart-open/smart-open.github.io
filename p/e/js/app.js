@@ -362,6 +362,11 @@ const App = {
     this.state.myRole = script.roles[0];
     this.state.currentLine = 0;
 
+    // 预加载语音列表（部分浏览器 voices 异步加载）
+    if (this.state.synth.getVoices().length === 0) {
+      this.state.synth.addEventListener('voiceschanged', () => {}, { once: true });
+    }
+
     // 恢复进度
     const progress = Storage.getProgress(script.id);
     this.state.currentLine = progress.currentLine || 0;
@@ -672,16 +677,37 @@ const App = {
           this.playCurrentLine();
         }, 800);
       }
-    });
+    }, line.role);
   },
 
-  speak(text, onEnd) {
+  speak(text, onEnd, role) {
     this.state.synth.cancel();
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'en-US';
     utterance.rate = 0.9;
-    utterance.pitch = 1;
+
+    // 获取可用声音列表（确保已加载）
+    const voices = this.state.synth.getVoices();
+    const enVoices = voices.filter(v => v.lang.startsWith('en'));
+
+    if (enVoices.length >= 2 && role) {
+      // 根据角色在剧本中的顺序选择不同声音
+      const script = this.state.currentScript;
+      const roleIndex = script ? script.roles.indexOf(role) : 0;
+      // 交替使用不同声音，实现两个角色声音区分
+      utterance.voice = enVoices[roleIndex % enVoices.length];
+      // 第一个角色音调稍高（偏女性），第二个稍低（偏男性）
+      if (roleIndex === 0) {
+        utterance.pitch = 1.15;
+        utterance.rate = 0.95;
+      } else {
+        utterance.pitch = 0.85;
+        utterance.rate = 0.9;
+      }
+    } else if (enVoices.length === 1) {
+      utterance.voice = enVoices[0];
+    }
 
     if (onEnd) {
       utterance.onend = onEnd;
@@ -695,7 +721,7 @@ const App = {
     if (!script || !script.lines[index]) return;
 
     this.goToLine(index);
-    this.speak(script.lines[index].en);
+    this.speak(script.lines[index].en, null, script.lines[index].role);
   },
 
   goToLine(index) {
