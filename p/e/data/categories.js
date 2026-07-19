@@ -88,61 +88,100 @@ const SCRIPT_CATEGORIES = [
   }
 ];
 
-// 本地存储工具函数
-const Storage = {
-  getFavorites() {
-    const data = localStorage.getItem('dialogue_favorites');
-    return data ? JSON.parse(data) : [];
-  },
-  addFavorite(id) {
-    const favorites = this.getFavorites();
-    if (!favorites.includes(id)) {
-      favorites.push(id);
-      localStorage.setItem('dialogue_favorites', JSON.stringify(favorites));
+// 本地存储工具函数（兼容微信/小米等浏览器，localStorage 不可用时降级到内存）
+const Storage = (function () {
+  // 检测 localStorage 是否可用
+  let _memStore = {};
+  let _lsAvailable = false;
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const testKey = '__dialogue_test__';
+      window.localStorage.setItem(testKey, '1');
+      window.localStorage.removeItem(testKey);
+      _lsAvailable = true;
     }
-  },
-  removeFavorite(id) {
-    const favorites = this.getFavorites().filter(f => f !== id);
-    localStorage.setItem('dialogue_favorites', JSON.stringify(favorites));
-  },
-  isFavorite(id) {
-    return this.getFavorites().includes(id);
-  },
-  getProgress(id) {
-    const data = localStorage.getItem('dialogue_progress_' + id);
-    return data ? JSON.parse(data) : { currentLine: 0, completed: false };
-  },
-  saveProgress(id, progress) {
-    localStorage.setItem('dialogue_progress_' + id, JSON.stringify(progress));
-  },
-  // 已完成标记
-  getCompleted() {
-    const data = localStorage.getItem('dialogue_completed');
-    return data ? JSON.parse(data) : [];
-  },
-  setCompleted(id) {
-    const completed = this.getCompleted();
-    if (!completed.includes(id)) {
-      completed.push(id);
-      localStorage.setItem('dialogue_completed', JSON.stringify(completed));
-    }
-    // 同步更新 progress
-    const progress = this.getProgress(id);
-    progress.completed = true;
-    this.saveProgress(id, progress);
-  },
-  unsetCompleted(id) {
-    const completed = this.getCompleted().filter(c => c !== id);
-    localStorage.setItem('dialogue_completed', JSON.stringify(completed));
-    // 同步更新 progress
-    const progress = this.getProgress(id);
-    progress.completed = false;
-    this.saveProgress(id, progress);
-  },
-  isCompleted(id) {
-    return this.getCompleted().includes(id);
+  } catch (e) {
+    _lsAvailable = false;
   }
-};
+
+  function _get(key) {
+    if (_lsAvailable) {
+      try { return window.localStorage.getItem(key); }
+      catch (e) { return _memStore[key] || null; }
+    }
+    return _memStore[key] || null;
+  }
+  function _set(key, val) {
+    if (_lsAvailable) {
+      try { window.localStorage.setItem(key, val); return; }
+      catch (e) {}
+    }
+    _memStore[key] = val;
+  }
+
+  return {
+    _lsAvailable: _lsAvailable,
+    getFavorites() {
+      const data = _get('dialogue_favorites');
+      if (!data) return [];
+      try { return JSON.parse(data) || []; }
+      catch (e) { return []; }
+    },
+    addFavorite(id) {
+      const favorites = this.getFavorites();
+      if (favorites.indexOf(id) === -1) {
+        favorites.push(id);
+        _set('dialogue_favorites', JSON.stringify(favorites));
+      }
+    },
+    removeFavorite(id) {
+      const favorites = this.getFavorites().filter(function (f) { return f !== id; });
+      _set('dialogue_favorites', JSON.stringify(favorites));
+    },
+    isFavorite(id) {
+      return this.getFavorites().indexOf(id) !== -1;
+    },
+    getProgress(id) {
+      const data = _get('dialogue_progress_' + id);
+      if (!data) return { currentLine: 0, completed: false };
+      try { return JSON.parse(data) || { currentLine: 0, completed: false }; }
+      catch (e) { return { currentLine: 0, completed: false }; }
+    },
+    saveProgress(id, progress) {
+      try { _set('dialogue_progress_' + id, JSON.stringify(progress)); }
+      catch (e) {}
+    },
+    // 已完成标记
+    getCompleted() {
+      const data = _get('dialogue_completed');
+      if (!data) return [];
+      try { return JSON.parse(data) || []; }
+      catch (e) { return []; }
+    },
+    setCompleted(id) {
+      const completed = this.getCompleted();
+      if (completed.indexOf(id) === -1) {
+        completed.push(id);
+        _set('dialogue_completed', JSON.stringify(completed));
+      }
+      // 同步更新 progress
+      const progress = this.getProgress(id);
+      progress.completed = true;
+      this.saveProgress(id, progress);
+    },
+    unsetCompleted(id) {
+      const completed = this.getCompleted().filter(function (c) { return c !== id; });
+      _set('dialogue_completed', JSON.stringify(completed));
+      // 同步更新 progress
+      const progress = this.getProgress(id);
+      progress.completed = false;
+      this.saveProgress(id, progress);
+    },
+    isCompleted(id) {
+      return this.getCompleted().indexOf(id) !== -1;
+    }
+  };
+})();
 
 
 

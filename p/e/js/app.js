@@ -36,7 +36,7 @@ const App = {
     myRole: null,
     showZh: true,
     repeatMode: false,
-    synth: window.speechSynthesis,
+    synth: (typeof window !== 'undefined' && window.speechSynthesis) ? window.speechSynthesis : null,
     currentAudio: null,
     _scriptIndex: null  // 首页摘要数据缓存
   },
@@ -44,11 +44,36 @@ const App = {
   // ============================
   // 数据加载（按需 fetch，兼容微信浏览器）
   // ============================
+  // 通用 JSON 加载（兼容微信/小米等老浏览器，优先 fetch，回退 XHR）
+  _fetchJSON(url) {
+    if (typeof fetch === 'function') {
+      return fetch(url).then(res => {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      });
+    }
+    // 回退到 XMLHttpRequest
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', url, true);
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState !== 4) return;
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try { resolve(JSON.parse(xhr.responseText)); }
+          catch (e) { reject(e); }
+        } else {
+          reject(new Error('HTTP ' + xhr.status));
+        }
+      };
+      xhr.onerror = () => reject(new Error('network error'));
+      xhr.send();
+    });
+  },
+
   async _loadIndex() {
     if (this.state._scriptIndex) return this.state._scriptIndex;
     try {
-      const res = await fetch('data/index.json');
-      this.state._scriptIndex = await res.json();
+      this.state._scriptIndex = await this._fetchJSON('data/index.json');
       return this.state._scriptIndex;
     } catch (e) {
       console.error('Failed to load index:', e);
@@ -58,8 +83,7 @@ const App = {
 
   async _loadScript(id) {
     try {
-      const res = await fetch(`data/scripts/${id}.json`);
-      return await res.json();
+      return await this._fetchJSON('data/scripts/' + id + '.json');
     } catch (e) {
       console.error('Failed to load script', id, ':', e);
       return null;
@@ -398,8 +422,16 @@ const App = {
   // 剧本练习页初始化
   // ============================
   async initScript() {
-    const params = new URLSearchParams(window.location.search);
-    const scriptId = parseInt(params.get('id'));
+    // 兼容老浏览器：URLSearchParams 不存在时手动解析
+    let scriptIdRaw = null;
+    if (typeof URLSearchParams === 'function') {
+      scriptIdRaw = new URLSearchParams(window.location.search).get('id');
+    } else {
+      const search = window.location.search || '';
+      const m = search.match(/[?&]id=([^&]+)/);
+      scriptIdRaw = m ? decodeURIComponent(m[1]) : null;
+    }
+    const scriptId = parseInt(scriptIdRaw, 10);
 
     // 通过 fetch 按需加载单个剧本数据
     const script = await this._loadScript(scriptId);
@@ -419,8 +451,15 @@ const App = {
     this.state.currentLine = 0;
 
     // 预加载语音列表（部分浏览器 voices 异步加载）
-    if (this.state.synth.getVoices().length === 0) {
-      this.state.synth.addEventListener('voiceschanged', () => {}, { once: true });
+    // 安全检查：微信/小米等浏览器可能不支持 speechSynthesis
+    try {
+      if (this.state.synth && typeof this.state.synth.getVoices === 'function') {
+        if (this.state.synth.getVoices().length === 0) {
+          this.state.synth.addEventListener('voiceschanged', () => {}, { once: true });
+        }
+      }
+    } catch (e) {
+      this.state.synth = null;
     }
 
     // 恢复进度
@@ -772,16 +811,20 @@ const App = {
   speak(text, onEnd, role) {
     // 停止当前播放
     if (this.state.currentAudio) {
-      this.state.currentAudio.pause();
-      this.state.currentAudio.currentTime = 0;
+      try {
+        this.state.currentAudio.pause();
+        this.state.currentAudio.currentTime = 0;
+      } catch (e) {}
       this.state.currentAudio = null;
     }
-    this.state.synth.cancel();
+    if (this.state.synth && typeof this.state.synth.cancel === 'function') {
+      try { this.state.synth.cancel(); } catch (e) {}
+    }
 
     const script = this.state.currentScript;
     if (script && this.state.currentLine >= 0 && this.state.currentLine < script.lines.length) {
       const lineIndex = this.state.currentLine;
-      const audioUrl = `audio/${script.id}/${lineIndex}.m4a`;
+      const audioUrl = 'audio/' + script.id + '/' + lineIndex + '.m4a';
       const audio = new Audio(audioUrl);
 
       const handleEnd = () => {
@@ -797,10 +840,19 @@ const App = {
       }, { once: true });
 
       this.state.currentAudio = audio;
-      audio.play().catch(() => {
+      // 兼容老浏览器：play() 可能不返回 Promise
+      try {
+        const playRet = audio.play();
+        if (playRet && typeof playRet.catch === 'function') {
+          playRet.catch(() => {
+            this.state.currentAudio = null;
+            this._speakFallback(text, onEnd, role);
+          });
+        }
+      } catch (e) {
         this.state.currentAudio = null;
         this._speakFallback(text, onEnd, role);
-      });
+      }
       return;
     }
 
@@ -810,12 +862,27 @@ const App = {
 
   // speechSynthesis 回退方案（桌面浏览器）
   _speakFallback(text, onEnd, role) {
-    const utterance = new SpeechSynthesisUtterance(text);
+    // 浏览器不支持 speechSynthesis 时，直接结束
+    if (!this.state.synth || typeof SpeechSynthesisUtterance === 'undefined') {
+      if (onEnd) { try { onEnd(); } catch (e) {} }
+      return;
+    }
+
+    let utterance;
+    try {
+      utterance = new SpeechSynthesisUtterance(text);
+    } catch (e) {
+      if (onEnd) { try { onEnd(); } catch (e2) {} }
+      return;
+    }
     utterance.lang = 'en-US';
     utterance.rate = 0.9;
 
-    const voices = this.state.synth.getVoices();
-    const enVoices = voices.filter(v => v.lang.startsWith('en'));
+    let enVoices = [];
+    try {
+      const voices = this.state.synth.getVoices() || [];
+      enVoices = voices.filter(v => v.lang && v.lang.indexOf('en') === 0);
+    } catch (e) {}
 
     if (enVoices.length >= 2 && role) {
       const script = this.state.currentScript;
@@ -834,9 +901,14 @@ const App = {
 
     if (onEnd) {
       utterance.onend = onEnd;
+      utterance.onerror = onEnd;
     }
 
-    this.state.synth.speak(utterance);
+    try {
+      this.state.synth.speak(utterance);
+    } catch (e) {
+      if (onEnd) { try { onEnd(); } catch (e2) {} }
+    }
   },
 
   speakLine(index) {
