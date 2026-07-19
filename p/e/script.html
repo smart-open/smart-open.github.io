@@ -3,15 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>剧本练习 - 英语对话剧本库</title>
+  <meta name="theme-color" content="#0D9488">
+  <title>剧本练习 · 英语对话剧本库</title>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
 </head>
 <body>
   <!-- 顶部导航 -->
   <nav class="navbar">
     <div class="nav-inner">
-      <a href="index.html" class="logo">
-        <div class="logo-icon">🎭</div>
+      <a href="index.html" class="logo" aria-label="英语对话剧本库">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+          </svg>
+        </div>
         <span>英语对话剧本库</span>
       </a>
       <div class="nav-links">
@@ -22,9 +29,15 @@
   </nav>
 
   <!-- 主内容区 -->
-  <div class="container" style="padding-bottom: 100px;">
+  <div class="container" style="padding-bottom: 110px;">
     <!-- 返回按钮 -->
-    <a href="index.html" class="back-btn">← 返回剧本库</a>
+    <a href="index.html" class="back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"/>
+        <polyline points="12 19 5 12 12 5"/>
+      </svg>
+      返回剧本库
+    </a>
 
     <!-- 剧本详情头部 -->
     <div class="script-detail-header" id="detailHeader">
@@ -36,11 +49,11 @@
         </div>
         <div class="detail-header-actions">
           <button class="action-btn" id="btnFavorite" title="收藏">
-            <span class="action-icon">🤍</span>
+            <span class="action-icon" data-icon="heart"></span>
             <span class="action-text">收藏</span>
           </button>
           <button class="action-btn" id="btnComplete" title="标记完成">
-            <span class="action-icon">⬜</span>
+            <span class="action-icon" data-icon="check"></span>
             <span class="action-text">标记完成</span>
           </button>
         </div>
@@ -56,8 +69,19 @@
         </select>
       </div>
       <div class="control-group">
-        <button class="btn btn-toggle" id="toggleZh">隐藏中文</button>
-        <button class="btn btn-primary" id="btnPlayAll">▶ 逐句播放</button>
+        <button class="btn btn-toggle" id="toggleZh">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>
+          </svg>
+          隐藏中文
+        </button>
+        <button class="btn btn-primary" id="btnPlayAll">
+          <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0" stroke-linejoin="round">
+            <polygon points="6 4 20 12 6 20 6 4"/>
+          </svg>
+          逐句播放
+        </button>
       </div>
     </div>
 
@@ -74,11 +98,32 @@
 
   <!-- 底部播放控制栏 -->
   <div class="playback-bar" id="playbackBar">
-    <button class="pb-btn secondary" id="pbPrev">⏮</button>
-    <button class="pb-btn" id="pbPlay">▶</button>
-    <button class="pb-btn secondary" id="pbNext">⏭</button>
+    <button class="pb-btn secondary" id="pbPrev" title="上一句" aria-label="上一句">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+        <polygon points="19 20 9 12 19 4 19 20"/>
+        <line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <button class="pb-btn" id="pbPlay" title="播放" aria-label="播放">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+        <polygon points="6 4 20 12 6 20 6 4"/>
+      </svg>
+    </button>
+    <button class="pb-btn secondary" id="pbNext" title="下一句" aria-label="下一句">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+        <polygon points="5 4 15 12 5 20 5 4"/>
+        <line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
     <span class="pb-info" id="pbInfo">0 / 0</span>
-    <button class="pb-btn secondary" id="pbRepeat" title="复读">🔁</button>
+    <button class="pb-btn secondary" id="pbRepeat" title="复读" aria-label="复读">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="17 1 21 5 17 9"/>
+        <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+        <polyline points="7 23 3 19 7 15"/>
+        <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+      </svg>
+    </button>
   </div>
 
   <!-- 页脚 -->
@@ -86,7 +131,7 @@
     <p>英语对话剧本库 · 让口语练习更有趣</p>
   </footer>
 
-  <script src="js/data.js"></script>
+  <script src="data/categories.js"></script>
   <script src="js/app.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {

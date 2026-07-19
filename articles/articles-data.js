@@ -3,6 +3,14 @@
    ======================================== */
 const ARTICLES_DATA = [
   {
+    id: 'article-24',
+    title: '93%的AI项目卡在最后一公里，这样破局',
+    excerpt: '93%的企业AI项目卡在POC到生产的最后一公里。本文从数据质量落差、评估门控部署、Agent Harness六柱体系、HITL人机协同、安全边界到Observe-Act-Evolve运维闭环，系统拆解AI从Demo走向规模化落地的破局之道。',
+    tags: ['AI 落地', '最后一公里', 'AgentOps', '工程化'],
+    date: '2026-07-19',
+    detailUrl: 'detail/article-24.html'
+  },
+  {
     id: 'article-21',
     title: 'AI不会淘汰你，会用AI的人才会',
     excerpt: 'AI不会取代人类，但会用AI的人会取代不用AI的人。本文从冲击全景、打工模式演进、跟随者战略、五项核心能力、人机协作工作流到30天速成路径，系统拆解普通人如何在AI时代成为最强的跟随者。',
