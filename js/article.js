@@ -115,34 +115,41 @@ function setupScrollHighlight() {
 
 function createRocketButton() {
   const btn = document.createElement('button');
-  btn.className = 'rocket-top-btn';
+  btn.className = 'back-to-top';
   btn.setAttribute('aria-label', '返回顶部');
+  btn.setAttribute('title', '发射回顶部');
   btn.innerHTML = `
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 2.5c0 0-7 4.5-7 11.5 0 2.5 1.5 4.5 3 5.5l1-4.5c0.5-2 1.5-3 3-3s2.5 1 3 3l1 4.5c1.5-1 3-3 3-5.5 0-7-7-11.5-7-11.5z"/>
-      <path d="M12 7v3"/>
-      <circle cx="12" cy="11" r="0.8" fill="currentColor" stroke="none"/>
-      <path d="M8 22l4-3 4 3"/>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);">
+      <g transform="rotate(-45 12 12)">
+        <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
+        <path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
+        <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
+        <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+      </g>
     </svg>
   `;
   document.body.appendChild(btn);
 
-  btn.addEventListener('click', () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
+  const LAUNCH_MS = 850;
 
   let ticking = false;
   window.addEventListener('scroll', () => {
-    if (!ticking) {
+    if (!ticking && !btn.classList.contains('launching')) {
       requestAnimationFrame(() => {
-        if (window.scrollY > 400) {
-          btn.classList.add('visible');
-        } else {
-          btn.classList.remove('visible');
-        }
+        btn.classList.toggle('visible', window.scrollY > 400);
         ticking = false;
       });
       ticking = true;
     }
+  }, { passive: true });
+
+  btn.addEventListener('click', () => {
+    if (btn.classList.contains('launching')) return;
+    btn.classList.add('launching');
+    btn.classList.remove('visible');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      btn.classList.remove('launching');
+    }, LAUNCH_MS + 50);
   });
 }

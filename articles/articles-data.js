@@ -3,6 +3,30 @@
    ======================================== */
 const ARTICLES_DATA = [
   {
+    id: 'article-21',
+    title: 'AI不会淘汰你，会用AI的人才会',
+    excerpt: 'AI不会取代人类，但会用AI的人会取代不用AI的人。本文从冲击全景、打工模式演进、跟随者战略、五项核心能力、人机协作工作流到30天速成路径，系统拆解普通人如何在AI时代成为最强的跟随者。',
+    tags: ['AI冲击', '人机协同', '跟随者战略', '未来工作'],
+    date: '2026-07-19',
+    detailUrl: 'detail/article-21.html'
+  },
+  {
+    id: 'article-23',
+    title: 'AI正走出屏幕，开始接管真实世界',
+    excerpt: '从定义辨析到技术架构，从世界模型到NVIDIA Cosmos 3，一文读懂物理AI如何在真实世界中感知、推理与行动，以及它为何被称为AI的「安卓时刻」。',
+    tags: ['Physical AI', '世界模型', '具身智能', 'NVIDIA Cosmos'],
+    date: '2026-07-18',
+    detailUrl: 'detail/article-23.html'
+  },
+  {
+    id: 'article-22',
+    title: '一个人靠AI月入过万的5条变现路径',
+    excerpt: '从内容代写到数字产品、从AI自动化服务到矩阵运营，系统拆解2026年普通人用AI副业赚钱的五大方向、工具选型与避坑要点。附真实案例与30天速成路径。',
+    tags: ['AI 副业', '内容变现', '数字产品', '自动化服务'],
+    date: '2026-07-18',
+    detailUrl: 'detail/article-22.html'
+  },
+  {
     id: 'article-20',
     title: '从技能堆砌到技能治理：解构 Skill 路由、Skill Map 与专家模式',
     excerpt: '当 Agent 安装的 Skill 越来越多，调用错乱、上下文污染、语义重叠等问题随之而来。本文从问题剖析出发，系统拆解 Skill Map、Skill Router、腾讯 WorkBuddy 专家模式三种解决方案，并给出构建可控 Skill 体系的最佳实践。',
