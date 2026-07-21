@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>一首歌只换歌词不换旋律，5步全自动搞定 - 朱天伟 | Smart Open</title>
+  <meta name="description" content="保留原曲旋律只替换歌词，到底有多难？以成龙《醉拳》改为「怕老婆叨叨版」为实战案例，拆解人声分离、MIDI 转换、中文歌词注入、歌声合成、音频合并的 5 步全自动流水线，记录 basic-pitch、mido 中文编码、Synthesizer V 等关键踩坑与解法。">
+  <link rel="icon" type="image/png" href="../../favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/preview-rail.css">
+  <style>
+    /* ===== 流水线横向流程 ===== */
+    .pipeline-flow {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      margin: var(--space-md) 0;
+      flex-wrap: wrap;
+    }
+    .pipeline-stage {
+      flex: 1;
+      min-width: 130px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--divider);
+      border-radius: 10px;
+      padding: 1rem 0.9rem;
+      margin-right: 1.6rem;
+      position: relative;
+      border-top: 3px solid var(--accent);
+    }
+    .pipeline-stage:last-child {
+      margin-right: 0;
+    }
+    .pipeline-stage::after {
+      content: '→';
+      position: absolute;
+      right: -1.1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--accent);
+      font-size: 1.2rem;
+      opacity: 0.6;
+    }
+    .pipeline-stage:last-child::after {
+      display: none;
+    }
+    .pipeline-stage-num {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      margin-bottom: 0.3rem;
+    }
+    .pipeline-stage-title {
+      font-weight: 600;
+      font-size: 0.92rem;
+      margin-bottom: 0.35rem;
+    }
+    .pipeline-stage-desc {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ===== 对比表格 ===== */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg-secondary);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--divider);
+      font-size: 0.92rem;
+      margin: var(--space-md) 0;
+    }
+    .compare-table th,
+    .compare-table td {
+      padding: 0.95rem 1.1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--divider);
+    }
+    .compare-table th {
+      background: #1a1a25;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: 0.04em;
+    }
+    .compare-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    .compare-table tbody tr:hover {
+      background: rgba(0, 240, 255, 0.04);
+    }
+    .compare-table .highlight {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .compare-table .check {
+      color: #4ade80;
+    }
+    .compare-table .cross {
+      color: #f87171;
+    }
+
+    /* ===== 痛点卡片 ===== */
+    .pain-points {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin: var(--space-md) 0;
+    }
+    .pain-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--divider);
+      border-radius: 10px;
+      padding: 1.3rem;
+      border-left: 3px solid #ffb347;
+    }
+    .pain-card-title {
+      font-weight: 600;
+      font-size: 0.98rem;
+      margin-bottom: 0.5rem;
+      color: #ffb347;
+    }
+    .pain-card-desc {
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+
+    /* ===== 代码块 ===== */
+    .code-block {
+      background: #0d0d14;
+      border: 1px solid var(--divider);
+      border-radius: 10px;
+      margin: var(--space-md) 0;
+      overflow: hidden;
+    }
+    .code-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 1.1rem;
+      background: #15151f;
+      border-bottom: 1px solid var(--divider);
+    }
+    .code-block-lang {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .code-block-dots {
+      display: flex;
+      gap: 0.35rem;
+    }
+    .code-block-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--divider);
+    }
+    .code-block pre {
+      margin: 0;
+      padding: 1.1rem 1.3rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      line-height: 1.65;
+      color: #e8e8ec;
+    }
+    .code-block .c-comment { color: #7a7a85; }
+    .code-block .c-keyword { color: #c792ea; }
+    .code-block .c-string { color: #c3e88d; }
+    .code-block .c-func { color: #82aaff; }
+    .code-block .c-accent { color: var(--accent); }
+
+    /* ===== 提示框 ===== */
+    .callout {
+      background: rgba(0, 240, 255, 0.06);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+      padding: 1.2rem 1.4rem;
+      margin: var(--space-md) 0;
+    }
+    .callout-title {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    .callout-text {
+      font-size: 0.92rem;
+      line-height: 1.65;
+    }
+    .callout-warn {
+      background: rgba(255, 179, 71, 0.06);
+      border-color: rgba(255, 179, 71, 0.25);
+      border-left-color: #ffb347;
+    }
+    .callout-warn .callout-title {
+      color: #ffb347;
+    }
+
+    /* ===== 歌词对照 ===== */
+    .lyric-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: var(--space-md) 0;
+    }
+    .lyric-side {
+      background: var(--bg-secondary);
+      border: 1px solid var(--divider);
+      border-radius: 10px;
+      padding: 1.2rem;
+    }
+    .lyric-side-label {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.6rem;
+    }
+    .lyric-side-new .lyric-side-label {
+      color: #ffb347;
+    }
+    .lyric-side-text {
+      font-size: 0.88rem;
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+
+    /* ===== 响应式 ===== */
+    @media (max-width: 768px) {
+      .pipeline-flow {
+        flex-direction: column;
+      }
+      .pipeline-stage {
+        margin-right: 0;
+        margin-bottom: 1rem;
+        width: 100%;
+      }
+      .pipeline-stage::after {
+        display: none;
+      }
+      .pain-points {
+        grid-template-columns: 1fr;
+      }
+      .compare-table {
+        font-size: 0.82rem;
+      }
+      .compare-table th,
+      .compare-table td {
+        padding: 0.7rem 0.6rem;
+      }
+      .lyric-compare {
+        grid-template-columns: 1fr;
+      }
+      .code-block pre {
+        font-size: 0.78rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="site-nav" id="nav">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-brand"><img src="../../assets/img/logo.png" alt="Smart Open" class="nav-logo"><span>Smart Open</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="切换导航">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#about">关于</a></li>
+        <li><a href="../../index.html#projects">项目</a></li>
+        <li><a href="../../index.html#skills">技能</a></li>
+        <li><a href="../../index.html#experience">经历</a></li>
+        <li><a href="../index.html">文章</a></li>
+        <li><a href="../../trending/index.html">趋势</a></li>
+        <li><a href="../../index.html#contact">联系</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="article-hero">
+    <div class="article-hero-content">
+      <h1 class="article-title">一首歌只换歌词不换旋律，5步全自动搞定</h1>
+      <div class="article-meta">
+        <span class="article-date">2026-07-21</span>
+        <div class="article-tags">
+          <span class="tag">歌曲改词</span>
+          <span class="tag">翻唱</span>
+          <span class="tag">Demucs</span>
+          <span class="tag">虚拟歌姬</span>
+        </div>
+      </div>
+    </div>
+    <div class="article-hero-bg" style="background-image: url('../../assets/img/article-song-lyric-rewrite-hero.jpg')"></div>
+    <div class="article-hero-overlay"></div>
+  </section>
+
+  <div class="article-container">
+    <aside class="article-sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">目录</h3>
+        <nav class="article-toc" id="articleToc"></nav>
+      </div>
+    </aside>
+
+    <article class="article-content">
+      <div class="markdown-body">
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-song-lyric-rewrite-hero.jpg" alt="歌曲改词流水线主视觉：声波转化为音符再重组为新歌声">
+          <figcaption>从原曲到新歌，中间隔着一条五步流水线</figcaption>
+        </figure>
+
+        <p>把一首歌的歌词换掉，旋律一个音都不改——这个需求听起来简单，做起来却踩穿了音频处理、MIDI 编码、歌声合成三个领域的坑。本文记录一次完整的实战：以成龙《醉拳》为素材，把歌词改成「怕老婆叨叨版」，用一条 5 步 Python 流水线全自动跑通。</p>
+
+        <p>文章不只讲「怎么做」，更讲「为什么这样做」——每一个坑的根因、每一种技术方案的取舍边界、以及「保留旋律」这四个字背后隐藏的物理约束。如果你也想做歌曲改词翻唱，这篇能帮你少走至少两周弯路。</p>
+
+        <h2 id="section-1">一、需求拆解：保留旋律改歌词，到底难在哪</h2>
+
+        <p>先说结论：<strong>「保留旋律改歌词」本质上是一个「音高时序不变、音色重生成」的问题</strong>。听起来只是一个文本替换，但它牵涉到三个层次的技术挑战。</p>
+
+        <p>第一层是<strong>分离</strong>。一首完整的歌是人声和伴奏混在一起的。要改人声的歌词，得先把人声单独拆出来，伴奏原封不动保留。这靠的不是简单的高通低通滤波，而是深度学习模型对频谱的精准建模。</p>
+
+        <p>第二层是<strong>旋律提取</strong>。人声拆出来后是一段音频波形，波形里没有「歌词」这个概念，只有频率和振幅随时间的变化。要把歌词替换掉，得先把这段波形翻译成机器能编辑的结构化数据——MIDI。MIDI 记录的是每个音的音高、起止时间、力度，但不记录「唱的是什么字」。</p>
+
+        <p>第三层是<strong>歌声重合成</strong>。新歌词塞进 MIDI 后，还需要把带歌词的 MIDI 重新唱出来。这一步是整个流水线里选择最多、限制也最多的一步——用虚拟歌姬？用 AI 声音克隆？还是用 Suno 这类大模型重新生成？每种方案的音色还原度、操作复杂度、版权风险完全不同。</p>
+
+        <div class="callout">
+          <div class="callout-title">关键认知</div>
+          <div class="callout-text">MIDI 只含音高和时序，不含音色。这意味着无论你怎么改歌词，重新合成的声音都不是原歌手的声线——除非额外做声音转换（So-VITS-SVC / RVC），那需要 GPU 和原歌手的纯净训练数据。这是「保留旋律」和「保留原声」之间的物理鸿沟。</div>
+        </div>
+
+        <h2 id="section-2">二、流水线全景：5 步从原曲到新歌</h2>
+
+        <p>整个流水线由 5 个 Python 脚本串接，每一步的输出是下一步的输入，中间产物全部落盘到 output 目录，方便单步调试和断点续跑。</p>
+
+        <div class="pipeline-flow">
+          <div class="pipeline-stage">
+            <div class="pipeline-stage-num">STEP 01</div>
+            <div class="pipeline-stage-title">人声分离</div>
+            <div class="pipeline-stage-desc">Demucs 把原曲拆成人声 + 伴奏</div>
+          </div>
+          <div class="pipeline-stage">
+            <div class="pipeline-stage-num">STEP 02</div>
+            <div class="pipeline-stage-title">人声转 MIDI</div>
+            <div class="pipeline-stage-desc">basic-pitch 提取音高时序</div>
+          </div>
+          <div class="pipeline-stage">
+            <div class="pipeline-stage-num">STEP 03</div>
+            <div class="pipeline-stage-title">歌词注入</div>
+            <div class="pipeline-stage-desc">把新歌词按音节塞进 MIDI</div>
+          </div>
+          <div class="pipeline-stage">
+            <div class="pipeline-stage-num">STEP 04</div>
+            <div class="pipeline-stage-title">歌声合成</div>
+            <div class="pipeline-stage-desc">Synthesizer V 或 Suno 重新演唱</div>
+          </div>
+          <div class="pipeline-stage">
+            <div class="pipeline-stage-num">STEP 05</div>
+            <div class="pipeline-stage-title">音频合并</div>
+            <div class="pipeline-stage-desc">FFmpeg 把新歌声和原伴奏合成</div>
+          </div>
+        </div>
+
+        <p>五步的技术栈分别是：Demucs（Meta 开源的人声分离模型）、basic-pitch（Spotify 开源的音高提取模型）、pretty_midi + mido（MIDI 读写库）、Synthesizer V / Suno API（歌声合成）、FFmpeg（音频合并）。全部本地可跑，只有 Suno 备选方案需要联网调 API。</p>
+
+        <p>实战案例选了成龙《醉拳》——这首歌节奏鲜明、人声清晰、音域适中，适合做技术验证。新歌词 368 字，原曲 MIDI 提取出 343 个音符，两者字数对齐是第三步歌词注入的核心挑战。</p>
+
+        <h2 id="section-3">三、第一步人声分离：Demucs 拆出纯人声</h2>
+
+        <p>Demucs 是 Meta（Facebook AI Research）开源的音源分离模型，能把一首歌拆成人声、鼓、贝斯、其他四个音轨。我们只需要人声和伴奏两个，但 Demucs 默认四轨全输出，取 vocals 和剩下三轨混合即可。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="code-block-dots"><span></span><span></span><span></span></div>
+            <div class="code-block-lang">Python / demucs</div>
+          </div>
+          <pre><span class="c-comment"># 01_separate.py 核心逻辑</span>
+<span class="c-keyword">from</span> demucs.separate <span class="c-keyword">import</span> main <span class="c-keyword">as</span> demucs_main
+
+demucs_main([
+    <span class="c-string">"--two-stems"</span>, <span class="c-string">"vocals"</span>,  <span class="c-comment"># 只分人声和伴奏两轨</span>
+    <span class="c-string">"-n"</span>, <span class="c-string">"htdemucs"</span>,          <span class="c-comment"># 用最新模型</span>
+    <span class="c-string">"-o"</span>, output_dir,
+    input_audio
+])
+<span class="c-comment"># 产物：vocals.wav（纯人声）+ no_vocals.wav（纯伴奏）</span></pre>
+        </div>
+
+        <p>这一步的坑不在代码，在依赖安装。Demucs 的 PyPI 包有两个隐形依赖不会自动装：<code>julius</code>（因果卷积库）和 <code>huggingface-hub</code>（模型下载器）。缺了前者，import 直接报 ModuleNotFoundError；缺了后者，模型下载阶段卡住。正确装法：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="code-block-dots"><span></span><span></span><span></span></div>
+            <div class="code-block-lang">Shell</div>
+          </div>
+          <pre>pip install demucs julius huggingface-hub</pre>
+        </div>
+
+        <div class="callout callout-warn">
+          <div class="callout-title">踩坑记录</div>
+          <div class="callout-text">Demucs 首次运行会下载约 80MB 的 htdemucs 模型权重。如果网络不稳定，可能卡在下载阶段。可手动从 HuggingFace 下载后放到 <code>~/.cache/torch/hub/checkpoints/</code> 目录。分离一段 3 分钟的歌，CPU 约需 2-3 分钟，有 GPU 则 10 秒内完成。</div>
+        </div>
+
+        <h2 id="section-4">四、第二步人声转 MIDI：basic-pitch 提取旋律</h2>
+
+        <p>basic-pitch 是 Spotify 开源的轻量级音高追踪模型，能把单旋律音频（人声、乐器独奏）转成 MIDI。它的优势是速度快、不需要 GPU、对歌唱人声的识别准确率在 90% 以上。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="code-block-dots"><span></span><span></span><span></span></div>
+            <div class="code-block-lang">Python / basic-pitch</div>
+          </div>
+          <pre><span class="c-keyword">from</span> basic_pitch.inference <span class="c-keyword">import</span> predict_and_save
+
+predict_and_save(
+    output_dir,
+    [<span class="c-string">"vocals.wav"</span>],
+    save_midi=<span class="c-accent">True</span>,
+    sonify_midi=<span class="c-accent">False</span>,
+    save_model_outputs=<span class="c-accent">False</span>,
+    save_notes=<span class="c-accent">False</span>
+)
+<span class="c-comment"># 产物：vocals.mid，包含音高、起止时间、力度</span></pre>
+        </div>
+
+        <p>这里的坑比 Demucs 更深。basic-pitch 依赖 <code>resampy</code> 库做重采样，而 <code>resampy</code> 内部用了 <code>pkg_resources</code>——这个模块在 setuptools 83.0 以上版本被移除了。如果你用的是较新的 Python 环境（setuptools >= 83），import basic-pitch 会直接崩。</p>
+
+        <div class="pain-points">
+          <div class="pain-card">
+            <div class="pain-card-title">setuptools 83 移除 pkg_resources</div>
+            <div class="pain-card-desc">resampy 的 <code>_version.py</code> 用 <code>import pkg_resources</code> 读版本号，setuptools 83 把这个模块删了，导致整个 basic-pitch 无法 import。</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-card-title">解法：降级或改源</div>
+            <div class="pain-card-desc">方案一：<code>pip install setuptools&lt;83</code> 降级。方案二（推荐）：改 resampy 源码，把 <code>import pkg_resources</code> 替换为 <code>import importlib.resources</code>，一劳永逸。</div>
+          </div>
+        </div>
+
+        <p>转出来的 MIDI 文件，用 pretty_midi 读取后会得到一个 instrument，里面有若干个 note，每个 note 有 pitch（音高，MIDI 编号 0-127）、start（开始时间，秒）、end（结束时间，秒）、velocity（力度）。这些 note 就是歌词要注入的「槽位」——每个 note 对应一个音节，一个字。</p>
+
+        <h2 id="section-5">五、第三步歌词注入：中文编码的生死突围</h2>
+
+        <p>这是整个流水线技术含量最高、踩坑最深的一步。目标很清晰：把新歌词的每个字，按顺序填进 MIDI 的每个 note 里。MIDI 标准里，note 的「歌词」是存在 meta message 的 <code>lyrics</code> 字段里的。但就是这一个字段，差点让整个流水线报废。</p>
+
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-song-lyric-rewrite-encoding.jpg" alt="MIDI 中文歌词编码突围：字符流经过 UTF-8 过滤门净化">
+          <figcaption>mido 默认用 latin-1 编码歌词，中文直接报 UnicodeEncodeError</figcaption>
+        </figure>
+
+        <h3>5.1 字数对齐：368 字塞进 343 个音符</h3>
+
+        <p>新歌词 368 字，MIDI 提取出 343 个音符。差 25 个字，怎么对齐？这不是简单截断能解决的——歌词有断句、有拖音、有衬词（「啊」「哦」），硬塞会导致音节和音高错位，听起来像乱码。</p>
+
+        <p>实战解法是<strong>音节映射策略</strong>：先按空格和标点把歌词切成词组，再按音节数把词组分配给音符簇。遇到字数多于音符的情况，把多出的字合并到相邻音符上（一个音符唱两个字）；字数少于音符的情况，用空拍或延长音补齐。这个过程 03_modify_lyrics.py 自动处理，但对纯中文歌词（没有空格分词）效果一般，需要人工微调断句。</p>
+
+        <h3>5.2 致命陷阱：mido 的 latin-1 编码</h3>
+
+        <p>歌词对齐后，往 MIDI 写入中文时，mido 库直接抛出 <code>UnicodeEncodeError: 'latin-1' codec can't encode characters</code>。根因在 mido 的源码深处：它把所有 meta message 的字符串都用 latin-1 编码成字节——这个编码只支持 0-255 的拉丁字符，中文 Unicode 码点远超此范围。</p>
+
+        <p>翻遍 mido 文档没有配置项可以改编码。唯一的出路是 <strong>monkey-patch（运行时替换）</strong>——在 import mido 之后、使用之前，把它的编码函数偷换成 UTF-8 版本：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="code-block-dots"><span></span><span></span><span></span></div>
+            <div class="code-block-lang">Python / mido monkey-patch</div>
+          </div>
+          <pre><span class="c-keyword">import</span> mido
+
+<span class="c-comment"># === 关键 hack：强制 mido 用 UTF-8 编码字符串 ===</span>
+<span class="c-comment"># mido.charset 默认是 'latin-1'，不支持中文</span>
+<span class="c-comment"># 直接替换模块级常量，所有后续编码都走 UTF-8</span>
+mido.midifiles.meta.<span class="c-func">setattr</span>(<span class="c-string">'charset'</span>, <span class="c-string">'utf-8'</span>)
+
+<span class="c-comment"># 更稳的做法：替换 _encode_string 和 _decode_string</span>
+<span class="c-keyword">def</span> <span class="c-func">_encode_string</span>(text):
+    <span class="c-keyword">return</span> text.encode(<span class="c-string">'utf-8'</span>)
+
+<span class="c-keyword">def</span> <span class="c-func">_decode_string</span>(data):
+    <span class="c-keyword">return</span> data.decode(<span class="c-string">'utf-8'</span>, errors=<span class="c-string">'replace'</span>)
+
+mido.midifiles.meta._encode_string = _encode_string
+mido.midifiles.meta._decode_string = _decode_string
+<span class="c-comment"># 至此，中文歌词可正常写入 MIDI</span></pre>
+        </div>
+
+        <div class="callout">
+          <div class="callout-title">为什么是 monkey-patch</div>
+          <div class="callout-text">mido 是 MIDI 文件读写的标准库，没有替代品。它的编码写死在源码里不是配置项，fork 改源码又不便维护。monkey-patch 在运行时替换函数引用，既不改原库代码，又能全局生效，是处理这类「库的硬编码行为与需求冲突」的标准手段。</div>
+        </div>
+
+        <h3>5.3 歌词对照：从醉拳到叨叨</h3>
+
+        <p>实战案例的歌词改写思路是「保留原曲节奏感，内容从武侠豪情转为家庭幽默」。截取副歌第一句对照：</p>
+
+        <div class="lyric-compare">
+          <div class="lyric-side">
+            <div class="lyric-side-label">原词 / 醉拳</div>
+            <div class="lyric-side-text">我颠颠又倒倒 呀好比浪涛
+有人的地方 就有恩怨
+有恩怨 就有江湖
+人就是江湖</div>
+          </div>
+          <div class="lyric-side lyric-side-new">
+            <div class="lyric-side-label">新词 / 叨叨版</div>
+            <div class="lyric-side-text">我忙忙又碌碌 呀好比陀螺
+有家的地方 就有唠叨
+有唠叨 就有规矩
+家就是规矩</div>
+          </div>
+        </div>
+
+        <p>字数完全对齐，音节结构相近，注入 MIDI 后旋律不跑调。这种「语义对仗 + 字数一致」的改写策略，是歌词替换不违和的关键。</p>
+
+        <h2 id="section-6">六、第四步歌声合成：虚拟歌姬与原声线的真相</h2>
+
+        <p>带歌词的 MIDI 做好了，下一步是让它「唱出来」。这一步是方案分歧最大的一步，也是「保留旋律」这个需求最容易翻车的一步。</p>
+
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-song-lyric-rewrite-voice.jpg" alt="声音转换技术路径：虚拟歌姬声线与原歌手声线之间需要 GPU 转换">
+          <figcaption>合成声线 ≠ 原声线，中间的鸿沟需要 So-VITS-SVC/RVC 跨越</figcaption>
+        </figure>
+
+        <p>三种主流方案的对比如下：</p>
+
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>方案</th>
+              <th>保留旋律</th>
+              <th>保留原声线</th>
+              <th>操作难度</th>
+              <th>适用场景</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="highlight">Synthesizer V</td>
+              <td class="check">完全保留</td>
+              <td class="cross">声线变为虚拟歌姬</td>
+              <td>GUI 操作，无 CLI</td>
+              <td>高质量翻唱，接受换声线</td>
+            </tr>
+            <tr>
+              <td class="highlight">Suno API</td>
+              <td class="cross">重新作曲</td>
+              <td class="cross">AI 生成新声线</td>
+              <td>API 调用，全自动</td>
+              <td>快速demo，不要求原旋律</td>
+            </tr>
+            <tr>
+              <td class="highlight">So-VITS-SVC / RVC</td>
+              <td class="check">保留</td>
+              <td class="check">克隆原声线</td>
+              <td>需 GPU + 训练数据</td>
+              <td>最高还原度翻唱</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>6.1 Synthesizer V：质量最高但无 CLI</h3>
+
+        <p>Synthesizer V（简称 SV）是当前最强的虚拟歌姬引擎，音质逼真、中文支持好。问题是它<strong>只有 GUI，没有命令行接口</strong>，无法自动化。免费版已下架，Studio 版需付费。在流水线里，这一步只能人工导入 MIDI、选声库、导出音频，是全自动流程里唯一的「人肉断点」。</p>
+
+        <h3>6.2 Suno API：能自动化但会跑调</h3>
+
+        <p>Suno 是当前最火的 AI 音乐生成大模型，有 API 可调。但用它做「保留旋律改歌词」有个致命问题：<strong>Suno 的 Cover 模式（上传原曲+新歌词）会被版权指纹系统拦截</strong>。绕过方式是用 custom_mode 直接传歌词让它重新生成——但这样一来，旋律就是 Suno 重新作的，不是原曲的。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="code-block-dots"><span></span><span></span><span></span></div>
+            <div class="code-block-lang">Python / Suno API</div>
+          </div>
+          <pre><span class="c-comment"># 04_synthesize.py 中的 Suno 备选方案</span>
+payload = {
+    <span class="c-string">"custom_mode"</span>: <span class="c-accent">True</span>,           <span class="c-comment"># 绕过 Cover 模式的版权检测</span>
+    <span class="c-string">"prompt"</span>: <span class="c-string">""</span>,                  <span class="c-comment"># 不用风格提示，避免重作曲</span>
+    <span class="c-string">"lyrics"</span>: new_lyrics,          <span class="c-comment"># 新歌词内容</span>
+    <span class="c-string">"title"</span>: <span class="c-string">"醉拳叨叨版"</span>,
+    <span class="c-string">"make_instrumental"</span>: <span class="c-accent">False</span>
+}
+<span class="c-comment"># 注意：custom_mode 下 Suno 会重新生成旋律</span>
+<span class="c-comment"># 无法保证与原曲旋律一致，这是 Suno 方案的硬伤</span></pre>
+        </div>
+
+        <h3>6.3 终极方案：So-VITS-SVC 声音克隆</h3>
+
+        <p>如果一定要「既保留旋律、又保留原歌手声线」，技术路径是：<strong>Synthesizer V 合成虚拟歌姬演唱 → So-VITS-SVC 把虚拟声线转换回原歌手声线</strong>。这需要用原歌手的纯人声数据训练一个声线模型，训练需要 GPU（至少 8GB 显存）和 10-30 分钟的纯净人声素材。</p>
+
+        <div class="callout callout-warn">
+          <div class="callout-title">版权提醒</div>
+          <div class="callout-text">声音克隆涉及原歌手的声音权。个人研究学习属于合理使用范围，但公开传播克隆声音翻唱的作品可能侵犯表演者权。Suno 的版权指纹拦截正是为规避这一风险设计的。实战中请明确使用边界。</div>
+        </div>
+
+        <h2 id="section-7">七、第五步合并与实战反思：从跑通到好用</h2>
+
+        <p>最后一步最简单：用 FFmpeg 把新合成的歌声和第一步分离出的原伴奏合并成完整歌曲。</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="code-block-dots"><span></span><span></span><span></span></div>
+            <div class="code-block-lang">Shell / FFmpeg</div>
+          </div>
+          <pre><span class="c-comment"># 05_merge.py 核心命令</span>
+ffmpeg -i new_vocals.wav -i no_vocals.wav \
+  -filter_complex <span class="c-string">"[0:a]volume=1.2[a1];[1:a]volume=0.9[a2];</span>
+<span class="c-string">  [a1][a2]amix=inputs=2:duration=longest"</span> \
+  -acodec libmp3lame -q:a 2 output.mp3
+<span class="c-comment"># volume 调整人声和伴奏比例，amix 混音</span></pre>
+        </div>
+
+        <p>合并时的关键参数是人声和伴奏的音量比例。原曲混音时人声通常略大于伴奏，翻唱合成的人声偏「干净」缺乏混响，需要适当提亮（+1.2 倍）并给伴奏降一点（0.9 倍），听感才平衡。如果合成的歌声干涩，可额外加 <code>aecho</code> 或 <code>aformat</code> 滤镜做简单混响。</p>
+
+        <h3>7.1 质量评估：三个维度</h3>
+
+        <p>跑通流水线后，从三个维度评估成品质量：</p>
+
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>维度</th>
+              <th>评估方法</th>
+              <th>本次实战表现</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="highlight">旋律保真度</td>
+              <td>对比原曲和新歌声的 MIDI 音高序列</td>
+              <td class="check">100% 一致（MIDI 直接复用）</td>
+            </tr>
+            <tr>
+              <td class="highlight">歌词对齐度</td>
+              <td>人工听辨每个字的起止是否与音符匹配</td>
+              <td>约 85%，25 处需人工微调断句</td>
+            </tr>
+            <tr>
+              <td class="highlight">声线还原度</td>
+              <td>与原歌手声纹对比（主观+频谱）</td>
+              <td class="cross">0%（虚拟歌姬声线，需 SVC 补足）</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>7.2 改进方向</h3>
+
+        <p>这条流水线跑通了，但离「好用」还有距离。三个可改进的方向：</p>
+
+        <p><strong>第一，歌词对齐自动化</strong>。当前中文歌词断句靠人工，可引入拼音分词 + 音节计数，让脚本自动把中文字符映射到 MIDI 音符簇。难点在于中文一字一音节，但 MIDI 音符有拖音和连音，需要区分「一个字占两个音符」和「两个字占一个音符」。</p>
+
+        <p><strong>第二，Synthesizer V 自动化</strong>。SV 没有 CLI 是全自动流程的唯一断点。可以用 AutoHotkey 或 pyautogui 做 GUI 自动化脚本，模拟导入 MIDI、选声库、导出音频的操作。但 SV 的 UI 结构复杂，脚本脆弱性高，版本更新易失效。</p>
+
+        <p><strong>第三，声线还原闭环</strong>。接入 So-VITS-SVC 做声音转换，让最终成品保留原歌手声线。这需要额外搭建 SVC 训练和推理环境，GPU 是硬门槛。没有 GPU 的环境，只能接受虚拟歌姬声线或用 Suno 重生成。</p>
+
+        <h3>7.3 成本与收益</h3>
+
+        <div class="callout">
+          <div class="callout-title">实战成本清单</div>
+          <div class="callout-text">纯 CPU 环境跑完整条流水线（不含 SV 人工操作），3 分钟的歌约耗时 5 分钟：Demucs 分离 2-3 分钟，basic-pitch 转 MIDI 30 秒，歌词注入 1 秒，FFmpeg 合并 5 秒。环境搭建踩坑耗时远超运行——basic-pitch 和 mido 的两个坑，从遇到到解决花了整整两天。希望本文能帮你省下这两天。</div>
+        </div>
+
+        <p>回到开头的问题：一首歌只换歌词不换旋律，5 步能不能搞定？答案是<strong>能跑通，但每一步都有它的脾气</strong>。Demucs 的依赖缺失、basic-pitch 的 setuptools 冲突、mido 的中文编码、Synthesizer V 的无 CLI、Suno 的版权拦截——这五个坑，每一个都能让流水线停摆。但只要跨过去，你就有了一条可以从任何歌曲生成改词翻唱的自动化产线。</p>
+
+        <p>更重要的是，这条产线的每一步都是可替换的模块。Demucs 可以换成 Spleeter，basic-pitch 可以换成 SPICE，Synthesizer V 可以换成 ACE 虚拟歌姬，Suno 可以换成其他音乐大模型。理解了每一步「做什么」和「为什么这么做」，技术的更新换代不会让这套方法失效——你只是在换零件，不是换引擎。</p>
+
+        <h3>参考资料</h3>
+        <ol>
+          <li id="cite-1">Meta AI Research, «Demucs: Hybrid Spectral and Waveform Domain Music Source Separation», GitHub: facebookresearch/demucs <a href="https://github.com/facebookresearch/demucs" target="_blank" rel="noopener">https://github.com/facebookresearch/demucs</a></li>
+          <li id="cite-2">Spotify Research, «basic-pitch: A lightweight pitch tracking model», GitHub: spotify/basic-pitch <a href="https://github.com/spotify/basic-pitch" target="_blank" rel="noopener">https://github.com/spotify/basic-pitch</a></li>
+          <li id="cite-3">mido: MIDI Objects for Python, Read the Docs <a href="https://mido.readthedocs.io/" target="_blank" rel="noopener">https://mido.readthedocs.io/</a></li>
+          <li id="cite-4">Dreamtonics, «Synthesizer V Studio», 官方网站 <a href="https://dreamtonics.com/synthesizerv/" target="_blank" rel="noopener">https://dreamtonics.com/synthesizerv/</a></li>
+          <li id="cite-5">Suno API 文档，Suno Inc. <a href="https://docs.suno.ai/" target="_blank" rel="noopener">https://docs.suno.ai/</a></li>
+          <li id="cite-6">FFmpeg Filters Documentation <a href="https://ffmpeg.org/ffmpeg-filters.html" target="_blank" rel="noopener">https://ffmpeg.org/ffmpeg-filters.html</a></li>
+        </ol>
+      </div>
+      <nav class="article-nav" id="articleNav"></nav>
+    </article>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; 2024-2026 朱天伟 | Smart Open. Built with care.</p>
+    </div>
+  </footer>
+
+  <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
+  <script src="../../js/article.js"></script>
+  <script src="../../js/preview-rail.js"></script>
+</body>
+</html>

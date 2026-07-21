@@ -3,6 +3,14 @@
    ======================================== */
 const ARTICLES_DATA = [
   {
+    id: 'article-25',
+    title: '一首歌只换歌词不换旋律，5步全自动搞定',
+    excerpt: '保留原曲旋律只替换歌词，到底有多难？以成龙《醉拳》改为「怕老婆叨叨版」为实战案例，拆解人声分离、MIDI 转换、中文歌词注入、歌声合成、音频合并的 5 步全自动流水线，记录 basic-pitch、mido 中文编码、Synthesizer V 等关键踩坑与解法。',
+    tags: ['歌曲改词', '翻唱', 'Demucs', '虚拟歌姬'],
+    date: '2026-07-21',
+    detailUrl: 'detail/article-25.html'
+  },
+  {
     id: 'article-24',
     title: '93%的AI项目卡在最后一公里，这样破局',
     excerpt: '93%的企业AI项目卡在POC到生产的最后一公里。本文从数据质量落差、评估门控部署、Agent Harness六柱体系、HITL人机协同、安全边界到Observe-Act-Evolve运维闭环，系统拆解AI从Demo走向规模化落地的破局之道。',
