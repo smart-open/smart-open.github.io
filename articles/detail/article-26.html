@@ -682,7 +682,88 @@ ffmpeg -i face_swapped.mp4 -i cloned_voice.wav \
           <div class="callout-text">别期待好莱坞级别。FaceFusion换脸在正脸、光线好的场景下效果不错，侧脸和遮挡会露馅。GPT-SoVITS声音克隆能抓住音色但情感控制弱，听起来像「你在平静地念台词」。要做到以假乱真，需要DeepFaceLab训练专属模型加So-VITS-SVC做声音转换，那是另一个量级的投入。</div>
         </div>
 
-        <h2 id="section-8">八、法律红线和使用底线</h2>
+        <h2 id="section-8">八、搭建成本：从能用到好用花多少</h2>
+
+        <p>前面把工具和流程都过了一遍，最现实的问题来了：搭一套功能正常、体验尚佳的换脸加声音克隆系统，到底花多少钱？分三档说清楚。</p>
+
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>方案档位</th>
+              <th>入门体验版</th>
+              <th>标准可用版</th>
+              <th>专业产出版</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="highlight">换脸工具</td>
+              <td>FaceFusion（CPU模式）</td>
+              <td>FaceFusion + GPU加速</td>
+              <td>DeepFaceLab 训练专属模型</td>
+            </tr>
+            <tr>
+              <td class="highlight">声音克隆</td>
+              <td>CosyVoice 云端</td>
+              <td>GPT-SoVITS 本地</td>
+              <td>So-VITS-SVC + 情感微调</td>
+            </tr>
+            <tr>
+              <td class="highlight">GPU</td>
+              <td>无需（全云端）</td>
+              <td>RTX 3060 12GB</td>
+              <td>RTX 4090 24GB</td>
+            </tr>
+            <tr>
+              <td class="highlight">换脸速度</td>
+              <td class="warn">图片1张/30秒</td>
+              <td class="check">视频实时</td>
+              <td class="check">高精度训练</td>
+            </tr>
+            <tr>
+              <td class="highlight">声音质量</td>
+              <td class="check">音色准确</td>
+              <td class="check">音色+情感</td>
+              <td class="check">以假乱真</td>
+            </tr>
+            <tr>
+              <td class="highlight">一次性投入</td>
+              <td>¥0（全云端）</td>
+              <td>¥4,000-6,000</td>
+              <td>¥15,000-20,000</td>
+            </tr>
+            <tr>
+              <td class="highlight">月运营成本</td>
+              <td>¥200-400</td>
+              <td>¥50（电费）</td>
+              <td>¥100（电费）</td>
+            </tr>
+            <tr>
+              <td class="highlight">适合场景</td>
+              <td>偶尔玩玩、验证概念</td>
+              <td>短视频团队、个人创作</td>
+              <td>专业影视、商业广告</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>入门体验版一分钱硬件都不用买。FaceFusion的CPU模式虽然慢，换一张图片30秒，但能跑。声音克隆走云端CosyVoice镜像，L4 GPU按¥2/小时租，每月用100小时约¥200，就能生成任意文本的克隆语音。总月费¥200-400，功能完整，就是速度慢，适合先验证概念。</p>
+
+        <p>标准可用版买一张RTX 3060 12GB（¥2,000左右二手），加一台普通主机总共¥4,000-6,000。FaceFusion开GPU加速后视频换脸接近实时，GPT-SoVITS本地跑声音克隆，5秒干音就能复刻音色。月运营成本只有电费约¥50。这是短视频团队和个人创作者的甜点档——投入不大，产出质量够用。</p>
+
+        <p>专业产出版上RTX 4090 24GB（¥15,000左右），用DeepFaceLab训练专属换脸模型，画质天花板拉满。声音用So-VITS-SVC做情感微调，连说话时的情绪波动都能还原。一次性投入¥15,000-20,000，但产出质量达到商业广告级别。这档适合专业影视团队和商业内容生产。</p>
+
+        <div class="callout">
+          <div class="callout-title">云端 vs 本地怎么选</div>
+          <div class="callout-text">用量小（每月不到50小时）选云端，按需租用不压资金。用量大（每天都要跑）选本地，RTX 3060两个月就能回本。声音克隆的云端镜像已经做到一键部署，5分钟就能跑起来，比本地装环境快十倍。换脸建议本地跑——视频文件大，上传云端带宽成本不划算。</div>
+        </div>
+
+        <div class="callout callout-warn">
+          <div class="callout-title">隐性成本提醒</div>
+          <div class="callout-text">素材拍摄成本容易被忽略：好的换脸源视频需要正脸、光线均匀、表情自然，随便拍一段效果会很差。声音克隆需要干净干音，有背景噪音要先降噪。如果要做数字人短片，视频剪辑和后期也是成本，DaVinci Resolve免费版够用但学习曲线不低。这些隐性成本加起来，可能跟硬件投入差不多。</div>
+        </div>
+
+        <h2 id="section-9">九、法律红线和使用底线</h2>
 
         <p>技术能做不等于应该做。这一节比前面所有技术内容都重要。</p>
 

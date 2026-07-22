@@ -4,8 +4,8 @@
 const ARTICLES_DATA = [
   {
     id: 'article-27',
-    title: '给一段视频注入灵魂，虚拟人开口实时聊天',
-    excerpt: '从一段有声视频到实时对话的虚拟人，完整拆解ASR、LLM、TTS、唇形同步、人格注入全链路技术，横评MetaHuman-Stream、Linly-Talker、Duix等开源项目，附GPU选型和落地流程。',
+    title: '视频里的人活了，张嘴就能跟你实时聊天',
+    excerpt: '从一段有声视频到实时对话的虚拟人，完整拆解ASR、LLM、TTS、唇形同步、人格注入全链路技术，横评MetaHuman-Stream、Linly-Talker、Duix等开源项目，附GPU选型、成本分析和落地流程。',
     tags: ['虚拟数字人', '实时对话', '唇形同步', '开源项目'],
     date: '2026-07-22',
     detailUrl: 'detail/article-27.html'
