@@ -2,166 +2,166 @@
    Trending Data — update weekly
    ======================================== */
 const TRENDING_DATA = {
-  updated: "2026-07-14",
+  updated: "2026-07-22",
   weekly: [
     {
       rank: 1,
-      name: "Zackriya-Solutions/meetily",
-      url: "https://github.com/Zackriya-Solutions/meetily",
-      lang: "Rust",
-      desc: "本地优先的 AI 会议助手，4x 实时转录+说话人识别+Ollama 总结",
-      stars: "4,353"
+      name: "MadsLorentzen/ai-job-search",
+      url: "https://github.com/MadsLorentzen/ai-job-search",
+      lang: "TypeScript",
+      desc: "基于 Claude Code 的 AI 求职自动化框架，本地运行，定制简历+求职信+面试辅导",
+      stars: "13,195"
     },
     {
       rank: 2,
-      name: "wonderwhy-er/DesktopCommanderMCP",
-      url: "https://github.com/wonderwhy-er/DesktopCommanderMCP",
+      name: "OpenCut-app/OpenCut",
+      url: "https://github.com/OpenCut-app/OpenCut",
       lang: "TypeScript",
-      desc: "MCP 服务器，给 Claude 终端控制、文件搜索和 diff 编辑能力",
-      stars: "3,800"
+      desc: "开源 CapCut 替代品，AI 辅助视频剪辑，持续走红的长线项目",
+      stars: "7,247"
     },
     {
       rank: 3,
-      name: "openai/codex-plugin-cc",
-      url: "https://github.com/openai/codex-plugin-cc",
-      lang: "-",
-      desc: "从 Claude Code 调用 Codex 审查代码或委派任务",
-      stars: "3,500"
+      name: "iOfficeAI/OfficeCLI",
+      url: "https://github.com/iOfficeAI/OfficeCLI",
+      lang: "C#",
+      desc: "面向 AI Agent 的免装 Office 自动化工具，读写 Word/Excel/PowerPoint",
+      stars: "7,129"
     },
     {
       rank: 4,
-      name: "TencentCloud/CubeSandbox",
-      url: "https://github.com/TencentCloud/CubeSandbox",
-      lang: "-",
-      desc: "即时、并发、安全、轻量的 AI Agent 沙箱",
-      stars: "3,100"
+      name: "Graphify-Labs/graphify",
+      url: "https://github.com/Graphify-Labs/graphify",
+      lang: "Python",
+      desc: "把代码/文档转成可查询知识图谱的 Agent Skill，兼容主流编码 Agent",
+      stars: "6,724"
     },
     {
       rank: 5,
-      name: "abseil/abseil-cpp",
-      url: "https://github.com/abseil/abseil-cpp",
-      lang: "C++",
-      desc: "Google 内部 C++ 基础库开源版",
-      stars: "2,800"
+      name: "stablyai/orca",
+      url: "https://github.com/stablyai/orca",
+      lang: "TypeScript",
+      desc: "管理并行编码 Agent 集群的 ADE 开发环境，桌面+移动端",
+      stars: "5,724"
     },
     {
       rank: 6,
-      name: "ogulcancelik/herdr",
-      url: "https://github.com/ogulcancelik/herdr",
-      lang: "-",
-      desc: "终端里的 Agent 多路复用器",
-      stars: "2,600"
+      name: "Zackriya-Solutions/meetily",
+      url: "https://github.com/Zackriya-Solutions/meetily",
+      lang: "Rust",
+      desc: "隐私优先的本地 AI 会议助手，4x 实时转录+说话人识别+Ollama 总结",
+      stars: "4,389"
     },
     {
       rank: 7,
-      name: "asgeirtj/system_prompts_leaks",
-      url: "https://github.com/asgeirtj/system_prompts_leaks",
-      lang: "-",
-      desc: "提取的各大 AI 系统提示词合集",
-      stars: "2,400"
+      name: "diegosouzapw/OmniRoute",
+      url: "https://github.com/diegosouzapw/OmniRoute",
+      lang: "TypeScript",
+      desc: "免费 AI 网关，231+ 提供商，支持 Caveman 压缩节省 15%-95% Token",
+      stars: "4,297"
     },
     {
       rank: 8,
-      name: "diegosouzapw/OmniRoute",
-      url: "https://github.com/diegosouzapw/OmniRoute",
-      lang: "-",
-      desc: "免费 AI 网关，231+ 提供商，支持 Caveman 压缩",
-      stars: "2,200"
+      name: "HKUDS/Vibe-Trading",
+      url: "https://github.com/HKUDS/Vibe-Trading",
+      lang: "Python",
+      desc: "个人交易 Agent，AI 驱动的量化交易自动化",
+      stars: "4,252"
     },
     {
       rank: 9,
-      name: "stablyai/orca",
-      url: "https://github.com/stablyai/orca",
-      lang: "-",
-      desc: "并行 Agent 的 ADE 开发环境，桌面+移动端",
-      stars: "2,000"
+      name: "usestrix/strix",
+      url: "https://github.com/usestrix/strix",
+      lang: "Python",
+      desc: "开源 AI 渗透测试工具，自动发现安全漏洞并生成修复代码",
+      stars: "3,090"
     },
     {
       rank: 10,
-      name: "bradautomates/claude-video",
-      url: "https://github.com/bradautomates/claude-video",
-      lang: "Python",
-      desc: "让 Claude 能看视频（下载、抽帧、转录）",
-      stars: "4,353"
+      name: "TencentCloud/CubeSandbox",
+      url: "https://github.com/TencentCloud/CubeSandbox",
+      lang: "Rust",
+      desc: "面向 AI Agent 的即时、并发、安全、轻量级沙箱",
+      stars: "1,944"
     }
   ],
   monthly: [
     {
       rank: 1,
-      name: "DeusData/codebase-memory-mcp",
-      url: "https://github.com/DeusData/codebase-memory-mcp",
-      lang: "-",
-      desc: "高性能代码智能 MCP 服务器，158 种语言，毫秒级查询"
-    },
-    {
-      rank: 2,
-      name: "calesthio/OpenMontage",
-      url: "https://github.com/calesthio/OpenMontage",
-      lang: "-",
-      desc: "首个开源 Agent 视频制作系统，12 管道、52 工具、500+ Skills"
-    },
-    {
-      rank: 3,
-      name: "Panniantong/Agent-Reach",
-      url: "https://github.com/Panniantong/Agent-Reach",
-      lang: "-",
-      desc: "让 AI 读取全网，一个 CLI 零 API 费用"
-    },
-    {
-      rank: 4,
       name: "asgeirtj/system_prompts_leaks",
       url: "https://github.com/asgeirtj/system_prompts_leaks",
       lang: "-",
-      desc: "各大 AI 系统提示词提取合集"
+      desc: "各大 AI 系统提示词提取合集，覆盖 Claude/GPT-5.6/Gemini 3.5 等"
+    },
+    {
+      rank: 2,
+      name: "Panniantong/Agent-Reach",
+      url: "https://github.com/Panniantong/Agent-Reach",
+      lang: "-",
+      desc: "让 Agent 读取全网，CLI 零 API 费用，支持 Twitter/Reddit/YouTube/B站"
+    },
+    {
+      rank: 3,
+      name: "usestrix/strix",
+      url: "https://github.com/usestrix/strix",
+      lang: "Python",
+      desc: "开源 AI 渗透测试工具，Agent 自主扫描漏洞并修复"
+    },
+    {
+      rank: 4,
+      name: "calesthio/OpenMontage",
+      url: "https://github.com/calesthio/OpenMontage",
+      lang: "-",
+      desc: "首个开源 Agent 音视频生产系统，12 管道、52 工具、500+ Skills"
     },
     {
       rank: 5,
-      name: "kunchenguid/no-mistakes",
-      url: "https://github.com/kunchenguid/no-mistakes",
+      name: "DeusData/codebase-memory-mcp",
+      url: "https://github.com/DeusData/codebase-memory-mcp",
       lang: "-",
-      desc: "防误提交的 git push 工具"
+      desc: "高性能代码智能 MCP 服务器，毫秒级图查询，减少 99% Token 消耗"
     },
     {
       rank: 6,
-      name: "usestrix/strix",
-      url: "https://github.com/usestrix/strix",
+      name: "topoteretes/cognee",
+      url: "https://github.com/topoteretes/cognee",
       lang: "-",
-      desc: "开源 AI 渗透测试工具"
+      desc: "AI Agent 长期记忆管理平台，构建持久化知识图谱实现跨会话学习"
     },
     {
       rank: 7,
-      name: "ogulcancelik/herdr",
-      url: "https://github.com/ogulcancelik/herdr",
-      lang: "-",
-      desc: "终端 Agent 多路复用器"
+      name: "alibaba/page-agent",
+      url: "https://github.com/alibaba/page-agent",
+      lang: "JavaScript",
+      desc: "网页内 GUI 代理，用自然语言操控浏览器点击、输入与导航"
     },
     {
       rank: 8,
-      name: "stablyai/orca",
-      url: "https://github.com/stablyai/orca",
-      lang: "-",
-      desc: "并行 Agent 开发环境"
+      name: "MadsLorentzen/ai-job-search",
+      url: "https://github.com/MadsLorentzen/ai-job-search",
+      lang: "TypeScript",
+      desc: "基于 Claude Code 的本地 AI 求职自动化框架"
     },
     {
       rank: 9,
-      name: "Zackriya-Solutions/meetily",
-      url: "https://github.com/Zackriya-Solutions/meetily",
-      lang: "Rust",
-      desc: "本地 AI 会议助手"
+      name: "stablyai/orca",
+      url: "https://github.com/stablyai/orca",
+      lang: "TypeScript",
+      desc: "并行 Agent 协同编码 ADE，支持管理 Agent 舰队"
     },
     {
       rank: 10,
-      name: "interviewstreet/hiring-agent",
-      url: "https://github.com/interviewstreet/hiring-agent",
+      name: "simplex-chat/simplex-chat",
+      url: "https://github.com/simplex-chat/simplex-chat",
       lang: "-",
-      desc: "评估和筛选简历的 AI Agent"
+      desc: "无标识符隐私聊天网络，无手机号、邮箱、公钥 ID"
     }
   ],
   skills: [
     {
       rank: 1,
       name: "find-skills",
-      installs: "190 万",
+      installs: "192 万",
       source: "vercel-labs/skills",
       desc: "技能搜索引擎，在对话中查找并安装社区 Skills"
     },
@@ -202,38 +202,38 @@ const TRENDING_DATA = {
     },
     {
       rank: 7,
+      name: "azure-validate",
+      installs: "37.3 万",
+      source: "microsoft/azure-skills",
+      desc: "Azure 资源配置和服务校验，适合云工程自动化"
+    },
+    {
+      rank: 8,
       name: "remotion-best-practices",
       installs: "35.6 万",
       source: "remotion-dev/skills",
       desc: "用代码生成视频的最佳实践，效率提升 5 倍"
     },
     {
-      rank: 8,
-      name: "skill-creator",
-      installs: "25.8 万",
-      source: "anthropics/skills",
-      desc: "元技能，将工作流封装成新的 SKILL.md"
-    },
-    {
       rank: 9,
-      name: "caveman",
-      installs: "22.3 万",
-      source: "JuliusBrussee/caveman",
-      desc: "极简「洞穴人风格」输出，节省 65% Token"
+      name: "azure-hosted-copilot-sdk",
+      installs: "34.6 万",
+      source: "microsoft/azure-skills",
+      desc: "基于 Azure 构建托管 Copilot/Agent 应用"
     },
     {
       rank: 10,
-      name: "supabase-postgres-best-practices",
-      installs: "21.7 万",
-      source: "supabase/agent-skills",
-      desc: "Supabase/Postgres 数据库设计规范"
+      name: "azure-compute",
+      installs: "31.7 万",
+      source: "microsoft/azure-skills",
+      desc: "Azure 计算资源创建与管理自动化"
     }
   ],
   skillRepos: [
     { name: "obra/superpowers", stars: "252K+", desc: "最流行的 Skills 框架，含 TDD、计划、子 Agent 隔离" },
-    { name: "mattpocock/skills", stars: "85K+", desc: "TypeScript/前端工程实践技能集合" },
-    { name: "anthropics/skills", stars: "40K+", desc: "Anthropic 官方技能仓库" },
-    { name: "JuliusBrussee/caveman", stars: "快速增长", desc: "省 Token 的洞穴人技能" },
-    { name: "alirezarezvani/claude-skills", stars: "热门", desc: "345 个跨领域技能合集" }
+    { name: "mattpocock/skills", stars: "176K+", desc: "TypeScript/前端工程实践技能集合" },
+    { name: "Graphify-Labs/graphify", stars: "87K+", desc: "代码/文档转知识图谱的 Agent Skill" },
+    { name: "addyosmani/agent-skills", stars: "68K+", desc: "Google 工程总监的 Agent 技能集" },
+    { name: "anthropics/skills", stars: "40K+", desc: "Anthropic 官方技能仓库" }
   ]
 };
