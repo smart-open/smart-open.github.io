@@ -3,6 +3,14 @@
    ======================================== */
 const ARTICLES_DATA = [
   {
+    id: 'article-28',
+    title: '一台组装机跑通AIGC全流程，配置清单全公开',
+    excerpt: '想装一台私人AIGC主机跑大模型、出图、做视频？从GLM-5.2部署现实到GPU选型，从四档配置方案到日常电费，一篇搞懂个人AIGC主机的全部配置和避坑指南。附完整购物清单和月运营成本测算。',
+    tags: ['AIGC主机', '组装机', 'GLM-5.2', 'GPU选型'],
+    date: '2026-07-22',
+    detailUrl: 'detail/article-28.html'
+  },
+  {
     id: 'article-27',
     title: '视频里的人活了，张嘴就能跟你实时聊天',
     excerpt: '从一段有声视频到实时对话的虚拟人，完整拆解ASR、LLM、TTS、唇形同步、人格注入全链路技术，横评MetaHuman-Stream、Linly-Talker、Duix等开源项目，附GPU选型、成本分析和落地流程。',

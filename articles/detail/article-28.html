@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>一台组装机跑通AIGC全流程，配置清单全公开 - 朱天伟 | Smart Open</title>
+  <meta name="description" content="想装一台私人AIGC主机跑大模型、出图、做视频？从GLM-5.2部署现实到GPU选型，从四档配置方案到日常电费，一篇搞懂个人AIGC主机的全部配置和避坑指南。">
+  <link rel="icon" type="image/png" href="../../favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/preview-rail.css">
+  <style>
+    /* ===== 对比表格 ===== */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg-secondary);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--divider);
+      font-size: 0.9rem;
+      margin: 1.2rem 0;
+    }
+    .compare-table th,
+    .compare-table td {
+      padding: 0.85rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--divider);
+    }
+    .compare-table th {
+      background: #1a1a25;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+    }
+    .compare-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    .compare-table tbody tr:hover {
+      background: rgba(0, 240, 255, 0.04);
+    }
+    .compare-table .highlight {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .compare-table .check {
+      color: #4ade80;
+    }
+    .compare-table .cross {
+      color: #f87171;
+    }
+    .compare-table .warn {
+      color: #ffb347;
+    }
+
+    /* ===== 配置方案卡片 ===== */
+    .build-tiers {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      margin: 1.2rem 0;
+    }
+    .build-tier {
+      background: var(--bg-secondary);
+      border: 1px solid var(--divider);
+      border-radius: 10px;
+      padding: 1.2rem;
+      border-top: 3px solid var(--accent);
+    }
+    .build-tier.entry { border-top-color: #4ade80; }
+    .build-tier.sweet { border-top-color: var(--accent); }
+    .build-tier.pro { border-top-color: #ffb347; }
+    .build-tier.flagship { border-top-color: #f87171; }
+    .build-tier-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 0.2rem;
+    }
+    .build-tier.entry .build-tier-name { color: #4ade80; }
+    .build-tier.sweet .build-tier-name { color: var(--accent); }
+    .build-tier.pro .build-tier-name { color: #ffb347; }
+    .build-tier.flagship .build-tier-name { color: #f87171; }
+    .build-tier-price {
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.8rem;
+    }
+    .build-tier-spec {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+    .build-tier-spec .spec-label {
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+    .build-tier-spec .spec-value {
+      color: var(--text-primary);
+    }
+
+    /* ===== 场景矩阵 ===== */
+    .scenario-matrix {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg-secondary);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--divider);
+      font-size: 0.85rem;
+      margin: 1.2rem 0;
+    }
+    .scenario-matrix th,
+    .scenario-matrix td {
+      padding: 0.7rem 0.8rem;
+      text-align: center;
+      border-bottom: 1px solid var(--divider);
+    }
+    .scenario-matrix th {
+      background: #1a1a25;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.78rem;
+    }
+    .scenario-matrix td:first-child {
+      text-align: left;
+      font-weight: 500;
+    }
+    .scenario-matrix .full { color: #4ade80; font-weight: 600; }
+    .scenario-matrix .partial { color: #ffb347; }
+    .scenario-matrix .none { color: #f87171; }
+
+    /* ===== 代码块 ===== */
+    .code-block {
+      background: #0d0d14;
+      border: 1px solid var(--divider);
+      border-radius: 10px;
+      margin: 1.2rem 0;
+      overflow: hidden;
+    }
+    .code-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 1.1rem;
+      background: #15151f;
+      border-bottom: 1px solid var(--divider);
+    }
+    .code-block-lang {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .code-block-dots {
+      display: flex;
+      gap: 0.35rem;
+    }
+    .code-block-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--divider);
+    }
+    .code-block pre {
+      margin: 0;
+      padding: 1rem 1.2rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.65;
+      color: #e8e8ec;
+    }
+    .code-block .c-comment { color: #7a7a85; }
+    .code-block .c-keyword { color: #c792ea; }
+    .code-block .c-string { color: #c3e88d; }
+    .code-block .c-func { color: #82aaff; }
+    .code-block .c-accent { color: var(--accent); }
+
+    /* ===== 提示框 ===== */
+    .callout {
+      background: rgba(0, 240, 255, 0.06);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+      padding: 1.1rem 1.3rem;
+      margin: 1.2rem 0;
+    }
+    .callout-title {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+    }
+    .callout-text {
+      font-size: 0.9rem;
+      line-height: 1.65;
+    }
+    .callout-warn {
+      background: rgba(255, 179, 71, 0.06);
+      border-color: rgba(255, 179, 71, 0.25);
+      border-left-color: #ffb347;
+    }
+    .callout-warn .callout-title {
+      color: #ffb347;
+    }
+    .callout-danger {
+      background: rgba(248, 113, 113, 0.06);
+      border-color: rgba(248, 113, 113, 0.25);
+      border-left-color: #f87171;
+    }
+    .callout-danger .callout-title {
+      color: #f87171;
+    }
+
+    /* ===== 避坑卡片 ===== */
+    .pitfall-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin: 1.2rem 0;
+    }
+    .pitfall-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--divider);
+      border-radius: 10px;
+      padding: 1.1rem;
+      border-left: 3px solid #ffb347;
+    }
+    .pitfall-card-title {
+      font-weight: 600;
+      font-size: 0.92rem;
+      margin-bottom: 0.4rem;
+      color: #ffb347;
+    }
+    .pitfall-card-desc {
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+      line-height: 1.6;
+    }
+
+    /* ===== 电费计算表 ===== */
+    .cost-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg-secondary);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--divider);
+      font-size: 0.85rem;
+      margin: 1.2rem 0;
+    }
+    .cost-table th,
+    .cost-table td {
+      padding: 0.75rem 0.9rem;
+      text-align: center;
+      border-bottom: 1px solid var(--divider);
+    }
+    .cost-table th {
+      background: #1a1a25;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.78rem;
+    }
+    .cost-table td:first-child {
+      text-align: left;
+      font-weight: 500;
+    }
+    .cost-table .highlight {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ===== h2 上间距减半 ===== */
+    .markdown-body h2 {
+      margin-top: 3rem;
+    }
+
+    /* ===== 响应式 ===== */
+    @media (max-width: 768px) {
+      .compare-table,
+      .scenario-matrix,
+      .cost-table {
+        font-size: 0.75rem;
+      }
+      .compare-table th,
+      .compare-table td,
+      .scenario-matrix th,
+      .scenario-matrix td,
+      .cost-table th,
+      .cost-table td {
+        padding: 0.5rem 0.4rem;
+      }
+      .build-tiers,
+      .pitfall-grid {
+        grid-template-columns: 1fr;
+      }
+      .code-block pre {
+        font-size: 0.75rem;
+      }
+      .scenario-matrix {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="site-nav" id="nav">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-brand"><img src="../../assets/img/logo.png" alt="Smart Open" class="nav-logo"><span>Smart Open</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="切换导航">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#about">关于</a></li>
+        <li><a href="../../index.html#projects">项目</a></li>
+        <li><a href="../../index.html#skills">技能</a></li>
+        <li><a href="../../index.html#experience">经历</a></li>
+        <li><a href="../index.html">文章</a></li>
+        <li><a href="../../trending/index.html">趋势</a></li>
+        <li><a href="../../index.html#contact">联系</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="article-hero">
+    <div class="article-hero-content">
+      <h1 class="article-title">一台组装机跑通AIGC全流程，配置清单全公开</h1>
+      <div class="article-meta">
+        <span class="article-date">2026-07-22</span>
+        <div class="article-tags">
+          <span class="tag">AIGC主机</span>
+          <span class="tag">组装机</span>
+          <span class="tag">GLM-5.2</span>
+          <span class="tag">GPU选型</span>
+        </div>
+      </div>
+    </div>
+    <div class="article-hero-bg" style="background-image: url('../../assets/img/article-personal-aigc-workstation-hero.jpg')"></div>
+    <div class="article-hero-overlay"></div>
+  </section>
+
+  <div class="article-container">
+    <aside class="article-sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">目录</h3>
+        <nav class="article-toc" id="articleToc"></nav>
+      </div>
+    </aside>
+
+    <article class="article-content">
+      <div class="markdown-body">
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-personal-aigc-workstation-hero.jpg" alt="个人AIGC工作站主视觉：暗色环境中发光的RGB主机与环绕的AI生成图标">
+          <figcaption>一台机器，跑通大模型对话、图片生成、视频制作的全流程</figcaption>
+        </figure>
+
+        <p>每月花几百块买各种AI会员，Midjourney出图要排队，GPT-4 API按token计费月底账单吓人，视频生成工具动不动就限速。算下来一年订阅费够装一台主机了。与其把钱烧在云端，不如装一台自己的AIGC工作站。</p>
+
+        <p>但问题来了：想跑GLM-5.2，想出图，想做视频，想写小说，想搞播客，到底需要什么配置？显卡买新的还是二手的？32GB显存够不够？每个月电费要多少？这篇文章把这些问题全部掰开揉碎，给出四档配置方案和最终的推荐答案。</p>
+
+        <h2 id="section-1">一、GLM-5.2本地部署的残酷现实</h2>
+
+        <p>先说最扎心的事。GLM-5.2是智谱AI 2026年发布的旗舰大模型，744B参数的MoE架构，每次推理激活40B参数<sup><a href="#cite-1">[1]</a></sup>。这个参数量级意味着什么？直接看显存需求表：</p>
+
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>量化精度</th>
+              <th>显存需求</th>
+              <th>个人PC可行性</th>
+              <th>备注</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>BF16 原始精度</td>
+              <td class="highlight">~1,510 GB</td>
+              <td class="cross">不可能</td>
+              <td>需要约19张H100 80GB</td>
+            </tr>
+            <tr>
+              <td>FP8 量化</td>
+              <td class="highlight">~750 GB</td>
+              <td class="cross">不可能</td>
+              <td>需要约10张H100</td>
+            </tr>
+            <tr>
+              <td>Q4_K_M (4-bit)</td>
+              <td class="highlight">~376-476 GB</td>
+              <td class="cross">不可能</td>
+              <td>超出任何消费级硬件上限</td>
+            </tr>
+            <tr>
+              <td>2-bit 量化</td>
+              <td class="highlight">~238-241 GB</td>
+              <td class="warn">勉强可行</td>
+              <td>需256GB统一内存，Mac Studio M3 Ultra可跑3-9 tok/s</td>
+            </tr>
+            <tr>
+              <td>1-bit 量化</td>
+              <td class="highlight">~223 GB</td>
+              <td class="warn">勉强可行</td>
+              <td>质量损失过大，实用性存疑</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>结论很明确：<strong>消费级PC无法本地部署完整版GLM-5.2</strong>。即便用最激进的2-bit量化，也需要至少256GB内存，目前只有Mac Studio M3 Ultra 256GB版本能勉强跑起来，速度也只有3-9 tokens/s<sup><a href="#cite-2">[2]</a></sup>。组装机走x86+GPU路线，想凑够256GB显存需要十几张显卡，完全不现实。</p>
+
+        <div class="callout">
+          <div class="callout-title">务实的做法</div>
+          <div class="callout-text">本地跑小模型处理日常任务（GLM-4 9B、Qwen2.5 14B/32B），复杂推理走GLM-5.2的API。本地负责图片生成、视频生成、TTS这些不需要超大模型的任务，大模型对话用API按量付费。这样既不浪费硬件，也不为用不上的算力买单。</div>
+        </div>
+
+        <p>下面是本地可以流畅运行的替代模型，按显存需求排列：</p>
+
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>模型</th>
+              <th>参数量</th>
+              <th>Q4量化显存</th>
+              <th>FP16显存</th>
+              <th>最低显卡</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Qwen2.5 7B</td>
+              <td>7B</td>
+              <td>~5 GB</td>
+              <td>~14 GB</td>
+              <td>RTX 3060 12GB</td>
+            </tr>
+            <tr>
+              <td>GLM-4 9B</td>
+              <td>9B</td>
+              <td>~6 GB</td>
+              <td>~18 GB</td>
+              <td>RTX 3060 12GB</td>
+            </tr>
+            <tr>
+              <td>Qwen2.5 14B</td>
+              <td>14B</td>
+              <td>~10 GB</td>
+              <td>~28 GB</td>
+              <td>RTX 4060 Ti 16GB</td>
+            </tr>
+            <tr>
+              <td>Qwen2.5 32B</td>
+              <td>32B</td>
+              <td class="highlight">~20 GB</td>
+              <td>~64 GB</td>
+              <td>RTX 3090 24GB</td>
+            </tr>
+            <tr>
+              <td>DeepSeek-V3 Lite</td>
+              <td>16B MoE</td>
+              <td>~10 GB</td>
+              <td>~32 GB</td>
+              <td>RTX 4060 Ti 16GB</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>32B级别的模型在Q4量化下需要约20GB显存，RTX 3090/4090的24GB正好能装下。这是消费级显卡能跑到的质量上限，日常对话、写作、代码辅助完全够用。</p>
+
+        <h2 id="section-2">二、显存才是硬门槛</h2>
+
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-personal-aigc-workstation-gpu.jpg" alt="三档GPU对比：入门级、甜品级、旗舰级显卡并排展示">
+          <figcaption>从左到右：入门级12GB、甜品级16GB、旗舰级24-32GB，显存决定能跑什么模型</figcaption>
+        </figure>
+
+        <p>组装AIGC主机和装游戏机最大的区别在于：<strong>游戏机看GPU算力，AIGC机看显存容量</strong>。模型权重必须完整加载到显存里才能用GPU加速推理，显存不够就是不够，算力再强也白搭。</p>
+
+        <p>这就引出一个核心原则：买显卡先看显存容量，再看核心性能。一张RTX 4060 Ti 16GB虽然算力不如RTX 4060 Ti 8GB版本（因为显存频率降低），但在AIGC场景下反而更实用，因为能加载更大的模型。</p>
+
+        <p>下面是2026年7月主流显卡的AIGC适配分析：</p>
+
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>显卡</th>
+              <th>显存</th>
+              <th>参考价格</th>
+              <th>新/二手</th>
+              <th>AIGC定位</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>RTX 3060 12GB</td>
+              <td>12 GB</td>
+              <td>¥1,800-2,200</td>
+              <td>全新</td>
+              <td class="check">入门首选，SD出图+7B模型</td>
+            </tr>
+            <tr>
+              <td>RTX 4060 Ti 16GB</td>
+              <td>16 GB</td>
+              <td>¥3,099-3,599</td>
+              <td>全新</td>
+              <td class="check">甜品之选，SDXL+14B模型</td>
+            </tr>
+            <tr>
+              <td>RTX 3090 24GB</td>
+              <td>24 GB</td>
+              <td>¥5,500-7,500</td>
+              <td>二手</td>
+              <td class="highlight">性价比之王，32B模型+视频生成</td>
+            </tr>
+            <tr>
+              <td>RTX 4090 24GB</td>
+              <td>24 GB</td>
+              <td>¥11,000-14,000</td>
+              <td>二手</td>
+              <td class="check">全能选手，算力+显存双强</td>
+            </tr>
+            <tr>
+              <td>RTX 5090 32GB</td>
+              <td>32 GB</td>
+              <td>¥23,000-32,000</td>
+              <td>全新</td>
+              <td class="warn">旗舰天花板，预算充足首选</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>几个关键判断：</p>
+
+        <p><strong>12GB是底线</strong>。SD 1.5出图勉强够用，SDXL需要开低分辨率模式，7B量化模型能跑但留不了多少上下文窗口。低于12GB基本告别AIGC。</p>
+
+        <p><strong>16GB是甜品线</strong>。SDXL正常出图、Flux量化版能跑、14B模型流畅推理、LoRA微调可行。对大多数人来说这个档位性价比最高。</p>
+
+        <p><strong>24GB是分水岭</strong>。32B模型Q4量化正好装下，视频生成（SVD、CogVideoX）不再爆显存，LoRA训练批量大小可以开大。RTX 3090二手是目前最划算的AIGC显卡。</p>
+
+        <p><strong>32GB是未来线</strong>。RTX 5090的32GB GDDR7显存能跑70B模型的Q4量化，视频生成可以开高分辨率。但3万块的价格已经不是「个人主机」的范畴了。</p>
+
+        <div class="callout callout-warn">
+          <div class="callout-title">N卡 vs A卡</div>
+          <div class="callout-text">AIGC生态绑死CUDA。Stable Diffusion WebUI、ComfyUI、vLLM、Ollama、xFormers这些核心工具全依赖CUDA。AMD的ROCm支持虽然在进步，但安装配置麻烦、兼容性参差不齐。除非特别预算敏感，否则AIGC主机只考虑N卡。</div>
+        </div>
+
+        <h2 id="section-3">三、四档配置方案</h2>
+
+        <p>结合上面的显卡分析，给出四档完整的组装方案。价格基于2026年7月京东/淘宝/闲鱼实际行情，包含CPU、主板、内存、硬盘、电源、机箱、散热器全部配件。</p>
+
+        <div class="build-tiers">
+          <div class="build-tier entry">
+            <div class="build-tier-name">入门档</div>
+            <div class="build-tier-price">¥3,200 - 3,800</div>
+            <div class="build-tier-spec">
+              <span class="spec-label">CPU</span> <span class="spec-value">i5-12400F</span><br>
+              <span class="spec-label">GPU</span> <span class="spec-value">RTX 3060 12GB</span><br>
+              <span class="spec-label">RAM</span> <span class="spec-value">32GB DDR4 3200</span><br>
+              <span class="spec-label">SSD</span> <span class="spec-value">1TB NVMe Gen3</span><br>
+              <span class="spec-label">PSU</span> <span class="spec-value">550W 铜牌</span><br>
+              <span class="spec-label">适合</span> <span class="spec-value">SD出图 / 7B模型 / 基础TTS</span>
+            </div>
+          </div>
+          <div class="build-tier sweet">
+            <div class="build-tier-name">甜品档</div>
+            <div class="build-tier-price">¥6,500 - 7,500</div>
+            <div class="build-tier-spec">
+              <span class="spec-label">CPU</span> <span class="spec-value">i5-14600KF</span><br>
+              <span class="spec-label">GPU</span> <span class="spec-value">RTX 4060 Ti 16GB</span><br>
+              <span class="spec-label">RAM</span> <span class="spec-value">64GB DDR5 6000</span><br>
+              <span class="spec-label">SSD</span> <span class="spec-value">2TB NVMe Gen4</span><br>
+              <span class="spec-label">PSU</span> <span class="spec-value">750W 金牌</span><br>
+              <span class="spec-label">适合</span> <span class="spec-value">SDXL+LoRA / 14B模型 / Flux量化</span>
+            </div>
+          </div>
+          <div class="build-tier pro">
+            <div class="build-tier-name">专业档</div>
+            <div class="build-tier-price">¥12,000 - 16,000</div>
+            <div class="build-tier-spec">
+              <span class="spec-label">CPU</span> <span class="spec-value">i7-14700K</span><br>
+              <span class="spec-label">GPU</span> <span class="spec-value">RTX 3090 24GB (二手)</span><br>
+              <span class="spec-label">RAM</span> <span class="spec-value">128GB DDR5 6000</span><br>
+              <span class="spec-label">SSD</span> <span class="spec-value">2TB NVMe + 4TB HDD</span><br>
+              <span class="spec-label">PSU</span> <span class="spec-value">1000W 金牌全模</span><br>
+              <span class="spec-label">适合</span> <span class="spec-value">32B模型 / 视频生成 / LoRA训练</span>
+            </div>
+          </div>
+          <div class="build-tier flagship">
+            <div class="build-tier-name">旗舰档</div>
+            <div class="build-tier-price">¥28,000 - 35,000</div>
+            <div class="build-tier-spec">
+              <span class="spec-label">CPU</span> <span class="spec-value">i9-14900K</span><br>
+              <span class="spec-label">GPU</span> <span class="spec-value">RTX 5090 32GB</span><br>
+              <span class="spec-label">RAM</span> <span class="spec-value">128GB DDR5 6400</span><br>
+              <span class="spec-label">SSD</span> <span class="spec-value">4TB NVMe Gen5</span><br>
+              <span class="spec-label">PSU</span> <span class="spec-value">1200W 白金全模</span><br>
+              <span class="spec-label">适合</span> <span class="spec-value">70B Q4模型 / 高清视频生成 / 全覆盖</span>
+            </div>
+          </div>
+        </div>
+
+        <p>四个档位的定位差异很大。入门档适合「先试水」，用最小的成本验证AIGC能不能跑起来。甜品档是「日常够用」，覆盖大部分个人创作需求。专业档是「认真干活」，32B模型和视频生成是它的主场。旗舰档是「一步到位」，预算充足直接拉满。</p>
+
+        <p>几个配件选择的补充说明：</p>
+
+        <p><strong>CPU不是瓶颈但别太差</strong>。AIGC主要靠GPU，但数据预处理、模型加载、多任务调度都需要CPU。i5-12400F六核十二线程是底线，i5-14600KF的14核20线程是甜品线。i9只在多卡场景下有意义。</p>
+
+        <p><strong>内存宁多勿少</strong>。32GB是底线，64GB是推荐，128GB是理想。模型加载、批量图片处理、视频帧序列都会吃大量内存。32GB跑14B模型时系统就开始捉襟见肘了。</p>
+
+        <p><strong>SSD速度直接影响加载时间</strong>。一个32B模型Q4量化文件约20GB，Gen3 SSD加载需要30秒，Gen4降到15秒，Gen5可以到8秒。2TB容量是起点，模型文件动辄5-50GB，装几个就满了。</p>
+
+        <p><strong>电源要留余量</strong>。RTX 3090满载350W，RTX 5090满载575W<sup><a href="#cite-3">[3]</a></sup>，加上CPU和其他配件，系统峰值功耗可能超过800W。电源额定功率至少是系统峰值功耗的1.3倍，否则高负载时容易触发保护机制重启。</p>
+
+        <h2 id="section-4">四、AIGC场景覆盖矩阵</h2>
+
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-personal-aigc-workstation-scenarios.jpg" alt="六种AIGC场景围绕中心主机构成的辐射图：图片生成、视频生成、大模型对话、小说写作、播客制作、语音合成">
+          <figcaption>一台主机覆盖六大AIGC场景，但不同配置能跑的场景差异很大</figcaption>
+        </figure>
+
+        <p>用户的需求很明确：大模型对话、图片识别与生成、视频生成、写小说、做播客视频。下面这张矩阵表把每个场景和四档配置的匹配关系列清楚。</p>
+
+        <table class="scenario-matrix">
+          <thead>
+            <tr>
+              <th>AIGC场景</th>
+              <th>显存需求</th>
+              <th>入门档<br>12GB</th>
+              <th>甜品档<br>16GB</th>
+              <th>专业档<br>24GB</th>
+              <th>旗舰档<br>32GB</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>SD 1.5 图片生成</td>
+              <td>4-6 GB</td>
+              <td class="full">流畅</td>
+              <td class="full">流畅</td>
+              <td class="full">秒出</td>
+              <td class="full">秒出</td>
+            </tr>
+            <tr>
+              <td>SDXL 图片生成</td>
+              <td>8-12 GB</td>
+              <td class="partial">勉强</td>
+              <td class="full">流畅</td>
+              <td class="full">流畅</td>
+              <td class="full">秒出</td>
+            </tr>
+            <tr>
+              <td>Flux.1 图片生成</td>
+              <td>12-24 GB</td>
+              <td class="none">不可用</td>
+              <td class="partial">量化版</td>
+              <td class="full">流畅</td>
+              <td class="full">流畅</td>
+            </tr>
+            <tr>
+              <td>图片识别 (LLaVA)</td>
+              <td>8-14 GB</td>
+              <td class="partial">7B版</td>
+              <td class="full">13B版</td>
+              <td class="full">34B版</td>
+              <td class="full">34B版</td>
+            </tr>
+            <tr>
+              <td>7B-14B 大模型对话</td>
+              <td>5-10 GB</td>
+              <td class="full">流畅</td>
+              <td class="full">流畅</td>
+              <td class="full">秒回</td>
+              <td class="full">秒回</td>
+            </tr>
+            <tr>
+              <td>32B 大模型对话</td>
+              <td>20-24 GB</td>
+              <td class="none">不可用</td>
+              <td class="none">不可用</td>
+              <td class="full">Q4量化</td>
+              <td class="full">流畅</td>
+            </tr>
+            <tr>
+              <td>70B 大模型对话</td>
+              <td>40-48 GB</td>
+              <td class="none">不可用</td>
+              <td class="none">不可用</td>
+              <td class="none">不可用</td>
+              <td class="partial">Q4勉强</td>
+            </tr>
+            <tr>
+              <td>小说写作 (长上下文)</td>
+              <td>10-20 GB</td>
+              <td class="partial">7B+短上下文</td>
+              <td class="full">14B+长上下文</td>
+              <td class="full">32B+长上下文</td>
+              <td class="full">32B+超长上下文</td>
+            </tr>
+            <tr>
+              <td>TTS 语音合成</td>
+              <td>4-8 GB</td>
+              <td class="full">流畅</td>
+              <td class="full">流畅</td>
+              <td class="full">流畅</td>
+              <td class="full">流畅</td>
+            </tr>
+            <tr>
+              <td>声音克隆 (GPT-SoVITS)</td>
+              <td>6-10 GB</td>
+              <td class="full">可用</td>
+              <td class="full">流畅</td>
+              <td class="full">流畅</td>
+              <td class="full">秒回</td>
+            </tr>
+            <tr>
+              <td>视频生成 (AnimateDiff)</td>
+              <td>8-12 GB</td>
+              <td class="partial">慢</td>
+              <td class="full">可用</td>
+              <td class="full">流畅</td>
+              <td class="full">流畅</td>
+            </tr>
+            <tr>
+              <td>视频生成 (SVD/CogVideoX)</td>
+              <td>16-24 GB</td>
+              <td class="none">不可用</td>
+              <td class="partial">慢</td>
+              <td class="full">流畅</td>
+              <td class="full">秒出</td>
+            </tr>
+            <tr>
+              <td>HunyuanVideo 高清视频</td>
+              <td>24-32 GB</td>
+              <td class="none">不可用</td>
+              <td class="none">不可用</td>
+              <td class="partial">量化版</td>
+              <td class="full">流畅</td>
+            </tr>
+            <tr>
+              <td>LoRA 微调训练</td>
+              <td>12-24 GB</td>
+              <td class="partial">SD1.5</td>
+              <td class="full">SDXL</td>
+              <td class="full">SDXL大批量</td>
+              <td class="full">Flux</td>
+            </tr>
+            <tr>
+              <td>播客视频 (TTS+数字人)</td>
+              <td>10-16 GB</td>
+              <td class="partial">低画质</td>
+              <td class="full">可用</td>
+              <td class="full">流畅</td>
+              <td class="full">高画质</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>从矩阵可以看出，入门档能覆盖约50%的场景但多为「勉强可用」或「慢」。甜品档覆盖约75%，是日常创作的最低门槛。专业档覆盖约90%，只有70B模型和顶级视频生成跑不了。旗舰档几乎全覆盖，唯一短板是完整版GLM-5.2仍需走API。</p>
+
+        <h2 id="section-5">五、组装避坑指南</h2>
+
+        <p>配件买回来不等于能跑好。AIGC主机有几个特殊的坑，普通装机攻略不会告诉你。</p>
+
+        <div class="pitfall-grid">
+          <div class="pitfall-card">
+            <div class="pitfall-card-title">二手显卡验机三板斧</div>
+            <div class="pitfall-card-desc">RTX 3090/4090二手性价比极高，但矿卡风险也大。到手后先跑FurMark 30分钟看温度是否超过85°C，再用GPU-Z核对BIOS和显存颗粒（三星 vs 镁光），最后跑3DMark Time Spy看分数是否正常。温度压不住的卡大概率硅脂干了，需要自己换散热硅脂。</div>
+          </div>
+          <div class="pitfall-card">
+            <div class="pitfall-card-title">电源功率别抠</div>
+            <div class="pitfall-card-desc">RTX 3090瞬时功耗峰值可达450W（transient spike），劣质电源直接触发保护断电。电源额定功率 = (CPU TDP + GPU TDP) x 1.5 + 100W。3090+14700K至少要1000W，5090+14900K至少要1200W。买一线品牌（海韵、长城、振华），别买杂牌。</div>
+          </div>
+          <div class="pitfall-card">
+            <div class="pitfall-card-title">内存容量比频率重要</div>
+            <div class="pitfall-card-desc">AIGC场景下128GB DDR5 4800远比32GB DDR5 7200有用。模型推理、图片批量处理、视频帧缓存都吃容量。如果预算有限，优先把容量堆到64GB以上，频率6000MHz够用。别为了追求高频牺牲容量。</div>
+          </div>
+          <div class="pitfall-card">
+            <div class="pitfall-card-title">硬盘别只看容量</div>
+            <div class="pitfall-card-desc">模型文件单个5-50GB，低速SSD加载一个32B模型要等一分钟。务必选PCIe Gen4以上NVMe SSD，顺序读取速度7000MB/s以上。2TB是起步，4TB不嫌多。HDD只适合存素材和归档，模型文件必须放SSD。</div>
+          </div>
+          <div class="pitfall-card">
+            <div class="pitfall-card-title">散热直接影响性能</div>
+            <div class="pitfall-card-desc">GPU温度超过80°C会自动降频，AIGC长时间高负载运行尤其明显。机箱选网孔面板的高风量款（如联力Lancool III、追风者G500A），别选闷罐玻璃箱。CPU用240水冷起步，14700K/14900K建议360水冷。机箱风扇至少3进2出。</div>
+          </div>
+          <div class="pitfall-card">
+            <div class="pitfall-card-title">主板别贪便宜</div>
+            <div class="pitfall-card-desc">主板决定稳定性和扩展性。至少选B760（Intel）或B650（AMD）芯片组，PCIe 4.0 x16插槽是必须的。供电相数至少12相，VRM散热片要厚实。预留M.2接口至少3个，方便后续加硬盘。如果未来考虑双卡，选有两个x16插槽的X670E或Z790主板。</div>
+          </div>
+        </div>
+
+        <div class="callout callout-warn">
+          <div class="callout-title">二手3090避坑</div>
+          <div class="callout-text">RTX 3090是AIGC性价比最高的二手卡，但也是矿卡重灾区。优先选个人卖家带原盒原发票的，避开深圳华强北批量出货的。到手第一时间检查显存导热垫是否老化（拆开背面看是否渗油），跑了半年以上的矿卡大概率需要更换显存导热垫，否则显存温度轻松破100°C。</div>
+        </div>
+
+        <h2 id="section-6">六、日常运营费用</h2>
+
+        <p>装完机器不是结束，每个月还要掏电费。下面算一笔明细账。</p>
+
+        <h3>电费</h3>
+
+        <p>AIGC主机和普通办公电脑不同，GPU高负载时功耗是平时的3-5倍。按每天使用4小时（GPU满载）、其余时间待机计算：</p>
+
+        <table class="cost-table">
+          <thead>
+            <tr>
+              <th>配置档位</th>
+              <th>满载功耗</th>
+              <th>待机功耗</th>
+              <th>日均耗电</th>
+              <th>月电费</th>
+              <th>年电费</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>入门档 (3060)</td>
+              <td>~280W</td>
+              <td>~60W</td>
+              <td>~1.5度</td>
+              <td class="highlight">~¥35</td>
+              <td>~¥420</td>
+            </tr>
+            <tr>
+              <td>甜品档 (4060Ti)</td>
+              <td>~350W</td>
+              <td>~70W</td>
+              <td>~1.8度</td>
+              <td class="highlight">~¥42</td>
+              <td>~¥504</td>
+            </tr>
+            <tr>
+              <td>专业档 (3090)</td>
+              <td>~550W</td>
+              <td>~80W</td>
+              <td>~2.7度</td>
+              <td class="highlight">~¥63</td>
+              <td>~¥756</td>
+            </tr>
+            <tr>
+              <td>旗舰档 (5090)</td>
+              <td>~800W</td>
+              <td>~90W</td>
+              <td>~3.8度</td>
+              <td class="highlight">~¥89</td>
+              <td>~¥1,068</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>电费按居民用电0.6元/度计算。如果每天使用8小时，电费翻倍。专业档每天8小时月电费约¥126，旗舰档约¥178。相比云端GPU租赁（RTX 4090云实例约¥3-5/小时），自己装机跑8小时电费不到¥6，成本优势非常明显。</p>
+
+        <h3>API调用费</h3>
+
+        <p>本地跑不了的GLM-5.2，走API按量付费。智谱开放平台的GLM-5.2 API定价大致如下：</p>
+
+        <table class="cost-table">
+          <thead>
+            <tr>
+              <th>使用场景</th>
+              <th>日均调用量</th>
+              <th>月费用估算</th>
+              <th>备注</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>日常对话 (轻度)</td>
+              <td>~50次</td>
+              <td class="highlight">~¥15-30</td>
+              <td>每次约2000 token</td>
+            </tr>
+            <tr>
+              <td>写作辅助 (中度)</td>
+              <td>~200次</td>
+              <td class="highlight">~¥60-120</td>
+              <td>长文本生成</td>
+            </tr>
+            <tr>
+              <td>代码+分析 (重度)</td>
+              <td>~500次</td>
+              <td class="highlight">~¥150-300</td>
+              <td>含上下文传递</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>关键策略是<strong>模型分流</strong>：日常简单对话用本地Qwen2.5 14B（免费），复杂推理和长文写作走GLM-5.2 API。这样API月费可以控制在¥30-80，加上电费总运营成本每月不到¥150。</p>
+
+        <h3>软件成本</h3>
+
+        <p>AIGC软件栈几乎全是开源免费的：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">AIGC Software Stack</span>
+            <div class="code-block-dots"><span></span><span></span><span></span></div>
+          </div>
+          <pre><span class="c-comment"># 大模型推理</span>
+<span class="c-func">ollama</span>          <span class="c-comment"># 一键部署本地LLM，支持GGUF量化</span>
+<span class="c-func">vllm</span>            <span class="c-comment"># 高性能推理服务，支持多模型并发</span>
+<span class="c-func">lm-sys</span>          <span class="c-comment"># WebUI对话界面</span>
+
+<span class="c-comment"># 图片生成</span>
+<span class="c-func">ComfyUI</span>         <span class="c-comment"># 节点式工作流，灵活强大</span>
+<span class="c-func">stable-diffusion-webui</span> <span class="c-comment"># 经典WebUI，上手简单</span>
+<span class="c-func">InvokeAI</span>        <span class="c-comment"># 统一画布，适合画师</span>
+
+<span class="c-comment"># 视频生成</span>
+<span class="c-func">AnimateDiff</span>     <span class="c-comment"># 基于SD的动画生成</span>
+<span class="c-func">ComfyUI-SVD</span>     <span class="c-comment"># Stable Video Diffusion节点</span>
+
+<span class="c-comment"># 语音合成</span>
+<span class="c-func">GPT-SoVITS</span>      <span class="c-comment"># 少样本声音克隆</span>
+<span class="c-func">CosyVoice</span>       <span class="c-comment"># 阿里开源TTS，情感丰富</span>
+<span class="c-func">fish-speech</span>     <span class="c-comment"># 轻量级语音合成</span>
+
+<span class="c-comment"># 数字人</span>
+<span class="c-func">SadTalker</span>       <span class="c-comment"># 图片+音频生成说话视频</span>
+<span class="c-func">MetaHuman-Stream</span> <span class="c-comment"># 实时数字人推流</span>
+
+<span class="c-comment"># 成本：全部 $0</span></pre>
+        </div>
+
+        <p>唯一可能需要付费的是一些高质量模型权重。比如Flux.1 Dev需要非商业授权（Pro版$12/月），某些优质SDXL基础模型在CivitAI上需要付费下载。但这些是可选项，免费模型已经足够日常使用。</p>
+
+        <h3>维护成本</h3>
+
+        <p>硬件维护主要是两点：每年清一次灰、每两年换一次GPU硅脂。如果用的是二手3090/4090，到手第一件事就是换显存导热垫（材料费约¥50-80）。水冷散热器的液冷液建议3年更换一次（约¥100-200）。这些零零散散加起来年均维护成本约¥200-300。</p>
+
+        <h2 id="section-7">七、最佳推荐</h2>
+
+        <p>分析了这么多，到底该选哪个配置？分三种情况给建议。</p>
+
+        <div class="callout">
+          <div class="callout-title">推荐方案一：甜品档（¥6,500-7,500）</div>
+          <div class="callout-text">
+            <strong>适合人群</strong>：刚入门AIGC，想全面体验但预算有限。<br><br>
+            <strong>核心配置</strong>：i5-14600KF + RTX 4060 Ti 16GB + 64GB DDR5<br><br>
+            <strong>理由</strong>：16GB显存是AIGC的黄金分割线，SDXL出图、14B模型对话、Flux量化版、LoRA微调全部能跑。64GB内存足够多开模型不卡顿。月电费不到¥50，API调用费¥30-60，总运营成本每月不到¥100。覆盖75%的AIGC场景，日常创作绰绰有余。
+          </div>
+        </div>
+
+        <div class="callout">
+          <div class="callout-title">推荐方案二：专业档二手3090（¥12,000-16,000）</div>
+          <div class="callout-text">
+            <strong>适合人群</strong>：有AIGC基础，需要32B模型和视频生成能力。<br><br>
+            <strong>核心配置</strong>：i7-14700K + RTX 3090 24GB (二手) + 128GB DDR5<br><br>
+            <strong>理由</strong>：24GB显存是32B模型Q4量化的门槛，也是视频生成（SVD、CogVideoX）的起点。二手3090目前¥6,000-7,500，性价比极高。128GB内存可以同时加载多个模型切换使用。覆盖90%的AIGC场景，月运营成本约¥100-150。这是「认真干活」的配置，投入产出比最高。
+          </div>
+        </div>
+
+        <div class="callout">
+          <div class="callout-title">推荐方案三：旗舰档一步到位（¥28,000-35,000）</div>
+          <div class="callout-text">
+            <strong>适合人群</strong>：预算充足，追求未来3-5年不落伍。<br><br>
+            <strong>核心配置</strong>：i9-14900K + RTX 5090 32GB + 128GB DDR5<br><br>
+            <strong>理由</strong>：32GB GDDR7显存能跑70B模型Q4量化，高清视频生成不再受限。575W的满载功耗意味着电费会高一些（月¥90+），但算力翻倍带来的效率提升远超电费差异。这张卡至少能战3年不落伍。如果预算不是问题，直接上这个配置。
+          </div>
+        </div>
+
+        <h3>最终结论</h3>
+
+        <p>如果只给一个建议：<strong>选专业档二手3090方案</strong>。</p>
+
+        <p>理由很简单。24GB显存是AIGC的分水岭，32B模型和视频生成都在这个门槛之后。甜品档16GB虽然性价比高，但Flux全量版跑不了、32B模型装不下，用了半年就会想升级。旗舰档5090性能确实强，但3万块的价格对个人用户来说投入过大，且32GB显存的边际效用递减——70B模型Q4量化虽然能跑，但推理速度也只有5-8 tokens/s，体验并不好。</p>
+
+        <p>二手3090的24GB在当前节点是最优解。¥6,000-7,500的显卡价格加上其他配件，总投入¥12,000-16,000，比甜品档多花一倍但能力翻倍。90%的AIGC场景全覆盖，32B模型Q4量化20+ tokens/s流畅对话，SDXL出图2秒一张，SVD视频生成4秒一段。月运营成本约¥100-150，一年不到¥2,000。</p>
+
+        <p>至于GLM-5.2，本地跑不了就跑不了，该用API就用API。本地用Qwen2.5 32B处理日常对话和写作，复杂推理走GLM-5.2 API按量付费。这种混合策略既不浪费硬件，也不为用不上的算力买单。</p>
+
+        <p>下面是专业档推荐配置的完整清单：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">Shopping List</span>
+            <div class="code-block-dots"><span></span><span></span><span></span></div>
+          </div>
+          <pre><span class="c-comment"># 专业档推荐配置 - 2026年7月</span>
+
+<span class="c-accent">CPU</span>     Intel i7-14700K                    <span class="c-string">¥2,599</span>
+<span class="c-accent">主板</span>    技嘉 Z790 AORUS ELITE AX           <span class="c-string">¥1,299</span>
+<span class="c-accent">显卡</span>    RTX 3090 24GB (二手/个人卖家)       <span class="c-string">¥6,500</span>
+<span class="c-accent">内存</span>    金士顿 Fury 128GB (4x32) DDR5 6000  <span class="c-string">¥2,400</span>
+<span class="c-accent">SSD</span>     三星 990 Pro 2TB                    <span class="c-string">¥1,099</span>
+<span class="c-accent">HDD</span>     西数蓝盘 4TB (素材存储)              <span class="c-string">¥599</span>
+<span class="c-accent">电源</span>    海韵 Focus GX-1000W 金牌全模        <span class="c-string">¥899</span>
+<span class="c-accent">散热</span>    利民 Frozen Magic 360 水冷          <span class="c-string">¥399</span>
+<span class="c-accent">机箱</span>    追风者 G500A 网孔版                  <span class="c-string">¥499</span>
+<span class="c-accent">风扇</span>    利民 TL-C12C x5                     <span class="c-string">¥150</span>
+
+<span class="c-comment"># ──────────────────────────────</span>
+<span class="c-func">合计</span>                                        <span class="c-string">¥16,443</span>
+<span class="c-comment"># 预计月运营: 电费~¥63 + API~¥50 = ~¥113</span>
+<span class="c-comment"># 预计年运营: ~¥1,356</span></pre>
+        </div>
+
+        <p>这套配置跑通AIGC全流程没有任何短板。图片生成用ComfyUI+SDXL/Flux，视频生成用SVD/CogVideoX，大模型对话用Ollama跑Qwen2.5 32B，复杂任务走GLM-5.2 API，声音克隆用GPT-SoVITS，数字人用SadTalker。写小说、做播客视频、出图、跑模型，一台机器全搞定。</p>
+
+        <h3>参考资料</h3>
+        <ol>
+          <li id="cite-1">智谱AI GLM-5.2 技术报告 <a href="https://github.com/zai-org/GLM-5" target="_blank" rel="noopener">https://github.com/zai-org/GLM-5</a></li>
+          <li id="cite-2">GLM-5.2 量化部署方案与硬件需求分析 <a href="https://smzdm.com" target="_blank" rel="noopener">https://smzdm.com</a></li>
+          <li id="cite-3">NVIDIA RTX 5090 官方规格页 <a href="https://www.nvidia.com/rtx-5090" target="_blank" rel="noopener">https://www.nvidia.com/rtx-5090</a></li>
+          <li id="cite-4">2026年AI PC组装指南：四档配置方案与价格 <a href="https://juejin.cn" target="_blank" rel="noopener">https://juejin.cn</a></li>
+          <li id="cite-5">Ollama 本地大模型部署文档 <a href="https://ollama.com" target="_blank" rel="noopener">https://ollama.com</a></li>
+          <li id="cite-6">ComfyUI 图片生成工作流框架 <a href="https://github.com/comfyanonymous/ComfyUI" target="_blank" rel="noopener">https://github.com/comfyanonymous/ComfyUI</a></li>
+        </ol>
+      </div>
+      <nav class="article-nav" id="articleNav"></nav>
+    </article>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; 2024-2026 朱天伟 | Smart Open. Built with care.</p>
+    </div>
+  </footer>
+
+  <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
+  <script src="../../js/article.js"></script>
+  <script src="../../js/preview-rail.js"></script>
+</body>
+</html>
