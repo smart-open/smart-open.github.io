@@ -3,6 +3,14 @@
    ======================================== */
 const ARTICLES_DATA = [
   {
+    id: 'article-27',
+    title: '给一段视频注入灵魂，虚拟人开口实时聊天',
+    excerpt: '从一段有声视频到实时对话的虚拟人，完整拆解ASR、LLM、TTS、唇形同步、人格注入全链路技术，横评MetaHuman-Stream、Linly-Talker、Duix等开源项目，附GPU选型和落地流程。',
+    tags: ['虚拟数字人', '实时对话', '唇形同步', '开源项目'],
+    date: '2026-07-22',
+    detailUrl: 'detail/article-27.html'
+  },
+  {
     id: 'article-26',
     title: 'AI换脸加声音克隆，一个人就是一个剧组',
     excerpt: '从市场场景到技术原理，从开源项目横评到GPU选型，一篇搞懂AI换脸和语音克隆的完整技术栈。FaceFusion、DeepFaceLab、GPT-SoVITS、CosyVoice实战对比，附数字人短片制作全流程和法律红线。',
