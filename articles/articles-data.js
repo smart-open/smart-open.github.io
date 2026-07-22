@@ -3,6 +3,14 @@
    ======================================== */
 const ARTICLES_DATA = [
   {
+    id: 'article-26',
+    title: 'AI换脸加声音克隆，一个人就是一个剧组',
+    excerpt: '从市场场景到技术原理，从开源项目横评到GPU选型，一篇搞懂AI换脸和语音克隆的完整技术栈。FaceFusion、DeepFaceLab、GPT-SoVITS、CosyVoice实战对比，附数字人短片制作全流程和法律红线。',
+    tags: ['AI换脸', '语音克隆', '数字人', '开源项目'],
+    date: '2026-07-22',
+    detailUrl: 'detail/article-26.html'
+  },
+  {
     id: 'article-25',
     title: '一首歌只换歌词不换旋律，5步全自动搞定',
     excerpt: '保留原曲旋律只替换歌词，到底有多难？以成龙《醉拳》改为「怕老婆叨叨版」为实战案例，拆解人声分离、MIDI 转换、中文歌词注入、歌声合成、音频合并的 5 步全自动流水线，记录 basic-pitch、mido 中文编码、Synthesizer V 等关键踩坑与解法。',
