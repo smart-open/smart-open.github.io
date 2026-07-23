@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI写出完整小说，6阶段从构思到投稿全公开 - 朱天伟 | Smart Open</title>
+  <meta name="description" content="从模型选型到构思、规划、撰写、审查、投稿，6个阶段每步都有产物落地。拆解短篇/中篇/长篇不同写法，附Claude/GPT-5/GLM-5.2模型横评和起点番茄投稿实操。">
+  <link rel="icon" type="image/png" href="../../favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/preview-rail.css">
+  <style>
+    /* ===== 对比表格 ===== */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg-secondary);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--divider);
+      font-size: 0.9rem;
+      margin: 1.2rem 0;
+    }
+    .compare-table th,
+    .compare-table td {
+      padding: 0.85rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--divider);
+    }
+    .compare-table th {
+      background: #1a1a25;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+    }
+    .compare-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    .compare-table tbody tr:hover {
+      background: rgba(0, 240, 255, 0.04);
+    }
+    .compare-table .highlight {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .compare-table .check { color: #4ade80; }
+    .compare-table .cross { color: #f87171; }
+    .compare-table .warn { color: #ffb347; }
+
+    /* ===== 阶段流程卡片 ===== */
+    .stage-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin: 1.2rem 0;
+    }
+    .stage-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--divider);
+      border-radius: 10px;
+      padding: 1.2rem 1.4rem;
+      margin-bottom: 0.8rem;
+      display: flex;
+      gap: 1.2rem;
+      align-items: flex-start;
+      border-left: 3px solid var(--accent);
+    }
+    .stage-card-num {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      color: var(--accent);
+      font-weight: 700;
+      min-width: 36px;
+      padding-top: 2px;
+    }
+    .stage-card-body {
+      flex: 1;
+    }
+    .stage-card-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 0.3rem;
+    }
+    .stage-card-desc {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      line-height: 1.6;
+      margin-bottom: 0.5rem;
+    }
+    .stage-card-deliverable {
+      display: inline-block;
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      border-radius: 6px;
+      padding: 0.25rem 0.7rem;
+      font-size: 0.78rem;
+      font-family: var(--font-mono);
+      color: var(--accent);
+    }
+
+    /* ===== 篇幅对比矩阵 ===== */
+    .length-matrix {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg-secondary);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--divider);
+      font-size: 0.85rem;
+      margin: 1.2rem 0;
+    }
+    .length-matrix th,
+    .length-matrix td {
+      padding: 0.7rem 0.8rem;
+      text-align: center;
+      border-bottom: 1px solid var(--divider);
+    }
+    .length-matrix th {
+      background: #1a1a25;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.78rem;
+    }
+    .length-matrix td:first-child {
+      text-align: left;
+      font-weight: 500;
+    }
+    .length-matrix .full { color: #4ade80; font-weight: 600; }
+    .length-matrix .partial { color: #ffb347; }
+    .length-matrix .none { color: #f87171; }
+
+    /* ===== 代码块 ===== */
+    .code-block {
+      background: #0d0d14;
+      border: 1px solid var(--divider);
+      border-radius: 10px;
+      margin: 1.2rem 0;
+      overflow: hidden;
+    }
+    .code-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 1.1rem;
+      background: #15151f;
+      border-bottom: 1px solid var(--divider);
+    }
+    .code-block-lang {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .code-block-dots {
+      display: flex;
+      gap: 0.35rem;
+    }
+    .code-block-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--divider);
+    }
+    .code-block pre {
+      margin: 0;
+      padding: 1rem 1.2rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.65;
+      color: #e8e8ec;
+    }
+    .code-block .c-comment { color: #7a7a85; }
+    .code-block .c-keyword { color: #c792ea; }
+    .code-block .c-string { color: #c3e88d; }
+    .code-block .c-func { color: #82aaff; }
+    .code-block .c-accent { color: var(--accent); }
+
+    /* ===== 提示框 ===== */
+    .callout {
+      background: rgba(0, 240, 255, 0.06);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+      padding: 1.1rem 1.3rem;
+      margin: 1.2rem 0;
+    }
+    .callout-title {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+    }
+    .callout-text {
+      font-size: 0.9rem;
+      line-height: 1.65;
+    }
+    .callout-warn {
+      background: rgba(255, 179, 71, 0.06);
+      border-color: rgba(255, 179, 71, 0.25);
+      border-left-color: #ffb347;
+    }
+    .callout-warn .callout-title { color: #ffb347; }
+    .callout-danger {
+      background: rgba(248, 113, 113, 0.06);
+      border-color: rgba(248, 113, 113, 0.25);
+      border-left-color: #f87171;
+    }
+    .callout-danger .callout-title { color: #f87171; }
+
+    /* ===== 投稿平台卡片 ===== */
+    .platform-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin: 1.2rem 0;
+    }
+    .platform-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--divider);
+      border-radius: 10px;
+      padding: 1.1rem;
+      border-top: 3px solid var(--accent);
+    }
+    .platform-card.warn { border-top-color: #ffb347; }
+    .platform-card-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 0.2rem;
+      color: var(--accent);
+    }
+    .platform-card.warn .platform-card-name { color: #ffb347; }
+    .platform-card-spec {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+    .platform-card-spec .spec-label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .platform-card-spec .spec-value {
+      color: var(--text-primary);
+    }
+
+    /* ===== 避坑卡片 ===== */
+    .pitfall-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin: 1.2rem 0;
+    }
+    .pitfall-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--divider);
+      border-radius: 10px;
+      padding: 1.1rem;
+      border-left: 3px solid #f87171;
+    }
+    .pitfall-card-title {
+      font-weight: 600;
+      font-size: 0.92rem;
+      margin-bottom: 0.4rem;
+      color: #f87171;
+    }
+    .pitfall-card-desc {
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+      line-height: 1.6;
+    }
+
+    /* ===== h2 上间距减半 ===== */
+    .markdown-body h2 {
+      margin-top: 3rem;
+    }
+
+    /* ===== 响应式 ===== */
+    @media (max-width: 768px) {
+      .compare-table,
+      .length-matrix {
+        font-size: 0.75rem;
+      }
+      .compare-table th,
+      .compare-table td,
+      .length-matrix th,
+      .length-matrix td {
+        padding: 0.5rem 0.4rem;
+      }
+      .platform-grid,
+      .pitfall-grid {
+        grid-template-columns: 1fr;
+      }
+      .code-block pre {
+        font-size: 0.75rem;
+      }
+      .stage-card {
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+      .length-matrix {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="site-nav" id="nav">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-brand"><img src="../../assets/img/logo.png" alt="Smart Open" class="nav-logo"><span>Smart Open</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="切换导航">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#about">关于</a></li>
+        <li><a href="../../index.html#projects">项目</a></li>
+        <li><a href="../../index.html#skills">技能</a></li>
+        <li><a href="../../index.html#experience">经历</a></li>
+        <li><a href="../index.html">文章</a></li>
+        <li><a href="../../trending/index.html">趋势</a></li>
+        <li><a href="../../index.html#contact">联系</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="article-hero">
+    <div class="article-hero-content">
+      <h1 class="article-title">AI写出完整小说，6阶段从构思到投稿全公开</h1>
+      <div class="article-meta">
+        <span class="article-date">2026-07-23</span>
+        <div class="article-tags">
+          <span class="tag">AI写作</span>
+          <span class="tag">小说创作</span>
+          <span class="tag">模型选型</span>
+          <span class="tag">投稿</span>
+        </div>
+      </div>
+    </div>
+    <div class="article-hero-bg" style="background-image: url('../../assets/img/article-ai-novel-writing-hero.jpg')"></div>
+    <div class="article-hero-overlay"></div>
+  </section>
+
+  <div class="article-container">
+    <aside class="article-sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">目录</h3>
+        <nav class="article-toc" id="articleToc"></nav>
+      </div>
+    </aside>
+
+    <article class="article-content">
+      <div class="markdown-body">
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-ai-novel-writing-hero.jpg" alt="AI写小说主视觉：打字机与神经网络融合，文字流转化为漂浮的书页">
+          <figcaption>从打字机到神经网络，写小说这件事正在被重新定义</figcaption>
+        </figure>
+
+        <p>打开ChatGPT，输入「写一部奇幻小说」，得到800字的泛泛之谈，读起来像书评而不是小说。再试一次，加长提示词，第一章看着还行，到第三章龙的颜色变了，主角的背景故事自相矛盾，魔法体系的规则前后打架。</p>
+
+        <p>这不是AI太笨。是写的人跳过了构思和规划，直接让AI硬写。专业小说家动笔前要花几周做概念开发、世界观搭建、人物设计、大纲编排。AI写小说也一样，跳过这些步骤就是在赌运气。</p>
+
+        <p>这篇文章拆解一套完整的6阶段工作流，从模型选型到最终投稿，每个阶段都有具体产物落地。短篇、中篇、长篇的写法差异也讲清楚。跟着走一遍，能避开95%的AI小说翻车坑。</p>
+
+        <h2 id="section-1">一、95%的AI小说死在第三章</h2>
+
+        <p>先说清楚AI写小说到底会出什么问题。不是写不出来，是写到后面崩掉。崩的方式五花八门，但根子上的原因就那么几个。</p>
+
+        <p>第一种崩法是<strong>人物漂移</strong>。主角第一章自信果敢，第四章突然变胆小，第七章又莫名自信回来。配角消失了十章再出现，性格全变了。原因是AI每次生成只看当前提示词，不会自动记住第三章设定的人物性格。不把人物档案塞进每次生成的上下文里，漂移是必然的。</p>
+
+        <p>第二种崩法是<strong>设定矛盾</strong>。魔法体系第一章说需要咏唱，第五章变成了手势触发。两个城市之间的距离第二章走了三天，第八章一天就到了。AI没有空间记忆，上次写的地理设定这次生成时早就忘了。</p>
+
+        <p>第三种崩法是<strong>节奏失控</strong>。前五章全是对话没有冲突，中间突然插入一场打斗，结尾草草收场。大纲没规划好，AI就按照「接下来会发生什么」自由发挥，结果情节像散了架的珠子，串不起来。</p>
+
+        <p>这些问题不是换一个更强的模型就能解决的。Claude Opus 4.7的散文写得再好，不告诉它人物的性格档案，它照样会让角色前后不一。核心解法是建立一套结构化的工作流，在动笔之前把地基打好。</p>
+
+        <h2 id="section-2">二、模型选型：不同活用不同的AI</h2>
+
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-ai-novel-writing-models.jpg" alt="三种AI模型能力对比：散文、情节逻辑、长上下文">
+          <figcaption>没有全能模型，不同阶段用不同的AI效果最好</figcaption>
+        </figure>
+
+        <p>2026年4月，Inkfluence AI做了一次大规模横评，用同一组小说提示词测试了五大前沿模型，按七个维度打分<sup><a href="#cite-1">[1]</a></sup>。结论很直接：没有任何一个模型在所有维度上都最强。</p>
+
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>模型</th>
+              <th>总分/70</th>
+              <th>最强项</th>
+              <th>弱项</th>
+              <th>适合场景</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Claude Opus 4.7</td>
+              <td class="highlight">63.2</td>
+              <td class="check">散文质量 9.5</td>
+              <td class="warn">贵，慢</td>
+              <td>文学小说、高潮章节、最终润色</td>
+            </tr>
+            <tr>
+              <td>Claude Sonnet 4.5</td>
+              <td class="highlight">60.9</td>
+              <td class="check">综合均衡</td>
+              <td class="warn">文学性略逊Opus</td>
+              <td>日常撰写、类型小说、快速迭代</td>
+            </tr>
+            <tr>
+              <td>GPT-5</td>
+              <td class="highlight">59.6</td>
+              <td class="check">情节逻辑 9.1</td>
+              <td class="warn">散文偏平</td>
+              <td>悬疑推理、大纲设计、硬科幻</td>
+            </tr>
+            <tr>
+              <td>Gemini 2.5 Pro</td>
+              <td class="highlight">57.5</td>
+              <td class="check">长上下文 9.0</td>
+              <td class="warn">散文像新闻稿</td>
+              <td>长篇系列、跨书一致性检查</td>
+            </tr>
+            <tr>
+              <td>GLM-5.2</td>
+              <td class="highlight">中文最佳</td>
+              <td class="check">中文文风自然</td>
+              <td class="warn">英文略逊</td>
+              <td>中文网文、中文文学小说</td>
+            </tr>
+            <tr>
+              <td>GPT-4o</td>
+              <td class="highlight">54.3</td>
+              <td class="check">便宜</td>
+              <td class="warn">质量一般</td>
+              <td>初稿快写、短篇、预算有限</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>具体怎么选？分场景说。</p>
+
+        <p><strong>写中文小说</strong>，GLM-5.2是第一选择。它在大量中文网络文学和微博语料上训练过，中文表达最自然，能切换文言和白话风格，情感层次丰富<sup><a href="#cite-2">[2]</a></sup>。Claude Opus英文散文最强，但中文部分略显刻板。写中文网文、武侠、都市言情这类题材，GLM-5.2的语感明显好一截。</p>
+
+        <p><strong>写英文小说或需要出版级散文</strong>，Claude Opus 4.7的句子节奏感是所有模型里最好的。它会用一个41词的长句接三个两词短句来制造节奏变化，其他模型在默认设置下不敢这么写<sup><a href="#cite-1">[1]</a></sup>。代价是贵，生成一章的成本大约是Sonnet的6-7倍。</p>
+
+        <p><strong>做大纲和情节设计</strong>，GPT-5的情节逻辑评分9.1，是所有模型里最高的。在悬疑推理的测试中，它是唯一能让三个角色的动机全部保持逻辑一致的模型<sup><a href="#cite-1">[1]</a></sup>。写悬疑、推理、硬科幻这类需要严密逻辑的小说，大纲阶段用GPT-5，撰写阶段再换Sonnet。</p>
+
+        <p><strong>写长篇系列</strong>，Gemini 2.5 Pro的200万token上下文窗口是杀手锏。写到第四本书的时候，它能把前三本的设定全部装进上下文，不会忘记第一条线索的伏笔。散文质量是短板，需要后期多改几遍。</p>
+
+        <p><strong>本地部署</strong>，Qwen 2.5 32B在24GB显存上跑量化版是当前本地模型写小说的甜点配置<sup><a href="#cite-3">[3]</a></sup>。质量和云端模型有差距，但胜在免费和隐私。写短篇、做头脑风暴够用，长篇还是得上云端模型。</p>
+
+        <div class="callout">
+          <div class="callout-title">核心策略</div>
+          <div class="callout-text">不同阶段用不同模型。大纲用GPT-5保逻辑，日常撰写用Sonnet 4.5或GLM-5.2保速度和语感，高潮章节和最终润色用Opus 4.7拉质量。这种混合策略比全程用一个模型效果好得多，成本也只比纯Sonnet贵一点点。</div>
+        </div>
+
+        <h2 id="section-3">三、构思阶段：从灵感到故事内核</h2>
+
+        <p>构思阶段的目标是产出一个清晰的故事内核。不是「我想写一个玄幻小说」这种模糊想法，而是一两句话能讲清楚故事独特性的「高概念」。</p>
+
+        <div class="stage-flow">
+          <div class="stage-card">
+            <div class="stage-card-num">01</div>
+            <div class="stage-card-body">
+              <div class="stage-card-title">提炼高概念</div>
+              <div class="stage-card-desc">用一句话讲清楚故事的核心冲突和独特卖点。好的高概念自带画面感，听完就知道故事大概长什么样。比如「一个能听到别人内心独白的女律师，发现她正在辩护的嫌疑人其实是无辜的，但他的想法比罪行更可怕」。</div>
+              <div class="stage-card-deliverable">产物：高概念一句话</div>
+            </div>
+          </div>
+          <div class="stage-card">
+            <div class="stage-card-num">02</div>
+            <div class="stage-card-body">
+              <div class="stage-card-title">确定类型和子类型</div>
+              <div class="stage-card-desc">「奇幻」太宽泛。史诗奇幻？都市奇幻？奇幻言情？每个子类型有不同的读者预期。都市奇幻可以现代口语，史诗奇幻需要更正式的叙事腔调。类型决定了文风基调和节奏。</div>
+              <div class="stage-card-deliverable">产物：类型定位文档</div>
+            </div>
+          </div>
+          <div class="stage-card">
+            <div class="stage-card-num">03</div>
+            <div class="stage-card-body">
+              <div class="stage-card-title">定调性和主题</div>
+              <div class="stage-card-desc">是黑暗压抑还是温暖治愈？讲复仇还是救赎？AI需要知道这些才能保持一致的叙事声音。不给定调，第一章黑暗沉重，第五章突然轻松搞笑，读者会出戏。</div>
+              <div class="stage-card-deliverable">产物：调性关键词 + 主题陈述</div>
+            </div>
+          </div>
+          <div class="stage-card">
+            <div class="stage-card-num">04</div>
+            <div class="stage-card-body">
+              <div class="stage-card-title">定目标字数</div>
+              <div class="stage-card-desc">短篇5000-20000字，中篇20000-60000字，长篇60000字以上。字数决定章节数量和节奏分配。2万字的短篇不需要复杂的多线叙事，10万字的长篇不规划 subplot 就会散架。</div>
+              <div class="stage-card-deliverable">产物：字数目标 + 章节规划</div>
+            </div>
+          </div>
+        </div>
+
+        <p>用AI辅助构思，提示词要具体。与其说「帮我想一个玄幻小说的点子」，不如这样问：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">Prompt</span>
+            <div class="code-block-dots"><span></span><span></span><span></span></div>
+          </div>
+          <pre><span class="c-comment"># 构思阶段提示词示例</span>
+<span class="c-func">我正在构思一部都市悬疑小说，目标字数8万字。</span>
+<span class="c-func">请帮我生成5个高概念方案，每个满足：</span>
+<span class="c-string">1. 一句话能讲完核心冲突</span>
+<span class="c-string">2. 有明确的「如果...会怎样」的假设</span>
+<span class="c-string">3. 主角面临两难选择</span>
+<span class="c-string">4. 不落俗套（避开失忆、双胞胎替换、梦醒等老梗）</span>
+
+<span class="c-keyword">调性</span><span class="c-comment">：偏冷硬，带黑色幽默</span>
+<span class="c-keyword">参考</span><span class="c-comment">：紫金陈的社会派悬疑风格</span></pre>
+        </div>
+
+        <p>拿到AI给的5个方案后，挑一个最有感觉的，让它继续展开。追问「这个故事的终极两难是什么」「主角最大的恐惧是什么」「结尾是救赎还是毁灭」。这些追问逼着AI往深处挖，而不是停留在表面情节。</p>
+
+        <p>构思阶段结束的时候，手里应该有一份文档：高概念一句话、类型定位、调性关键词、主题陈述、目标字数。这份文档会贯穿后续所有阶段，每次生成新章节都要带上它。</p>
+
+        <h2 id="section-4">四、规划阶段：故事圣经的搭建</h2>
+
+        <p>这是整个流程里最枯燥但最重要的一步。专业术语叫Story Bible，中文可以叫「故事圣经」。它是一份集中管理所有设定的文档，世界观、人物档案、章节大纲全部放在里面。每次让AI写新章节，都把相关部分塞进提示词。</p>
+
+        <p>没有故事圣经，AI写到第五章就忘了第三章的设定。有了故事圣经，AI每次生成时都能看到完整的人物关系和世界规则，一致性问题直接少八成<sup><a href="#cite-4">[4]</a></sup>。</p>
+
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-ai-novel-writing-pipeline.jpg" alt="小说写作六阶段流水线：构思、规划、撰写、审查、投稿">
+          <figcaption>六个阶段像一条河流，每段都有明确的产物流入下一段</figcaption>
+        </figure>
+
+        <p>故事圣经包含三个部分：</p>
+
+        <h3>4.1 世界观档案</h3>
+
+        <p>不需要写一本50页的百科全书。定义那些「如果不说清楚就会矛盾」的规则就够了：</p>
+
+        <p><strong>地理</strong>：主要地点和它们之间的距离。主角从首都到边境要走三天还是三周，锁定下来就不能变。<br>
+        <strong>魔法或技术体系</strong>：什么能用，什么不能用，代价是什么。魔法需要咏唱还是手势，消耗什么资源，有没有冷却时间。<br>
+        <strong>政治结构</strong>：谁掌握权力，治理方式是什么。<br>
+        <strong>社会阶层</strong>：阶级制度、性别动态、文化规范。<br>
+        <strong>历史</strong>：影响当前故事走向的重大历史事件。</p>
+
+        <p>当代小说这部分很短，几段话搞定。史诗奇幻可能要写几万字。不管是长是短，都放在一个文档里，每次生成都贴进提示词。</p>
+
+        <h3>4.2 人物档案</h3>
+
+        <p>人物是AI小说最容易崩的地方。每个主要角色需要一份固定档案<sup><a href="#cite-5">[5]</a></sup>：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">Character Bible</span>
+            <div class="code-block-dots"><span></span><span></span><span></span></div>
+          </div>
+          <pre><span class="c-comment"># 人物档案模板</span>
+<span class="c-accent">核心身份</span>
+  姓名 / 年龄 / 职业 / 外貌描述（永不改变）
+
+<span class="c-accent">性格特征</span>（3-5个，固定不变）
+  例：愤世嫉俗、忠诚、冲动、被罪恶感困扰、暗藏温柔
+
+<span class="c-accent">背景故事</span>
+  塑造其性格的关键经历
+
+<span class="c-accent">目标与动机</span>
+  外部目标：他想要什么（具体、可衡量）
+  内部需求：他真正需要什么（他自己可能不知道）
+  愿意为此牺牲什么
+
+<span class="c-accent">说话方式</span>
+  句子长度偏好、口头禅、绝不会用的词
+  例：短句为主，不用「或许」，紧张时语速加快
+
+<span class="c-accent">人物弧光</span>
+  从第一章到最终章，他会发生什么改变</pre>
+        </div>
+
+        <p>「说话方式」这一栏特别关键。AI写对话容易千人一面，把每个角色的语言特征写进档案，每次生成时带上，角色之间的声音就能区分开来。</p>
+
+        <h3>4.3 章节大纲</h3>
+
+        <p>大纲至少要包含三幕结构<sup><a href="#cite-4">[4]</a></sup>：</p>
+
+        <p><strong>第一幕</strong>（设定、触发事件）：日常世界展示，打破平衡的事件发生，主角被迫踏上旅程。<br>
+        <strong>第二幕</strong>（上升动作、 complication、中点转折）：障碍递进，盟友和敌人登场，中点发生逆转。<br>
+        <strong>第三幕</strong>（高潮、解决）：最终对决，主题升华，新平衡建立。</p>
+
+        <p>每一章用1-3句话概括内容。标注哪些章节是动作戏，哪些是安静的对话，哪些是信息揭示。节奏标记能防止AI把十章都写成纯对话。</p>
+
+        <div class="callout">
+          <div class="callout-title">阶段产物</div>
+          <div class="callout-text">规划阶段结束时，手里应该有三份文档：世界观档案、人物档案（所有主要角色）、章节大纲（每章1-3句概括）。这三份文档合在一起就是故事圣经。后续每次生成新章节，都把故事圣经的相关部分贴进提示词。</div>
+        </div>
+
+        <h2 id="section-5">五、撰写阶段：短中长篇不同打法</h2>
+
+        <p>到了真正写正文的时候了。短篇、中篇、长篇的策略差别很大，不能一套打法走天下。</p>
+
+        <table class="length-matrix">
+          <thead>
+            <tr>
+              <th>维度</th>
+              <th>短篇<br>(5K-2W字)</th>
+              <th>中篇<br>(2W-6W字)</th>
+              <th>长篇<br>(6W+字)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>生成单位</td>
+              <td class="full">一次性生成全文</td>
+              <td class="full">按场景生成</td>
+              <td class="full">按场景生成</td>
+            </tr>
+            <tr>
+              <td>故事圣经需求</td>
+              <td class="partial">轻量版</td>
+              <td class="full">完整版</td>
+              <td class="full">完整版 + 前情提要</td>
+            </tr>
+            <tr>
+              <td>推荐模型</td>
+              <td class="full">Opus 4.7 / GLM-5.2</td>
+              <td class="full">Sonnet 4.5 / GLM-5.2</td>
+              <td class="full">Sonnet + Opus混用</td>
+            </tr>
+            <tr>
+              <td>迭代次数</td>
+              <td class="full">3-5轮</td>
+              <td class="full">2-3轮/章</td>
+              <td class="full">2轮/章 + 全局审查</td>
+            </tr>
+            <tr>
+              <td>一致性检查频率</td>
+              <td class="full">写完一次</td>
+              <td class="partial">每5章一次</td>
+              <td class="partial">每3-5章一次</td>
+            </tr>
+            <tr>
+              <td>预计耗时</td>
+              <td class="full">1-2天</td>
+              <td class="full">1-2周</td>
+              <td class="full">2-4周</td>
+            </tr>
+            <tr>
+              <td>上下文管理</td>
+              <td class="full">单次对话</td>
+              <td class="full">章节摘要</td>
+              <td class="full">摘要 + 故事圣经</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>5.1 短篇：一气呵成</h3>
+
+        <p>短篇的写法最简单。故事圣经做轻量版（一段话世界观 + 人物简介 + 三段式大纲），然后一次性把全文生成出来。短篇不需要复杂的多线叙事，一条主线走到底就行。</p>
+
+        <p>短篇建议直接用最强的模型。Opus 4.7或GLM-5.2（写中文），因为短篇对文字密度的要求最高，每一个句子都要有分量。生成后做3-5轮修改，每轮聚焦一个维度：第一轮看情节逻辑，第二轮看人物声音，第三轮看散文节奏，第四轮看结尾的余味。</p>
+
+        <h3>5.2 中篇：按场景拆分</h3>
+
+        <p>中篇不能一次性生成，要按场景拆分<sup><a href="#cite-6">[6]</a></sup>。原因是AI在超过3000字后开始丢细节，一次性生成一章5000字的内容，后半段质量明显下降。</p>
+
+        <p>正确做法是每次生成一个场景（800-1500字），把故事圣经 + 前一个场景的摘要 + 当前场景的大纲喂给AI。生成完一个场景，检查一遍，没问题再写下一个。</p>
+
+        <p>中篇用Sonnet 4.5或GLM-5.2做日常撰写，高潮场景切换到Opus。每写完5章做一次一致性检查，把前5章的摘要给AI，让它找矛盾。</p>
+
+        <h3>5.3 长篇：分幕管理</h3>
+
+        <p>长篇是最复杂的。核心问题是上下文管理。一本10万字的小说，全部塞进提示词不现实，即便是Gemini的200万token窗口，塞太多也会降低生成质量。</p>
+
+        <p>解法是<strong>分层摘要</strong>：</p>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">Long-form Context Strategy</span>
+            <div class="code-block-dots"><span></span><span></span><span></span></div>
+          </div>
+          <pre><span class="c-comment"># 长篇上下文管理策略</span>
+
+<span class="c-accent">第一层</span><span class="c-comment">：故事圣经（固定不变，每次都带）</span>
+  世界观档案 + 人物档案 + 全局大纲
+
+<span class="c-accent">第二层</span><span class="c-comment">：分幕摘要（每幕结束时更新）</span>
+  第一幕摘要：500字，涵盖主要事件和人物变化
+  第二幕摘要：500字
+  ...
+
+<span class="c-accent">第三层</span><span class="c-comment">：最近章节摘要（滚动更新）</span>
+  前1章详细摘要：200字
+  前2-3章简略摘要：各100字
+
+<span class="c-accent">第四层</span><span class="c-comment">：当前场景指令</span>
+  本章大纲 + 场景目标 + 涉及人物 + 情绪基调
+
+<span class="c-comment"># 每次生成提示词 = 第一层 + 第二层 + 第三层 + 第四层</span>
+<span class="c-comment"># 总量控制在 3000-5000 token 以内</span></pre>
+        </div>
+
+        <p>长篇建议每3-5章做一次一致性检查。把这几章的内容和故事圣经对比，让AI找出矛盾之处。发现矛盾立刻修，不要攒到最后。越往后改，牵扯的章节越多，改动量越大。</p>
+
+        <p>高潮章节和结尾用Opus 4.7。这是全书最重要的部分，值得花更多的钱和时间把质量拉满。日常章节用Sonnet 4.5，速度快、成本低，质量也够用。</p>
+
+        <div class="callout callout-warn">
+          <div class="callout-title">按场景写，不要按章写</div>
+          <div class="callout-text">这是AI写小说最重要的技巧之一。一次生成一个场景（800-1500字），而不是一次性生成一整章。小范围生成能保持AI的注意力集中，文风和人物声音更稳定，也更容易做局部修改。一整章一次性生成，后半段质量下滑几乎不可避免。</div>
+        </div>
+
+        <h2 id="section-6">六、审查阶段：七维度全维检查</h2>
+
+        <p>AI生成的初稿不是成品，是半成品。审查阶段的工作是把半成品打磨成可读的小说。</p>
+
+        <p>审查分四个轮次，每轮聚焦不同维度<sup><a href="#cite-4">[4]</a></sup>：</p>
+
+        <h3>第一轮：结构审查</h3>
+
+        <p>看全局。情节是否流畅？有没有拖沓的段落？该有的伏笔埋了没有？高潮是否有力？把每个场景的用途标出来，如果某个场景对推进情节或塑造人物没有贡献，删掉。</p>
+
+        <p>这一步可以让AI帮忙。把全文（或分幕摘要）喂给GPT-5，让它做情节逻辑分析，标出前后矛盾和断裂的地方。GPT-5的情节逻辑评分9.1，是做结构审查的最佳选择。</p>
+
+        <h3>第二轮：人物一致性审查</h3>
+
+        <p>逐章检查每个角色是否符合人物档案设定的性格和说话方式。重点看对话。把所有同一个角色的对话抽出来连着读，声音是否统一？有没有突然变得文绉绉或突然变得粗鲁？</p>
+
+        <p>发现不一致的地方，用人物档案作为基准重写那段对话。这一步很费时间，但对最终质量影响最大。</p>
+
+        <h3>第三轮：散文打磨</h3>
+
+        <p>AI散文有几个通病需要修：过滤词太多（「他感到」「她注意到」）、句式重复、描写泛泛。具体操作：</p>
+
+        <p>删掉过滤词。「他感到一阵寒意」改成「寒意爬上脊背」。变化句式长度，别让连续三个句子都是15字左右。把泛泛的描写换成具体的细节，「美丽的花园」改成「三月的栀子花开得密密匝匝，空气甜得发腻」。</p>
+
+        <p>这一步如果用Opus 4.7来做，效果最好。把原段落和调性关键词一起给它，让它重写。Opus的句子节奏感是所有模型里最强的，打磨效果立竿见影。</p>
+
+        <h3>第四轮：对话口语化</h3>
+
+        <p>AI写的对话偏书面化，像新闻稿。读出来听听，是不是像真人说话？加缩写、加打断、加潜台词。真人说话不会每句都完整，会有「嗯」「那个」之类的填充词，会突然转换话题。</p>
+
+        <p>中文小说还要注意口语的地域特征。北京人说话和上海人说话不一样，给角色设定一个语言背景，对话的真实感会上一个台阶。</p>
+
+        <div class="callout">
+          <div class="callout-title">阶段产物</div>
+          <div class="callout-text">审查阶段结束后，手里是一份终稿。终稿应该通过七个维度的检查：长上下文一致性、人物声音统一性、情节逻辑、散文质量、对话自然度、类型符合度、节奏控制。每个维度都过一遍，不达标的部分重写。</div>
+        </div>
+
+        <h2 id="section-7">七、投稿阶段：平台选择与操作</h2>
+
+        <p>终稿完成后，下一步是投稿。中文小说投稿主要有几个平台，定位和门槛各不同。</p>
+
+        <div class="platform-grid">
+          <div class="platform-card">
+            <div class="platform-card-name">起点中文网</div>
+            <div class="platform-card-spec">
+              <span class="spec-label">签约门槛</span> <span class="spec-value">正文满6000字进入初审</span><br>
+              <span class="spec-label">主动签约</span> <span class="spec-value">10万字可申请</span><br>
+              <span class="spec-label">读者群体</span> <span class="spec-value">70%为18-35岁男性</span><br>
+              <span class="spec-label">优势题材</span> <span class="spec-value">玄幻、都市异能、历史权谋</span><br>
+              <span class="spec-label">签约方式</span> <span class="spec-value">直发（编辑捞取）或邮箱内投</span>
+            </div>
+          </div>
+          <div class="platform-card">
+            <div class="platform-card-name">番茄小说</div>
+            <div class="platform-card-spec">
+              <span class="spec-label">签约门槛</span> <span class="spec-value">2万字可申请签约</span><br>
+              <span class="spec-label">签约机会</span> <span class="spec-value">3次评估，全失败则不可签</span><br>
+              <span class="spec-label">读者群体</span> <span class="spec-value">下沉市场，免费阅读</span><br>
+              <span class="spec-label">优势题材</span> <span class="spec-value">都市、言情、悬疑、系统流</span><br>
+              <span class="spec-label">注册工具</span> <span class="spec-value">番茄作家助手APP</span>
+            </div>
+          </div>
+          <div class="platform-card warn">
+            <div class="platform-card-name">豆瓣阅读</div>
+            <div class="platform-card-spec">
+              <span class="spec-label">定位</span> <span class="spec-value">文学性更强，偏严肃</span><br>
+              <span class="spec-label">签约门槛</span> <span class="spec-value">投稿后编辑审阅</span><br>
+              <span class="spec-label">读者群体</span> <span class="spec-value">文艺青年，女性偏多</span><br>
+              <span class="spec-label">优势题材</span> <span class="spec-value">现实主义、悬疑、女性题材</span><br>
+              <span class="spec-label">优势</span> <span class="spec-value">稿费分成高，出版机会多</span>
+            </div>
+          </div>
+          <div class="platform-card warn">
+            <div class="platform-card-name">知乎盐选</div>
+            <div class="platform-card-spec">
+              <span class="spec-label">定位</span> <span class="spec-value">短中篇为主，付费阅读</span><br>
+              <span class="spec-label">签约门槛</span> <span class="spec-value">通过盐选创作者认证</span><br>
+              <span class="spec-label">读者群体</span> <span class="spec-value">高学历年轻用户</span><br>
+              <span class="spec-label">优势题材</span> <span class="spec-value">悬疑、脑洞、职场、情感</span><br>
+              <span class="spec-label">优势</span> <span class="spec-value">短篇变现快，单篇收入可观</span>
+            </div>
+          </div>
+        </div>
+
+        <p>选平台要看小说类型。写玄幻系统流去起点，写都市言情去番茄，写文学性强或现实主义去豆瓣阅读，写短篇悬疑去知乎盐选。投错平台，内容再好也淹没在人海里。</p>
+
+        <p>投稿前需要准备的材料：</p>
+
+        <p><strong>身份证和银行卡</strong>：所有平台都需要实名认证，注册时填写。<br>
+        <strong>作品简介</strong>：200字以内，不要写成读后感。好的简介抛出悬念，让读者想点进去。<br>
+        <strong>前三章正文</strong>：大部分平台用前三章做初审判断，这三章必须是最精打磨过的。<br>
+        <strong>书名</strong>：别剧透全部内容。起点的书名讲究吸睛，豆瓣阅读偏含蓄。</p>
+
+        <div class="callout callout-warn">
+          <div class="callout-title">番茄签约注意事项</div>
+          <div class="callout-text">番茄小说的签约评估只有3次机会，全部失败就不能再签。申请前务必把正文打磨到位，别拿半成品去浪费机会。常见的签约失败原因：大段无标点、错别字密集、叙述混乱、段落超过4行、重复率超30%、简介写得像读后感<sup><a href="#cite-7">[7]</a></sup>。</div>
+        </div>
+
+        <p>起点中文网的投稿有两条路<sup><a href="#cite-8">[8]</a></sup>。一是直发，正文满6000字后直接发布到网站，由编辑主动审核捞取，不需要预审。二是邮箱内投，把大纲和前几章发给编辑邮箱，等回复。直发速度快但有随机性，内投有针对性但可能石沉大海。新人建议直发，先拿到初审反馈。</p>
+
+        <h2 id="section-8">八、时间线与避坑</h2>
+
+        <p>走完全流程，一本7万字的中篇小说大概需要2-4周<sup><a href="#cite-4">[4]</a></sup>。时间分配大致如下：</p>
+
+        <table class="length-matrix">
+          <thead>
+            <tr>
+              <th>阶段</th>
+              <th>短篇(1-2W字)</th>
+              <th>中篇(2-6W字)</th>
+              <th>长篇(6W+字)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>构思</td>
+              <td class="full">半天</td>
+              <td class="full">1-2天</td>
+              <td class="full">2-3天</td>
+            </tr>
+            <tr>
+              <td>规划（故事圣经）</td>
+              <td class="full">半天</td>
+              <td class="full">2-3天</td>
+              <td class="full">3-5天</td>
+            </tr>
+            <tr>
+              <td>撰写</td>
+              <td class="full">1-2天</td>
+              <td class="full">5-10天</td>
+              <td class="full">1-2周</td>
+            </tr>
+            <tr>
+              <td>审查</td>
+              <td class="full">1天</td>
+              <td class="full">3-5天</td>
+              <td class="full">5-7天</td>
+            </tr>
+            <tr>
+              <td>投稿准备</td>
+              <td class="full">半天</td>
+              <td class="full">1天</td>
+              <td class="full">1-2天</td>
+            </tr>
+            <tr>
+              <td>总计</td>
+              <td class="full">2-3天</td>
+              <td class="full">2-3周</td>
+              <td class="full">3-5周</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>以下是几个最常见的坑：</p>
+
+        <div class="pitfall-grid">
+          <div class="pitfall-card">
+            <div class="pitfall-card-title">跳过规划直接写</div>
+            <div class="pitfall-card-desc">这是最大的坑。没有故事圣经就开始写，写到第五章人物性格变了、设定矛盾了，改起来比从头写还痛苦。规划阶段花的时间，在撰写阶段省回来两三倍。</div>
+          </div>
+          <div class="pitfall-card">
+            <div class="pitfall-card-title">一次性生成整章</div>
+            <div class="pitfall-card-desc">一章5000字一次性生成，后半段质量必然下滑。拆成3-4个场景分批生成，每个场景800-1500字，质量稳定得多。</div>
+          </div>
+          <div class="pitfall-card">
+            <div class="pitfall-card-title">不更新上下文</div>
+            <div class="pitfall-card-desc">每次生成新场景时，不带上前几章的摘要和故事圣经。AI没有记忆，不告诉它前面发生了什么，它就自己编，编出来的东西大概率跟前面矛盾。</div>
+          </div>
+          <div class="pitfall-card">
+            <div class="pitfall-card-title">跳过一致性检查</div>
+            <div class="pitfall-card-desc">写完全文不做一致性审查就投稿。读者一眼就能看出前后矛盾。每3-5章做一次检查，发现矛盾立刻修，别攒到最后。</div>
+          </div>
+          <div class="pitfall-card">
+            <div class="pitfall-card-title">用GPT-4o写长篇</div>
+            <div class="pitfall-card-desc">GPT-4o便宜，但人物一致性在长篇里撑不住。短篇可以用，中长篇至少上Sonnet 4.5或GLM-5.2，高潮章节用Opus 4.7。</div>
+          </div>
+          <div class="pitfall-card">
+            <div class="pitfall-card-title">不改AI味对话</div>
+            <div class="pitfall-card-desc">AI写的对话太工整、太书面化。不口语化的对话读出来像念稿子。最后一定要做一轮对话口语化修改，加缩写、加打断、加潜台词。</div>
+          </div>
+        </div>
+
+        <p>最后说一点感受。AI写小说这件事，工具已经不是瓶颈了，流程才是。2026年的模型能力足够写出一本可读的小说，前提是你愿意花时间做规划、管理上下文、做审查。想跳过这些步骤直接出成品，得到的只会是一本第一章看着还行、第三章开始崩的东西。</p>
+
+        <p>先从短篇开始练手。2万字的短篇走完全流程，体验一遍从构思到投稿的完整链路。跑通了再挑战中篇和长篇。别一上来就想写10万字的大长篇，大概率写到一半就放弃了。</p>
+
+        <h3>参考资料</h3>
+        <ol>
+          <li id="cite-1">Inkfluence AI: Best AI Models for Novel Writing in 2026: Head-to-Head Test <a href="https://www.inkfluenceai.com/blog/best-ai-models-for-novel-writing-2026" target="_blank" rel="noopener">https://www.inkfluenceai.com/blog/best-ai-models-for-novel-writing-2026</a></li>
+          <li id="cite-2">GLM-5.2、Claude、Gemini 实测：不同任务该选哪个 AI 模型 <a href="http://m.toutiao.com/group/7661951346756616719/" target="_blank" rel="noopener">http://m.toutiao.com/group/7661951346756616719/</a></li>
+          <li id="cite-3">Best Local LLMs for Writing & Creative Work <a href="https://insiderllm.com/pdfs/best-local-llms-writing-creative-work.pdf" target="_blank" rel="noopener">https://insiderllm.com/pdfs/best-local-llms-writing-creative-work.pdf</a></li>
+          <li id="cite-4">Novarrium: The 7-Step AI Novel Writing Workflow That Actually Produces Readable Books <a href="https://novarrium.com/blog/ai-novel-writing-workflow" target="_blank" rel="noopener">https://novarrium.com/blog/ai-novel-writing-workflow</a></li>
+          <li id="cite-5">Sudowrite: From Idea to Published Novel - The Complete Sudowrite Workflow <a href="https://sudowrite.com/blog/sudowrite-complete-workflow/" target="_blank" rel="noopener">https://sudowrite.com/blog/sudowrite-complete-workflow/</a></li>
+          <li id="cite-6">NovaKit: AI Story Generator - A Practical Guide to Writing a Novel With Claude and GPT-5 <a href="https://www.novakit.ai/blog/ai-story-generator-write-novel-guide" target="_blank" rel="noopener">https://www.novakit.ai/blog/ai-story-generator-write-novel-guide</a></li>
+          <li id="cite-7">番茄小说签约条件与申请流程详解 <a href="http://m.toutiao.com/group/7659704650286793251/" target="_blank" rel="noopener">http://m.toutiao.com/group/7659704650286793251/</a></li>
+          <li id="cite-8">起点中文网新人签约2026最新攻略 <a href="http://m.toutiao.com/group/7659379543102407177/" target="_blank" rel="noopener">http://m.toutiao.com/group/7659379543102407177/</a></li>
+        </ol>
+      </div>
+      <nav class="article-nav" id="articleNav"></nav>
+    </article>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; 2024-2026 朱天伟 | Smart Open. Built with care.</p>
+    </div>
+  </footer>
+
+  <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
+  <script src="../../js/article.js"></script>
+  <script src="../../js/preview-rail.js"></script>
+</body>
+</html>
