@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>2048</title>
+  <title>2048 - 增强版</title>
   <style>
     *, *::before, *::after {
       margin: 0;
@@ -12,10 +12,10 @@
     }
 
     :root {
-      --board-size: min(90vw, 90vh - 140px, 500px);
+      --board-size: min(90vw, 90vh - 180px, 500px);
       --cell-gap: 12px;
-      --cell-radius: 6px;
-      --board-radius: 8px;
+      --cell-radius: 8px;
+      --board-radius: 10px;
       --board-bg: #bbada0;
       --cell-bg: rgba(238, 228, 218, 0.35);
       --page-bg: #faf8ef;
@@ -30,21 +30,15 @@
     @media (max-width: 500px) {
       :root {
         --cell-gap: 8px;
-        --cell-radius: 4px;
-        --board-radius: 6px;
-        --board-size: min(92vw, 85vh - 130px, 500px);
+        --cell-radius: 6px;
+        --board-radius: 8px;
+        --board-size: min(92vw, 85vh - 160px, 500px);
       }
     }
 
     @media (max-width: 500px) and (orientation: landscape) {
       :root {
-        --board-size: min(85vh - 100px, 70vw, 500px);
-      }
-    }
-
-    @media (min-width: 501px) and (orientation: landscape) and (max-height: 500px) {
-      :root {
-        --board-size: min(80vh - 100px, 400px);
+        --board-size: min(85vh - 120px, 70vw, 500px);
       }
     }
 
@@ -88,10 +82,11 @@
     }
 
     .game-title {
-      font-size: 72px;
-      font-weight: 700;
+      font-size: 64px;
+      font-weight: 800;
       color: var(--text-dark);
       line-height: 1;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.05);
     }
 
     @media (max-width: 500px) {
@@ -99,16 +94,7 @@
         margin-bottom: 6px;
       }
       .game-title {
-        font-size: 48px;
-      }
-    }
-
-    @media (max-width: 500px) and (orientation: landscape) {
-      .game-header {
-        margin-bottom: 4px;
-      }
-      .game-title {
-        font-size: 36px;
+        font-size: 42px;
       }
     }
 
@@ -124,49 +110,35 @@
       text-align: center;
       min-width: 80px;
       position: relative;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     @media (max-width: 500px) {
       .score-box {
-        padding: 4px 10px;
-        min-width: 54px;
-      }
-    }
-
-    @media (max-width: 500px) and (orientation: landscape) {
-      .score-box {
-        padding: 3px 8px;
-        min-width: 48px;
+        padding: 4px 12px;
+        min-width: 60px;
       }
     }
 
     .score-box .label {
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
-      color: rgba(238, 228, 218, 0.6);
+      color: rgba(238, 228, 218, 0.8);
       letter-spacing: 0.5px;
     }
 
     .score-box .value {
       font-size: 22px;
-      font-weight: 700;
+      font-weight: 800;
       color: #fff;
       line-height: 1.2;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
     }
 
     @media (max-width: 500px) {
       .score-box .value {
-        font-size: 16px;
-      }
-    }
-
-    @media (max-width: 500px) and (orientation: landscape) {
-      .score-box .value {
-        font-size: 14px;
-      }
-      .score-box .label {
-        font-size: 9px;
+        font-size: 18px;
       }
     }
 
@@ -175,12 +147,38 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 16px;
-      font-weight: 700;
+      font-size: 20px;
+      font-weight: 800;
       color: rgba(119, 110, 101, 0.9);
       pointer-events: none;
-      animation: score-pop 600ms ease-out forwards;
+      animation: score-pop 800ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
       z-index: 10;
+      text-shadow: 0 1px 2px rgba(255,255,255,0.5);
+    }
+
+    /* Combo display */
+    .combo-display {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 16px;
+      font-weight: 700;
+      color: #f65e3b;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 20;
+      text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+    }
+
+    .combo-display.show {
+      animation: combo-pop 600ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes combo-pop {
+      0% { opacity: 0; transform: translateX(-50%) scale(0.5) translateY(10px); }
+      30% { opacity: 1; transform: translateX(-50%) scale(1.2) translateY(0); }
+      100% { opacity: 0; transform: translateX(-50%) scale(1) translateY(-20px); }
     }
 
     /* Controls */
@@ -189,54 +187,68 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 12px;
+      gap: 8px;
     }
 
-    .btn-new-game {
+    .btn-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-new-game, .btn-undo {
       background: #8f7a66;
       color: #f9f6f2;
       border: none;
       border-radius: var(--cell-radius);
-      padding: 10px 24px;
-      font-size: 15px;
+      padding: 10px 18px;
+      font-size: 14px;
       font-weight: 700;
       cursor: pointer;
-      transition: background 0.15s;
+      transition: all 0.15s;
       touch-action: manipulation;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
     }
 
-    .btn-new-game:hover {
+    .btn-undo {
+      background: #a08978;
+      padding: 10px 14px;
+    }
+
+    .btn-new-game:hover, .btn-undo:hover {
       background: #9f8b77;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
-    .btn-new-game:active {
+    .btn-new-game:active, .btn-undo:active {
       background: #7f6a56;
+      transform: translateY(0);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    }
+
+    .btn-undo:disabled {
+      background: #c5b9ad;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
     }
 
     .game-hint {
-      font-size: 13px;
-      color: rgba(119, 110, 101, 0.6);
+      font-size: 12px;
+      color: rgba(119, 110, 101, 0.7);
+      text-align: right;
     }
 
     @media (max-width: 500px) {
       .game-controls {
-        margin-bottom: 6px;
+        margin-bottom: 8px;
       }
-      .btn-new-game {
-        padding: 8px 16px;
-        font-size: 13px;
+      .btn-new-game, .btn-undo {
+        padding: 8px 14px;
+        font-size: 12px;
       }
       .game-hint {
-        font-size: 11px;
-      }
-    }
-
-    @media (max-width: 500px) and (orientation: landscape) {
-      .game-controls {
-        margin-bottom: 4px;
-      }
-      .btn-new-game {
-        padding: 6px 12px;
-        font-size: 12px;
+        font-size: 10px;
       }
     }
 
@@ -252,11 +264,13 @@
       grid-template-columns: repeat(4, 1fr);
       grid-template-rows: repeat(4, 1fr);
       gap: var(--cell-gap);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15), inset 0 2px 4px rgba(0,0,0,0.1);
     }
 
     .grid-cell {
       background: var(--cell-bg);
       border-radius: var(--cell-radius);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
     }
 
     .tile-container {
@@ -266,6 +280,19 @@
       width: 100%;
       height: 100%;
       pointer-events: none;
+      overflow: hidden;
+      border-radius: var(--board-radius);
+    }
+
+    /* Particle canvas */
+    #particle-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
     }
 
     /* Tiles */
@@ -275,48 +302,84 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 700;
+      font-weight: 800;
       user-select: none;
-      transition: top 100ms ease, left 100ms ease;
+      transition: top 120ms cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                  left 120ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  transform 100ms ease-out;
+      will-change: transform;
     }
 
-    .tile-2    { background: #eee4da; color: #776e65; }
-    .tile-4    { background: #ede0c8; color: #776e65; }
-    .tile-8    { background: #f2b179; color: #f9f6f2; }
-    .tile-16   { background: #f59563; color: #f9f6f2; }
-    .tile-32   { background: #f67c5f; color: #f9f6f2; }
-    .tile-64   { background: #f65e3b; color: #f9f6f2; }
-    .tile-128  { background: #edcf72; color: #f9f6f2; }
-    .tile-256  { background: #edcc61; color: #f9f6f2; }
-    .tile-512  { background: #edc850; color: #f9f6f2; }
-    .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 90%; }
-    .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 90%; }
-    .tile-super { background: #3c3a32; color: #f9f6f2; font-size: 70%; }
+    .tile-2    { background: linear-gradient(145deg, #f5ebe0, #eee4da); color: #776e65; box-shadow: 0 2px 4px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.5); }
+    .tile-4    { background: linear-gradient(145deg, #f2e6d0, #ede0c8); color: #776e65; box-shadow: 0 2px 4px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.5); }
+    .tile-8    { background: linear-gradient(145deg, #f5bc88, #f2b179); color: #f9f6f2; box-shadow: 0 3px 6px rgba(242,177,121,0.3), inset 0 1px 0 rgba(255,255,255,0.3); }
+    .tile-16   { background: linear-gradient(145deg, #f7a378, #f59563); color: #f9f6f2; box-shadow: 0 3px 6px rgba(245,149,99,0.3), inset 0 1px 0 rgba(255,255,255,0.3); }
+    .tile-32   { background: linear-gradient(145deg, #f89075, #f67c5f); color: #f9f6f2; box-shadow: 0 3px 8px rgba(246,124,95,0.35), inset 0 1px 0 rgba(255,255,255,0.3); }
+    .tile-64   { background: linear-gradient(145deg, #f87555, #f65e3b); color: #f9f6f2; box-shadow: 0 4px 10px rgba(246,94,59,0.4), inset 0 1px 0 rgba(255,255,255,0.25); }
+    .tile-128  { background: linear-gradient(145deg, #f0d888, #edcf72); color: #f9f6f2; box-shadow: 0 4px 12px rgba(237,207,114,0.45), inset 0 1px 0 rgba(255,255,255,0.3); font-size: 90%; }
+    .tile-256  { background: linear-gradient(145deg, #f0d575, #edcc61); color: #f9f6f2; box-shadow: 0 4px 12px rgba(237,204,97,0.5), inset 0 1px 0 rgba(255,255,255,0.3); font-size: 90%; }
+    .tile-512  { background: linear-gradient(145deg, #f0d062, #edc850); color: #f9f6f2; box-shadow: 0 5px 14px rgba(237,200,80,0.55), inset 0 1px 0 rgba(255,255,255,0.3); font-size: 90%; }
+    .tile-1024 { background: linear-gradient(145deg, #f0cc50, #edc53f); color: #f9f6f2; box-shadow: 0 5px 16px rgba(237,197,63,0.6), inset 0 1px 0 rgba(255,255,255,0.3); font-size: 75%; }
+    .tile-2048 { background: linear-gradient(145deg, #f0c840, #edc22e); color: #f9f6f2; box-shadow: 0 6px 20px rgba(237,194,46,0.7), 0 0 30px rgba(237,194,46,0.3), inset 0 1px 0 rgba(255,255,255,0.3); font-size: 75%; }
+    .tile-super { background: linear-gradient(145deg, #4a4840, #3c3a32); color: #f9f6f2; box-shadow: 0 4px 12px rgba(60,58,50,0.5), inset 0 1px 0 rgba(255,255,255,0.1); font-size: 60%; }
 
     .tile-new {
-      animation: appear 100ms ease-out;
+      animation: appear 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     .tile-merged {
-      animation: pop 200ms ease-out;
+      animation: pop 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
       z-index: 2;
+    }
+
+    .tile-merged-big {
+      animation: pop-big 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 3;
     }
 
     /* Animations */
     @keyframes appear {
       0%   { opacity: 0; transform: scale(0); }
+      60%  { opacity: 1; transform: scale(1.1); }
       100% { opacity: 1; transform: scale(1); }
     }
 
     @keyframes pop {
       0%   { transform: scale(1); }
-      50%  { transform: scale(1.2); }
+      40%  { transform: scale(1.2); }
+      60%  { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes pop-big {
+      0%   { transform: scale(1); }
+      30%  { transform: scale(1.35); }
+      50%  { transform: scale(1.25); }
+      70%  { transform: scale(1.1); }
       100% { transform: scale(1); }
     }
 
     @keyframes score-pop {
-      0%   { opacity: 1; transform: translate(-50%, -50%); }
-      100% { opacity: 0; transform: translate(-50%, -120%); }
+      0%   { opacity: 1; transform: translate(-50%, -50%) scale(0.8); }
+      20%  { opacity: 1; transform: translate(-50%, -60%) scale(1.2); }
+      100% { opacity: 0; transform: translate(-50%, -150%) scale(1); }
+    }
+
+    @keyframes board-shake {
+      0%, 100% { transform: translate(0, 0); }
+      10% { transform: translate(-3px, 2px); }
+      20% { transform: translate(3px, -2px); }
+      30% { transform: translate(-2px, -3px); }
+      40% { transform: translate(2px, 3px); }
+      50% { transform: translate(-3px, 1px); }
+      60% { transform: translate(3px, -1px); }
+      70% { transform: translate(-1px, 2px); }
+      80% { transform: translate(1px, -2px); }
+      90% { transform: translate(-1px, 1px); }
+    }
+
+    .board-shake {
+      animation: board-shake 300ms ease-out;
     }
 
     /* Game Message Overlay */
@@ -327,7 +390,7 @@
       width: 100%;
       height: 100%;
       border-radius: var(--board-radius);
-      background: rgba(238, 228, 218, 0.73);
+      background: rgba(238, 228, 218, 0.85);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -335,25 +398,49 @@
       z-index: 100;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 800ms ease;
+      transition: opacity 500ms ease;
+      backdrop-filter: blur(4px);
     }
 
     .game-message.active {
       opacity: 1;
       pointer-events: auto;
+      animation: message-appear 400ms ease-out;
+    }
+
+    @keyframes message-appear {
+      0% { opacity: 0; backdrop-filter: blur(0px); }
+      100% { opacity: 1; backdrop-filter: blur(4px); }
+    }
+
+    .game-message.win {
+      background: rgba(237, 194, 46, 0.85);
     }
 
     .game-message p {
       font-size: 48px;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--text-dark);
       margin-bottom: 20px;
+      text-shadow: 0 2px 4px rgba(255,255,255,0.5);
+      animation: message-bounce 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 200ms both;
+    }
+
+    .game-message.win p {
+      color: #f9f6f2;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    @keyframes message-bounce {
+      0% { opacity: 0; transform: scale(0.5); }
+      70% { transform: scale(1.1); }
+      100% { opacity: 1; transform: scale(1); }
     }
 
     @media (max-width: 500px) {
       .game-message p {
-        font-size: 32px;
-        margin-bottom: 12px;
+        font-size: 36px;
+        margin-bottom: 16px;
       }
     }
 
@@ -368,18 +455,41 @@
       font-weight: 700;
       cursor: pointer;
       margin: 4px;
-      transition: background 0.15s;
+      transition: all 0.15s;
       touch-action: manipulation;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+      animation: btn-appear 400ms ease-out 400ms both;
+    }
+
+    @keyframes btn-appear {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .game-message.win .btn-retry,
+    .game-message.win .btn-keep {
+      background: rgba(255,255,255,0.9);
+      color: #776e65;
     }
 
     .game-message .btn-retry:hover,
     .game-message .btn-keep:hover {
-      background: #9f8b77;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 12px rgba(0,0,0,0.25);
     }
 
     .game-message .btn-retry:active,
     .game-message .btn-keep:active {
-      background: #7f6a56;
+      transform: translateY(0);
+    }
+
+    /* Win celebration particles */
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      pointer-events: none;
+      z-index: 50;
     }
   </style>
 </head>
@@ -392,6 +502,7 @@
       <div class="score-box" id="score-box">
         <div class="label">分数</div>
         <div class="value" id="score-value">0</div>
+        <div class="combo-display" id="combo-display"></div>
       </div>
       <div class="score-box">
         <div class="label">最高</div>
@@ -401,8 +512,11 @@
   </header>
 
   <div class="game-controls">
-    <button class="btn-new-game" id="btn-new">新游戏</button>
-    <span class="game-hint">方向键 / WASD / 滑动</span>
+    <div class="btn-group">
+      <button class="btn-new-game" id="btn-new">新游戏</button>
+      <button class="btn-undo" id="btn-undo" disabled>撤销</button>
+    </div>
+    <span class="game-hint">方向键/WASD/滑动<br/>Z键撤销</span>
   </div>
 
   <div class="game-board" id="game-board">
@@ -422,6 +536,7 @@
     <div class="grid-cell"></div>
     <div class="grid-cell"></div>
     <div class="grid-cell"></div>
+    <canvas id="particle-canvas"></canvas>
     <div class="tile-container" id="tile-container"></div>
     <div class="game-message" id="game-message">
       <p id="message-text"></p>
@@ -440,7 +555,117 @@
   // ── Constants ──
   var SIZE = 4;
   var STORAGE_KEY = 'best2048_score';
-  var ANIM_LOCK_MS = 150;
+  var ANIM_LOCK_MS = 130;
+  var MAX_UNDO = 5;
+
+  // ── Particle System ──
+  var particles = [];
+  var particleCanvas, particleCtx;
+
+  function initParticles() {
+    particleCanvas = document.getElementById('particle-canvas');
+    particleCtx = particleCanvas.getContext('2d');
+    resizeParticleCanvas();
+    window.addEventListener('resize', resizeParticleCanvas);
+  }
+
+  function resizeParticleCanvas() {
+    var board = document.getElementById('game-board');
+    var rect = board.getBoundingClientRect();
+    particleCanvas.width = rect.width;
+    particleCanvas.height = rect.height;
+  }
+
+  function getTileColor(val) {
+    var colors = {
+      2: '#eee4da', 4: '#ede0c8', 8: '#f2b179', 16: '#f59563',
+      32: '#f67c5f', 64: '#f65e3b', 128: '#edcf72', 256: '#edcc61',
+      512: '#edc850', 1024: '#edc53f', 2048: '#edc22e'
+    };
+    return colors[val] || '#3c3a32';
+  }
+
+  function spawnMergeParticles(r, c, val) {
+    var layout = computeLayout();
+    var x = tileLeft(c) + layout.cellSize / 2;
+    var y = tileTop(r) + layout.cellSize / 2;
+    var color = getTileColor(val);
+    var count = val >= 128 ? 12 : val >= 64 ? 8 : 5;
+    var speed = val >= 128 ? 4 : val >= 64 ? 3 : 2;
+
+    for (var i = 0; i < count; i++) {
+      var angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
+      var spd = speed * (0.7 + Math.random() * 0.6);
+      particles.push({
+        x: x,
+        y: y,
+        vx: Math.cos(angle) * spd,
+        vy: Math.sin(angle) * spd - 1,
+        life: 1,
+        decay: 0.02 + Math.random() * 0.02,
+        size: 3 + Math.random() * 3,
+        color: color,
+        gravity: 0.1
+      });
+    }
+  }
+
+  function spawnWinParticles() {
+    var w = particleCanvas.width;
+    var h = particleCanvas.height;
+    var colors = ['#f65e3b', '#edc22e', '#4488ff', '#44ff44', '#ff44aa', '#ffffff'];
+    for (var i = 0; i < 80; i++) {
+      particles.push({
+        x: w / 2 + (Math.random() - 0.5) * 100,
+        y: h / 2,
+        vx: (Math.random() - 0.5) * 12,
+        vy: -Math.random() * 10 - 2,
+        life: 1,
+        decay: 0.008 + Math.random() * 0.01,
+        size: 4 + Math.random() * 5,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        gravity: 0.15,
+        rotation: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() - 0.5) * 0.3
+      });
+    }
+  }
+
+  function updateParticles(dt) {
+    var dtFactor = dt / 16.67;
+    for (var i = particles.length - 1; i >= 0; i--) {
+      var p = particles[i];
+      p.x += p.vx * dtFactor;
+      p.y += p.vy * dtFactor;
+      p.vy += p.gravity * dtFactor;
+      p.life -= p.decay * dtFactor;
+      if (p.rotSpeed) p.rotation += p.rotSpeed * dtFactor;
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+  }
+
+  function renderParticles() {
+    if (!particleCtx) return;
+    particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      particleCtx.save();
+      particleCtx.globalAlpha = Math.max(0, p.life);
+      particleCtx.fillStyle = p.color;
+      particleCtx.shadowColor = p.color;
+      particleCtx.shadowBlur = 4;
+      if (p.rotation !== undefined) {
+        particleCtx.translate(p.x, p.y);
+        particleCtx.rotate(p.rotation);
+        particleCtx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+      } else {
+        particleCtx.beginPath();
+        particleCtx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+        particleCtx.fill();
+      }
+      particleCtx.restore();
+    }
+  }
 
   // ── Utility ──
   function deepCopy(grid) {
@@ -463,6 +688,7 @@
     var merged = [];
     var score = 0;
     var mergedIndices = [];
+    var mergeCount = 0;
     var i = 0;
 
     while (i < filtered.length) {
@@ -471,6 +697,7 @@
         merged.push(val);
         score += val;
         mergedIndices.push(merged.length - 1);
+        mergeCount++;
         i += 2;
       } else {
         merged.push(filtered[i]);
@@ -482,7 +709,7 @@
       merged.push(0);
     }
 
-    return { result: merged, score: score, mergedIndices: mergedIndices };
+    return { result: merged, score: score, mergedIndices: mergedIndices, mergeCount: mergeCount };
   }
 
   // ── Move in a direction ──
@@ -497,13 +724,15 @@
 
     var totalScore = 0;
     var moved = false;
-    var allMerged = []; // { row, col } in prepared space
+    var allMerged = [];
+    var totalMergeCount = 0;
 
     var result = prepared.map(function (row, ri) {
       var res = slideAndMerge(row);
       totalScore += res.score;
+      totalMergeCount += res.mergeCount;
       for (var k = 0; k < res.mergedIndices.length; k++) {
-        allMerged.push({ row: ri, col: res.mergedIndices[k] });
+        allMerged.push({ row: ri, col: res.mergedIndices[k], val: res.result[res.mergedIndices[k]] });
       }
       for (var c = 0; c < SIZE; c++) {
         if (row[c] !== res.result[c]) moved = true;
@@ -511,7 +740,6 @@
       return res.result;
     });
 
-    // Undo preparation transforms
     var finalGrid;
     switch (direction) {
       case 'left':  finalGrid = result; break;
@@ -520,17 +748,18 @@
       case 'down':  finalGrid = transpose(reverseRows(result)); break;
     }
 
-    // Map merged positions back to original grid space
     var mergedPositions = allMerged.map(function (pos) {
+      var mapped;
       switch (direction) {
-        case 'left':  return { r: pos.row, c: pos.col };
-        case 'right': return { r: pos.row, c: SIZE - 1 - pos.col };
-        case 'up':    return { r: pos.col, c: pos.row };
-        case 'down':  return { r: SIZE - 1 - pos.col, c: pos.row };
+        case 'left':  mapped = { r: pos.row, c: pos.col, val: pos.val }; break;
+        case 'right': mapped = { r: pos.row, c: SIZE - 1 - pos.col, val: pos.val }; break;
+        case 'up':    mapped = { r: pos.col, c: pos.row, val: pos.val }; break;
+        case 'down':  mapped = { r: SIZE - 1 - pos.col, c: pos.row, val: pos.val }; break;
       }
+      return mapped;
     });
 
-    return { grid: finalGrid, score: totalScore, moved: moved, merged: mergedPositions };
+    return { grid: finalGrid, score: totalScore, moved: moved, merged: mergedPositions, mergeCount: totalMergeCount };
   }
 
   // ── Available moves check ──
@@ -570,9 +799,14 @@
   var btnNew = document.getElementById('btn-new');
   var btnRetry = document.getElementById('btn-retry');
   var btnKeep = document.getElementById('btn-keep');
+  var btnUndo = document.getElementById('btn-undo');
+  var comboEl = document.getElementById('combo-display');
 
   // ── Game state ──
   var grid, score, bestScore, won, over, keepPlaying, locked;
+  var undoStack = [];
+  var comboCount = 0;
+  var lastTime = 0;
 
   function createEmptyGrid() {
     var g = [];
@@ -595,6 +829,37 @@
     try {
       localStorage.setItem(STORAGE_KEY, bestScore);
     } catch (e) { /* ignore */ }
+  }
+
+  function saveUndo() {
+    undoStack.push({
+      grid: deepCopy(grid),
+      score: score,
+      won: won,
+      over: over,
+      keepPlaying: keepPlaying
+    });
+    if (undoStack.length > MAX_UNDO) {
+      undoStack.shift();
+    }
+    btnUndo.disabled = false;
+  }
+
+  function undo() {
+    if (undoStack.length === 0 || locked) return;
+    var state = undoStack.pop();
+    grid = state.grid;
+    score = state.score;
+    won = state.won;
+    over = state.over;
+    keepPlaying = state.keepPlaying;
+    scoreEl.textContent = score;
+    hideMessage();
+    render(null, []);
+    if (undoStack.length === 0) {
+      btnUndo.disabled = true;
+    }
+    comboCount = 0;
   }
 
   // ── Tile positioning helpers ──
@@ -621,13 +886,14 @@
   }
 
   // ── Renderer ──
-  function render(newTilePos, mergedPositions) {
+  function render(newTilePos, mergedPositions, bigMerge) {
     computeLayout();
+    resizeParticleCanvas();
     containerEl.innerHTML = '';
-    var fontSize = Math.max(cachedCellSize * 0.45, 14);
+    var fontSize = Math.max(cachedCellSize * 0.42, 14);
     var largeFont = fontSize;
     if (cachedCellSize < 80) {
-      fontSize = Math.max(cachedCellSize * 0.38, 12);
+      fontSize = Math.max(cachedCellSize * 0.35, 12);
       largeFont = fontSize;
     }
 
@@ -640,15 +906,19 @@
         var cls = val <= 2048 ? 'tile tile-' + val : 'tile tile-super';
         tile.className = cls;
 
-        // Check if new tile
         if (newTilePos && newTilePos.r === r && newTilePos.c === c) {
           tile.classList.add('tile-new');
         }
 
-        // Check if merged tile
+        var isBigMerge = false;
         for (var m = 0; m < mergedPositions.length; m++) {
           if (mergedPositions[m].r === r && mergedPositions[m].c === c) {
-            tile.classList.add('tile-merged');
+            if (bigMerge && mergedPositions[m].val >= 128) {
+              tile.classList.add('tile-merged-big');
+              isBigMerge = true;
+            } else {
+              tile.classList.add('tile-merged');
+            }
             break;
           }
         }
@@ -657,13 +927,32 @@
         tile.style.top = tileTop(r) + 'px';
         tile.style.width = cachedCellSize + 'px';
         tile.style.height = cachedCellSize + 'px';
-        tile.style.fontSize = (val >= 1024 ? largeFont * 0.75 : fontSize) + 'px';
+        var tileFont = val >= 1024 ? largeFont * 0.7 : fontSize;
+        tile.style.fontSize = tileFont + 'px';
         tile.style.lineHeight = cachedCellSize + 'px';
         tile.textContent = val;
 
         containerEl.appendChild(tile);
       }
     }
+  }
+
+  function showCombo(count) {
+    if (count < 2) return;
+    comboEl.textContent = count + ' 连击!';
+    comboEl.className = 'combo-display show';
+    setTimeout(function() {
+      comboEl.className = 'combo-display';
+    }, 600);
+  }
+
+  function shakeBoard() {
+    boardEl.classList.remove('board-shake');
+    void boardEl.offsetWidth;
+    boardEl.classList.add('board-shake');
+    setTimeout(function() {
+      boardEl.classList.remove('board-shake');
+    }, 300);
   }
 
   function updateScore(added) {
@@ -673,7 +962,6 @@
       bestEl.textContent = bestScore;
       saveBest();
     }
-    // Score pop animation
     if (added > 0) {
       var pop = document.createElement('div');
       pop.className = 'score-addition';
@@ -681,14 +969,17 @@
       scoreBoxEl.appendChild(pop);
       setTimeout(function () {
         if (pop.parentNode) pop.parentNode.removeChild(pop);
-      }, 600);
+      }, 800);
     }
   }
 
   function showMessage(type) {
+    messageEl.classList.remove('win');
     if (type === 'win') {
       messageTextEl.textContent = '你赢了!';
       btnKeep.style.display = 'inline-block';
+      messageEl.classList.add('win');
+      spawnWinParticles();
     } else {
       messageTextEl.textContent = '游戏结束!';
       btnKeep.style.display = 'none';
@@ -702,9 +993,19 @@
 
   // ── Game logic ──
   function init() {
+    initParticles();
     loadBest();
     bestEl.textContent = bestScore;
     startGame();
+    requestAnimationFrame(particleLoop);
+  }
+
+  function particleLoop(timestamp) {
+    var dt = lastTime ? Math.min(timestamp - lastTime, 50) : 16.67;
+    lastTime = timestamp;
+    updateParticles(dt);
+    renderParticles();
+    requestAnimationFrame(particleLoop);
   }
 
   function startGame() {
@@ -714,8 +1015,12 @@
     over = false;
     keepPlaying = false;
     locked = false;
+    undoStack = [];
+    comboCount = 0;
+    particles.length = 0;
     hideMessage();
     scoreEl.textContent = '0';
+    btnUndo.disabled = true;
 
     addRandomTile(grid);
     addRandomTile(grid);
@@ -725,37 +1030,58 @@
   function doMove(direction) {
     if (locked || over || (won && !keepPlaying)) return;
 
+    saveUndo();
+
     var result = moveGrid(grid, direction);
-    if (!result.moved) return;
+    if (!result.moved) {
+      undoStack.pop();
+      if (undoStack.length === 0) btnUndo.disabled = true;
+      return;
+    }
 
     grid = result.grid;
     score += result.score;
 
-    var newTile = addRandomTile(grid);
-
-    render(newTile, result.merged);
-    updateScore(result.score);
-
-    // Check win
-    if (!won && !keepPlaying) {
-      for (var r = 0; r < SIZE; r++) {
-        for (var c = 0; c < SIZE; c++) {
-          if (grid[r][c] === 2048) {
-            won = true;
-            showMessage('win');
-            return;
-          }
-        }
-      }
+    if (result.mergeCount > 0) {
+      comboCount++;
+      showCombo(comboCount);
+    } else {
+      comboCount = 0;
     }
 
-    // Check game over
+    var newTile = addRandomTile(grid);
+
+    var hasBigMerge = result.merged.some(function(m) { return m.val >= 128; });
+    render(newTile, result.merged, hasBigMerge);
+    updateScore(result.score);
+
+    result.merged.forEach(function(m) {
+      spawnMergeParticles(m.r, m.c, m.val);
+    });
+
+    if (hasBigMerge) {
+      shakeBoard();
+    }
+
+    var maxVal = 0;
+    for (var r = 0; r < SIZE; r++) {
+      for (var c = 0; c < SIZE; c++) {
+        if (grid[r][c] > maxVal) maxVal = grid[r][c];
+      }
+    }
+    if (maxVal >= 2048 && !won && !keepPlaying) {
+      won = true;
+      setTimeout(function() { showMessage('win'); }, 200);
+      shakeBoard();
+      return;
+    }
+
     if (!movesAvailable(grid)) {
       over = true;
+      comboCount = 0;
       setTimeout(function () { showMessage('lose'); }, 300);
     }
 
-    // Lock input briefly for animation
     locked = true;
     setTimeout(function () { locked = false; }, ANIM_LOCK_MS);
   }
@@ -774,13 +1100,16 @@
       e.preventDefault();
       doMove(dir);
     }
+    if (e.key === 'z' || e.key === 'Z') {
+      e.preventDefault();
+      undo();
+    }
   });
 
   // ── Input: Touch ──
   var touchStartX = 0, touchStartY = 0;
   var touchActive = false;
 
-  // Prevent iOS rubber-band scrolling and pull-to-refresh
   document.addEventListener('touchmove', function (e) {
     e.preventDefault();
   }, { passive: false });
@@ -797,7 +1126,6 @@
     if (!touchActive) return;
     touchActive = false;
 
-    // Ignore taps on buttons
     var target = e.target;
     if (target && (target.tagName === 'BUTTON' || target.closest('button'))) return;
 
@@ -805,7 +1133,7 @@
     var dy = e.changedTouches[0].clientY - touchStartY;
     var absDx = Math.abs(dx);
     var absDy = Math.abs(dy);
-    var threshold = 30;
+    var threshold = 25;
 
     if (Math.max(absDx, absDy) < threshold) return;
 
@@ -824,6 +1152,7 @@
     won = false;
     hideMessage();
   });
+  btnUndo.addEventListener('click', undo);
 
   // ── Resize & orientation change ──
   var resizeTimer = null;
