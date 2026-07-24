@@ -809,6 +809,67 @@ input, select { font-family: inherit; }
   50% { background: var(--reading-bg-strong); }
 }
 
+/* 加载中状态 - 弱网等待音频下载 */
+.dialogue-line.loading {
+  background: var(--reading-bg);
+  border-color: var(--reading-border);
+}
+
+.dialogue-line.loading .line-avatar {
+  animation: avatarPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes avatarPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.92); }
+}
+
+/* 加载旋转指示器 */
+.line-loading-indicator {
+  position: absolute;
+  top: 14px;
+  right: 12px;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--reading-border);
+  border-top-color: var(--reading-text);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  z-index: 5;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 加载时隐藏行操作按钮 */
+.dialogue-line.loading .line-actions { display: none; }
+
+/* 加载失败提示 */
+.dialogue-line.load-error {
+  border-color: rgba(225, 29, 72, 0.25);
+  background: var(--rose-light);
+}
+
+.line-error-tip {
+  position: absolute;
+  top: 14px;
+  right: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--rose);
+  background: rgba(225, 29, 72, 0.08);
+  padding: 3px 10px;
+  border-radius: 50px;
+  z-index: 5;
+  animation: errorFadeIn 0.3s var(--ease-out);
+}
+
+@keyframes errorFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .line-avatar {
   width: 38px;
   height: 38px;
