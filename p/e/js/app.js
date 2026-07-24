@@ -39,7 +39,8 @@ const App = {
     synth: (typeof window !== 'undefined' && window.speechSynthesis) ? window.speechSynthesis : null,
     currentAudio: null,
     _scriptIndex: null,  // 首页摘要数据缓存
-    _audioCache: {},     // 音频预加载缓存 { 'scriptId_lineIndex': Audio }
+    _player: null,       // 主播放器 Audio 元素（复用，解决移动端自动播放限制）
+    _blobCache: {},      // 预加载的 Blob URL 缓存 { 'scriptId_lineIndex': objectURL }
     _loadingLine: null,  // 当前正在加载音频的行索引
     _playGen: 0          // 播放代际：每次暂停/停止递增，用于丢弃过期的加载回调
   },
@@ -722,6 +723,12 @@ const App = {
   startPlayback() {
     if (!this.state.currentScript) return;
 
+    // 在用户手势中创建/解锁主播放器（解决移动端自动播放限制）
+    if (!this.state._player) {
+      this.state._player = new Audio();
+      this.state._player.preload = 'auto';
+    }
+
     this.state.isPlaying = true;
     this.state.isPaused = false;
     this.updatePlayButton();
@@ -733,13 +740,18 @@ const App = {
     this.state.isPlaying = false;
     this.state.isPaused = true;
     this.state._playGen++;  // 递增代际，使正在加载的音频回调失效
-    if (this.state.currentAudio) {
+    // 暂停主播放器
+    if (this.state._player) {
       try {
-        this.state.currentAudio.pause();
-        this.state.currentAudio.currentTime = 0;
+        this.state._player.pause();
+        this.state._player.oncanplay = null;
+        this.state._player.onerror = null;
+        this.state._player.onended = null;
+        this.state._player.onwaiting = null;
+        this.state._player.onplaying = null;
       } catch (e) {}
-      this.state.currentAudio = null;
     }
+    this.state.currentAudio = null;
     if (this.state.synth && typeof this.state.synth.cancel === 'function') {
       try { this.state.synth.cancel(); } catch (e) {}
     }
@@ -826,14 +838,20 @@ const App = {
   speak(text, onEnd, role) {
     // 递增播放代际，使上一句的加载回调失效
     this.state._playGen++;
+
     // 停止当前播放
-    if (this.state.currentAudio) {
-      try {
-        this.state.currentAudio.pause();
-        this.state.currentAudio.currentTime = 0;
-      } catch (e) {}
-      this.state.currentAudio = null;
+    const player = this.state._player;
+    if (player) {
+      try { player.pause(); } catch (e) {}
+      // 清除旧事件监听
+      player.oncanplay = null;
+      player.onerror = null;
+      player.onended = null;
+      player.onwaiting = null;
+      player.onplaying = null;
     }
+    this.state.currentAudio = null;
+
     if (this.state.synth && typeof this.state.synth.cancel === 'function') {
       try { this.state.synth.cancel(); } catch (e) {}
     }
@@ -844,18 +862,11 @@ const App = {
       const audioUrl = 'audio/' + script.id + '/' + lineIndex + '.m4a';
       const cacheKey = script.id + '_' + lineIndex;
 
-      // 检查预加载缓存（readyState >= 2 表示有足够数据可以播放）
-      let audio = this.state._audioCache[cacheKey];
-      if (audio && audio.readyState >= 2) {
-        // 已缓存且就绪，直接播放
-        delete this.state._audioCache[cacheKey];
-        try { audio.currentTime = 0; } catch (e) {}
-        this._playAudio(audio, text, onEnd, role, lineIndex);
-      } else {
-        // 未缓存或未就绪，加载后播放（弱网等待）
-        if (audio) delete this.state._audioCache[cacheKey]; // 清理未就绪的缓存
-        this._loadAndPlayAudio(audioUrl, cacheKey, text, onEnd, role, lineIndex);
-      }
+      // 检查 Blob 缓存：有则用 Blob URL（数据在内存，秒播），无则用原始 URL
+      const blobUrl = this.state._blobCache[cacheKey];
+      const playUrl = blobUrl || audioUrl;
+
+      this._loadAndPlayAudio(playUrl, cacheKey, text, onEnd, role, lineIndex);
       return;
     }
 
@@ -863,16 +874,24 @@ const App = {
     this._speakFallback(text, onEnd, role);
   },
 
-  // 加载音频并在就绪后播放（弱网友好：用 canplay 快速起播，带重试和超时）
-  _loadAndPlayAudio(audioUrl, cacheKey, text, onEnd, role, lineIndex) {
+  // 用主播放器加载并播放（复用 Audio 元素解决移动端自动播放限制）
+  _loadAndPlayAudio(playUrl, cacheKey, text, onEnd, role, lineIndex) {
     this._setLoadingState(lineIndex, true);
-    const gen = this.state._playGen;  // 捕获当前播放代际
+    const gen = this.state._playGen;
+    const player = this.state._player;
 
-    let retryCount = 0;
-    const maxRetries = 2;          // 弱网下多给一次机会
-    const loadTimeout = 30000;     // 弱网等待 30 秒
+    // 没有主播放器（非用户手势启动），回退
+    if (!player) {
+      this._setLoadingState(lineIndex, false);
+      this._speakFallback(text, onEnd, role);
+      return;
+    }
+
+    const loadTimeout = 30000;
     let settled = false;
     let timeoutId = null;
+    let retryCount = 0;
+    const maxRetries = 2;
 
     const isStale = () => this.state._playGen !== gen;
 
@@ -885,126 +904,172 @@ const App = {
       if (settled) return;
       settled = true;
       cleanup();
-      if (isStale()) return;  // 播放已中断，不再回退
+      if (isStale()) return;
       console.warn('Audio fallback for line ' + lineIndex + ': ' + reason);
       this._speakFallback(text, onEnd, role);
     };
 
-    const attemptLoad = () => {
-      const audio = new Audio();
-      audio.preload = 'auto';
-      audio.src = audioUrl;
+    const startPlay = () => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      if (isStale()) return;
 
-      // 超时保护：弱网下等待 30 秒
-      timeoutId = setTimeout(() => {
-        if (settled) return;
-        try { audio.src = ''; audio.load(); } catch (e) {}
-        if (isStale()) { settled = true; cleanup(); return; }
-        if (retryCount < maxRetries) {
-          // 超时也重试（弱网下可能是连接未建立）
-          retryCount++;
-          setTimeout(attemptLoad, 1000);
-        } else {
-          fallback('timeout after ' + loadTimeout + 'ms');
+      // 播放结束回调
+      player.onended = () => {
+        this.state.currentAudio = null;
+        this._setLoadingState(lineIndex, false);
+        if (onEnd) { try { onEnd(); } catch (e) {} }
+      };
+      // 播放出错回调
+      player.onerror = () => {
+        this.state.currentAudio = null;
+        this._setLoadingState(lineIndex, false);
+        this._speakFallback(text, onEnd, role);
+      };
+      // 播放中卡顿（缓冲）
+      player.onwaiting = () => {
+        this._setLoadingState(lineIndex, true);
+      };
+      // 缓冲恢复
+      player.onplaying = () => {
+        this._setLoadingState(lineIndex, false);
+      };
+
+      this.state.currentAudio = player;
+      this._setLoadingState(lineIndex, false);
+
+      // 预加载后续 3 句
+      this._preloadNext(3);
+
+      // 调用 play()（主播放器已在用户手势中解锁，不会触发自动播放限制）
+      try {
+        const playRet = player.play();
+        if (playRet && typeof playRet.catch === 'function') {
+          playRet.catch(() => {
+            this.state.currentAudio = null;
+            this._setLoadingState(lineIndex, false);
+            this._speakFallback(text, onEnd, role);
+          });
         }
-      }, loadTimeout);
-
-      // 音频有足够数据可以开始播放（canplay 比 canplaythrough 在弱网下更早触发）
-      audio.addEventListener('canplay', () => {
-        if (settled) return;
-        settled = true;
-        cleanup();
-        if (isStale()) return;  // 播放已中断，丢弃此回调
-        this._playAudio(audio, text, onEnd, role, lineIndex);
-      }, { once: true });
-
-      // 加载失败
-      audio.addEventListener('error', () => {
-        if (settled) return;
-        if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
-        if (retryCount < maxRetries) {
-          retryCount++;
-          setTimeout(attemptLoad, 800);
-        } else {
-          fallback('load error after ' + (maxRetries + 1) + ' attempts');
-        }
-      }, { once: true });
-
-      // 开始加载
-      audio.load();
-    };
-
-    attemptLoad();
-  },
-
-  // 播放已就绪的音频
-  _playAudio(audio, text, onEnd, role, lineIndex) {
-    this._setLoadingState(lineIndex, false);
-
-    const handleEnd = () => {
-      this.state.currentAudio = null;
-      this._setLoadingState(lineIndex, false);
-      if (onEnd) { try { onEnd(); } catch (e) {} }
-    };
-
-    audio.addEventListener('ended', handleEnd, { once: true });
-    audio.addEventListener('error', () => {
-      // 播放过程中出错，回退
-      this.state.currentAudio = null;
-      this._setLoadingState(lineIndex, false);
-      this._speakFallback(text, onEnd, role);
-    }, { once: true });
-
-    // 播放中卡顿（缓冲）— 显示加载指示
-    audio.addEventListener('waiting', () => {
-      this._setLoadingState(lineIndex, true);
-    });
-    // 缓冲结束恢复播放 — 隐藏加载指示
-    audio.addEventListener('playing', () => {
-      this._setLoadingState(lineIndex, false);
-    });
-
-    this.state.currentAudio = audio;
-
-    // 预加载后续 3 句
-    this._preloadNext(3);
-
-    // 兼容老浏览器：play() 可能不返回 Promise
-    try {
-      const playRet = audio.play();
-      if (playRet && typeof playRet.catch === 'function') {
-        playRet.catch(() => {
-          this.state.currentAudio = null;
-          this._setLoadingState(lineIndex, false);
-          this._speakFallback(text, onEnd, role);
-        });
+      } catch (e) {
+        this.state.currentAudio = null;
+        this._setLoadingState(lineIndex, false);
+        this._speakFallback(text, onEnd, role);
       }
-    } catch (e) {
-      this.state.currentAudio = null;
-      this._setLoadingState(lineIndex, false);
-      this._speakFallback(text, onEnd, role);
-    }
+    };
+
+    // canplay 回调（数据就绪，可以播放）
+    player.oncanplay = () => {
+      startPlay();
+    };
+
+    // 加载出错
+    player.onerror = () => {
+      if (settled) return;
+      if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
+      if (retryCount < maxRetries) {
+        retryCount++;
+        // 重新设置 src 重试
+        setTimeout(() => {
+          if (isStale()) { settled = true; cleanup(); return; }
+          player.onerror = null;
+          player.oncanplay = null;
+          player.src = playUrl;
+          player.load();
+          timeoutId = setTimeout(() => {
+            if (settled) return;
+            if (isStale()) { settled = true; cleanup(); return; }
+            if (retryCount < maxRetries) {
+              retryCount++;
+              setTimeout(() => {
+                if (isStale()) { settled = true; cleanup(); return; }
+                player.src = playUrl;
+                player.load();
+              }, 1000);
+            } else {
+              fallback('timeout after retries');
+            }
+          }, loadTimeout);
+        }, 800);
+      } else {
+        fallback('load error after ' + (maxRetries + 1) + ' attempts');
+      }
+    };
+
+    // 超时保护
+    timeoutId = setTimeout(() => {
+      if (settled) return;
+      if (isStale()) { settled = true; cleanup(); return; }
+      // 超时也重试
+      if (retryCount < maxRetries) {
+        retryCount++;
+        player.oncanplay = null;
+        player.onerror = null;
+        player.src = playUrl;
+        player.load();
+        // 重新设置超时
+        timeoutId = setTimeout(() => {
+          if (settled) return;
+          if (isStale()) { settled = true; cleanup(); return; }
+          fallback('timeout after ' + loadTimeout + 'ms');
+        }, loadTimeout);
+      } else {
+        fallback('timeout after ' + loadTimeout + 'ms');
+      }
+    }, loadTimeout);
+
+    // 设置 src 并开始加载
+    player.src = playUrl;
+    player.load();
   },
 
-  // 预加载后续 N 句音频（弱网体验优化）
+  // 预加载后续 N 句音频为 Blob（不占用 Audio 元素，不触发自动播放限制）
   _preloadNext(count) {
     const script = this.state.currentScript;
     if (!script) return;
     const start = this.state.currentLine + 1;
     const end = Math.min(start + count, script.lines.length);
+
+    const fetchBlob = (url) => {
+      // 优先用 fetch
+      if (typeof fetch === 'function') {
+        return fetch(url).then(res => {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.blob();
+        });
+      }
+      // 回退到 XHR
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.responseType = 'blob';
+        xhr.onreadystatechange = () => {
+          if (xhr.readyState !== 4) return;
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve(xhr.response);
+          } else {
+            reject(new Error('HTTP ' + xhr.status));
+          }
+        };
+        xhr.onerror = () => reject(new Error('network error'));
+        xhr.send();
+      });
+    };
+
     for (let i = start; i < end; i++) {
       const key = script.id + '_' + i;
-      if (this.state._audioCache[key]) continue; // 已缓存
+      if (this.state._blobCache[key]) continue; // 已缓存
       const url = 'audio/' + script.id + '/' + i + '.m4a';
-      const a = new Audio();
-      a.preload = 'auto';
-      a.src = url;
-      // canplay 触发后存入缓存（弱网下比 canplaythrough 更可靠）
-      a.addEventListener('canplay', () => {
-        this.state._audioCache[key] = a;
-      }, { once: true });
-      a.addEventListener('error', () => {}, { once: true });
-      try { a.load(); } catch (e) {}
+
+      fetchBlob(url)
+        .then(blob => {
+          if (this.state._blobCache[key]) return; // 可能已被其他请求缓存
+          this.state._blobCache[key] = URL.createObjectURL(blob);
+        })
+        .catch(() => {
+          // 静默失败，播放时会用原始 URL 重试
+        });
     }
   },
 
@@ -1128,6 +1193,12 @@ const App = {
   speakLine(index) {
     const script = this.state.currentScript;
     if (!script || !script.lines[index]) return;
+
+    // 确保主播放器已创建（用户手势中）
+    if (!this.state._player) {
+      this.state._player = new Audio();
+      this.state._player.preload = 'auto';
+    }
 
     this.goToLine(index);
     this.speak(script.lines[index].en, null, script.lines[index].role);
