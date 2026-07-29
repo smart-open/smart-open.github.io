@@ -138,11 +138,11 @@
 
         <p>小智（xiaozhi.me）是一个开源的 AI 语音助手平台，原本面向 ESP32 硬件设备设计。不管是 Web、Android、iOS 还是鸿蒙 App，只要想让用户通过语音自然地创建和管理任务，都可以接入小智平台获得 LLM 对话和 TTS 语音播报能力。但小智的设备认证体系是为 ESP32 硬件设计的，App 要接入，得先解决「怎么伪装成一台 ESP32 设备」的问题。</p>
 
-        <p>本文以 TickClear 项目（一款跨平台待办事项应用）的接入实践为参照，完整拆解从设备激活、WebSocket 通信、MCP 工具调用到 Opus 音频编解码的全链路实现。所有代码用伪代码说明，不绑定特定语言或框架，Web/Android/iOS/鸿蒙开发者都能直接参考。</p>
+        <p>本文以 <a href="https://github.com/smart-open/TickClear" target="_blank" rel="noopener">TickClear</a> 项目（一款跨平台待办事项应用）的接入实践为参照，完整拆解从设备激活、WebSocket 通信、MCP 工具调用到 Opus 音频编解码的全链路实现。所有代码用伪代码说明，不绑定特定语言或框架，Web/Android/iOS/鸿蒙开发者都能直接参考。</p>
 
         <h2 id="section-1">一、项目背景与架构概览</h2>
 
-        <p>TickClear 的核心功能是任务管理，语音助手是其中一个重要模块。用户说出「明天下午三点提醒我开会」，小智服务端的 LLM 解析意图后通过 MCP 协议回调 App 的 <code>create_task</code> 工具，任务就自动创建好了。整个过程对用户来说就是一句话的事。</p>
+        <p><a href="https://github.com/smart-open/TickClear" target="_blank" rel="noopener">TickClear</a> 的核心功能是任务管理，语音助手是其中一个重要模块。用户说出「明天下午三点提醒我开会」，小智服务端的 LLM 解析意图后通过 MCP 协议回调 App 的 <code>create_task</code> 工具，任务就自动创建好了。整个过程对用户来说就是一句话的事。</p>
 
         <p>架构上不限定技术栈。无论你用 React/Vue 做 Web 端，Kotlin/Swift/ArkTS 做移动端，核心模块的职责划分是一样的：</p>
 
@@ -549,10 +549,11 @@ reply = {
 
         <h3>参考资料</h3>
         <ol>
-          <li id="cite-1">小智 AI 官方平台 <a href="https://xiaozhi.me/" target="_blank" rel="noopener">https://xiaozhi.me/</a></li>
-          <li id="cite-2">xiaozhi-esp32 官方固件源码 <a href="https://github.com/78/xiaozhi-esp32" target="_blank" rel="noopener">https://github.com/78/xiaozhi-esp32</a></li>
-          <li id="cite-3">py-xiaozhi 纯软件模拟客户端 <a href="https://github.com/huangjunsen0406/py-xiaozhi" target="_blank" rel="noopener">https://github.com/huangjunsen0406/py-xiaozhi</a></li>
-          <li id="cite-4">MCP 协议规范 <a href="https://spec.modelcontextprotocol.io/" target="_blank" rel="noopener">https://spec.modelcontextprotocol.io/</a></li>
+          <li id="cite-1">TickClear 项目源码 <a href="https://github.com/smart-open/TickClear" target="_blank" rel="noopener">https://github.com/smart-open/TickClear</a></li>
+          <li id="cite-2">小智 AI 官方平台 <a href="https://xiaozhi.me/" target="_blank" rel="noopener">https://xiaozhi.me/</a></li>
+          <li id="cite-3">xiaozhi-esp32 官方固件源码 <a href="https://github.com/78/xiaozhi-esp32" target="_blank" rel="noopener">https://github.com/78/xiaozhi-esp32</a></li>
+          <li id="cite-4">py-xiaozhi 纯软件模拟客户端 <a href="https://github.com/huangjunsen0406/py-xiaozhi" target="_blank" rel="noopener">https://github.com/huangjunsen0406/py-xiaozhi</a></li>
+          <li id="cite-5">MCP 协议规范 <a href="https://spec.modelcontextprotocol.io/" target="_blank" rel="noopener">https://spec.modelcontextprotocol.io/</a></li>
         </ol>
 
       </div>
