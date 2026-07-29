@@ -3,6 +3,14 @@
    ======================================== */
 const ARTICLES_DATA = [
   {
+    id: 'article-30',
+    title: 'Android接入小智AI语音助手的全链路实战',
+    excerpt: 'Android App如何伪装ESP32设备接入小智AI平台？从设备激活、WebSocket握手、MCP工具调用到Opus音频编解码，深度拆解TickClear项目全链路实现，附7个协议坑的根因与修复方案。',
+    tags: ['Android', '小智 AI', 'WebSocket', 'MCP 协议'],
+    date: '2026-07-29',
+    detailUrl: 'detail/article-30.html'
+  },
+  {
     id: 'article-29',
     title: 'AI写出完整小说，6阶段从构思到投稿全公开',
     excerpt: '从模型选型到构思、规划、撰写、审查、投稿，6个阶段每步都有产物落地。拆解短篇/中篇/长篇不同写法，附Claude/GPT-5/GLM-5.2模型横评和起点番茄投稿实操。',

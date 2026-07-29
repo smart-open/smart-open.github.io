@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Android接入小智AI语音助手的全链路实战 - 朱天伟 | Smart Open</title>
+  <meta name="description" content="深度拆解 TickClear 项目接入小智 AI 平台的完整实现，涵盖 ESP32 设备模拟、两步激活、WebSocket 传输、MCP 工具调用、Opus 音频编解码与连接韧性设计">
+  <link rel="icon" type="image/png" href="../../favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/preview-rail.css">
+  <style>
+    /* 架构图：分层卡片 */
+    .arch-layer-stack { display: flex; flex-direction: column; gap: 12px; margin: 24px 0; }
+    .arch-layer {
+      background: var(--bg-secondary); border: 1px solid var(--divider);
+      border-radius: 10px; padding: 16px 20px; position: relative;
+    }
+    .arch-layer-title {
+      font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
+    }
+    .arch-layer-body { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+    .arch-layer-body strong { color: var(--text-primary); }
+
+    /* 流程图：步骤卡片 */
+    .hitl-flow { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
+    .hitl-stage {
+      flex: 1; min-width: 180px; background: var(--bg-secondary);
+      border: 1px solid var(--divider); border-radius: 10px; padding: 16px;
+      position: relative;
+    }
+    .hitl-stage::after {
+      content: '→'; position: absolute; right: -14px; top: 50%;
+      transform: translateY(-50%); color: var(--accent); font-size: 1.2rem;
+    }
+    .hitl-stage:last-child::after { display: none; }
+    .hitl-stage-num {
+      font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .hitl-stage-title { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+    .hitl-stage-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; }
+
+    /* 对比表 */
+    .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
+    .compare-table th { background: var(--bg-secondary); color: var(--accent); padding: 10px 14px; text-align: left; border-bottom: 2px solid var(--divider); font-family: var(--font-mono); font-size: 0.8rem; }
+    .compare-table td { padding: 10px 14px; border-bottom: 1px solid var(--divider); color: var(--text-primary); }
+    .compare-table tr:hover td { background: var(--bg-secondary); }
+    .compare-table .highlight { color: var(--accent); }
+
+    /* 代码块 */
+    .code-block {
+      background: var(--bg-secondary); border: 1px solid var(--divider);
+      border-radius: 8px; padding: 16px 20px; margin: 16px 0;
+      overflow-x: auto; font-family: var(--font-mono); font-size: 0.82rem;
+      line-height: 1.6; color: var(--text-primary);
+    }
+    .code-block .kw { color: #c792ea; }
+    .code-block .str { color: #c3e88d; }
+    .code-block .cmt { color: var(--text-secondary); font-style: italic; }
+    .code-block .fn { color: #82aaff; }
+    .code-block .num { color: #f78c6c; }
+
+    /* 协议消息时序图 */
+    .seq-diagram {
+      display: flex; flex-direction: column; gap: 0; margin: 24px 0;
+      background: var(--bg-secondary); border: 1px solid var(--divider);
+      border-radius: 10px; padding: 20px; overflow-x: auto;
+    }
+    .seq-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 0.8rem; font-family: var(--font-mono); }
+    .seq-dir { color: var(--accent); font-weight: 600; min-width: 20px; }
+    .seq-label { color: var(--text-secondary); }
+    .seq-msg { color: var(--text-primary); }
+    .seq-row.highlight { background: rgba(0, 240, 255, 0.05); border-radius: 4px; }
+
+    /* 痛点卡片 */
+    .pain-points { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 20px 0; }
+    .pain-card { background: var(--bg-secondary); border: 1px solid var(--divider); border-left: 3px solid var(--accent); border-radius: 8px; padding: 14px 16px; }
+    .pain-card-title { font-size: 0.85rem; font-weight: 600; color: var(--accent); margin-bottom: 6px; }
+    .pain-card-body { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; }
+
+    @media (max-width: 768px) {
+      .hitl-flow { flex-direction: column; }
+      .hitl-stage::after { display: none; }
+      .hitl-stage { min-width: unset; }
+      .pain-points { grid-template-columns: 1fr; }
+      .compare-table { font-size: 0.78rem; }
+      .compare-table th, .compare-table td { padding: 8px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <section class="article-hero">
+    <div class="article-hero-content">
+      <h1 class="article-title">Android接入小智AI语音助手的全链路实战</h1>
+      <div class="article-meta">
+        <span class="article-date">2026-07-29</span>
+        <div class="article-tags">
+          <span class="tag">Android</span>
+          <span class="tag">小智 AI</span>
+          <span class="tag">WebSocket</span>
+          <span class="tag">MCP 协议</span>
+        </div>
+      </div>
+    </div>
+    <div class="article-hero-bg" style="background-image: url('../../assets/img/article-tickclear-xiaozhi.jpg')"></div>
+    <div class="article-hero-overlay"></div>
+  </section>
+
+  <div class="article-container">
+    <aside class="article-sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">目录</h3>
+        <nav class="article-toc" id="articleToc"></nav>
+      </div>
+    </aside>
+
+    <article class="article-content">
+      <div class="markdown-body">
+
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-tickclear-xiaozhi.jpg" alt="Android App 连接小智 AI 平台">
+          <figcaption>TickClear Android App 通过 WebSocket 接入小智 AI 语音助手平台</figcaption>
+        </figure>
+
+        <p>小智（xiaozhi.me）是一个开源的 AI 语音助手平台，原本面向 ESP32 硬件设备设计。TickClear 是一款 Android 待办事项应用，为了让用户通过语音自然地创建和管理任务，它需要接入小智平台获得 LLM 对话和 TTS 语音播报能力。但小智的设备认证体系是为 ESP32 硬件设计的，Android App 要接入，得先解决「怎么伪装成一台 ESP32 设备」的问题。</p>
+
+        <p>本文基于 TickClear 项目源码，完整拆解从设备激活、WebSocket 通信、MCP 工具调用到 Opus 音频编解码的全链路实现，记录了过程中踩过的协议坑和最终解决方案。</p>
+
+        <h2 id="section-1">一、项目背景与架构概览</h2>
+
+        <p>TickClear 的核心功能是任务管理，语音助手是其中一个重要模块。用户说出「明天下午三点提醒我开会」，小智服务端的 LLM 解析意图后通过 MCP 协议回调 App 的 <code>create_task</code> 工具，任务就自动创建好了。整个过程对用户来说就是一句话的事。</p>
+
+        <p>技术栈上，TickClear 使用 Kotlin + Jetpack Compose 构建 UI，Hilt 做依赖注入，Room + SQLCipher 做本地加密存储。语音助手模块额外依赖 OkHttp 做 WebSocket 通信，Android MediaCodec 做 Opus 音频编解码。</p>
+
+        <div class="arch-layer-stack">
+          <div class="arch-layer">
+            <div class="arch-layer-title">UI Layer</div>
+            <div class="arch-layer-body"><strong>AssistantScreen</strong> + <strong>AssistantConfigSheet</strong>：对话界面与配置面板，Jetpack Compose 声明式 UI，支持文字和语音两种输入模式</div>
+          </div>
+          <div class="arch-layer">
+            <div class="arch-layer-title">Domain Layer</div>
+            <div class="arch-layer-body"><strong>AssistantViewModel</strong> 持有 <strong>XiaozhiTransportRouter</strong>（传输路由），根据配置在 Mock（离线模拟）与 Real（真实 WebSocket）之间切换。<strong>XiaozhiMcpTools</strong> 处理工具调用，<strong>OpusCodec</strong> 封装音频编解码</div>
+          </div>
+          <div class="arch-layer">
+            <div class="arch-layer-title">Transport Layer</div>
+            <div class="arch-layer-body"><strong>WebSocketXiaozhiTransport</strong>：基于 OkHttp WebSocket 对接小智服务端，负责 hello 握手、消息收发、Opus 二进制帧传输、MCP JSON-RPC 协商。<strong>MockXiaozhiTransport</strong> 提供离线回退</div>
+          </div>
+          <div class="arch-layer">
+            <div class="arch-layer-title">Device Layer</div>
+            <div class="arch-layer-body"><strong>XiaozhiDeviceSimulator</strong>：模拟 ESP32 设备身份，处理 OTA 注册与两步激活。<strong>SecureStore</strong> 加密存储设备标识和令牌</div>
+          </div>
+        </div>
+
+        <p>传输层的设计采用了策略模式：<code>XiaozhiTransport</code> 接口定义了 <code>connect</code>、<code>sendText</code>、<code>sendAudio</code>、<code>disconnect</code> 等方法，<code>XiaozhiTransportRouter</code> 作为门面根据设置在 Mock 和 Real 之间切换。ViewModel 只持有门面，不感知当前模式，这样切换模式时代码不需要改动。</p>
+
+        <h2 id="section-2">二、小智平台协议体系</h2>
+
+        <p>小智平台的通信协议建立在 WebSocket 之上，包含三层：连接层的 hello 握手、对话层的 listen/stt/llm/tts 消息流、工具层的 MCP JSON-RPC 2.0 协商。理解这三层是接入小智的基础。</p>
+
+        <h3>2.1 WebSocket 连接与 hello 握手</h3>
+
+        <p>小智的 WebSocket 端点固定为 <code>wss://api.tenclass.net/xiaozhi/v1/</code>。连接建立后，<strong>客户端必须先发 hello</strong>，服务端收到后校验设备身份并初始化 TTS/ASR 组件，完成后回发 hello 携带 session_id。这个顺序很关键——早期实现错误地等待服务端先发 hello，导致握手永远不完成。</p>
+
+        <div class="code-block"><span class="cmt">// 客户端 hello 握手帧（v1.6+ 协议 6 字段）</span>
+{
+  <span class="str">"type"</span>: <span class="str">"hello"</span>,
+  <span class="str">"version"</span>: <span class="num">1</span>,
+  <span class="str">"features"</span>: { <span class="str">"mcp"</span>: <span class="kw">true</span> },
+  <span class="str">"transport"</span>: <span class="str">"websocket"</span>,
+  <span class="str">"audio_params"</span>: {
+    <span class="str">"format"</span>: <span class="str">"opus"</span>,
+    <span class="str">"sample_rate"</span>: <span class="num">16000</span>,
+    <span class="str">"channels"</span>: <span class="num">1</span>,
+    <span class="str">"frame_duration"</span>: <span class="num">60</span>
+  }
+}</div>
+
+        <p>这里有一个容易踩的坑：<code>features.mcp=true</code> 是 v1.6+ 协议的必填字段。漏发这个字段，服务端在 hello 解析阶段直接关闭连接，UI 表现为「连接中」几秒后收到 onFailure，没有任何报错信息。官方 ESP32 固件源码的 <code>GetHelloMessage()</code> 函数明确包含 <code>cJSON_AddBoolToObject(features, "mcp", true)</code>。</p>
+
+        <p>设备认证信息走 HTTP 头，不在 hello JSON 里：</p>
+
+        <table class="compare-table">
+          <tr><th>HTTP 头</th><th>用途</th><th>来源</th></tr>
+          <tr><td class="highlight">Device-Id</td><td>设备 MAC 地址，服务端据此识别设备</td><td>OTA 激活时生成或用户输入</td></tr>
+          <tr><td class="highlight">Client-Id</td><td>客户端唯一标识（UUID）</td><td>首次启动自动生成</td></tr>
+          <tr><td>Authorization</td><td>Bearer token（可选）</td><td>OTA 下发或用户手动填写</td></tr>
+          <tr><td>Protocol-Version</td><td>协议版本，固定为 1</td><td>硬编码</td></tr>
+        </table>
+
+        <p>有一个细节值得注意：<strong>Device-Id 对大小写敏感</strong>。xiaozhi.me 服务端要求 MAC 地址以小写格式发送（如 <code>e8:06:90:98:6c:d4</code>），大写会被静默拒绝，连接以 close code=1005 关闭。代码中统一用 <code>deviceId.lowercase()</code> 处理。</p>
+
+        <h3>2.2 对话消息流</h3>
+
+        <p>握手完成后，客户端通过 <code>listen</code> 帧提交用户输入，服务端处理后依次返回 <code>stt</code>（语音识别结果）、<code>llm</code>（大模型回复文本）、<code>tts</code>（语音合成音频）消息。文本输入的模式比较特殊：</p>
+
+        <div class="code-block"><span class="cmt">// 文本输入：先发 listen start，再以 detect+text 模拟「用户说了这句话」</span>
+<span class="cmt">// Frame 1: 开始捕获</span>
+{ <span class="str">"type"</span>: <span class="str">"listen"</span>, <span class="str">"mode"</span>: <span class="str">"manual"</span>, <span class="str">"state"</span>: <span class="str">"start"</span> }
+
+<span class="cmt">// Frame 2: 提交识别文本（关键：state 必须是 detect，不是 stop）</span>
+{ <span class="str">"type"</span>: <span class="str">"listen"</span>, <span class="str">"mode"</span>: <span class="str">"manual"</span>, <span class="str">"state"</span>: <span class="str">"detect"</span>, <span class="str">"text"</span>: <span class="str">"明天下午三点提醒我开会"</span> }</div>
+
+        <p><code>state</code> 字段的值是另一个协议坑。旧实现用 <code>state="stop"</code> 携带文本，服务端静默忽略，表现为「连接正常但发消息没回复」。改为 <code>state="detect"</code> 后整条 STT→LLM→TTS 对话链才正常触发。两帧之间加 50ms 延迟，模拟真实「说完一段话」的时序，避免服务端把两条消息压成一条。</p>
+
+        <figure class="article-inline-image">
+          <img src="../../assets/img/tickclear-xiaozhi-protocol.jpg" alt="WebSocket 协议通信流程">
+          <figcaption>客户端与服务端通过 WebSocket 交换 JSON 文本帧和 Opus 二进制帧</figcaption>
+        </figure>
+
+        <h2 id="section-3">三、ESP32 设备模拟与两步激活</h2>
+
+        <p>小智平台面向 ESP32 硬件设计，设备认证体系包含 MAC 地址、Client-Id、序列号三件套，以及一个 OTA 注册流程。Android App 要接入，得把这些全部模拟出来。</p>
+
+        <h3>3.1 设备标识生成</h3>
+
+        <p><code>XiaozhiDeviceSimulator</code> 负责生成和持久化设备身份。MAC 地址采用 LAA（Locally Administered Address）格式，第一字节的 bit1 置位、bit0 清零，形如 <code>02:xx:xx:xx:xx:xx</code>，用 <code>SecureRandom</code> 生成避免与真实网卡撞车。Client-Id 就是 <code>UUID.randomUUID()</code>。序列号格式与 py-xiaozhi（官方云已验证的 Python 模拟客户端）保持一致：<code>SN-{MD5(mac)[:8]大写}-{mac去冒号小写}</code>。</p>
+
+        <div class="code-block"><span class="kw">private fun</span> <span class="fn">generateMacAddress</span>(): String {
+    <span class="kw">val</span> rnd = SecureRandom()
+    <span class="kw">val</span> buf = ByteArray(<span class="num">6</span>)
+    rnd.nextBytes(buf)
+    <span class="cmt">// 强制 LAA：bit0 清零（单播）、bit1 置位（本地管理）</span>
+    buf[<span class="num">0</span>] = (buf[<span class="num">0</span>].toInt() <span class="kw">and</span> <span class="num">0xFC</span> <span class="kw">or</span> <span class="num">0x02</span>).toByte()
+    <span class="kw">return</span> buf.joinToString(<span class="str">":"</span>) { <span class="str">"%02x"</span>.format(it) }
+}
+
+<span class="kw">internal fun</span> <span class="fn">generateSerialNumber</span>(deviceId: String): String {
+    <span class="kw">val</span> macClean = deviceId.lowercase().replace(<span class="str">":"</span>, <span class="str">""</span>)
+    <span class="kw">val</span> shortHash = md5Hex(macClean).take(<span class="num">8</span>).uppercase()
+    <span class="kw">return</span> <span class="str">"SN-$shortHash-$macClean"</span>
+}</div>
+
+        <h3>3.2 两步激活流程</h3>
+
+        <p>设备身份准备好后，需要走 OTA 激活流程让服务端认识这台「设备」。TickClear 对齐了 py-xiaozhi 的两步激活协议：</p>
+
+        <div class="hitl-flow">
+          <div class="hitl-stage">
+            <div class="hitl-stage-num">Step 1</div>
+            <div class="hitl-stage-title">OTA 注册</div>
+            <div class="hitl-stage-desc">POST /xiaozhi/ota/，携带 Device-Id + Client-Id + 固件信息。服务端返回 6 位验证码和 challenge</div>
+          </div>
+          <div class="hitl-stage">
+            <div class="hitl-stage-num">用户操作</div>
+            <div class="hitl-stage-title">官网绑定</div>
+            <div class="hitl-stage-desc">用户拿着 6 位验证码到 xiaozhi.me 控制台「添加设备」输入</div>
+          </div>
+          <div class="hitl-stage">
+            <div class="hitl-stage-num">Step 2</div>
+            <div class="hitl-stage-title">轮询激活</div>
+            <div class="hitl-stage-desc">POST /xiaozhi/ota/activate，每 5 秒轮询一次。202=等用户输码，200=绑定完成</div>
+          </div>
+        </div>
+
+        <p>Step 1 的请求体只包含 <code>application</code> 和 <code>board</code> 两个字段，<strong>绝不带 serial_number</strong>。这是 py-xiaozhi 源码实证的结论：如果在 OTA 阶段就带 serial，官方云会按「烧录序列号」做 license 绑定校验，自造的 serial 没有对应 license，Step 2 会直接 404 报「License not found」。</p>
+
+        <p>Step 2 的请求体用外层 <code>Payload</code> 包裹，包含 <code>algorithm</code>、<code>serial_number</code>、<code>challenge</code>、<code>hmac</code> 四个字段。HMAC-SHA256 的 key 用 <code>sha256("deviceId|serialNumber")</code> 确定性派生——服务端不验签，只在首次激活时记录。轮询最多 60 次（5 分钟），给用户足够时间到官网输码。</p>
+
+        <div class="code-block"><span class="cmt">// Step 2: 轮询 POST /xiaozhi/ota/activate</span>
+<span class="kw">val</span> body2 = buildJsonObject {
+    put(<span class="str">"Payload"</span>, buildJsonObject {
+        put(<span class="str">"algorithm"</span>, <span class="str">"hmac-sha256"</span>)
+        put(<span class="str">"serial_number"</span>, serialNumber)
+        put(<span class="str">"challenge"</span>, challenge)
+        put(<span class="str">"hmac"</span>, appHmac)
+    })
+}.toString()
+
+<span class="cmt">// 202 = 用户还没输码 → 等 5s 重试；200 = 绑定完成</span>
+repeat(<span class="num">60</span>) { attempt ->
+    <span class="kw">val</span> response = client.newCall(request2).execute()
+    <span class="kw">if</span> (response.code == <span class="num">200</span>) <span class="kw">return</span>@withContext TwoStepResult(step2Status = <span class="str">"OK"</span>)
+    delay(<span class="num">5000</span>)
+}</div>
+
+        <p>还有一个关键认知：官网「用验证码添加设备」校验的 serial_number <strong>只来自 Step 2 请求体里提交的值</strong>，OTA 注册体里的 serial 不被采信。所以轮询必须在用户输码期间保持在线，否则官网绑定时报 SERIAL_NUMBER_REQUIRED。</p>
+
+        <figure class="article-inline-image">
+          <img src="../../assets/img/tickclear-xiaozhi-activation.jpg" alt="设备激活流程">
+          <figcaption>ESP32 设备模拟与两步激活：OTA 注册获取验证码，用户在官网绑定后轮询确认</figcaption>
+        </figure>
+
+        <p>固件版本号也有讲究。官方 xiaozhi.me 对固件版本有硬性门禁 <strong>不低于 v1.6.1</strong>，低于此版本在 hello 握手后被服务端静默关闭。代码中模拟为 <code>v2.4.0</code>，既满足门禁也贴近当前真实固件版本。</p>
+
+        <h2 id="section-4">四、WebSocket 传输层深度实现</h2>
+
+        <p><code>WebSocketXiaozhiTransport</code> 是整个接入的核心，它基于 OkHttp 的 WebSocket 客户端实现，处理连接建立、hello 握手、消息收发、Opus 二进制帧传输和 MCP 协商。</p>
+
+        <h3>4.1 连接建立与请求头构造</h3>
+
+        <p>每次建立连接时，<code>openSocket()</code> 会重新读取 endpoint、token 和设备标识，确保用户在设置页更新配置后无需重启应用。端点地址做了归一化处理：空值和历史错误主机 <code>wss://api.xiaozhi.me/ws</code> 都会自动修正为 <code>wss://api.tenclass.net/xiaozhi/v1/</code>。</p>
+
+        <div class="code-block"><span class="kw">val</span> request = Request.Builder().url(endpoint).apply {
+    addHeader(<span class="str">"Protocol-Version"</span>, <span class="str">"1"</span>)
+    pendingToken?.takeIf { it.isNotBlank() }?.let {
+        addHeader(<span class="str">"Authorization"</span>, <span class="str">"Bearer $it"</span>)
+    }
+    deviceId?.let { addHeader(<span class="str">"Device-Id"</span>, it) }
+    clientId?.let { addHeader(<span class="str">"Client-Id"</span>, it) }
+}.build()
+
+ws = client.newWebSocket(request, listener)</div>
+
+        <p>OkHttp 客户端配置了 15 秒的 <code>pingInterval</code>，这个心跳间隔从最初的 20 秒缩短而来。原因是小智官方云在对话链结束（LLM/TTS 收尾后一段时间无活动）后约 30 到 60 秒会主动关闭连接。更短的 ping 间隔让 NAT 和反向代理的 idle timeout 在对话链关闭前被持续抑制，避免对话间隙掉线。</p>
+
+        <h3>4.2 握手超时守卫</h3>
+
+        <p>小智官方服务要求设备先在 xiaozhi.me 控制台绑定。未绑定或绑定失效时，服务端不响应 hello，连接会无限「连接中」且毫无报错。为了不让用户干等，代码实现了 25 秒握手超时守卫：</p>
+
+        <div class="code-block">scope?.launch {
+    delay(<span class="num">25_000</span>)  <span class="cmt">// 25s 超时（服务端初始化 TTS/ASR 需要数秒）</span>
+    <span class="kw">if</span> (!handshakeDone && !userDisconnect && ws != <span class="kw">null</span>) {
+        _events.tryEmit(XiaozhiEvent.ConnectionIssue(
+            <span class="str">"握手超时 25s 未收到服务端 welcome。deviceId=$did"</span>
+        ))
+        runCatching { ws?.close(<span class="num">1000</span>, <span class="str">"handshake timeout"</span>) }
+    }
+}</div>
+
+        <p>超时时间从最初的 10 秒提到 25 秒，原因是服务端源码显示收到 hello 后会异步调用 <code>get_private_config_from_api</code> 校验设备，并启动 <code>_initialize_components</code> 加载 TTS/ASR 模型（默认 FunASR/EdgeTTS），等所有组件就绪才会发 welcome。给服务端留足初始化时间，避免误判「被拒」。</p>
+
+        <h3>4.3 服务端消息处理</h3>
+
+        <p><code>handleServerMessage()</code> 按 <code>type</code> 字段分发处理服务端消息：</p>
+
+        <table class="compare-table">
+          <tr><th>消息类型</th><th>触发时机</th><th>处理逻辑</th></tr>
+          <tr><td class="highlight">hello</td><td>握手完成</td><td>提取 session_id 和 audio_params，重连计数清零，广播 Connected 事件</td></tr>
+          <tr><td class="highlight">stt</td><td>语音识别结果</td><td>提取 text 字段，广播 SttText 事件供 UI 显示「用户说了什么」</td></tr>
+          <tr><td class="highlight">llm</td><td>大模型回复</td><td>剥离多模态资源 token（@image#xxx），广播 LlmText 事件</td></tr>
+          <tr><td class="highlight">tts</td><td>语音合成</td><td>sentence_start 携带文本用于显示，start 携带采样率用于初始化播放器，stop 释放播放器</td></tr>
+          <tr><td class="highlight">mcp</td><td>工具调用</td><td>解析 JSON-RPC 2.0 信封，分发到 initialize/tools/list/tools/call 处理器</td></tr>
+          <tr><td>goodbye/abort</td><td>服务端关闭</td><td>清理状态，广播 Disconnected 事件</td></tr>
+        </table>
+
+        <p>TTS 的二进制 Opus 音频帧通过 <code>onMessage(ByteString)</code> 回调接收，解码后送入 AudioTrack 播放。断开过程中（<code>connected=false</code>）排队的帧会被跳过，避免触碰已释放的 codec/player。</p>
+
+        <h2 id="section-5">五、MCP 工具调用协议</h2>
+
+        <p>MCP（Model Context Protocol）是小智 v1.6+ 引入的工具调用协议，基于 JSON-RPC 2.0。服务端在 hello 握手成功后，会先发 <code>initialize</code> 请求做协议协商，客户端必须正确响应才能进入正常对话流程。</p>
+
+        <h3>5.1 协议协商时序</h3>
+
+        <div class="seq-diagram">
+          <div class="seq-row highlight"><span class="seq-dir">→</span> <span class="seq-label">Client:</span> <span class="seq-msg">{type:"hello", version:1, features:{mcp:true}, ...}</span></div>
+          <div class="seq-row highlight"><span class="seq-dir">←</span> <span class="seq-label">Server:</span> <span class="seq-msg">{type:"hello", session_id:"...", audio_params:{...}}</span></div>
+          <div class="seq-row"><span class="seq-dir">←</span> <span class="seq-label">Server:</span> <span class="seq-msg">{type:"mcp", payload:{jsonrpc:"2.0", method:"initialize", id:"1"}}</span></div>
+          <div class="seq-row"><span class="seq-dir">→</span> <span class="seq-label">Client:</span> <span class="seq-msg">{type:"mcp", payload:{jsonrpc:"2.0", id:"1", result:{protocolVersion, capabilities, clientInfo}}}</span></div>
+          <div class="seq-row"><span class="seq-dir">←</span> <span class="seq-label">Server:</span> <span class="seq-msg">{type:"mcp", payload:{method:"notifications/initialized"}}</span></div>
+          <div class="seq-row"><span class="seq-dir">←</span> <span class="seq-label">Server:</span> <span class="seq-msg">{type:"mcp", payload:{jsonrpc:"2.0", method:"tools/list", id:"2"}}</span></div>
+          <div class="seq-row"><span class="seq-dir">→</span> <span class="seq-label">Client:</span> <span class="seq-msg">{type:"mcp", payload:{jsonrpc:"2.0", id:"2", result:{tools:[create_task schema]}}}</span></div>
+        </div>
+
+        <p>这里有一个曾经导致「25 秒后服务端关连接」的坑：旧实现只读 <code>root["tool"]</code> 字段，遇到 <code>{"method":"initialize"}</code> 的 MCP 握手消息就静默丢弃。服务端等 25 秒收不到 initialize 响应，整体超时关闭。修复方案是识别 <code>payload.method</code> 字段做分支处理。</p>
+
+        <h3>5.2 initialize 响应</h3>
+
+        <p>收到 <code>initialize</code> 请求后，客户端回显服务端给的 protocolVersion，上报空的 capabilities（不主动启用 vision 等服务端能力），以及 clientInfo 标识自己：</p>
+
+        <div class="code-block"><span class="kw">val</span> reply = buildJsonObject {
+    put(<span class="str">"type"</span>, <span class="str">"mcp"</span>)
+    put(<span class="str">"payload"</span>, buildJsonObject {
+        put(<span class="str">"jsonrpc"</span>, <span class="str">"2.0"</span>)
+        put(<span class="str">"id"</span>, id)
+        put(<span class="str">"result"</span>, buildJsonObject {
+            put(<span class="str">"protocolVersion"</span>, protocolVersion)
+            put(<span class="str">"capabilities"</span>, buildJsonObject {})
+            put(<span class="str">"clientInfo"</span>, buildJsonObject {
+                put(<span class="str">"name"</span>, <span class="str">"TickClear"</span>)
+                put(<span class="str">"version"</span>, <span class="str">"1.0"</span>)
+            })
+        })
+    })
+}</div>
+
+        <p><code>notifications/initialized</code> 是服务端的「已就绪」广播，按 JSON-RPC 通知语义不需要回执。</p>
+
+        <h3>5.3 tools/list 与 tools/call</h3>
+
+        <p><code>tools/list</code> 要求返回工具定义数组。MCP 规范要求 <code>result.tools</code> 是 JSON 数组，旧实现误用对象导致服务端解析失败。TickClear 目前注册了一个 <code>create_task</code> 工具：</p>
+
+        <div class="code-block"><span class="kw">val</span> createTaskSchema = buildJsonObject {
+    put(<span class="str">"name"</span>, <span class="str">"create_task"</span>)
+    put(<span class="str">"description"</span>, <span class="str">"创建一个待办任务/提醒"</span>)
+    put(<span class="str">"inputSchema"</span>, buildJsonObject {
+        put(<span class="str">"type"</span>, <span class="str">"object"</span>)
+        put(<span class="str">"properties"</span>, buildJsonObject {
+            put(<span class="str">"title"</span>, buildJsonObject { put(<span class="str">"type"</span>, <span class="str">"string"</span>) })
+            put(<span class="str">"date"</span>, buildJsonObject { put(<span class="str">"type"</span>, <span class="str">"string"</span>) })
+            put(<span class="str">"minute"</span>, buildJsonObject { put(<span class="str">"type"</span>, <span class="str">"integer"</span>) })
+            put(<span class="str">"repeatType"</span>, buildJsonObject {
+                put(<span class="str">"enum"</span>, buildJsonArray {
+                    add(<span class="str">"NONE"</span>); add(<span class="str">"DAILY"</span>)
+                    add(<span class="str">"WEEKLY"</span>); add(<span class="str">"MONTHLY"</span>)
+                })
+            })
+        })
+        put(<span class="str">"required"</span>, buildJsonArray { add(<span class="str">"title"</span>); add(<span class="str">"date"</span>) })
+    })
+}</div>
+
+        <p>当用户说「明天下午三点提醒我开会」时，服务端 LLM 解析意图后发 <code>tools/call</code> 请求，<code>params.name="create_task"</code>，<code>params.arguments</code> 包含解析出的标题、日期、分钟数等。<code>XiaozhiMcpTools.handle()</code> 先构建草稿 Task（不落库），用户在确认卡上点击确认后 <code>commit()</code> 才真正写入数据库。回执格式遵循 MCP 标准：<code>result.content</code> 是 JSON 数组，每个元素含 <code>type</code> 和 <code>text</code> 字段。</p>
+
+        <h2 id="section-6">六、Opus 音频编解码</h2>
+
+        <p>小智平台的语音通信使用 Opus 编码，参数固定为 16kHz 采样率、单声道、每帧 60ms。每帧 960 样本，对应 1920 字节的 16bit PCM 数据。</p>
+
+        <p>TickClear 的 <code>OpusCodec</code> 基于 Android MediaCodec 实现，没有引入原生 libopus 依赖，规避了 NDK 和镜像缺包风险。核心设计是 best-effort：编码或解码任一环节失败都返回 null，优雅降级而不抛异常中断调用方。</p>
+
+        <div class="code-block"><span class="kw">fun</span> <span class="fn">encodeFrame</span>(pcm16: ByteArray): ByteArray? = synchronized(encLock) {
+    <span class="kw">if</span> (pcm16.size < frameBytes) <span class="kw">return</span> <span class="kw">null</span>  <span class="cmt">// 不足一帧</span>
+    <span class="kw">val</span> codec = ensureEncoder() ?: <span class="kw">return</span> <span class="kw">null</span>  <span class="cmt">// 设备无编码器</span>
+    <span class="kw">val</span> inIdx = codec.dequeueInputBuffer(timeoutUs)
+    <span class="kw">if</span> (inIdx < <span class="num">0</span>) <span class="kw">return</span> <span class="kw">null</span>  <span class="cmt">// 编码器繁忙</span>
+    codec.getInputBuffer(inIdx)?.apply { clear(); put(pcm16, <span class="num">0</span>, frameBytes) }
+    codec.queueInputBuffer(inIdx, <span class="num">0</span>, frameBytes, <span class="num">0</span>, <span class="num">0</span>)
+    <span class="kw">val</span> info = MediaCodec.BufferInfo()
+    <span class="kw">val</span> outIdx = codec.dequeueOutputBuffer(info, timeoutUs)
+    <span class="kw">if</span> (outIdx >= <span class="num">0</span>) {
+        <span class="kw">val</span> data = ByteArray(info.size)
+        codec.getOutputBuffer(outIdx)?.get(data)
+        codec.releaseOutputBuffer(outIdx, <span class="kw">false</span>)
+        <span class="kw">return</span> data
+    }
+    <span class="kw">null</span>
+}</div>
+
+        <p>Android 多数设备只提供 Opus 解码器，编码器不保证存在。<code>isEncoderAvailable()</code> 在首次调用时探测设备能力并缓存结果。如果编码器不可用，UI 自动降级为文字输入模式，用户不会感知到底层差异。</p>
+
+        <p>解码器需要处理服务端动态声明的采样率。当 TTS 消息携带的采样率与当前解码器不匹配时，必须释放旧解码器并重建——MediaCodec 的配置不支持热改。解码器初始化时需要构造一个最小的 OpusHead（csd-0），包含 magic 字符串、版本号、声道数、预跳过、采样率等字段。</p>
+
+        <h2 id="section-7">七、配置界面与连接诊断</h2>
+
+        <h3>7.1 配置面板</h3>
+
+        <p><code>AssistantConfigSheet</code> 是助手的配置面板，用 Jetpack Compose 的 ModalBottomSheet 实现。面板分为四个区块：LLM 服务商选择、小智设备激活、ASR 语音识别后端配置、语音唤醒与信任模式。</p>
+
+        <p>小智设备激活区块只在 REAL 模式下显示，包含 Device-Id 输入框（实时归一化、MAC 格式校验）、Client-Id 输入框、激活按钮和重置身份按钮。激活按钮点击后执行两步激活流程，Step 1 拿到验证码后立即在面板上大字展示，用户拿着验证码去 xiaozhi.me 控制台输入，Step 2 在后台持续轮询。</p>
+
+        <p>配置保存后，面板调用 <code>assistantViewModel.reconnectAfterConfig()</code> 通知助手 VM 用新配置重连，否则旧 transport 仍指向旧 endpoint/token，表现为「配置值已改但连接没更新」。</p>
+
+        <h3>7.2 连接测试器</h3>
+
+        <p><code>XiaozhiConnectionTester</code> 是一个独立于传输层的零副作用探针，让用户在配置面板点「测试连接」按钮即可验证 endpoint、token、device_id 三者组合能否完成握手，不必打开助手页跑满 25 秒超时。</p>
+
+        <p>测试器采用三段式诊断：</p>
+
+        <div class="hitl-flow">
+          <div class="hitl-stage">
+            <div class="hitl-stage-num">Phase 1</div>
+            <div class="hitl-stage-title">HTTP 预探</div>
+            <div class="hitl-stage-desc">把 WSS 端点换成 HTTPS 发 HEAD 请求，验证 DNS 解析、TCP 连通、TLS 握手。5 秒超时</div>
+          </div>
+          <div class="hitl-stage">
+            <div class="hitl-stage-num">Phase 2</div>
+            <div class="hitl-stage-title">WS Upgrade</div>
+            <div class="hitl-stage-desc">发起 WebSocket 升级请求，抓取 HTTP 错误体。401/403/400 的 JSON 错误信息会带回给用户</div>
+          </div>
+          <div class="hitl-stage">
+            <div class="hitl-stage-num">Phase 3</div>
+            <div class="hitl-stage-title">Hello 等候</div>
+            <div class="hitl-stage-desc">发送 hello 帧，等待服务端 welcome。25 秒超时，区分「握手前被拒」与「握手后被关」</div>
+          </div>
+        </div>
+
+        <p>测试器的 <code>onClosed</code> 回调根据 close code 和是否收到过 hello 给出精准诊断。例如 code=1005（网关裸 RST）且未收到 hello，会提示「设备已在控制台显示但 WS 网关 license 缓存未生效」，并给出四种修复路径：用已知可用设备的 MAC 测试、重新生成设备标识、联系客服、或自部署服务端。</p>
+
+        <h2 id="section-8">八、连接韧性与故障排查</h2>
+
+        <h3>8.1 指数退避重连</h3>
+
+        <p>意外断线时，传输层按指数退避策略重连：1s、2s、4s、8s、16s，上限 30 秒，最多 10 次。用户主动断开（<code>userDisconnect=true</code>）时不重连。握手成功后重连计数清零。</p>
+
+        <div class="code-block"><span class="kw">private fun</span> <span class="fn">onUnexpectedDrop</span>() {
+    <span class="kw">if</span> (userDisconnect || reconnectAttempt >= MAX_RECONNECT) {
+        _events.tryEmit(XiaozhiEvent.Disconnected)
+        <span class="kw">return</span>
+    }
+    reconnectAttempt++
+    scope?.launch {
+        delay(minOf(<span class="num">1000</span>L shl (reconnectAttempt - <span class="num">1</span>), <span class="num">30_000</span>L))
+        <span class="kw">if</span> (!userDisconnect) openSocket()
+    }
+}</div>
+
+        <h3>8.2 失败分类</h3>
+
+        <p><code>onFailure</code> 回调以「是否已完成握手」为首要判据，将失败分为四个阶段，每个阶段采取不同策略：</p>
+
+        <div class="pain-points">
+          <div class="pain-card">
+            <div class="pain-card-title">http（不重连）</div>
+            <div class="pain-card-body">HTTP 升级被拒（401/403/426），属凭据或端点错误。给诊断报错，不重连</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-card-title">ws-rejected（不重连）</div>
+            <div class="pain-card-body">升级成功但握手前被无声关闭，设备未激活或令牌无效。给明确报错含 Device-Id，不重连</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-card-title">connect（重连）</div>
+            <div class="pain-card-body">连 WebSocket 都没建起来（DNS/TLS/网络问题）。走退避重连</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-card-title">dead（重连）</div>
+            <div class="pain-card-body">已握手成功、后续链路死亡（ping 超时/连接中止）。走退避重连</div>
+          </div>
+        </div>
+
+        <p>旧逻辑把「opened 后、response==null 的失败」一律判为 ws-rejected，导致握手成功后的两种常见掉线被误判为不重连：ping/pong 超时和对话中连接中止。修复后以 handshakeDone 为判据，这两种情况走退避重连，解决了「聊几句就断、要手动重连」的问题。</p>
+
+        <h3>8.3 常见问题速查</h3>
+
+        <table class="compare-table">
+          <tr><th>现象</th><th>根因</th><th>修复</th></tr>
+          <tr><td>连接中几秒后断开，无报错</td><td>hello 缺少 features.mcp=true</td><td>补全 v1.6+ 协议 6 字段</td></tr>
+          <tr><td>握手通过但发消息无回复</td><td>listen 帧用 state="stop" 携带文本</td><td>改为 state="detect"</td></tr>
+          <tr><td>close code=1005，网关裸关闭</td><td>Device-Id 大小写不匹配</td><td>统一转小写 <code>deviceId.lowercase()</code></td></tr>
+          <tr><td>25 秒后服务端关连接</td><td>MCP initialize 请求未响应</td><td>识别 payload.method 分支处理</td></tr>
+          <tr><td>OTA 激活报 License not found</td><td>OTA 阶段带了 serial_number</td><td>OTA 体只含 application+board</td></tr>
+          <tr><td>官网绑定报 SERIAL_NUMBER_REQUIRED</td><td>/activate 轮询未保持在线</td><td>用户输码期间持续轮询</td></tr>
+          <tr><td>固件版本被拒</td><td>模拟版本低于 v1.6.1</td><td>改为 v2.4.0</td></tr>
+        </table>
+
+        <h3>参考资料</h3>
+        <ol>
+          <li id="cite-1">小智 AI 官方平台 <a href="https://xiaozhi.me/" target="_blank" rel="noopener">https://xiaozhi.me/</a></li>
+          <li id="cite-2">xiaozhi-esp32 官方固件源码 <a href="https://github.com/78/xiaozhi-esp32" target="_blank" rel="noopener">https://github.com/78/xiaozhi-esp32</a></li>
+          <li id="cite-3">py-xiaozhi 纯软件模拟客户端 <a href="https://github.com/huangjunsen0406/py-xiaozhi" target="_blank" rel="noopener">https://github.com/huangjunsen0406/py-xiaozhi</a></li>
+          <li id="cite-4">MCP 协议规范 <a href="https://spec.modelcontextprotocol.io/" target="_blank" rel="noopener">https://spec.modelcontextprotocol.io/</a></li>
+        </ol>
+
+      </div>
+      <nav class="article-nav" id="articleNav"></nav>
+    </article>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; 2024-2026 朱天伟 | Smart Open. Built with care.</p>
+    </div>
+  </footer>
+
+  <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
+  <script src="../../js/article.js"></script>
+  <script src="../../js/preview-rail.js"></script>
+</body>
+</html>
