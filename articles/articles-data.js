@@ -4,9 +4,9 @@
 const ARTICLES_DATA = [
   {
     id: 'article-30',
-    title: 'Android接入小智AI语音助手的全链路实战',
-    excerpt: 'Android App如何伪装ESP32设备接入小智AI平台？从设备激活、WebSocket握手、MCP工具调用到Opus音频编解码，深度拆解TickClear项目全链路实现，附7个协议坑的根因与修复方案。',
-    tags: ['Android', '小智 AI', 'WebSocket', 'MCP 协议'],
+    title: 'App接入小智AI语音助手的全链路实战',
+    excerpt: '任意平台 App 如何接入小智 AI 平台？从设备激活、WebSocket握手、MCP工具调用到Opus音频编解码，深度拆解TickClear项目全链路实现，代码以伪代码说明，适用于Web/Android/iOS/鸿蒙。',
+    tags: ['跨平台', '小智 AI', 'WebSocket', 'MCP 协议'],
     date: '2026-07-29',
     detailUrl: 'detail/article-30.html'
   },
