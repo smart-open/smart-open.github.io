@@ -5,7 +5,7 @@
 (function() {
   'use strict';
 
-  var PAGE_SIZE = 20;
+  var PAGE_SIZE = 21;
   var currentPage = 1;
   var currentQuery = '';
   var filteredArticles = [];
