@@ -1,160 +1,160 @@
 /* ========================================
-   Trending Data — update weekly
+   Trending Data - update weekly
    ======================================== */
 const TRENDING_DATA = {
-  updated: "2026-07-22",
+  updated: "2026-07-31",
   weekly: [
     {
       rank: 1,
-      name: "MadsLorentzen/ai-job-search",
-      url: "https://github.com/MadsLorentzen/ai-job-search",
-      lang: "TypeScript",
-      desc: "基于 Claude Code 的 AI 求职自动化框架，本地运行，定制简历+求职信+面试辅导",
-      stars: "13,195"
+      name: "permissionlesstech/bitchat",
+      url: "https://github.com/permissionlesstech/bitchat",
+      lang: "Swift",
+      desc: "蓝牙 mesh 去中心化聊天，IRC 风格，无需网络与服务器",
+      stars: "33,983"
     },
     {
       rank: 2,
-      name: "OpenCut-app/OpenCut",
-      url: "https://github.com/OpenCut-app/OpenCut",
-      lang: "TypeScript",
-      desc: "开源 CapCut 替代品，AI 辅助视频剪辑，持续走红的长线项目",
-      stars: "7,247"
+      name: "block/buzz",
+      url: "https://github.com/block/buzz",
+      lang: "Rust",
+      desc: "蜂群思维协作通信平台，Rust 实现的群体智能交流工具",
+      stars: "20,522"
     },
     {
       rank: 3,
-      name: "iOfficeAI/OfficeCLI",
-      url: "https://github.com/iOfficeAI/OfficeCLI",
-      lang: "C#",
-      desc: "面向 AI Agent 的免装 Office 自动化工具，读写 Word/Excel/PowerPoint",
-      stars: "7,129"
+      name: "citrolabs/ego-lite",
+      url: "https://github.com/citrolabs/ego-lite",
+      lang: "JavaScript",
+      desc: "为 AI Agent 打造的最快浏览器，共享登录态运行自动化，零成本零配置",
+      stars: "7,419"
     },
     {
       rank: 4,
-      name: "Graphify-Labs/graphify",
-      url: "https://github.com/Graphify-Labs/graphify",
+      name: "ayghri/i-have-adhd",
+      url: "https://github.com/ayghri/i-have-adhd",
       lang: "Python",
-      desc: "把代码/文档转成可查询知识图谱的 Agent Skill，兼容主流编码 Agent",
-      stars: "6,724"
+      desc: "防止编码 Agent 把答案埋进长输出的 Skill，输出更聚焦更易读",
+      stars: "15,296"
     },
     {
       rank: 5,
+      name: "alibaba/open-code-review",
+      url: "https://github.com/alibaba/open-code-review",
+      lang: "Go",
+      desc: "阿里开源代码审查工具，确定性流水线+LLM Agent，精准行级评论，内置安全规则集",
+      stars: "17,531"
+    },
+    {
+      rank: 6,
+      name: "virgiliojr94/book-to-skill",
+      url: "https://github.com/virgiliojr94/book-to-skill",
+      lang: "Python",
+      desc: "把技术书 PDF 一键转成 Claude Code Skill，边工作边查阅",
+      stars: "14,900"
+    },
+    {
+      rank: 7,
+      name: "pascalorg/editor",
+      url: "https://github.com/pascalorg/editor",
+      lang: "TypeScript",
+      desc: "创建与分享 3D 建筑项目的在线编辑器",
+      stars: "20,624"
+    },
+    {
+      rank: 8,
+      name: "1jehuang/jcode",
+      url: "https://github.com/1jehuang/jcode",
+      lang: "Rust",
+      desc: "内存占用最低的编码 Agent 运行框架",
+      stars: "14,980"
+    },
+    {
+      rank: 9,
+      name: "opengeos/GeoLibre",
+      url: "https://github.com/opengeos/GeoLibre",
+      lang: "TypeScript",
+      desc: "轻量云原生 GIS 平台，浏览器/桌面/移动端/Jupyter 全覆盖地理数据可视化与分析",
+      stars: "4,865"
+    },
+    {
+      rank: 10,
+      name: "moeru-ai/airi",
+      url: "https://github.com/moeru-ai/airi",
+      lang: "TypeScript",
+      desc: "自托管虚拟 AI 伴侣，实时语音对话，支持 Minecraft 与 Factorio 游戏交互",
+      stars: "46,404"
+    }
+  ],
+  monthly: [
+    {
+      rank: 1,
+      name: "permissionlesstech/bitchat",
+      url: "https://github.com/permissionlesstech/bitchat",
+      lang: "Swift",
+      desc: "蓝牙 mesh 去中心化聊天，IRC 风格"
+    },
+    {
+      rank: 2,
+      name: "diegosouzapw/OmniRoute",
+      url: "https://github.com/diegosouzapw/OmniRoute",
+      lang: "TypeScript",
+      desc: "免费 AI 网关，290+ 提供商、500+ 模型，Caveman 压缩节省 15-95% Token"
+    },
+    {
+      rank: 3,
       name: "stablyai/orca",
       url: "https://github.com/stablyai/orca",
       lang: "TypeScript",
-      desc: "管理并行编码 Agent 集群的 ADE 开发环境，桌面+移动端",
-      stars: "5,724"
+      desc: "管理并行编码 Agent 集群的 ADE 开发环境，桌面+移动端+VPS"
+    },
+    {
+      rank: 4,
+      name: "emilkowalski/skills",
+      url: "https://github.com/emilkowalski/skills",
+      lang: "-",
+      desc: "面向设计工程师的 Skills 集合"
+    },
+    {
+      rank: 5,
+      name: "Nutlope/hallmark",
+      url: "https://github.com/Nutlope/hallmark",
+      lang: "CSS",
+      desc: "反 AI 味设计 Skill，适配 Claude Code/Cursor/Codex，提升 UI 审美"
     },
     {
       rank: 6,
       name: "Zackriya-Solutions/meetily",
       url: "https://github.com/Zackriya-Solutions/meetily",
       lang: "Rust",
-      desc: "隐私优先的本地 AI 会议助手，4x 实时转录+说话人识别+Ollama 总结",
-      stars: "4,389"
+      desc: "隐私优先本地 AI 会议助手，4x 实时转录+说话人识别+Ollama 总结"
     },
     {
       rank: 7,
-      name: "diegosouzapw/OmniRoute",
-      url: "https://github.com/diegosouzapw/OmniRoute",
+      name: "koala73/worldmonitor",
+      url: "https://github.com/koala73/worldmonitor",
       lang: "TypeScript",
-      desc: "免费 AI 网关，231+ 提供商，支持 Caveman 压缩节省 15%-95% Token",
-      stars: "4,297"
+      desc: "实时全球情报仪表盘，AI 驱动的新闻聚合与地缘政治监测"
     },
     {
       rank: 8,
-      name: "HKUDS/Vibe-Trading",
-      url: "https://github.com/HKUDS/Vibe-Trading",
-      lang: "Python",
-      desc: "个人交易 Agent，AI 驱动的量化交易自动化",
-      stars: "4,252"
+      name: "openai/codex-plugin-cc",
+      url: "https://github.com/openai/codex-plugin-cc",
+      lang: "JavaScript",
+      desc: "在 Claude Code 中调用 Codex 审查代码或委派任务"
     },
     {
       rank: 9,
-      name: "usestrix/strix",
-      url: "https://github.com/usestrix/strix",
+      name: "bradautomates/claude-video",
+      url: "https://github.com/bradautomates/claude-video",
       lang: "Python",
-      desc: "开源 AI 渗透测试工具，自动发现安全漏洞并生成修复代码",
-      stars: "3,090"
+      desc: "让 Claude 看懂任意视频，自动下载、抽帧、转录后交给 Claude 分析"
     },
     {
       rank: 10,
-      name: "TencentCloud/CubeSandbox",
-      url: "https://github.com/TencentCloud/CubeSandbox",
-      lang: "Rust",
-      desc: "面向 AI Agent 的即时、并发、安全、轻量级沙箱",
-      stars: "1,944"
-    }
-  ],
-  monthly: [
-    {
-      rank: 1,
       name: "asgeirtj/system_prompts_leaks",
       url: "https://github.com/asgeirtj/system_prompts_leaks",
-      lang: "-",
-      desc: "各大 AI 系统提示词提取合集，覆盖 Claude/GPT-5.6/Gemini 3.5 等"
-    },
-    {
-      rank: 2,
-      name: "Panniantong/Agent-Reach",
-      url: "https://github.com/Panniantong/Agent-Reach",
-      lang: "-",
-      desc: "让 Agent 读取全网，CLI 零 API 费用，支持 Twitter/Reddit/YouTube/B站"
-    },
-    {
-      rank: 3,
-      name: "usestrix/strix",
-      url: "https://github.com/usestrix/strix",
-      lang: "Python",
-      desc: "开源 AI 渗透测试工具，Agent 自主扫描漏洞并修复"
-    },
-    {
-      rank: 4,
-      name: "calesthio/OpenMontage",
-      url: "https://github.com/calesthio/OpenMontage",
-      lang: "-",
-      desc: "首个开源 Agent 音视频生产系统，12 管道、52 工具、500+ Skills"
-    },
-    {
-      rank: 5,
-      name: "DeusData/codebase-memory-mcp",
-      url: "https://github.com/DeusData/codebase-memory-mcp",
-      lang: "-",
-      desc: "高性能代码智能 MCP 服务器，毫秒级图查询，减少 99% Token 消耗"
-    },
-    {
-      rank: 6,
-      name: "topoteretes/cognee",
-      url: "https://github.com/topoteretes/cognee",
-      lang: "-",
-      desc: "AI Agent 长期记忆管理平台，构建持久化知识图谱实现跨会话学习"
-    },
-    {
-      rank: 7,
-      name: "alibaba/page-agent",
-      url: "https://github.com/alibaba/page-agent",
       lang: "JavaScript",
-      desc: "网页内 GUI 代理，用自然语言操控浏览器点击、输入与导航"
-    },
-    {
-      rank: 8,
-      name: "MadsLorentzen/ai-job-search",
-      url: "https://github.com/MadsLorentzen/ai-job-search",
-      lang: "TypeScript",
-      desc: "基于 Claude Code 的本地 AI 求职自动化框架"
-    },
-    {
-      rank: 9,
-      name: "stablyai/orca",
-      url: "https://github.com/stablyai/orca",
-      lang: "TypeScript",
-      desc: "并行 Agent 协同编码 ADE，支持管理 Agent 舰队"
-    },
-    {
-      rank: 10,
-      name: "simplex-chat/simplex-chat",
-      url: "https://github.com/simplex-chat/simplex-chat",
-      lang: "-",
-      desc: "无标识符隐私聊天网络，无手机号、邮箱、公钥 ID"
+      desc: "各大 AI 系统提示词提取合集，覆盖 Claude/GPT-5.6/Gemini 3.5 等"
     }
   ],
   skills: [
