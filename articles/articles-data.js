@@ -3,6 +3,14 @@
    ======================================== */
 const ARTICLES_DATA = [
   {
+    id: 'article-31',
+    title: 'AI编码进化三级跳，企业级系统落地实战',
+    excerpt: '从 Vibe Coding 到 Harness Engineer，AI 编码三级跳背后，企业级复杂系统如何落地。系统拆解领域模型协作建模、微服务拆分、三高架构、安全重构与工程师价值重塑的工程化路径。',
+    tags: ['AI Coding', 'Harness Engineer', '架构落地', '微服务'],
+    date: '2026-08-02',
+    detailUrl: 'detail/article-31.html'
+  },
+  {
     id: 'article-30',
     title: 'App接入小智AI语音助手的全链路实战',
     excerpt: '任意平台 App 如何接入小智 AI 平台？从设备激活、WebSocket握手、MCP工具调用到Opus音频编解码，深度拆解TickClear项目全链路实现，代码以伪代码说明，适用于Web/Android/iOS/鸿蒙。',
