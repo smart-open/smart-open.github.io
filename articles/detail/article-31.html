@@ -467,6 +467,87 @@
           <tr><td>风险判断</td><td>AI 不理解生产环境的失败成本</td><td>定义安全边界，设计回退与降级策略</td></tr>
         </table>
 
+
+        <h2 id="section-9">九、落地工具链选型</h2>
+
+        <p>讲完方法论，落到工具层面。2026 年的 AI 编码工具已经形成清晰梯队，但"哪个最好"取决于团队规模、代码库大小和治理成熟度。下面按 AI 编码工具和 Harness 工程化工具两类梳理主流选型。</p>
+
+        <h3>9.1 AI 编码工具对比</h3>
+
+        <table class="compare-table">
+          <tr><th>工具</th><th>定位</th><th>适合场景</th><th>Harness 友好度</th></tr>
+          <tr><td>Claude Code</td><td>Agent 式终端编码</td><td>复杂任务、多文件重构、企业级开发</td><td>高：CLAUDE.md 约束 + MCP 工具协议</td></tr>
+          <tr><td>Codex</td><td>OpenAI 编码 Agent</td><td>代码审查、任务委派、PR 自动化</td><td>高：自定义指令 + 沙箱执行</td></tr>
+          <tr><td>Cursor</td><td>AI 原生 IDE</td><td>日常开发、快速迭代、团队上手快</td><td>中：.cursorrules 约束文件</td></tr>
+          <tr><td>GitHub Copilot</td><td>补全 + Agent</td><td>补全为主、轻量 agent 任务</td><td>中：Copilot Instructions 配置</td></tr>
+          <tr><td>Augment Code</td><td>企业级 AI 编码</td><td>大型代码库、团队协作、合规要求高</td><td>高：企业上下文管理 + 权限控制</td></tr>
+          <tr><td>Cline</td><td>开源 VS Code Agent</td><td>预算有限、自主可控、深度定制</td><td>高：开源可定制 + MCP 支持</td></tr>
+          <tr><td>Aider</td><td>命令行 AI 编码</td><td>脚本化、CI 集成、批量重构</td><td>高：Git 原生 + 可编程</td></tr>
+        </table>
+
+        <div class="callout"><strong>选型建议：</strong>企业级系统的主力工具首选 Claude Code 或 Augment Code--前者 agent 能力强且约束机制成熟（CLAUDE.md + MCP），后者专注大型代码库的上下文管理。日常开发可用 Cursor 降低团队门槛。CI/CD 中的自动化重构用 Aider。预算敏感或需要完全自主可控的团队，Cline 是开源首选。关键不是用哪个，而是每个工具都配好约束文件和门禁规则。</div>
+
+        <h3>9.2 Harness 工程化工具</h3>
+
+        <p>AI 编码工具负责"写"，Harness 工具负责"约束和验证"。两者缺一不可。以下是按工程化环节推荐的主流工具：</p>
+
+        <table class="compare-table">
+          <tr><th>环节</th><th>推荐工具</th><th>作用</th></tr>
+          <tr><td>架构守护</td><td>ArchUnit / dependency-cruiser / import-linter</td><td>强制依赖方向、层级边界，防止 AI 跨层调用</td></tr>
+          <tr><td>代码质量门禁</td><td>SonarQube / CodeRabbit</td><td>静态分析 + AI 代码审查，门禁拦截低质量 PR</td></tr>
+          <tr><td>契约测试</td><td>Pact</td><td>消费者驱动契约，保证微服务接口兼容</td></tr>
+          <tr><td>特性开关</td><td>Unleash / LaunchDarkly</td><td>灰度发布、渐进上线、随时回退</td></tr>
+          <tr><td>混沌工程</td><td>Chaos Mesh / Gremlin</td><td>主动注入故障，验证高可用设计真实有效</td></tr>
+          <tr><td>CI/CD 流水线</td><td>GitHub Actions / GitLab CI</td><td>串联门禁：lint + 测试 + 架构守护 + 契约 + 部署</td></tr>
+          <tr><td>可观测性</td><td>OpenTelemetry / Grafana / Prometheus</td><td>链路追踪、指标监控、告警，变更可观测</td></tr>
+        </table>
+
+        <p>这套工具链的核心逻辑是：AI 编码工具产出代码，CI/CD 流水线自动跑架构守护 + 质量门禁 + 契约测试，通过后走特性开关灰度上线，可观测性持续监控，混沌工程定期验证容错能力。每一环都是 Harness 框架的自动化延伸。</p>
+
+        <h2 id="section-10">十、AI 编码工程化七原则</h2>
+
+        <p>工具会换代，方法论会迭代，但有些原则是稳定的。这七条原则是 Harness Engineer 在任何工具栈下都应坚守的底线。</p>
+
+        <div class="impl-phases">
+          <div class="impl-phase">
+            <div class="impl-phase-num">原则 1</div>
+            <div class="impl-phase-title">门禁即法律</div>
+            <div class="impl-phase-desc">AI 产出的每一行代码都必须通过自动化门禁（lint、测试、架构守护）。没有"先合后补"，没有人工放行。门禁不通过的 PR，一律打回。</div>
+          </div>
+          <div class="impl-phase">
+            <div class="impl-phase-num">原则 2</div>
+            <div class="impl-phase-title">不变量优先</div>
+            <div class="impl-phase-desc">领域模型的业务不变量是 executable specification。先写不变量断言，再让 AI 写实现逻辑。没有不变量守护的领域代码，等于没有模型。</div>
+          </div>
+          <div class="impl-phase">
+            <div class="impl-phase-num">原则 3</div>
+            <div class="impl-phase-title">小步快走</div>
+            <div class="impl-phase-desc">每次变更原子化：一个功能一个 PR，每步可验证、可回退。拒绝"一次改 20 个文件"的大爆炸式提交。AI 加速了写代码，但不该加速制造不可回退的变更。</div>
+          </div>
+          <div class="impl-phase">
+            <div class="impl-phase-num">原则 4</div>
+            <div class="impl-phase-title">上下文为王</div>
+            <div class="impl-phase-desc">AI 产出质量的上限是上下文质量。投入精力维护架构文档、ADR、领域模型、代码地图，比优化 prompt 技巧的回报高得多。Garbage in, garbage out。</div>
+          </div>
+          <div class="impl-phase">
+            <div class="impl-phase-num">原则 5</div>
+            <div class="impl-phase-title">人审关键路径</div>
+            <div class="impl-phase-desc">核心业务链路（下单、支付、资金）、架构变更、安全相关代码必须人审。AI 审常规变更可以，但关键路径的风险人扛。这不是效率问题，是责任问题。</div>
+          </div>
+          <div class="impl-phase">
+            <div class="impl-phase-num">原则 6</div>
+            <div class="impl-phase-title">可观测先行</div>
+            <div class="impl-phase-desc">任何变更上线前，先确认监控、告警、链路追踪已就位。没有可观测性的变更等于盲发--出了问题连现场都还原不了。先建观测，再发代码。</div>
+          </div>
+          <div class="impl-phase">
+            <div class="impl-phase-num">原则 7</div>
+            <div class="impl-phase-title">渐进式迁移</div>
+            <div class="impl-phase-desc">永远不要大爆炸式重构。用 Strangler Fig 模式逐个业务能力迁移，每步灰度验证。旧系统不是敌人，是可以安全退场的伙伴--前提是有计划地绞杀它。</div>
+          </div>
+        </div>
+
+        <div class="callout"><strong>一句话总结：</strong>AI 编码时代，工程师的核心竞争力不是写代码更快，而是让 AI 在约束下安全地写代码。工具是手段，原则是底线，架构能力才是护城河。守住这七条原则，无论工具怎么换代，你都能立于不败之地。</div>
+
         <h2 id="conclusion">结语</h2>
 
         <p>从 Vibe Coding 到 Harness Engineer，AI 编码的进化本质上是一场分工重画：AI 接管了"写代码"的执行，人收回了"定义系统"的主导权。这不是工程师的退场，而是工程师的升级--从代码工人变成系统架构师。</p>
@@ -482,6 +563,10 @@
           <li id="cite-3">Microservices.io - Transactional Outbox <a href="https://microservices.io/patterns/data/transactional-outbox.html" target="_blank" rel="noopener">https://microservices.io/patterns/data/transactional-outbox.html</a></li>
           <li id="cite-4">Eric Evans - Domain-Driven Design: Tackling Complexity in the Heart of Software</li>
           <li id="cite-5">Sam Newman - Building Microservices: Designing Fine-Grained Systems</li>
+          <li id="cite-6">Claude Code 官方文档 <a href="https://docs.anthropic.com/en/docs/claude-code" target="_blank" rel="noopener">https://docs.anthropic.com/en/docs/claude-code</a></li>
+          <li id="cite-7">ArchUnit - 架构守护测试 <a href="https://www.archunit.org/" target="_blank" rel="noopener">https://www.archunit.org/</a></li>
+          <li id="cite-8">Pact - 消费者驱动契约测试 <a href="https://pact.io/" target="_blank" rel="noopener">https://pact.io/</a></li>
+          <li id="cite-9">Chaos Mesh - 云原生混沌工程 <a href="https://chaos-mesh.org/" target="_blank" rel="noopener">https://chaos-mesh.org/</a></li>
         </ol>
 
       </div>
