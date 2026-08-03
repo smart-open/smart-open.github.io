@@ -3,6 +3,14 @@
    ======================================== */
 const ARTICLES_DATA = [
   {
+    id: 'article-32',
+    title: 'AI落不了地？海外大厂靠FDE撕开最后一公里',
+    excerpt: '模型能力每年翻倍，企业 AI 落地率却长期低迷。全方位剖析海外大厂走红的前沿部署工程师（FDE）：从起源、硬技能栈、软实力，到如何协助企业打通 AI 落地最后一公里，以及它与 SWE、Solution Engineer、ML Engineer 的本质边界',
+    tags: ['FDE', 'AI 落地', 'Forward Deployed Engineer', '前沿部署工程师'],
+    date: '2026-08-03',
+    detailUrl: 'detail/article-32.html'
+  },
+  {
     id: 'article-31',
     title: 'AI编码进化三级跳，企业级系统落地实战',
     excerpt: '从 Vibe Coding 到 Harness Engineer，AI 编码三级跳背后，企业级复杂系统如何落地。系统拆解领域模型协作建模、微服务拆分、三高架构、安全重构与工程师价值重塑的工程化路径。',
