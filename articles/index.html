@@ -61,7 +61,14 @@
         <p>未找到匹配的文章</p>
       </div>
 
-      <div class="articles-pagination" id="articlesPagination"></div>
+      <div class="articles-loader" id="articlesLoader" style="display:none;">
+        <div class="loader-spinner"></div>
+        <span>加载中...</span>
+      </div>
+      <div class="load-sentinel" id="loadSentinel"></div>
+      <div class="articles-end" id="articlesEnd" style="display:none;">
+        <span>没有更多文章了</span>
+      </div>
     </div>
   </section>
 
