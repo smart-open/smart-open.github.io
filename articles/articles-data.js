@@ -3,6 +3,14 @@
    ======================================== */
 const ARTICLES_DATA = [
   {
+    id: 'article-33',
+    title: '深度分页拖垮系统？三种存储分页优化全景拆解',
+    excerpt: '从 LIMIT 百万行丢弃99%的代价，到 ES search_after 游标分页，全方位拆解 MySQL/PostgreSQL、Redis、Elasticsearch 三类存储的深度分页问题与优化方案，覆盖搜索场景分页、缓存层策略与选型决策',
+    tags: ['深度分页', 'MySQL', 'Redis', 'Elasticsearch'],
+    date: '2026-08-03',
+    detailUrl: 'detail/article-33.html'
+  },
+  {
     id: 'article-32',
     title: 'AI落不了地？海外大厂靠FDE撕开最后一公里',
     excerpt: '模型能力每年翻倍，企业 AI 落地率却长期低迷。全方位剖析海外大厂走红的前沿部署工程师（FDE）：从起源、硬技能栈、软实力，到如何协助企业打通 AI 落地最后一公里，以及它与 SWE、Solution Engineer、ML Engineer 的本质边界',

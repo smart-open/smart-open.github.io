@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>深度分页拖垮系统？三种存储分页优化全景拆解 - 朱天伟 | Smart Open</title>
+  <meta name="description" content="全方位拆解深度分页性能问题：MySQL 延迟关联与游标分页、PostgreSQL keyset pagination、Redis ZSET 与 SCAN、Elasticsearch search_after 与 PIT，覆盖搜索场景分页、缓存层策略与选型决策">
+  <link rel="icon" type="image/png" href="../../favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/preview-rail.css">
+  <style>
+    .evo-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
+    .evo-table th { background: var(--bg-secondary); color: var(--accent); padding: 12px 14px; text-align: left; border-bottom: 2px solid var(--divider); font-family: var(--font-mono); font-size: 0.8rem; }
+    .evo-table td { padding: 10px 14px; border-bottom: 1px solid var(--divider); color: var(--text-primary); }
+    .evo-table tr:hover td { background: var(--bg-secondary); }
+    .evo-table .stage { color: var(--accent); font-weight: 600; }
+    .pain-points { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 20px 0; }
+    .pain-card { background: var(--bg-secondary); border: 1px solid var(--divider); border-left: 3px solid var(--accent); border-radius: 8px; padding: 14px 16px; }
+    .pain-card-title { font-size: 0.88rem; font-weight: 600; color: var(--accent); margin-bottom: 6px; }
+    .pain-card-body { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.55; }
+    .arch-layer-stack { display: flex; flex-direction: column; gap: 12px; margin: 24px 0; }
+    .arch-layer { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 16px 20px; position: relative; }
+    .arch-layer-title { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .arch-layer-body { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; }
+    .arch-layer-body strong { color: var(--text-primary); }
+    .impl-phases { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 20px 0; }
+    .impl-phase { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 16px; border-top: 3px solid var(--accent); }
+    .impl-phase-num { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); margin-bottom: 6px; }
+    .impl-phase-title { font-weight: 600; font-size: 0.92rem; margin-bottom: 6px; }
+    .impl-phase-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; }
+    .flow-stages { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
+    .flow-stage { flex: 1; min-width: 150px; background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 14px; position: relative; }
+    .flow-stage::after { content: '->'; position: absolute; right: -14px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 1.2rem; }
+    .flow-stage:last-child::after { display: none; }
+    .flow-stage-title { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent); margin-bottom: 6px; }
+    .flow-stage-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; }
+    .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
+    .compare-table th { background: var(--bg-secondary); color: var(--accent); padding: 10px 14px; text-align: left; border-bottom: 2px solid var(--divider); font-family: var(--font-mono); font-size: 0.8rem; }
+    .compare-table td { padding: 10px 14px; border-bottom: 1px solid var(--divider); color: var(--text-primary); }
+    .compare-table tr:hover td { background: var(--bg-secondary); }
+    .code-block { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 8px; padding: 16px 20px; margin: 16px 0; overflow-x: auto; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.6; color: var(--text-primary); white-space: pre; }
+    .code-block .cmt { color: var(--text-secondary); font-style: italic; }
+    .code-block .kw { color: #c792ea; }
+    .code-block .str { color: #c3e88d; }
+    .callout { background: rgba(0,240,255,0.05); border: 1px solid var(--divider); border-left: 3px solid var(--accent); border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.6; }
+    .callout strong { color: var(--accent); }
+    @media (max-width: 768px) {
+      .flow-stages { flex-direction: column; }
+      .flow-stage::after { display: none; }
+      .pain-points { grid-template-columns: 1fr; }
+      .evo-table, .compare-table { font-size: 0.78rem; }
+      .evo-table th, .evo-table td, .compare-table th, .compare-table td { padding: 8px 10px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav" id="nav">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-brand"><img src="../../assets/img/logo.png" alt="Smart Open" class="nav-logo"><span>Smart Open</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="切换导航">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#about">关于</a></li>
+        <li><a href="../../index.html#projects">项目</a></li>
+        <li><a href="../../index.html#skills">技能</a></li>
+        <li><a href="../../index.html#experience">经历</a></li>
+        <li><a href="../index.html">文章</a></li>
+        <li><a href="../../trending/index.html">趋势</a></li>
+        <li><a href="../../index.html#contact">联系</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="article-hero">
+    <div class="article-hero-content">
+      <h1 class="article-title">深度分页拖垮系统？三种存储分页优化全景拆解</h1>
+      <div class="article-meta">
+        <span class="article-date">2026-08-03</span>
+        <div class="article-tags">
+          <span class="tag">深度分页</span>
+          <span class="tag">MySQL</span>
+          <span class="tag">Redis</span>
+          <span class="tag">Elasticsearch</span>
+        </div>
+      </div>
+    </div>
+    <div class="article-hero-bg" style="background-image: url('../../assets/img/article-pagination-bottleneck.jpg')"></div>
+    <div class="article-hero-overlay"></div>
+  </section>
+
+  <div class="article-container">
+    <aside class="article-sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">目录</h3>
+        <nav class="article-toc" id="articleToc"></nav>
+      </div>
+    </aside>
+
+    <article class="article-content">
+      <div class="markdown-body">
+
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-pagination-bottleneck.jpg" alt="深度分页性能瓶颈">
+          <figcaption>深度分页的核心矛盾：为了返回第 N 页，必须先扫描并丢弃前 N 页的数据</figcaption>
+        </figure>
+
+        <p>分页是每个后端系统都绕不开的功能。列表页、搜索结果、订单流水、日志查询，几乎所有需要展示列表的地方都有分页。翻前几页时一切正常，但当用户跳到第 1000 页、第 10000 页时，响应时间从几十毫秒飙升到几秒甚至几十秒。这不是偶发故障，而是深度分页（deep pagination）的固有代价。</p>
+
+        <p>深度分页的核心矛盾在于：数据库为了返回第 N 页的数据，必须先扫描并丢弃前 N 页的数据。offset 越大，丢弃的代价越大。而这个代价在不同存储引擎里表现完全不同--MySQL 的 <code>LIMIT 1000000, 20</code> 会全表扫描百万行，Elasticsearch 的 <code>from + size</code> 默认限制 10000，Redis 的 <code>ZRANGE</code> 却能 O(logN+M) 秒级返回。本文从分页的基本模式出发，逐一拆解 MySQL/PostgreSQL、Redis、Elasticsearch 三类存储的深度分页问题与优化方案，覆盖搜索场景分页、缓存层策略与选型决策。</p>
+
+        <h2 id="section-1">一、深度分页为什么是性能杀手</h2>
+
+        <p>理解深度分页的性能问题，先要搞清楚 <code>OFFSET ... LIMIT</code> 在数据库内部到底做了什么。它不是"跳到第 N 条直接取"，而是"从头扫描 N 条，丢弃，再取 M 条"。这个"扫描并丢弃"的动作，是所有性能问题的根源。</p>
+
+        <div class="pain-points">
+          <div class="pain-card">
+            <div class="pain-card-title">OFFSET 扫描代价</div>
+            <div class="pain-card-body">LIMIT 1000000, 20 不是只读 20 行，而是扫描 1000020 行后丢弃前 100 万行。offset 越大，无效 I/O 越多，响应时间线性恶化。</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-card-title">COUNT 的陷阱</div>
+            <div class="pain-card-body">分页通常要返回总数，SELECT COUNT(*) 在大表上是全表扫描或全索引扫描。一次分页查询触发两次重查询：数据 + 总数。</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-card-title">内存与排序压力</div>
+            <div class="pain-card-body">带 ORDER BY 的分页，数据库要把 offset+size 行加载到内存排序，再丢弃前 offset 行。百万级排序可能触发临时表落盘，性能断崖式下跌。</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-card-title">ES 的 10000 限制</div>
+            <div class="pain-card-body">Elasticsearch 的 from + size 默认上限 10000，超过直接报错。这不是 bug，而是保护机制--深度分页对 ES 的协调节点和分片是灾难。</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-card-title">数据漂移问题</div>
+            <div class="pain-card-body">分页查询期间数据发生变化（新增/删除），后续页的数据会偏移，导致重复或遗漏。offset 分页无法保证跨页一致性。</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-card-title">缓存命中率低</div>
+            <div class="pain-card-body">用户行为集中在前几页，深度页几乎没人翻。缓存深度页的投入产出比极低，而前几页缓存又面临数据更新失效问题。</div>
+          </div>
+        </div>
+
+        <p>这六个问题的共同特征是：它们都源于"offset 跳过"这个语义本身。只要分页模式是基于 offset 的，深度分页的代价就无法消除--只能缓解或规避。这就是为什么游标分页（cursor-based pagination）在越来越多场景中取代 offset 分页。</p>
+
+        <h2 id="section-2">二、分页的两种基本模式</h2>
+
+        <p>所有分页方案最终都归为两种模式：offset 跳过和 cursor 游标。理解这两种模式的本质差异，是选型的前提。</p>
+
+        <table class="compare-table">
+          <tr><th>维度</th><th>OFFSET / LIMIT</th><th>Cursor 游标分页</th></tr>
+          <tr><td>原理</td><td>跳过前 N 条，取 M 条</td><td>从上次位置继续取 M 条</td></tr>
+          <tr><td>深度分页性能</td><td>随 offset 线性恶化</td><td>恒定性能</td></tr>
+          <tr><td>随机跳页</td><td>支持</td><td>不支持（仅向前/向后）</td></tr>
+          <tr><td>总数显示</td><td>需要 COUNT</td><td>估算或隐藏</td></tr>
+          <tr><td>数据一致性</td><td>分页期间可能漂移</td><td>基于游标稳定</td></tr>
+          <tr><td>实现复杂度</td><td>简单</td><td>中等</td></tr>
+        </table>
+
+        <div class="callout"><strong>选型判断：</strong>大多数业务场景的"翻到第 N 页"需求其实是伪需求--用户真正想找的信息几乎都在前几页。如果产品上能接受"向下滚动加载更多"替代"跳到第100页"，游标分页能从根本上消除深度分页问题。只有后台管理、数据导出等确实需要随机跳页的场景，才需要 offset 分页的优化方案。</div>
+
+        <h2 id="section-3">三、MySQL 深度分页优化</h2>
+
+        <p>MySQL 的 <code>LIMIT offset, size</code> 是深度分页问题的典型代表。当 offset 达到百万级，查询会从毫秒级退化到秒级甚至更慢。根因是 MySQL 的执行方式：先通过索引或全表扫描找到 offset+size 条记录，丢弃前 offset 条，再返回剩余 size 条。扫描的行数不会因为只取 20 条而减少。</p>
+
+        <h3>3.1 三种优化方案</h3>
+
+        <div class="code-block"><span class="cmt">-- 原始慢查询：扫描 1000020 行，丢弃 100 万行</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> orders <span class="kw">ORDER BY</span> created_at <span class="kw">DESC</span> <span class="kw">LIMIT</span> <span class="str">1000000</span>, <span class="str">20</span>;
+
+<span class="cmt">-- 优化1：延迟关联（先走覆盖索引查主键，再回表）</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> orders o
+<span class="kw">INNER JOIN</span> (
+  <span class="kw">SELECT</span> id <span class="kw">FROM</span> orders <span class="kw">ORDER BY</span> created_at <span class="kw">DESC</span> <span class="kw">LIMIT</span> <span class="str">1000000</span>, <span class="str">20</span>
+) t <span class="kw">ON</span> o.id = t.id;
+
+<span class="cmt">-- 优化2：覆盖索引（只查索引列，不回表）</span>
+<span class="kw">SELECT</span> id, created_at <span class="kw">FROM</span> orders
+<span class="kw">ORDER BY</span> created_at <span class="kw">DESC</span> <span class="kw">LIMIT</span> <span class="str">1000000</span>, <span class="str">20</span>;
+
+<span class="cmt">-- 优化3：游标分页（推荐，恒定性能）</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> orders
+<span class="kw">WHERE</span> created_at &lt; <span class="str">'2026-08-01 12:00:00'</span>
+<span class="kw">ORDER BY</span> created_at <span class="kw">DESC</span> <span class="kw">LIMIT</span> <span class="str">20</span>;</div>
+
+        <div class="pain-points">
+          <div class="pain-card">
+            <div class="pain-card-title">延迟关联</div>
+            <div class="pain-card-body">子查询只走覆盖索引（id + created_at），不回表，扫描速度快 5-10 倍。拿到 20 个主键后再回表取完整数据，回表只有 20 次随机 I/O。代价是 offset 仍需扫描索引，只是索引扫描比全表扫描快得多。</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-card-title">覆盖索引</div>
+            <div class="pain-card-body">如果查询只需要索引包含的列，MySQL 直接从索引返回数据，不回表。但实际业务通常需要更多列，覆盖索引的适用范围有限。适合"只查 ID"的轻量场景。</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-card-title">游标分页</div>
+            <div class="pain-card-body">记住上一页最后一条记录的排序值，下一页用 WHERE 条件直接定位。无论翻到第几页，都只扫描 20 行。代价是不支持随机跳页，且排序字段必须唯一（否则边界丢失数据）。</div>
+          </div>
+        </div>
+
+        <div class="callout"><strong>游标分页的排序陷阱：</strong>如果排序字段有重复值（如 created_at 相同的多条记录），用 <code>WHERE created_at &lt; last_value</code> 会丢失边界记录。解法是用复合游标：<code>WHERE (created_at, id) &lt; (last_created_at, last_id)</code>。MySQL 8.0+ 支持行值比较语法，PostgreSQL 原生支持。</div>
+
+        <h2 id="section-4">四、PostgreSQL 分页与 keyset pagination</h2>
+
+        <p>PostgreSQL 的 <code>LIMIT/OFFSET</code> 与 MySQL 存在同样的深度分页问题，但 PostgreSQL 在游标分页上有天然优势：原生支持行值比较（row value comparison），让 keyset pagination 的实现比 MySQL 更优雅。</p>
+
+        <h3>4.1 keyset pagination 实现</h3>
+
+        <div class="code-block"><span class="cmt">-- PostgreSQL keyset pagination（复合游标）</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> orders
+<span class="kw">WHERE</span> (created_at, id) &lt; (<span class="str">'2026-08-01 12:00:00'</span>, <span class="str">12345</span>)
+<span class="kw">ORDER BY</span> created_at <span class="kw">DESC</span>, id <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="str">20</span>;
+
+<span class="cmt">-- 对应的复合索引（必须与排序方向一致）</span>
+<span class="kw">CREATE INDEX</span> idx_orders_created_id
+<span class="kw">ON</span> orders (created_at <span class="kw">DESC</span>, id <span class="kw">DESC</span>);</div>
+
+        <p>行值比较 <code>(created_at, id) &lt; (last_created_at, last_id)</code> 的语义是：先比 created_at，created_at 相同则比 id。这天然解决了排序字段重复的边界问题，且 PostgreSQL 优化器能高效利用复合索引直接定位，不需要扫描 offset 行。</p>
+
+        <h3>4.2 offset vs keyset 性能对比</h3>
+
+        <table class="compare-table">
+          <tr><th>场景</th><th>OFFSET 分页</th><th>Keyset 分页</th></tr>
+          <tr><td>第 1 页（20条）</td><td>0.5ms</td><td>0.5ms</td></tr>
+          <tr><td>第 1000 页</td><td>120ms</td><td>0.6ms</td></tr>
+          <tr><td>第 10000 页</td><td>1200ms</td><td>0.6ms</td></tr>
+          <tr><td>第 100000 页</td><td>12000ms</td><td>0.6ms</td></tr>
+          <tr><td>索引利用</td><td>扫描 offset+size 行</td><td>索引直接定位</td></tr>
+        </table>
+
+        <div class="callout"><strong>PostgreSQL 优势：</strong>行值比较让 keyset pagination 的 SQL 更简洁，且优化器对复合索引的利用更充分。如果技术栈是 PostgreSQL，深度分页的首选就是 keyset pagination，几乎没有理由用 OFFSET。</div>
+
+        <h2 id="section-5">五、Redis 分页</h2>
+
+        <p>Redis 的分页与其他存储有本质不同：数据常驻内存，没有磁盘 I/O 的 offset 代价。但 Redis 的分页仍然有坑--数据结构选型、KEYS 的阻塞风险、与持久化存储的同步策略都需要仔细设计。</p>
+
+        <h3>5.1 ZSET 与 LIST 的分页差异</h3>
+
+        <div class="code-block"><span class="cmt"># ZSET 分页（有序集合，按 score 排序，推荐）</span>
+ZREVRANGE hot_articles 0 19            <span class="cmt"># 第1页，O(logN+M)</span>
+ZREVRANGE hot_articles 100000 100019   <span class="cmt"># 第5000页，依然 O(logN+M)</span>
+
+<span class="cmt"># LIST 分页（按插入顺序，适合追加型日志）</span>
+LRANGE article_list 0 19               <span class="cmt"># 第1页，O(S+N)</span>
+LRANGE article_list 100000 100019      <span class="cmt"># 第5000页，O(S+N) S=offset</span>
+
+<span class="cmt"># SCAN 替代 KEYS（游标迭代，不阻塞主线程）</span>
+SCAN 0 MATCH article:* COUNT 100       <span class="cmt"># 返回游标+匹配结果</span>
+SCAN &lt;cursor&gt; MATCH article:* COUNT 100  <span class="cmt"># 继续迭代</span></div>
+
+        <div class="pain-points">
+          <div class="pain-card">
+            <div class="pain-card-title">ZSET 深度分页无压力</div>
+            <div class="pain-card-body">ZSET 基于跳表实现，ZRANGE 的时间复杂度是 O(logN+M)，M 是返回条数。无论 offset 多大，性能都恒定。这是 Redis 相对关系型数据库的最大分页优势。</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-card-title">LIST 的 offset 代价</div>
+            <div class="pain-card-body">LRANGE 的时间复杂度是 O(S+N)，S 是 offset。虽然数据在内存，没有磁盘 I/O，但大 offset 仍有遍历代价。百万级 LIST 的深度分页不如 ZSET 高效。</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-card-title">KEYS 是禁忌</div>
+            <div class="pain-card-body">KEYS pattern 会遍历所有键，阻塞 Redis 主线程，生产环境绝对禁用。分页遍历键空间必须用 SCAN，它基于游标迭代，每次只处理少量键，不阻塞。</div>
+          </div>
+        </div>
+
+        <div class="callout"><strong>Redis 分页的正确姿势：</strong>用 ZSET 维护有序列表（如热门文章、最新动态），ZADD 写入时自动排序，ZREVRANGE 分页 O(logN+M)。如果需要按多个维度排序，维护多个 ZSET。Redis 作为分页缓存层时，ZSET 是最自然的选择。</div>
+
+        <h2 id="section-6">六、Elasticsearch 分页</h2>
+
+        <p>Elasticsearch 的深度分页是分布式系统里最棘手的问题。ES 的数据分布在多个分片（shard）上，一次分页查询需要每个分片都返回 from+size 条数据，协调节点再从 N*(from+size) 条中全局排序取 from+size 条。from 越大，每个分片返回的无效数据越多，网络和内存开销越大。</p>
+
+        <h3>6.1 三种分页方案</h3>
+
+        <div class="code-block"><span class="cmt">// 方案1：from/size（浅分页，默认上限 10000）</span>
+GET /articles/_search
+{ "from": 0, "size": 20,
+  "query": { "match": { "title": "AI" } } }
+
+<span class="cmt">// 方案2：search_after（游标分页，推荐）</span>
+GET /articles/_search
+{ "size": 20,
+  "query": { "match": { "title": "AI" } },
+  "sort": [{ "created_at": "desc" }, { "_id": "asc" }],
+  "search_after": [<span class="str">"2026-08-01T12:00:00"</span>, <span class="str">"abc123"</span>] }
+
+<span class="cmt">// 方案3：PIT + search_after（数据一致性保障）</span>
+POST /articles/_pit?keep_alive=5m     <span class="cmt">// 创建时间点快照</span>
+GET /articles/_search
+{ "size": 20,
+  "pit": { "id": <span class="str">"pit_id_from_above"</span>, "keep_alive": <span class="str">"5m"</span> },
+  "sort": [{ "created_at": "desc" }, { "_id": "asc" }],
+  "search_after": [<span class="str">"2026-08-01T12:00:00"</span>, <span class="str">"abc123"</span>] }</div>
+
+        <h3>6.2 三种方案对比</h3>
+
+        <table class="compare-table">
+          <tr><th>方案</th><th>适用场景</th><th>性能</th><th>数据一致性</th><th>限制</th></tr>
+          <tr><td>from/size</td><td>浅分页（前500页）</td><td>随 from 增大恶化</td><td>实时</td><td>from+size ≤ 10000</td></tr>
+          <tr><td>scroll</td><td>数据导出/全量遍历</td><td>快照后恒定</td><td>快照冻结</td><td>占内存，不适合实时查询</td></tr>
+          <tr><td>search_after</td><td>实时深度分页</td><td>恒定</td><td>实时（可能漂移）</td><td>只能向前，排序字段需唯一</td></tr>
+          <tr><td>PIT + search_after</td><td>实时深度分页 + 一致性</td><td>恒定</td><td>PIT 期内一致</td><td>需管理 PIT 生命周期</td></tr>
+        </table>
+
+        <div class="callout"><strong>ES 分页选型：</strong>前 10000 条用 from/size 足矣。超过 10000 条的实时分页用 search_after，配合 PIT 保障数据一致性。scroll 仅用于批量导出场景，不要用于用户交互式分页--它占用大量堆内存且快照会过期。search_after 的排序字段必须包含 _id 作为兜底，否则文档排序值相同时会丢数据。</div>
+
+        <h2 id="section-7">七、搜索场景的特殊分页</h2>
+
+        <p>搜索场景的分页比普通列表分页更复杂。搜索结果按相关性评分排序，总数动态变化，还经常伴随聚合（facets）和过滤。这些特性让分页的优化策略与普通列表分页有显著差异。</p>
+
+        <div class="pain-points">
+          <div class="pain-card">
+            <div class="pain-card-title">总数估算而非精确 COUNT</div>
+            <div class="pain-card-body">搜索结果总数动辄百万，精确 COUNT 代价极高。ES 提供 track_total_hits=false，只返回"是否还有更多"。前端显示"约 12,000 条结果"比显示精确数字更务实。</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-card-title">相关性评分的冲突</div>
+            <div class="pain-card-body">搜索结果按 _score 排序，但大量文档的 _score 相同。用 _score 做 search_after 游标会丢数据。解法：sort 里加 _id 兜底，确保排序值唯一。</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-card-title">聚合与分页的交互</div>
+            <div class="pain-card-body">搜索通常带聚合（按分类统计数量），聚合是在全量结果上计算的，不受分页影响。用户翻到第 100 页时，聚合结果不变，但分页数据变了。两者不要混在一个查询里。</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-card-title">深度搜索分页的伪需求</div>
+            <div class="pain-card-body">用户搜索后翻 10 页以上仍没找到，说明搜索词或排序策略有问题，而非继续翻页。搜索场景应限制最大翻页深度（如 20 页），引导用户优化搜索词。</div>
+          </div>
+        </div>
+
+        <div class="callout"><strong>搜索分页推荐方案：</strong>ES 中用 from/size 处理前 20 页（足够覆盖 99% 的用户行为），超过 20 页引导用户优化搜索词而非继续翻。必须支持深度遍历（如后台审计）时用 PIT + search_after。排序字段必须包含 _id 兜底：<code>"sort": [{"_score": "desc"}, {"_id": "asc"}]</code>。</div>
+
+        <h2 id="section-8">八、缓存层分页策略</h2>
+
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-pagination-optimization.jpg" alt="分页优化策略对比">
+          <figcaption>多级缓存分页：CDN 缓存静态页、Redis 缓存查询结果、数据库只承担穿透请求</figcaption>
+        </figure>
+
+        <p>分页是高频读场景，缓存是性能优化的第一道防线。但分页缓存的难点在于：缓存粒度、失效策略和数据一致性。缓存设计不当，要么命中率低形同虚设，要么数据过期用户看到脏数据。</p>
+
+        <h3>8.1 多级缓存架构</h3>
+
+        <div class="arch-layer-stack">
+          <div class="arch-layer">
+            <div class="arch-layer-title">CDN / 浏览器层</div>
+            <div class="arch-layer-body"><strong>静态分页结果直接缓存在 CDN。</strong>不常变的列表（如文章列表、商品分类）的第一页，设置短 TTL（1-5 分钟）缓存在 CDN。用户刷新时命中 CDN，完全不回源。</div>
+          </div>
+          <div class="arch-layer">
+            <div class="arch-layer-title">Redis 缓存层</div>
+            <div class="arch-layer-body"><strong>按查询条件 + 页码缓存结果。</strong>缓存 key 设计为 <code>page:{query_hash}:{page}:{size}</code>，TTL 5-10 分钟。数据变更时按 query_hash 批量清除相关缓存。只缓存前 N 页（如前 50 页），深度页不缓存。</div>
+          </div>
+          <div class="arch-layer">
+            <div class="arch-layer-title">数据库层</div>
+            <div class="arch-layer-body"><strong>只承担缓存未命中的请求。</strong>配合游标分页或延迟关联优化。对于无法缓存的实时查询（如个性化搜索结果），数据库层是最后的性能保障。</div>
+          </div>
+        </div>
+
+        <h3>8.2 缓存 Key 设计与失效</h3>
+
+        <div class="code-block"><span class="cmt"># Redis 缓存 key 设计</span>
+cache_key = f<span class="str">"page:{hash(query)}:{page}:{size}"</span>
+
+<span class="cmt"># 查询流程：缓存优先</span>
+data = redis.get(cache_key)
+<span class="kw">if</span> data:
+    <span class="kw">return</span> data          <span class="cmt"># 缓存命中，直接返回</span>
+
+<span class="cmt"># 缓存未命中，查数据库</span>
+data = db.query(sql, offset, size)
+redis.setex(cache_key, <span class="str">300</span>, data)   <span class="cmt"># 写缓存，TTL 5分钟</span>
+
+<span class="cmt"># 数据变更时的失效策略</span>
+<span class="kw">def</span> on_data_changed(table):
+    <span class="cmt"># 按表名清除所有相关分页缓存</span>
+    keys = redis.scan(f<span class="str">"page:{table}:*"</span>)
+    redis.delete(*keys)        <span class="cmt"># 或用 Redis Keyspace Notification</span></div>
+
+        <div class="callout"><strong>缓存策略要点：</strong>只缓存前 N 页（用户 99% 的行为集中于此），深度页不缓存（命中率低浪费内存）。数据变更时用 SCAN + 批量删除清除相关缓存，不要用 KEYS。如果数据实时性要求高，用"短 TTL + 写时刷新"组合，而非主动失效。</div>
+
+        <h2 id="section-9">九、分页性能优化通用原则</h2>
+
+        <p>无论用哪种存储，分页优化都遵循一些通用原则。这些原则是跨存储的"第一性原理"，在具体技术方案之上。</p>
+
+        <div class="impl-phases">
+          <div class="impl-phase">
+            <div class="impl-phase-num">原则 1</div>
+            <div class="impl-phase-title">游标优先</div>
+            <div class="impl-phase-desc">能用游标分页就不用 offset。游标分页的性能恒定，从根本上消除深度分页问题。产品上用"加载更多"替代"跳到第N页"。</div>
+          </div>
+          <div class="impl-phase">
+            <div class="impl-phase-num">原则 2</div>
+            <div class="impl-phase-title">估算总数</div>
+            <div class="impl-phase-desc">不返回精确总数，用估算值（"约 12,000 条"）。ES 关闭 track_total_hits，MySQL 用 EXPLAIN 估算行数。精确 COUNT 是深度分页的隐形杀手。</div>
+          </div>
+          <div class="impl-phase">
+            <div class="impl-phase-num">原则 3</div>
+            <div class="impl-phase-title">限制深度</div>
+            <div class="impl-phase-desc">限制最大翻页深度（如 100 页）。超过深度引导用户细化搜索条件。ES 的 10000 限制就是这种思路的工程化体现。</div>
+          </div>
+          <div class="impl-phase">
+            <div class="impl-phase-num">原则 4</div>
+            <div class="impl-phase-title">缓存前N页</div>
+            <div class="impl-phase-desc">用户行为集中在前面几页，缓存投入产出比最高。深度页不缓存，把缓存空间留给高频访问的前几页。</div>
+          </div>
+          <div class="impl-phase">
+            <div class="impl-phase-num">原则 5</div>
+            <div class="impl-phase-title">流式加载</div>
+            <div class="impl-phase-desc">前端用无限滚动或虚拟列表替代传统分页器。IntersectionObserver 触底加载，天然适配游标分页，体验也更流畅。</div>
+          </div>
+        </div>
+
+        <h2 id="section-10">十、选型决策对比</h2>
+
+        <p>不同存储的分页能力差异巨大，选对存储和分页方案，性能上限就确定了。下面这张表汇总了四类存储在不同场景下的推荐方案。</p>
+
+        <table class="compare-table">
+          <tr><th>存储类型</th><th>浅分页（前100页）</th><th>深度分页</th><th>搜索分页</th><th>首选方案</th></tr>
+          <tr><td>MySQL</td><td>LIMIT offset</td><td>延迟关联 / 游标</td><td>-</td><td>游标分页（WHERE id &gt; last_id）</td></tr>
+          <tr><td>PostgreSQL</td><td>LIMIT offset</td><td>keyset pagination</td><td>-</td><td>keyset（行值比较）</td></tr>
+          <tr><td>Redis</td><td>ZRANGE</td><td>ZRANGE（无压力）</td><td>-</td><td>ZSET + ZREVRANGE</td></tr>
+          <tr><td>Elasticsearch</td><td>from/size</td><td>search_after + PIT</td><td>from/size + search_after</td><td>PIT + search_after</td></tr>
+        </table>
+
+        <div class="callout"><strong>一句话选型：</strong>MySQL/PostgreSQL 用游标分页，配合延迟关联兜底 offset 场景；Redis 用 ZSET 天然规避深度分页；ES 浅分页用 from/size，深度分页用 PIT + search_after。所有存储都应遵循：估算总数、限制深度、缓存前 N 页。</div>
+
+        <h2 id="conclusion">结语</h2>
+
+        <p>分页看似是 <code>LIMIT 20 OFFSET 0</code> 这样简单的语法，但深度分页是一个涉及存储引擎、索引设计、缓存策略和产品交互的系统工程。同一个"翻到第 1000 页"的需求，在 MySQL 里是百万行扫描的灾难，在 Redis ZSET 里是 O(logN+M) 的轻松操作，在 ES 里则是 from+size 限制下的禁区。</p>
+
+        <p>核心原则只有五条：游标优先于 offset、估算总数替代精确 COUNT、限制最大翻页深度、缓存前 N 页、前端流式加载。无论技术栈怎么变，这五条原则都适用。具体方案则因存储而异：MySQL 的延迟关联、PostgreSQL 的 keyset pagination、Redis 的 ZSET、ES 的 search_after + PIT，都是这些原则在不同存储上的落地形态。</p>
+
+        <p>最终，深度分页优化的本质不是让"翻到第 10000 页"变快，而是让用户不需要翻到第 10000 页。好的搜索、好的排序、好的产品交互，比任何技术优化都更有效地解决深度分页问题。技术方案是兜底，产品设计才是上游。</p>
+
+        <h3>参考资料</h3>
+        <ol>
+          <li>MySQL 8.0 - LIMIT Optimization <a href="https://dev.mysql.com/doc/refman/8.0/en/limit-optimization.html" target="_blank" rel="noopener">https://dev.mysql.com/doc/refman/8.0/en/limit-optimization.html</a></li>
+          <li>PostgreSQL Wiki - Keyset Pagination <a href="https://wiki.postgresql.org/wiki/KeysetPagination" target="_blank" rel="noopener">https://wiki.postgresql.org/wiki/KeysetPagination</a></li>
+          <li>Elasticsearch - Paginate search results <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html" target="_blank" rel="noopener">https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html</a></li>
+          <li>Redis - ZRANGE <a href="https://redis.io/commands/zrange/" target="_blank" rel="noopener">https://redis.io/commands/zrange/</a></li>
+          <li>Use the Index, Luke - Pagination <a href="https://use-the-index-luke.com/no-offset" target="_blank" rel="noopener">https://use-the-index-luke.com/no-offset</a></li>
+        </ol>
+
+      </div>
+      <nav class="article-nav" id="articleNav"></nav>
+    </article>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; 2024-2026 朱天伟 | Smart Open. Built with care.</p>
+    </div>
+  </footer>
+
+  <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
+  <script src="../../js/article.js"></script>
+  <script src="../../js/preview-rail.js"></script>
+</body>
+</html>
