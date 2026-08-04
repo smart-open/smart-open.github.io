@@ -1,0 +1,725 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgentScope搭企业级Agent平台实战 - 馒头仔 | Smart Open</title>
+  <meta name="description" content="基于 AgentScope Java v2 + SpringBoot + Spring Cloud Alibaba + HarnessAgent 构建企业级 Agent 平台的全景拆解：身份权限、MCP/Skill 工具、上下文记忆、安全沙箱、高可用与性能、场景应用">
+  <link rel="icon" type="image/png" href="../../favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/preview-rail.css">
+  <style>
+    .evo-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
+    .evo-table th { background: var(--bg-secondary); color: var(--accent); padding: 12px 14px; text-align: left; border-bottom: 2px solid var(--divider); font-family: var(--font-mono); font-size: 0.8rem; }
+    .evo-table td { padding: 10px 14px; border-bottom: 1px solid var(--divider); color: var(--text-primary); }
+    .evo-table tr:hover td { background: var(--bg-secondary); }
+    .pain-points { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 20px 0; }
+    .pain-card { background: var(--bg-secondary); border: 1px solid var(--divider); border-left: 3px solid var(--accent); border-radius: 8px; padding: 14px 16px; }
+    .pain-card-title { font-size: 0.88rem; font-weight: 600; color: var(--accent); margin-bottom: 6px; }
+    .pain-card-body { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.55; }
+    .arch-layer-stack { display: flex; flex-direction: column; gap: 12px; margin: 24px 0; }
+    .arch-layer { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 16px 20px; }
+    .arch-layer-title { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .arch-layer-body { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; }
+    .arch-layer-body strong { color: var(--text-primary); }
+    .pillar-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 24px 0; }
+    .pillar-card { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 20px; border-top: 3px solid var(--accent); }
+    .pillar-card-num { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); margin-bottom: 8px; }
+    .pillar-card-title { font-weight: 600; font-size: 1rem; margin-bottom: 8px; }
+    .pillar-card-desc { font-size: 0.84rem; color: var(--text-secondary); line-height: 1.6; }
+    .flow-stages { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
+    .flow-stage { flex: 1; min-width: 140px; background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 14px; position: relative; }
+    .flow-stage::after { content: '->'; position: absolute; right: -14px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 1.2rem; }
+    .flow-stage:last-child::after { display: none; }
+    .flow-stage-title { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent); margin-bottom: 6px; }
+    .flow-stage-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; }
+    .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
+    .compare-table th { background: var(--bg-secondary); color: var(--accent); padding: 10px 14px; text-align: left; border-bottom: 2px solid var(--divider); font-family: var(--font-mono); font-size: 0.8rem; }
+    .compare-table td { padding: 10px 14px; border-bottom: 1px solid var(--divider); color: var(--text-primary); }
+    .compare-table tr:hover td { background: var(--bg-secondary); }
+    .code-block { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 8px; padding: 16px 20px; margin: 16px 0; overflow-x: auto; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.6; color: var(--text-primary); white-space: pre; }
+    .code-block .cmt { color: var(--text-secondary); font-style: italic; }
+    .code-block .kw { color: #c792ea; }
+    .code-block .str { color: #c3e88d; }
+    .callout { background: rgba(0,240,255,0.05); border: 1px solid var(--divider); border-left: 3px solid var(--accent); border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.6; }
+    .callout strong { color: var(--accent); }
+    .checklist { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 20px 24px; margin: 20px 0; }
+    .checklist-title { font-weight: 600; font-size: 0.92rem; color: var(--accent); margin-bottom: 12px; font-family: var(--font-mono); }
+    .checklist ul { list-style: none; padding: 0; margin: 0; }
+    .checklist li { font-size: 0.84rem; color: var(--text-primary); line-height: 1.8; padding-left: 24px; position: relative; }
+    .checklist li::before { content: '[ ]'; position: absolute; left: 0; color: var(--accent); font-family: var(--font-mono); font-size: 0.8rem; }
+    .scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 24px 0; }
+    .scenario-card { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 18px 20px; border-left: 3px solid var(--accent); }
+    .scenario-card-tag { display: inline-block; font-family: var(--font-mono); font-size: 0.72rem; color: var(--accent); background: rgba(0,240,255,0.1); padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; }
+    .scenario-card-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 8px; }
+    .scenario-card-body { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
+    .scenario-card-body strong { color: var(--text-primary); }
+    @media (max-width: 768px) {
+      .flow-stages { flex-direction: column; }
+      .flow-stage::after { display: none; }
+      .pain-points, .pillar-cards, .scenario-grid { grid-template-columns: 1fr; }
+      .evo-table, .compare-table { font-size: 0.78rem; }
+      .evo-table th, .evo-table td, .compare-table th, .compare-table td { padding: 8px 10px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav" id="nav">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-brand"><img src="../../assets/img/logo.png" alt="Smart Open" class="nav-logo"><span>Smart Open</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="切换导航">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#about">关于</a></li>
+        <li><a href="../../index.html#projects">项目</a></li>
+        <li><a href="../../index.html#skills">技能</a></li>
+        <li><a href="../../index.html#experience">经历</a></li>
+        <li><a href="../index.html">文章</a></li>
+        <li><a href="../../trending/index.html">趋势</a></li>
+        <li><a href="../../index.html#contact">联系</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="article-hero">
+    <div class="article-hero-content">
+      <h1 class="article-title">AgentScope搭企业级Agent平台实战</h1>
+      <div class="article-meta">
+        <span class="article-date">2026-08-04</span>
+        <div class="article-tags">
+          <span class="tag">AgentScope</span>
+          <span class="tag">HarnessAgent</span>
+          <span class="tag">Spring Cloud Alibaba</span>
+          <span class="tag">企业级 Agent</span>
+        </div>
+      </div>
+    </div>
+    <div class="article-hero-bg" style="background-image: url('../../assets/img/article-agent-platform-arch.jpg')"></div>
+    <div class="article-hero-overlay"></div>
+  </section>
+
+  <div class="article-container">
+    <aside class="article-sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">目录</h3>
+        <nav class="article-toc" id="articleToc"></nav>
+      </div>
+    </aside>
+
+    <article class="article-content">
+      <div class="markdown-body">
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-agent-platform-arch.jpg" alt="企业级 Agent 平台架构全景">
+          <figcaption>AgentScope Java v2 + Spring Cloud Alibaba 构建的企业级 Agent 平台架构全景</figcaption>
+        </figure>
+
+        <p>企业 AI 落地，模型能力早已不是瓶颈，工程化才是。一个能跑 demo 的 Agent，放到生产环境立刻暴露一堆问题：多租户的数据怎么隔离？Agent 调工具的权限谁来管？长会话的上下文怎么不爆？滚动发布时在途会话怎么办？Agent 是有状态的，怎么水平扩展？</p>
+
+        <p>这些问题单独看都有解法，但攒到一起就是一座冰山。AgentScope Java v2 正是为这座冰山而生--它从"构建一个智能体"的工具箱，升级为面向生产环境运行智能体的完整平台。本文以 AgentScope Java v2 为核心，结合 SpringBoot 与 Spring Cloud Alibaba，用 HarnessAgent 把身份权限、MCP/Skill 工具、上下文记忆、安全沙箱、高可用性能全部串起来，全方位拆解企业级 Agent 平台的落地方案。</p>
+
+        <h2 id="section-1">一、企业级 Agent 平台的五座大山</h2>
+
+        <p>裸的 ReAct 循环只解决"一次推理"：请求进来，模型思考，调工具，返回结果。这在 demo 里完美运行，但企业生产环境要面对的是完全不同的问题域。</p>
+
+        <div class="pain-points">
+          <div class="pain-card">
+            <div class="pain-card-title">多租户隔离</div>
+            <div class="pain-card-body">不同租户的 Agent 状态、记忆、工作区文件必须严格隔离。A 租户的 Agent 不能看到 B 租户的数据，更不能调 B 租户的工具。session / user / agent / org 四个维度的隔离缺一不可。</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-card-title">工具调用安全</div>
+            <div class="pain-card-body">Agent 能调 API、能执行代码、能读写文件。谁来拦？拦什么？敏感操作要不要人工审批？审批后能不能记住规则下次自动放行？这套权限闸门不能是外挂，必须是框架内生能力。</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-card-title">长会话上下文</div>
+            <div class="pain-card-body">对话越长，prompt 越大，token 成本和推理延迟都飙升。超过模型上下文窗口直接报错。有价值的事实要能自动沉淀，无用的要能压缩丢弃，模型溢出时要有兜底重试。</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-card-title">状态持久化</div>
+            <div class="pain-card-body">Agent 是有状态的：工作区文件、记忆、技能、计划、沙箱快照。滚动发布时在途会话怎么办？进程崩溃后怎么恢复？同一个 (userId, sessionId) 在任意副本上都要能恢复完整上下文。</div>
+          </div>
+          <div class="pain-card">
+            <div class="pain-card-title">水平扩展</div>
+            <div class="pain-card-body">单机跑不了几万个 Agent。必须无状态化--把状态全部外置到分布式存储，Agent 进程本身变成可随意扩缩的无状态计算单元。这要求框架从设计层面就面向分布式。</div>
+          </div>
+        </div>
+
+        <p>这五个问题，每一个都足以让一个"能跑 demo"的 Agent 项目在生产环境翻车。AgentScope Java v2 的价值，在于它把这五个问题的解法打包成了框架内建能力，而不是留给开发者自己拼装。</p>
+
+        <h2 id="section-2">二、AgentScope Java v2 三大支柱</h2>
+
+        <p>AgentScope Java 2.0 围绕三大主题展开，每一部分对应一组具体要解决的问题。理解这三个支柱，就理解了整个平台的设计哲学。</p>
+
+        <div class="pillar-cards">
+          <div class="pillar-card">
+            <div class="pillar-card-num">Pillar 1</div>
+            <div class="pillar-card-title">Harness 工程化</div>
+            <div class="pillar-card-desc">长期运行、复杂任务的工程底座。核心推理循环原样保留，能力按需叠加：技能仓库自动沉淀成功模式、三层记忆管理控制 prompt 体量、子智能体编排委派任务、上下文自动压缩、Workspace 以磁盘 Markdown/JSON 表达一切。让智能体稳定长跑、能力越用越强。</div>
+          </div>
+          <div class="pillar-card">
+            <div class="pillar-card-num">Pillar 2</div>
+            <div class="pillar-card-title">企业级分布式部署</div>
+            <div class="pillar-card-desc">面向多租户、安全运行、零停机发布。RuntimeContext 的键贯穿工作区路径、KV 命名空间、沙箱状态槽，实现 session/user/agent/org 四维隔离。AgentStateStore 支撑任意副本恢复任意用户完整上下文。权限闸门 + 多维隔离把每个租户数据严格分开。</div>
+          </div>
+          <div class="pillar-card">
+            <div class="pillar-card-num">Pillar 3</div>
+            <div class="pillar-card-title">底层框架升级</div>
+            <div class="pillar-card-desc">更轻、更正交的核心抽象。事件流式输出让每一步都以类型化事件流出；Middleware 取代松散 Hook，五个阶段各居其层；HITL 成为一等公民，可在执行中确认工具参数、审批敏感操作；ContentBlock 统一收敛文本、文件、图片、音视频、工具结果。</div>
+          </div>
+        </div>
+
+        <p>三个支柱不是并列的功能列表，而是层层递进的工程逻辑：底层框架升级让核心抽象更干净，Harness 工程化让单个 Agent 能长期稳定运行，企业级分布式部署让多个 Agent 能安全地服务多租户。接下来逐层拆解。</p>
+
+        <h2 id="section-3">三、HarnessAgent 工程化底座全拆解</h2>
+
+        <p>HarnessAgent 是 ReActAgent 的一层薄包装，把长期运行 Agent 必备的工程能力打包进单一 builder。理解 Harness 只需要记住三件事：能力是叠加在推理循环关键时机上的，不是改写循环；能力之间互不依赖，只通过共享对象通信；内置 middleware 注册顺序固定，自定义 middleware 跑在最前面。</p>
+
+        <div class="arch-layer-stack">
+          <div class="arch-layer">
+            <div class="arch-layer-title">Workspace 工程底座</div>
+            <div class="arch-layer-body">人格、知识、技能、子 Agent 规格、会话日志全部以磁盘 <strong>Markdown / JSON</strong> 表达，每轮自动注入 system prompt。<strong>workspace/skills/</strong> 存放沉淀的技能，<strong>workspace/subagents/</strong> 存放子 Agent 规格，<strong>workspace/plans/</strong> 存放计划文件。工作区路径由 RuntimeContext 驱动，天然实现多租户隔离。</div>
+          </div>
+          <div class="arch-layer">
+            <div class="arch-layer-title">三层记忆管理</div>
+            <div class="arch-layer-body"><strong>第一层</strong>：上下文对话，即当前会话的消息序列。<strong>第二层</strong>：Agent 自维护的 MEMORY.md，有价值的事实自动沉淀。<strong>第三层</strong>：磁盘事实流水账，持久化到外部存储。自动压缩控制 prompt 体量，<code>memory_*</code> 工具提供显式回忆。</div>
+          </div>
+          <div class="arch-layer">
+            <div class="arch-layer-title">上下文自动压缩</div>
+            <div class="arch-layer-body">结构化压缩保留 <strong>目标 / 状态 / 关键发现 / 下一步</strong>；超大工具结果（超 80K 字符）落盘只留占位符；<strong>ContextOverflow</strong> 兜底重试是最后防线。三层防线确保长会话不会因为 prompt 溢出而崩溃。</div>
+          </div>
+          <div class="arch-layer">
+            <div class="arch-layer-title">子智能体编排</div>
+            <div class="arch-layer-body">在 Markdown 里声明子 Agent 规格，运行时按需 <code>agent_spawn</code> / <code>agent_send</code>，支持同步与后台委派。后台终态经 <strong>system-reminder</strong> 反向推送，无需轮询。子 Agent 有独立的工作区和记忆，天然隔离。</div>
+          </div>
+          <div class="arch-layer">
+            <div class="arch-layer-title">自进化与技能仓库</div>
+            <div class="arch-layer-body">成功模式以 <strong>Markdown 技能</strong>自动沉淀到 workspace/skills/，每轮按需加载、跨会话共享。技能仓库支持 Git / MySQL / PostgreSQL / Nacos 多种存储后端，know-how 在每次运行之间累积。</div>
+          </div>
+          <div class="arch-layer">
+            <div class="arch-layer-title">计划模式（Plan Mode）</div>
+            <div class="arch-layer-body">只读规划态编排长任务；计划文件持久化到 <strong>workspace/plans/</strong> 并驱动执行，让意图与动作解耦。先规划再执行，避免 ReAct 循环在复杂任务中迷失方向。</div>
+          </div>
+        </div>
+
+        <p>下面是用 HarnessAgent 构建企业级 Agent 的代码骨架。Maven 依赖引入核心包和扩展模块：</p>
+
+        <div class="code-block"><span class="cmt">&lt;!-- pom.xml --&gt;</span>
+&lt;dependency&gt;
+    &lt;groupId&gt;io.agentscope&lt;/groupId&gt;
+    &lt;artifactId&gt;agentscope-core&lt;/artifactId&gt;
+    &lt;version&gt;2.0.0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;io.agentscope&lt;/groupId&gt;
+    &lt;artifactId&gt;agentscope-harness&lt;/artifactId&gt;
+    &lt;version&gt;2.0.0&lt;/version&gt;
+&lt;/dependency&gt;
+<span class="cmt">&lt;!-- 模型扩展：OpenAI 兼容（含 DeepSeek/GLM/Kimi） --&gt;</span>
+&lt;dependency&gt;
+    &lt;groupId&gt;io.agentscope&lt;/groupId&gt;
+    &lt;artifactId&gt;agentscope-extensions-model-openai&lt;/artifactId&gt;
+    &lt;version&gt;2.0.0&lt;/version&gt;
+&lt;/dependency&gt;
+<span class="cmt">&lt;!-- 分布式状态存储：Redis --&gt;</span>
+&lt;dependency&gt;
+    &lt;groupId&gt;io.agentscope&lt;/groupId&gt;
+    &lt;artifactId&gt;agentscope-extensions-state-redis&lt;/artifactId&gt;
+    &lt;version&gt;2.0.0&lt;/version&gt;
+&lt;/dependency&gt;</div>
+
+        <p>HarnessAgent 的构建采用 Builder 模式，能力按需开启：</p>
+
+        <div class="code-block"><span class="cmt">// HarnessAgent 构建骨架</span>
+HarnessAgent agent = HarnessAgent.builder()
+    .model(ModelFactory.create(<span class="str">"deepseek:deepseek-chat"</span>))
+    <span class="cmt">// Workspace：人格、知识、技能、子Agent规格全部以文件表达</span>
+    .workspace(Paths.get(<span class="str">"workspaces"</span>, orgId, userId))
+    <span class="cmt">// 状态存储：Redis，支撑无状态水平扩展</span>
+    .stateStore(<span class="kw">new</span> RedisStateStore(redisConfig))
+    <span class="cmt">// 三层记忆：自动沉淀 + 自动压缩</span>
+    .memory(MemoryConfig.builder()
+        .autoCompress(<span class="kw">true</span>)
+        .maxContextTokens(80000)
+        .build())
+    <span class="cmt">// 上下文压缩：结构化压缩 + 大结果落盘</span>
+    .compaction(CompactionConfig.builder()
+        .threshold(60000)
+        .strategy(CompactionStrategy.STRUCTURED)
+        .build())
+    <span class="cmt">// 沙箱：Docker 隔离执行</span>
+    .filesystem(<span class="kw">new</span> DockerFilesystemSpec(dockerConfig))
+    <span class="cmt">// 权限系统：三态决策</span>
+    .permission(PermissionConfig.builder()
+        .mode(PermissionMode.EXPLORE)
+        .build())
+    <span class="cmt">// 子Agent：最多3个并发</span>
+    .subagent(SubagentConfig.builder()
+        .maxConcurrent(3)
+        .build())
+    .build();</div>
+
+        <div class="callout"><strong>关键设计：</strong>HarnessAgent 的所有能力都是可选叠加的。不配 memory 就没有长期记忆，不配 filesystem 就用本地文件系统，不配 permission 就不做权限拦截。框架不会因为你不需要某个能力而强加开销。这种"能力按需叠加"的设计，让同一个 Builder 既能跑轻量级 demo，也能撑起生产级平台。</div>
+
+        <h2 id="section-4">四、身份与权限体系：从功能到数据</h2>
+
+        <p>企业级 Agent 平台的安全核心，是控制 Agent 能做什么、能看什么。AgentScope Java v2 的权限系统（<code>io.agentscope.core.permission</code>）拦截 Agent 的每一次工具调用，给出三种决策之一：<strong>允许（ALLOW）</strong>执行、<strong>拒绝（DENY）</strong>执行、或者<strong>询问用户（ASK）</strong>确认。</p>
+
+        <p>权限系统把静态配置与动态运行时分析组合起来，三个组件共同决定结果：</p>
+
+        <div class="flow-stages">
+          <div class="flow-stage">
+            <div class="flow-stage-title">Rules</div>
+            <div class="flow-stage-desc">针对每个 tool 与命令的显式 allow / deny / ask 模式，最高优先级。可在配置阶段静态预置，也可在 ASK 提示中由用户接受建议规则而动态加入。</div>
+          </div>
+          <div class="flow-stage">
+            <div class="flow-stage-title">Mode</div>
+            <div class="flow-stage-desc">全局静态策略。EXPLORE 让 Agent 进入只读模式；DONT_ASK 静默拒绝未命中规则的调用。决定所有不命中规则的调用的默认行为。</div>
+          </div>
+          <div class="flow-stage">
+            <div class="flow-stage-title">Built-in Checks</div>
+            <div class="flow-stage-desc">由 tool 自身在运行时基于真实输入做的动态分析。运行时检查而非预配置模式，不可绕过，不受 mode 或 rules 覆盖。</div>
+          </div>
+        </div>
+
+        <p>决策流程是层层过滤：先查 Deny Rules，命中则直接拒绝；再查 Ask Rules，命中则询问用户；接着跑 Tool-Specific Checks（EXPLORE 模式下的写操作自动拒绝、危险路径自动询问）；最后查 Allow Rules，命中则放行；都不命中则走 Mode 默认策略。</p>
+
+        <p>下面是权限规则的实际配置：</p>
+
+        <div class="code-block"><span class="cmt">// 权限规则配置</span>
+PermissionContextState permission = PermissionContextState.builder()
+    .mode(PermissionMode.EXPLORE)  <span class="cmt">// 默认只读模式</span>
+    .rules(List.of(
+        <span class="cmt">// 禁止写入系统目录</span>
+        Rule.deny(<span class="str">"filesystem"</span>, <span class="str">"write"</span>, <span class="str">"/etc/**"</span>, <span class="str">"/root/**"</span>),
+        <span class="cmt">// 删除操作需人工确认</span>
+        Rule.ask(<span class="str">"shell"</span>, <span class="str">"exec"</span>, <span class="str">"rm **"</span>, <span class="str">"rmdir **"</span>),
+        <span class="cmt">// 允许读取工作区</span>
+        Rule.allow(<span class="str">"filesystem"</span>, <span class="str">"read"</span>, <span class="str">"/workspace/**"</span>),
+        <span class="cmt">// 允许调用内部API（仅GET）</span>
+        Rule.allow(<span class="str">"http"</span>, <span class="str">"get"</span>, <span class="str">"https://api.internal/**"</span>),
+        <span class="cmt">// 写数据库需人工确认</span>
+        Rule.ask(<span class="str">"sql"</span>, <span class="str">"write"</span>, <span class="str">"**"</span>)
+    ))
+    .build();</div>
+
+        <p>权限系统不仅管功能权限（能不能调某个工具），还要管数据权限（能看哪些数据）。数据权限通过 RuntimeContext 注入，Agent 的所有工具调用都携带租户上下文：</p>
+
+        <div class="code-block"><span class="cmt">// 多租户上下文 + 数据权限注入</span>
+@RestController
+@RequestMapping(<span class="str">"/api/agent"</span>)
+<span class="kw">public class</span> AgentController {
+
+    @PostMapping(<span class="str">"/chat"</span>)
+    <span class="kw">public</span> SseEmitter chat(@RequestBody ChatRequest request,
+                           @RequestHeader(<span class="str">"X-User-Id"</span>) String userId,
+                           @RequestHeader(<span class="str">"X-Org-Id"</span>) String orgId,
+                           @RequestHeader(<span class="str">"X-Role"</span>) String role) {
+
+        <span class="cmt">// 构建租户隔离的运行时上下文</span>
+        RuntimeContext ctx = RuntimeContext.builder()
+            .userId(userId)
+            .sessionId(request.getSessionId())
+            .extra(<span class="str">"orgId"</span>, orgId)
+            .extra(<span class="str">"role"</span>, role)
+            .extra(<span class="str">"dataScope"</span>, dataScopeService.getScope(orgId, role))
+            .build();
+
+        <span class="cmt">// Agent 在此 ctx 下运行，所有工具调用自动携带租户隔离信息</span>
+        <span class="kw">return</span> agentService.streamChat(ctx, request.getMessage());
+    }
+}</div>
+
+        <p>RuntimeContext 的键贯穿整个调用链：工作区路径是 <code>workspaces/{orgId}/{userId}/</code>，KV 命名空间是 <code>{orgId}:{userId}:{sessionId}</code>，沙箱状态槽也按同样的键隔离。Agent 执行 SQL 查询时，数据权限拦截器会自动追加 <code>WHERE org_id = ?</code> 条件，确保 Agent 只能看到当前租户的数据。</p>
+
+        <table class="compare-table">
+          <tr><th>权限维度</th><th>控制对象</th><th>实现方式</th><th>典型场景</th></tr>
+          <tr><td>功能权限</td><td>工具调用</td><td>Rules + Mode + Built-in Checks</td><td>禁止 Agent 执行 rm 命令</td></tr>
+          <tr><td>数据权限</td><td>数据可见范围</td><td>RuntimeContext + 数据拦截器</td><td>Agent 只能查本租户订单</td></tr>
+          <tr><td>操作权限</td><td>敏感操作审批</td><td>ASK + HITL</td><td>写数据库前人工确认</td></tr>
+          <tr><td>资源权限</td><td>配额限制</td><td>Spring Cloud Sentinel 限流</td><td>单租户每分钟最多 100 次调用</td></tr>
+        </table>
+
+        <div class="callout"><strong>ASK 的自学习能力：</strong>当权限系统返回 ASK 时，会附带一条自动生成的建议规则。用户一旦接受，将来相同的调用便会被自动处理，不再询问。这意味着权限系统会随着使用越来越智能--第一次需要确认的操作，确认后就变成了允许规则。这是"安全"与"效率"的优雅平衡。</div>
+
+        <h2 id="section-5">五、工具生态：MCP + Skill 双引擎</h2>
+
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-harness-agent-capabilities.jpg" alt="HarnessAgent 工程化能力全景">
+          <figcaption>HarnessAgent 的六大工程能力：Workspace、三层记忆、上下文压缩、子智能体、技能仓库、计划模式</figcaption>
+        </figure>
+
+        <p>Agent 的能力边界由工具决定。AgentScope Java v2 提供两条工具接入路径：<strong>MCP（Model Context Protocol）</strong>用于接入外部标准化工具服务，<strong>Skill</strong>用于沉淀和复用 Agent 自身积累的能力。两者互补，构成企业级 Agent 的工具双引擎。</p>
+
+        <h3>MCP：标准化工具接入</h3>
+
+        <p>MCP 是 Anthropic 提出的模型上下文协议，让 Agent 以标准方式接入外部工具服务。AgentScope Java v2 内建 MCP 客户端，只需配置服务端地址和认证信息，Agent 就能自动发现并调用 MCP 服务端暴露的所有工具。</p>
+
+        <div class="code-block"><span class="cmt">// 注册 MCP 服务端工具</span>
+McpToolSpec mcpTools = McpToolSpec.builder()
+    .server(<span class="str">"database"</span>, McpServer.builder()
+        .url(<span class="str">"http://db-mcp:8080/sse"</span>)
+        .authToken(dbServiceToken)
+        .build())
+    .server(<span class="str">"search"</span>, McpServer.builder()
+        .url(<span class="str">"http://search-mcp:8080/sse"</span>)
+        .build())
+    .server(<span class="str">"erp"</span>, McpServer.builder()
+        .url(<span class="str">"http://erp-mcp:8080/sse"</span>)
+        .authToken(erpToken)
+        .build())
+    .build();
+
+HarnessAgent agent = HarnessAgent.builder()
+    .model(model)
+    .tools(mcpTools)  <span class="cmt">// MCP 工具自动注入</span>
+    .permission(permissionConfig)
+    .build();</div>
+
+        <p>MCP 的价值在于解耦：工具服务独立部署、独立升级、独立扩缩，Agent 只需知道 MCP 服务端地址。企业内部可以把数据库查询、搜索引擎、ERP 接口、邮件系统各封装成 MCP 服务端，Agent 通过统一协议接入，不用为每个工具写适配代码。</p>
+
+        <h3>Skill：能力沉淀与复用</h3>
+
+        <p>Skill 是 AgentScope 独有的能力沉淀机制。Agent 在执行任务过程中，如果发现了可复用的成功模式，会自动以 Markdown 格式沉淀到 <code>workspace/skills/</code> 目录。下次遇到类似任务时，Agent 会按需加载相关技能，跳过摸索阶段。</p>
+
+        <div class="code-block"><span class="cmt">// 技能仓库配置：MySQL 存储，支撑多副本共享</span>
+AgentSkillRepository skillRepo = <span class="kw">new</span> MysqlSkillRepository(dataSource);
+
+HarnessAgent agent = HarnessAgent.builder()
+    .model(model)
+    .skillRepository(skillRepo)
+    .workspace(Paths.get(<span class="str">"workspaces"</span>, orgId, userId))
+    .build();
+
+<span class="cmt">// 技能文件示例：workspace/skills/query-order-by-status.md</span>
+<span class="cmt">// 当用户询问订单状态时：</span>
+<span class="cmt">// 1. 先用 MCP database 工具查询 orders 表</span>
+<span class="cmt">// 2. WHERE 条件必须包含 org_id（从 RuntimeContext 获取）</span>
+<span class="cmt">// 3. 返回结果按 created_at DESC 排序</span>
+<span class="cmt">// 4. 如果结果超过 20 条，提示用户缩小范围</span></div>
+
+        <p>技能仓库支持四种存储后端，适配不同部署场景：</p>
+
+        <table class="compare-table">
+          <tr><th>存储后端</th><th>适用场景</th><th>多副本共享</th><th>版本管理</th></tr>
+          <tr><td>本地文件系统</td><td>单机开发调试</td><td>不支持</td><td>手动</td></tr>
+          <tr><td>Git 仓库</td><td>团队协作、技能审计</td><td>支持（pull/push）</td><td>原生 Git</td></tr>
+          <tr><td>MySQL / PostgreSQL</td><td>生产多副本部署</td><td>支持（共享DB）</td><td>应用层</td></tr>
+          <tr><td>Nacos</td><td>Spring Cloud 生态集成</td><td>支持（配置中心）</td><td>Nacos 版本</td></tr>
+        </table>
+
+        <div class="callout"><strong>MCP 与 Skill 的分工：</strong>MCP 解决"接入"问题--把外部系统变成 Agent 可调用的工具；Skill 解决"沉淀"问题--把 Agent 的成功经验变成可复用的知识。MCP 是横向的，一个 MCP 服务端可以被所有 Agent 共享；Skill 是纵向的，每个 Agent 积累自己的技能，也可以通过共享仓库在团队间流通。两者配合，Agent 的能力边界随时间持续扩展。</div>
+
+        <h2 id="section-6">六、上下文与记忆管理</h2>
+
+        <p>长会话是 Agent 生产环境的头号杀手。对话越长，上下文越大，直到超过模型窗口直接报错。AgentScope Java v2 用三层防线解决这个问题：自动压缩、大结果落盘、溢出兜底重试。</p>
+
+        <h3>三层记忆架构</h3>
+
+        <p>记忆不是单一的存储，而是分层的。AgentScope 的三层记忆各有分工：</p>
+
+        <table class="evo-table">
+          <tr><th>层级</th><th>存储位置</th><th>内容</th><th>生命周期</th><th>压缩策略</th></tr>
+          <tr><td class="stage">上下文对话</td><td>内存 + AgentStateStore</td><td>当前会话的完整消息序列</td><td>会话级</td><td>结构化压缩（保留目标/状态/发现/下一步）</td></tr>
+          <tr><td class="stage">MEMORY.md</td><td>Workspace 文件</td><td>Agent 自维护的关键事实</td><td>跨会话</td><td>Agent 自主决定写入和更新</td></tr>
+          <tr><td class="stage">事实流水账</td><td>外部持久化存储</td><td>所有交互的结构化日志</td><td>永久</td><td>不压缩，按需检索</td></tr>
+        </table>
+
+        <p>上下文压缩不是简单的截断。结构化压缩会提取四个关键要素：<strong>目标</strong>（用户要什么）、<strong>状态</strong>（当前进展）、<strong>关键发现</strong>（已经查明的事实）、<strong>下一步</strong>（接下来做什么）。压缩后的上下文让 Agent 不会丢失任务方向，只丢弃冗余的中间过程。</p>
+
+        <h3>大工具结果落盘</h3>
+
+        <p>Agent 调用工具时，返回结果可能很大--一次数据库查询返回几千行，一次文件读取返回几十万字符。这些结果直接塞进上下文会迅速撑爆 prompt。AgentScope 的做法是：超过 80K 字符的工具结果自动落盘，上下文里只保留一个占位符引用。Agent 需要时可以通过 <code>memory_recall</code> 工具显式回忆。</p>
+
+        <div class="code-block"><span class="cmt">// 记忆与压缩配置</span>
+MemoryConfig memoryConfig = MemoryConfig.builder()
+    <span class="cmt">// 长期记忆：接入 Mem0 或百炼记忆</span>
+    .longTermMemory(<span class="kw">new</span> Mem0MemoryProvider(mem0Config))
+    <span class="cmt">// 自动压缩开启</span>
+    .autoCompress(<span class="kw">true</span>)
+    <span class="cmt">// 上下文 token 上限：80K（预留窗口余量）</span>
+    .maxContextTokens(80000)
+    <span class="cmt">// 压缩策略：结构化压缩</span>
+    .compactionStrategy(CompactionStrategy.STRUCTURED)
+    <span class="cmt">// 大结果落盘阈值：80K 字符</span>
+    .toolResultEvictionThreshold(80000)
+    .build();</div>
+
+        <h3>ContextOverflow 兜底</h3>
+
+        <p>即使有压缩和落盘，极端情况下上下文仍可能溢出（比如模型突然改变了 token 计算方式）。AgentScope 的最后一道防线是 <strong>ContextOverflow 兜底重试</strong>：捕获溢出异常，强制压缩上下文到安全水位，然后重试。这保证了 Agent 不会因为上下文问题而直接崩溃。</p>
+
+        <div class="callout"><strong>记忆 vs 缓存的区别：</strong>记忆不是简单的 KV 缓存。MEMORY.md 是 Agent 自主维护的--它自己决定哪些事实值得记住、哪些可以遗忘。这种"自主记忆"让 Agent 具备了类似人类的遗忘曲线：常用的事实保持新鲜，不用的逐渐淡出。而事实流水账则是对话的完整审计日志，用于回溯和合规，不参与推理。</div>
+
+        <h2 id="section-7">七、安全沙箱与可控执行</h2>
+
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-agent-permission-security.jpg" alt="权限系统与安全沙箱决策流程">
+          <figcaption>权限三态决策流程 + 沙箱隔离执行 + 多租户数据隔离的安全体系</figcaption>
+        </figure>
+
+        <p>Agent 执行代码和命令时，安全是底线。AgentScope Java v2 的沙箱机制把工具执行限定在隔离环境内，支持三种隔离级别：本地子进程、Docker 容器、远端 AgentRun。企业生产环境推荐 Docker 或 K8s 沙箱。</p>
+
+        <div class="code-block"><span class="cmt">// Docker 沙箱配置</span>
+DockerFilesystemSpec sandbox = DockerFilesystemSpec.builder()
+    .image(<span class="str">"agentscope/sandbox-java:17"</span>)
+    .memoryLimit(<span class="str">"512m"</span>)
+    .cpuLimit(<span class="str">"0.5"</span>)
+    .networkMode(<span class="str">"none"</span>)       <span class="cmt">// 禁止网络访问</span>
+    .readOnlyRoot(<span class="kw">true</span>)         <span class="cmt">// 根文件系统只读</span>
+    .tmpfs(<span class="str">"/tmp"</span>, <span class="str">"64m"</span>)       <span class="cmt">// 临时目录</span>
+    .volume(<span class="str">"/workspace"</span>, workspacePath)  <span class="cmt">// 挂载工作区</span>
+    .build();</div>
+
+        <p>沙箱的核心能力不仅是隔离，还有<strong>快照与恢复</strong>。长任务执行到一半时，沙箱状态可以快照保存到 AgentStateStore。进程重启后，从快照恢复沙箱状态，长任务继续执行。这是"优雅上下线"的关键--滚动发布不会丢失在途任务的执行进度。</p>
+
+        <p>沙箱隔离加上权限系统，构成了 Agent 执行的双重安全网：</p>
+
+        <table class="compare-table">
+          <tr><th>安全层</th><th>防护对象</th><th>机制</th><th>恢复能力</th></tr>
+          <tr><td>权限系统</td><td>工具调用决策</td><td>Rules + Mode + Built-in Checks</td><td>ASK 规则自学习</td></tr>
+          <tr><td>沙箱隔离</td><td>代码执行环境</td><td>Docker / K8s 容器隔离</td><td>快照恢复</td></tr>
+          <tr><td>HITL</td><td>敏感操作审批</td><td>暂停-确认-恢复</td><td>精确恢复到暂停点</td></tr>
+          <tr><td>多租户隔离</td><td>数据安全</td><td>RuntimeContext 四维键</td><td>跨副本状态恢复</td></tr>
+        </table>
+
+        <p>HITL（Human-in-the-Loop）是 AgentScope 2.0 的一等公民。当权限系统返回 ASK 时，Agent 在暂停点等待人工确认。确认后精确恢复执行，不需要重新推理。这意味着敏感操作的审批不会打断 Agent 的工作流，只是插入了一个检查点。</p>
+
+        <h2 id="section-8">八、Spring Cloud Alibaba 集成落地</h2>
+
+        <p>AgentScope Java v2 是 Agent 框架，不是微服务框架。企业级部署需要服务注册发现、配置管理、流量控制、网关路由--这些正是 Spring Cloud Alibaba 的主场。两者的结合点是：AgentScope 负责智能体运行时，Spring Cloud Alibaba 负责基础设施治理。</p>
+
+        <h3>整体架构分层</h3>
+
+        <div class="arch-layer-stack">
+          <div class="arch-layer">
+            <div class="arch-layer-title">接入层 - Higress AI 网关</div>
+            <div class="arch-layer-body">Higress 作为 AI 网关，负责 <strong>协议转换</strong>（HTTP/SSE 到 AG-UI）、<strong>身份认证</strong>（JWT/OAuth2）、<strong>流量路由</strong>（按租户路由到不同 Agent 副本）。AgentScope 内建 Higress 集成，网关层天然支持 AG-UI 协议。</div>
+          </div>
+          <div class="arch-layer">
+            <div class="arch-layer-title">服务层 - Agent 微服务集群</div>
+            <div class="arch-layer-body">Agent 服务注册到 <strong>Nacos</strong>，按租户分组。每个 Agent 实例是无状态的，状态全部外置到 Redis/MySQL。Spring Cloud Sentinel 做限流熔断，单租户超限自动降级。实例可随意扩缩，不影响在途会话。</div>
+          </div>
+          <div class="arch-layer">
+            <div class="arch-layer-title">状态层 - 分布式存储</div>
+            <div class="arch-layer-body"><strong>Redis</strong>：AgentStateStore + 并发锁 + 沙箱快照。<strong>MySQL</strong>：技能仓库 + 事实流水账 + 会话审计。<strong>OSS</strong>：大工具结果落盘 + 工作区文件备份。AgentScope 的 DistributedStore 一键配置全链路分布式存储。</div>
+          </div>
+          <div class="arch-layer">
+            <div class="arch-layer-title">工具层 - MCP 服务集群</div>
+            <div class="arch-layer-body">每个 MCP 服务端是一个独立的 SpringBoot 微服务，注册到 Nacos。Agent 通过 MCP 协议自动发现工具。工具服务独立扩缩、独立升级，与 Agent 解耦。</div>
+          </div>
+          <div class="arch-layer">
+            <div class="arch-layer-title">治理层 - Nacos + Sentinel + Scheduler</div>
+            <div class="arch-layer-body"><strong>Nacos</strong>：配置中心 + 服务发现 + 技能仓库。<strong>Sentinel</strong>：限流熔断 + 热点参数限流。<strong>Scheduler</strong>（Quartz/XXL-Job）：定时任务调度，如定期压缩记忆、清理过期会话。</div>
+          </div>
+        </div>
+
+        <p>Spring Boot 应用的配置文件：</p>
+
+        <div class="code-block"><span class="cmt"># application.yml</span>
+spring:
+  application:
+    name: enterprise-agent-platform
+  cloud:
+    nacos:
+      discovery:
+        server-addr: nacos:8848
+        namespace: agent-prod
+        group: AGENT_GROUP
+      config:
+        server-addr: nacos:8848
+        file-extension: yaml
+        namespace: agent-prod
+    sentinel:
+      transport:
+        dashboard: sentinel:8080
+      datasource:
+        flow:
+          nacos:
+            server-addr: nacos:8848
+            dataId: agent-flow-rules
+            ruleType: flow
+
+<span class="cmt"># AgentScope 分布式存储配置</span>
+agentscope:
+  state-store:
+    type: redis
+    redis:
+      host: redis-cluster
+      port: 6379
+  skill-repository:
+    type: nacos
+    nacos:
+      server-addr: nacos:8848
+      group: SKILL_GROUP
+  sandbox:
+    type: docker
+    docker:
+      host: tcp://docker-host:2375
+      image: agentscope/sandbox-java:17</div>
+
+        <p>Agent 服务的 Spring Boot 启动类和 Bean 配置：</p>
+
+        <div class="code-block">@SpringBootApplication
+@EnableDiscoveryClient
+@EnableSentinel
+<span class="kw">public class</span> AgentApplication {
+    <span class="kw">public static void</span> main(String[] args) {
+        SpringApplication.run(AgentApplication.class, args);
+    }
+
+    @Bean
+    <span class="kw">public</span> AgentStateStore agentStateStore(
+            @Value(<span class="str">"${agentscope.state-store.redis.host}"</span>) String host) {
+        <span class="cmt">// Redis 状态存储：支撑无状态水平扩展</span>
+        <span class="kw">return new</span> RedisStateStore(RedisConfig.builder()
+            .host(host).port(6379).build());
+    }
+
+    @Bean
+    <span class="kw">public</span> AgentSkillRepository skillRepository(NacosConfigManager nacosManager) {
+        <span class="cmt">// Nacos 技能仓库：配置中心即技能中心</span>
+        <span class="kw">return new</span> NacosSkillRepository(nacosManager);
+    }
+}</div>
+
+        <h2 id="section-9">九、高可用与性能保障</h2>
+
+        <p>企业级平台的高可用不是靠某个单一机制，而是多个层次的冗余和兜底共同构成的。AgentScope Java v2 + Spring Cloud Alibaba 的高可用体系覆盖四个维度：</p>
+
+        <div class="pillar-cards">
+          <div class="pillar-card">
+            <div class="pillar-card-num">HA-1</div>
+            <div class="pillar-card-title">无状态水平扩展</div>
+            <div class="pillar-card-desc">Agent 状态全部外置到 AgentStateStore（Redis/MySQL/OSS）。任意副本都能恢复任意用户的完整上下文。Nacos 服务发现 + Spring Cloud LoadBalancer 自动路由。扩容只需加实例，缩容只需摘流量。</div>
+          </div>
+          <div class="pillar-card">
+            <div class="pillar-card-num">HA-2</div>
+            <div class="pillar-card-title">零停机滚动发布</div>
+            <div class="pillar-card-desc">在途会话不被打断：旧实例优雅关闭前，把在途 Agent 状态持久化到 AgentStateStore；新实例启动后，从 Store 恢复继续。同一个 (userId, sessionId) 在任意副本上都能无缝衔接。</div>
+          </div>
+          <div class="pillar-card">
+            <div class="pillar-card-num">HA-3</div>
+            <div class="pillar-card-title">限流熔断降级</div>
+            <div class="pillar-card-desc">Sentinel 按 orgId 做热点参数限流，单租户突发流量不拖垮全平台。模型调用超时自动熔断，降级到缓存结果或更小的模型。MCP 工具调用失败自动重试，重试次数可配。</div>
+          </div>
+          <div class="pillar-card">
+            <div class="pillar-card-num">HA-4</div>
+            <div class="pillar-card-title">事件流式输出</div>
+            <div class="pillar-card-desc">每一步--模型调用、文本增量、工具执行、工具结果--都以类型化事件流出。前端 SSE 实时跟上，用户体验不卡顿。即使模型推理需要 30 秒，用户也能看到每一步进展。</div>
+          </div>
+        </div>
+
+        <p>性能优化的关键指标和对应手段：</p>
+
+        <table class="compare-table">
+          <tr><th>性能指标</th><th>瓶颈点</th><th>优化手段</th><th>AgentScope 能力</th></tr>
+          <tr><td>首 token 延迟</td><td>模型推理启动</td><td>流式输出 + 连接预热</td><td>事件流式原生支持</td></tr>
+          <tr><td>上下文 token 消耗</td><td>长会话 prompt 膨胀</td><td>结构化压缩 + 大结果落盘</td><td>自动压缩 + toolResultEviction</td></tr>
+          <tr><td>工具调用延迟</td><td>MCP 服务响应慢</td><td>并行调用 + 结果缓存</td><td>子Agent并发 + memory_recall</td></tr>
+          <tr><td>状态恢复延迟</td><td>AgentStateStore 读取</td><td>Redis 热缓存 + MySQL 冷存储</td><td>多层 StateStore 混合后端</td></tr>
+          <tr><td>并发吞吐</td><td>单实例 Agent 数上限</td><td>无状态化 + 水平扩展</td><td>RuntimeContext 隔离</td></tr>
+        </table>
+
+        <div class="callout"><strong>DistributedStore 一键配置：</strong>AgentScope 2.0 的 DistributedStore 把 Agent 状态、工作区文件系统、沙箱快照、并发锁全部收敛到一个配置入口。选择 Redis 后端，就自动获得 AgentStateStore + BaseStore + SandboxSnapshotSpec + SandboxExecutionGuard 四个能力。混合后端也支持--状态用 Redis（快），文件用 OSS（便宜），沙箱快照用 MySQL（可审计）。</div>
+
+        <h2 id="section-10">十、场景应用：三个真实落地案例</h2>
+
+        <p>架构设计最终要落到场景。下面是三个典型企业场景，展示 AgentScope + Spring Cloud Alibaba 的实际应用模式。</p>
+
+        <div class="scenario-grid">
+          <div class="scenario-card">
+            <div class="scenario-card-tag">场景一：智能客服</div>
+            <div class="scenario-card-title">多租户客服 Agent 平台</div>
+            <div class="scenario-card-body">SaaS 客服平台，每个租户有独立的 <strong>人格配置</strong>、<strong>知识库</strong>和<strong>工具集</strong>。Agent 通过 RAG 检索租户知识库，通过 MCP 调用租户的 CRM/ERP 系统。权限系统确保 Agent 只能查本租户数据，敏感操作（如退款、改单）走 HITL 人工确认。技能仓库让 Agent 积累每个租户特有的处理模式。<br><br><strong>关键能力：</strong>多租户隔离 + RAG + MCP + HITL + 技能沉淀</div>
+          </div>
+          <div class="scenario-card">
+            <div class="scenario-card-tag">场景二：研发助手</div>
+            <div class="scenario-card-title">代码生成与审查 Agent</div>
+            <div class="scenario-card-body">内部研发平台，Agent 帮助开发者写代码、跑测试、做 Code Review。沙箱执行用户提交的代码，Docker 隔离防注入。子 Agent 编排：主 Agent 拆任务，子 Agent 分别做代码生成、测试编写、安全扫描，结果汇总后统一输出。计划模式先规划再执行，避免 ReAct 在复杂任务中跑偏。工作区持久化项目上下文，跨会话保持项目记忆。<br><br><strong>关键能力：</strong>沙箱隔离 + 子Agent编排 + 计划模式 + Workspace</div>
+          </div>
+          <div class="scenario-card">
+            <div class="scenario-card-tag">场景三：数据分析</div>
+            <div class="scenario-card-title">自助式 BI Agent</div>
+            <div class="scenario-card-body">业务人员用自然语言提问，Agent 自动生成 SQL、查询数据、生成图表。数据权限通过 RuntimeContext 注入，Agent 生成的 SQL 自动追加 <code>WHERE org_id = ?</code>。MCP 接入数据库服务和图表渲染服务。三层记忆记住用户的查询偏好和常用指标。Sentinel 限流防大查询拖垮数据库。大结果落盘避免上下文爆炸。<br><br><strong>关键能力：</strong>数据权限 + MCP + 三层记忆 + 限流 + 大结果落盘</div>
+          </div>
+        </div>
+
+        <h2 id="section-11">十一、上生产检查清单</h2>
+
+        <p>从 demo 到生产，以下清单覆盖了企业级 Agent 平台上线前必须验证的关键项：</p>
+
+        <div class="checklist">
+          <div class="checklist-title">安全与权限</div>
+          <ul>
+            <li>权限 Mode 设为 EXPLORE（只读），写操作显式 allow</li>
+            <li>所有删除/修改操作配置 ASK 规则，走 HITL 审批</li>
+            <li>RuntimeContext 四维隔离（session/user/agent/org）验证通过</li>
+            <li>数据权限拦截器覆盖所有数据查询路径</li>
+            <li>沙箱网络模式设为 none，根文件系统只读</li>
+          </ul>
+        </div>
+
+        <div class="checklist">
+          <div class="checklist-title">高可用与性能</div>
+          <ul>
+            <li>AgentStateStore 配置为 Redis（或 MySQL），非内存模式</li>
+            <li>技能仓库配置为 MySQL/Nacos/Git，非本地文件系统</li>
+            <li>Sentinel 限流规则按 orgId 热点参数配置</li>
+            <li>模型调用超时 + 熔断 + 降级策略配置</li>
+            <li>上下文压缩 + 大结果落盘 + ContextOverflow 兜底验证</li>
+            <li>滚动发布测试：在途会话不丢失，状态恢复验证通过</li>
+          </ul>
+        </div>
+
+        <div class="checklist">
+          <div class="checklist-title">可观测与运维</div>
+          <ul>
+            <li>事件流式输出接入监控（每步事件可追踪）</li>
+            <li>Middleware 五阶段日志（onAgent/onReasoning/onActing/onModelCall/onSystemPrompt）</li>
+            <li>工具调用审计日志持久化（谁、何时、调了什么、结果）</li>
+            <li>Nacos 配置热更新验证（权限规则、模型参数）</li>
+            <li>Scheduler 定时任务：记忆压缩 + 过期会话清理 + 技能同步</li>
+          </ul>
+        </div>
+
+        <h2 id="conclusion">结语</h2>
+
+        <p>企业级 Agent 平台的核心挑战从来不是"让 Agent 能跑"，而是"让 Agent 安全、稳定、高效地长期跑"。AgentScope Java v2 用三大支柱回答了这个问题：Harness 工程化让单个 Agent 能长期运行、能力越用越强；企业级分布式部署让多 Agent 能安全服务多租户、零停机发布；底层框架升级让核心抽象更干净、扩展更自然。</p>
+
+        <p>Spring Cloud Alibaba 的角色是基础设施治理：Nacos 管配置和发现，Sentinel 管流量和降级，Higress 管网关和协议。AgentScope 负责智能体运行时，Spring Cloud Alibaba 负责基础设施治理，各司其职，通过标准接口对接。这种分层不是技术栈的简单堆叠，而是职责的清晰划分。</p>
+
+        <p>从 demo 到生产，差距不在模型能力，而在工程化深度。权限三态决策、三层记忆管理、沙箱快照恢复、无状态水平扩展--每一个都是独立工程课题，AgentScope 把它们收敛到一个 Builder API 里。开发者不需要从零拼装这些能力，只需要理解每个配置项的含义，按场景开启。这才是"企业级"三个字的真正含义：不是功能更多，而是把生产环境的复杂度封装好了。</p>
+
+        <h3>参考资料</h3>
+        <ol>
+          <li>AgentScope Java v2 官方文档 <a href="https://java.agentscope.io/v2/zh/intro.html" target="_blank" rel="noopener">https://java.agentscope.io/v2/zh/intro.html</a></li>
+          <li>AgentScope 官网 <a href="https://agentscope.io/" target="_blank" rel="noopener">https://agentscope.io/</a></li>
+          <li>AgentScope Java v2 权限系统 <a href="https://java.agentscope.io/v2/zh/docs/building-blocks/permission-system.html" target="_blank" rel="noopener">https://java.agentscope.io/v2/zh/docs/building-blocks/permission-system.html</a></li>
+          <li>AgentScope Java v2 Harness 架构 <a href="https://java.agentscope.io/v2/zh/docs/harness/architecture.html" target="_blank" rel="noopener">https://java.agentscope.io/v2/zh/docs/harness/architecture.html</a></li>
+          <li>AgentScope Java v2 集成总览 <a href="https://java.agentscope.io/v2/zh/integration/overview.html" target="_blank" rel="noopener">https://java.agentscope.io/v2/zh/integration/overview.html</a></li>
+          <li>Spring Cloud Alibaba 官方文档 <a href="https://sca.aliyun.com/" target="_blank" rel="noopener">https://sca.aliyun.com/</a></li>
+          <li>Model Context Protocol 规范 <a href="https://modelcontextprotocol.io/" target="_blank" rel="noopener">https://modelcontextprotocol.io/</a></li>
+        </ol>
+
+      </div>
+      <nav class="article-nav" id="articleNav"></nav>
+    </article>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; 2024-2026 馒头仔 | Smart Open. Built with care.</p>
+    </div>
+  </footer>
+
+  <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
+  <script src="../../js/article.js"></script>
+  <script src="../../js/preview-rail.js"></script>
+</body>
+</html>

@@ -3,6 +3,14 @@
    ======================================== */
 const ARTICLES_DATA = [
   {
+    id: 'article-34',
+    title: 'AgentScope搭企业级Agent平台实战',
+    excerpt: '基于 AgentScope Java v2 + SpringBoot + Spring Cloud Alibaba + HarnessAgent 构建企业级 Agent 平台的全景拆解：身份权限三态决策、MCP/Skill 工具双引擎、三层记忆管理、安全沙箱隔离、无状态水平扩展、零停机滚动发布，覆盖架构解析、代码实战与三个真实落地场景',
+    tags: ['AgentScope', 'HarnessAgent', 'Spring Cloud Alibaba', '企业级 Agent'],
+    date: '2026-08-04',
+    detailUrl: 'detail/article-34.html'
+  },
+  {
     id: 'article-33',
     title: '深度分页拖垮系统？三种存储分页优化全景拆解',
     excerpt: '从 LIMIT 百万行丢弃99%的代价，到 ES search_after 游标分页，全方位拆解 MySQL/PostgreSQL、Redis、Elasticsearch 三类存储的深度分页问题与优化方案，覆盖搜索场景分页、缓存层策略与选型决策',
