@@ -3,6 +3,14 @@
    ======================================== */
 const ARTICLES_DATA = [
   {
+    id: 'article-36',
+    title: '多级Agent管理实战：从单体到协作的跃迁',
+    excerpt: '深入解析AgentScope 2.0多级Agent架构，涵盖子Agent生命周期管理、任务分解策略、通信机制设计、监控与调试，结合代码评审协作系统实战案例，展示如何构建高效的多Agent协作系统，附6大反模式避坑指南',
+    tags: ['多级Agent', '子Agent编排', '任务分解', '协作系统'],
+    date: '2026-08-06',
+    detailUrl: 'detail/article-36.html'
+  },
+  {
     id: 'article-35',
     title: '大模型参数不会调？Agent开发7大参数实战指南',
     excerpt: '深度解析大模型 API 核心参数（temperature、top_p、max_tokens、penalty 等）在 Agent 开发中的实战搭配，结合 Prompt 工程的协同策略，附参数影响示意图与5套可直接复制的生产配置模板，覆盖 RAG 问答、JSON 输出、工具调用、多轮对话、创意生成五大场景',
