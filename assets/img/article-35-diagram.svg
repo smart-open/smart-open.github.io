@@ -1,0 +1,272 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 920" font-family="Inter, sans-serif">
+<defs>
+<marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#7a7a85"/></marker>
+<marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#00f0ff"/></marker>
+<linearGradient id="spectrum-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" stop-color="#00ff88"/>
+<stop offset="25%" stop-color="#00f0ff"/>
+<stop offset="55%" stop-color="#ff8c00"/>
+<stop offset="85%" stop-color="#ff4466"/>
+<stop offset="100%" stop-color="#a855f7"/>
+</linearGradient>
+<filter id="glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect width="1200" height="920" fill="#0a0a0f"/>
+<text x="600" y="42" text-anchor="middle" font-size="22" font-weight="700" fill="#e8e8ec">大模型 API 核心参数对输出影响示意图</text>
+<text x="600" y="66" text-anchor="middle" font-size="13" fill="#7a7a85">参数控制的是「随机性 / 创造性」，不是正确性 — 想要严谨，压低随机参数 + 写好 Prompt</text>
+<rect x="30" y="90" width="210" height="130" rx="8" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
+<rect x="30" y="90" width="210" height="3" rx="1.5" fill="#00f0ff"/>
+<text x="44" y="116" font-size="14" font-weight="600" fill="#00f0ff" font-family="JetBrains Mono, monospace">temperature</text>
+<text x="44" y="134" font-size="11" fill="#7a7a85">范围: 0 ~ 2.0  默认: 0.7</text>
+<text x="44" y="154" font-size="12" fill="#e8e8ec">控制输出随机性</text>
+<rect x="44" y="168" width="182" height="6" rx="3" fill="#2a2a35"/>
+<linearGradient id="mini-grad-0" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00ff88" stop-opacity="0.6"/><stop offset="100%" stop-color="#00f0ff" stop-opacity="0.8"/></linearGradient>
+<rect x="44" y="168" width="182" height="6" rx="3" fill="url(#mini-grad-0)"/>
+<text x="44" y="190" font-size="10" fill="#7a7a85">确定性高</text>
+<text x="226" y="190" text-anchor="end" font-size="10" fill="#7a7a85">天马行空</text>
+<rect x="258" y="90" width="210" height="130" rx="8" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
+<rect x="258" y="90" width="210" height="3" rx="1.5" fill="#00ff88"/>
+<text x="272" y="116" font-size="14" font-weight="600" fill="#00ff88" font-family="JetBrains Mono, monospace">top_p</text>
+<text x="272" y="134" font-size="11" fill="#7a7a85">范围: 0 ~ 1.0  默认: 0.9</text>
+<text x="272" y="154" font-size="12" fill="#e8e8ec">核采样概率阈值</text>
+<rect x="272" y="168" width="182" height="6" rx="3" fill="#2a2a35"/>
+<linearGradient id="mini-grad-1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00ff88" stop-opacity="0.6"/><stop offset="100%" stop-color="#00ff88" stop-opacity="0.8"/></linearGradient>
+<rect x="272" y="168" width="182" height="6" rx="3" fill="url(#mini-grad-1)"/>
+<text x="272" y="190" font-size="10" fill="#7a7a85">保守选词</text>
+<text x="454" y="190" text-anchor="end" font-size="10" fill="#7a7a85">全词表采样</text>
+<rect x="486" y="90" width="210" height="130" rx="8" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
+<rect x="486" y="90" width="210" height="3" rx="1.5" fill="#ff8c00"/>
+<text x="500" y="116" font-size="14" font-weight="600" fill="#ff8c00" font-family="JetBrains Mono, monospace">max_tokens</text>
+<text x="500" y="134" font-size="11" fill="#7a7a85">范围: 1 ~ 128K  默认: 2048</text>
+<text x="500" y="154" font-size="12" fill="#e8e8ec">最大输出长度</text>
+<rect x="500" y="168" width="182" height="6" rx="3" fill="#2a2a35"/>
+<linearGradient id="mini-grad-2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00ff88" stop-opacity="0.6"/><stop offset="100%" stop-color="#ff8c00" stop-opacity="0.8"/></linearGradient>
+<rect x="500" y="168" width="182" height="6" rx="3" fill="url(#mini-grad-2)"/>
+<text x="500" y="190" font-size="10" fill="#7a7a85">短回答</text>
+<text x="682" y="190" text-anchor="end" font-size="10" fill="#7a7a85">长文本生成</text>
+<rect x="714" y="90" width="210" height="130" rx="8" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
+<rect x="714" y="90" width="210" height="3" rx="1.5" fill="#a855f7"/>
+<text x="728" y="116" font-size="14" font-weight="600" fill="#a855f7" font-family="JetBrains Mono, monospace">frequency_penalty</text>
+<text x="728" y="134" font-size="11" fill="#7a7a85">范围: -2 ~ +2  默认: 0</text>
+<text x="728" y="154" font-size="12" fill="#e8e8ec">惩罚高频重复词</text>
+<rect x="728" y="168" width="182" height="6" rx="3" fill="#2a2a35"/>
+<linearGradient id="mini-grad-3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00ff88" stop-opacity="0.6"/><stop offset="100%" stop-color="#a855f7" stop-opacity="0.8"/></linearGradient>
+<rect x="728" y="168" width="182" height="6" rx="3" fill="url(#mini-grad-3)"/>
+<text x="728" y="190" font-size="10" fill="#7a7a85">允许重复</text>
+<text x="910" y="190" text-anchor="end" font-size="10" fill="#7a7a85">减少车轱辘话</text>
+<rect x="942" y="90" width="210" height="130" rx="8" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
+<rect x="942" y="90" width="210" height="3" rx="1.5" fill="#ff4466"/>
+<text x="956" y="116" font-size="14" font-weight="600" fill="#ff4466" font-family="JetBrains Mono, monospace">presence_penalty</text>
+<text x="956" y="134" font-size="11" fill="#7a7a85">范围: -2 ~ +2  默认: 0</text>
+<text x="956" y="154" font-size="12" fill="#e8e8ec">惩罚已出现话题</text>
+<rect x="956" y="168" width="182" height="6" rx="3" fill="#2a2a35"/>
+<linearGradient id="mini-grad-4" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00ff88" stop-opacity="0.6"/><stop offset="100%" stop-color="#ff4466" stop-opacity="0.8"/></linearGradient>
+<rect x="956" y="168" width="182" height="6" rx="3" fill="url(#mini-grad-4)"/>
+<text x="956" y="190" font-size="10" fill="#7a7a85">鼓励复刻格式</text>
+<text x="1138" y="190" text-anchor="end" font-size="10" fill="#7a7a85">鼓励新话题</text>
+<text x="30" y="240" font-size="14" font-weight="600" fill="#e8e8ec">参数值与输出行为的关系光谱</text>
+<rect x="80" y="270" width="1040" height="36" rx="6" fill="url(#spectrum-grad)" filter="url(#glow)"/>
+<text x="100" y="326" text-anchor="middle" font-size="12" font-weight="500" fill="#00ff88">确定性</text>
+<line x1="100" y1="306" x2="100" y2="312" stroke="#00ff88" stroke-width="1.5"/>
+<text x="308.8" y="326" text-anchor="middle" font-size="12" font-weight="500" fill="#00f0ff">稳定</text>
+<line x1="308.8" y1="306" x2="308.8" y2="312" stroke="#00f0ff" stroke-width="1.5"/>
+<text x="600.0" y="326" text-anchor="middle" font-size="12" font-weight="500" fill="#ff8c00">平衡</text>
+<line x1="600.0" y1="306" x2="600.0" y2="312" stroke="#ff8c00" stroke-width="1.5"/>
+<text x="891.2" y="326" text-anchor="middle" font-size="12" font-weight="500" fill="#ff4466">发散</text>
+<line x1="891.2" y1="306" x2="891.2" y2="312" stroke="#ff4466" stroke-width="1.5"/>
+<text x="1100" y="326" text-anchor="middle" font-size="12" font-weight="500" fill="#a855f7">失控</text>
+<line x1="1100" y1="306" x2="1100" y2="312" stroke="#a855f7" stroke-width="1.5"/>
+<text x="60" y="348" font-size="11" fill="#7a7a85" font-family="JetBrains Mono, monospace">temperature:</text>
+<circle cx="80.0" cy="356" r="3" fill="#00ff88"/>
+<text x="80.0" y="372" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">0.0</text>
+<circle cx="184.0" cy="356" r="3" fill="#00ff88"/>
+<text x="184.0" y="372" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">0.2</text>
+<circle cx="340.0" cy="356" r="3" fill="#00f0ff"/>
+<text x="340.0" y="372" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">0.5</text>
+<circle cx="444.0" cy="356" r="3" fill="#00f0ff"/>
+<text x="444.0" y="372" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">0.7</text>
+<circle cx="600.0" cy="356" r="3" fill="#ff8c00"/>
+<text x="600.0" y="372" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">1.0</text>
+<circle cx="860.0" cy="356" r="3" fill="#ff4466"/>
+<text x="860.0" y="372" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">1.5</text>
+<circle cx="1120.0" cy="356" r="3" fill="#a855f7"/>
+<text x="1120.0" y="372" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">2.0</text>
+<path d="M 128.2,380 L 128.2,388 L 198.2,388 L 198.2,380" stroke="#00ff88" stroke-width="1.5" fill="none"/>
+<text x="163.2" y="406" text-anchor="middle" font-size="11" fill="#e8e8ec">RAG / JSON</text>
+<text x="163.2" y="420" text-anchor="middle" font-size="11" fill="#e8e8ec">函数调用</text>
+<text x="163.2" y="438" text-anchor="middle" font-size="10" fill="#00ff88" font-family="JetBrains Mono, monospace">temp=0.0-0.2</text>
+<path d="M 357.0,380 L 357.0,388 L 427.0,388 L 427.0,380" stroke="#00f0ff" stroke-width="1.5" fill="none"/>
+<text x="392.0" y="406" text-anchor="middle" font-size="11" fill="#e8e8ec">翻译 / 摘要</text>
+<text x="392.0" y="420" text-anchor="middle" font-size="11" fill="#e8e8ec">技术文档</text>
+<text x="392.0" y="438" text-anchor="middle" font-size="10" fill="#00f0ff" font-family="JetBrains Mono, monospace">temp=0.3-0.5</text>
+<path d="M 585.8000000000001,380 L 585.8000000000001,388 L 655.8000000000001,388 L 655.8000000000001,380" stroke="#ff8c00" stroke-width="1.5" fill="none"/>
+<text x="620.8000000000001" y="406" text-anchor="middle" font-size="11" fill="#e8e8ec">通用对话</text>
+<text x="620.8000000000001" y="420" text-anchor="middle" font-size="11" fill="#e8e8ec">客服聊天</text>
+<text x="620.8000000000001" y="438" text-anchor="middle" font-size="10" fill="#ff8c00" font-family="JetBrains Mono, monospace">temp=0.6-0.8</text>
+<path d="M 856.2,380 L 856.2,388 L 926.2,388 L 926.2,380" stroke="#ff4466" stroke-width="1.5" fill="none"/>
+<text x="891.2" y="406" text-anchor="middle" font-size="11" fill="#e8e8ec">创意写作</text>
+<text x="891.2" y="420" text-anchor="middle" font-size="11" fill="#e8e8ec">脑洞生成</text>
+<text x="891.2" y="438" text-anchor="middle" font-size="10" fill="#ff4466" font-family="JetBrains Mono, monospace">temp=0.9-1.2</text>
+<text x="30" y="430" font-size="14" font-weight="600" fill="#e8e8ec">Agent 开发：参数 × Prompt 协同实战配置</text>
+<text x="30" y="448" font-size="11" fill="#7a7a85">参数决定输出的「天花板」，Prompt 决定输出的「地板」— 两者必须匹配</text>
+<rect x="30" y="468" width="218" height="200" rx="8" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
+<rect x="30" y="468" width="218" height="32" rx="8" fill="#00ff88" opacity="0.12"/>
+<rect x="30" y="492" width="218" height="8" fill="#00ff88" opacity="0.12"/>
+<rect x="40" y="474" width="44" height="20" rx="4" fill="#00ff88" opacity="0.2"/>
+<text x="62" y="488" text-anchor="middle" font-size="10" font-weight="700" fill="#00ff88" font-family="JetBrains Mono, monospace">RAG</text>
+<text x="90" y="489" font-size="13" font-weight="600" fill="#e8e8ec">RAG 知识库问答</text>
+<text x="42" y="514" font-size="10" font-weight="600" fill="#7a7a85">推荐参数</text>
+<text x="42" y="528" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">temperature:</text>
+<text x="116.2" y="528" font-size="10" fill="#00ff88" font-family="JetBrains Mono, monospace">0.1</text>
+<text x="42" y="542" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">top_p:</text>
+<text x="79.0" y="542" font-size="10" fill="#00ff88" font-family="JetBrains Mono, monospace">0.9</text>
+<text x="42" y="556" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">max_tokens:</text>
+<text x="110.0" y="556" font-size="10" fill="#00ff88" font-family="JetBrains Mono, monospace">2048</text>
+<text x="42" y="570" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">response_format:</text>
+<text x="141.0" y="570" font-size="10" fill="#00ff88" font-family="JetBrains Mono, monospace">json</text>
+<text x="42" y="584" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">stream:</text>
+<text x="85.2" y="584" font-size="10" fill="#00ff88" font-family="JetBrains Mono, monospace">false</text>
+<line x1="42" y1="600" x2="236" y2="600" stroke="#2a2a35" stroke-width="1"/>
+<text x="42" y="614" font-size="10" font-weight="600" fill="#7a7a85">Prompt 要点</text>
+<text x="42" y="627" font-size="10" fill="#e8e8ec">Prompt 必须包含</text>
+<text x="42" y="640" font-size="10" fill="#e8e8ec">retrieved context</text>
+<text x="42" y="653" font-size="10" fill="#e8e8ec">+ 明确输出格式</text>
+<rect x="40" y="668" width="198" height="30" rx="4" fill="#ff4466" opacity="0.08"/>
+<text x="44" y="680" font-size="9" font-weight="600" fill="#ff4466">⚠ 风险</text>
+<text x="44" y="692" font-size="9" fill="#7a7a85">幻觉风险最低</text>
+<text x="44" y="691" font-size="9" fill="#7a7a85">但 Prompt 差照样胡说</text>
+<rect x="264" y="468" width="218" height="200" rx="8" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
+<rect x="264" y="468" width="218" height="32" rx="8" fill="#00f0ff" opacity="0.12"/>
+<rect x="264" y="492" width="218" height="8" fill="#00f0ff" opacity="0.12"/>
+<rect x="274" y="474" width="44" height="20" rx="4" fill="#00f0ff" opacity="0.2"/>
+<text x="296" y="488" text-anchor="middle" font-size="10" font-weight="700" fill="#00f0ff" font-family="JetBrains Mono, monospace">JSON</text>
+<text x="324" y="489" font-size="13" font-weight="600" fill="#e8e8ec">结构化 JSON 输出</text>
+<text x="276" y="514" font-size="10" font-weight="600" fill="#7a7a85">推荐参数</text>
+<text x="276" y="528" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">temperature:</text>
+<text x="350.2" y="528" font-size="10" fill="#00f0ff" font-family="JetBrains Mono, monospace">0.1</text>
+<text x="276" y="542" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">top_p:</text>
+<text x="313.0" y="542" font-size="10" fill="#00f0ff" font-family="JetBrains Mono, monospace">0.9</text>
+<text x="276" y="556" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">max_tokens:</text>
+<text x="344.0" y="556" font-size="10" fill="#00f0ff" font-family="JetBrains Mono, monospace">1024</text>
+<text x="276" y="570" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">response_format:</text>
+<text x="375.0" y="570" font-size="10" fill="#00f0ff" font-family="JetBrains Mono, monospace">json_object</text>
+<text x="276" y="584" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">stream:</text>
+<text x="319.2" y="584" font-size="10" fill="#00f0ff" font-family="JetBrains Mono, monospace">false</text>
+<line x1="276" y1="600" x2="470" y2="600" stroke="#2a2a35" stroke-width="1"/>
+<text x="276" y="614" font-size="10" font-weight="600" fill="#7a7a85">Prompt 要点</text>
+<text x="276" y="627" font-size="10" fill="#e8e8ec">Prompt 必须明确</text>
+<text x="276" y="640" font-size="10" fill="#e8e8ec">要求输出 JSON</text>
+<text x="276" y="653" font-size="10" fill="#e8e8ec">+ 给出 Schema</text>
+<rect x="274" y="668" width="198" height="30" rx="4" fill="#ff4466" opacity="0.08"/>
+<text x="278" y="680" font-size="9" font-weight="600" fill="#ff4466">⚠ 风险</text>
+<text x="278" y="692" font-size="9" fill="#7a7a85">不开 json 模式</text>
+<text x="278" y="691" font-size="9" fill="#7a7a85">或 Prompt 不提 JSON</text>
+<text x="278" y="702" font-size="9" fill="#7a7a85">→ 报错</text>
+<rect x="498" y="468" width="218" height="200" rx="8" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
+<rect x="498" y="468" width="218" height="32" rx="8" fill="#ff8c00" opacity="0.12"/>
+<rect x="498" y="492" width="218" height="8" fill="#ff8c00" opacity="0.12"/>
+<rect x="508" y="474" width="44" height="20" rx="4" fill="#ff8c00" opacity="0.2"/>
+<text x="530" y="488" text-anchor="middle" font-size="10" font-weight="700" fill="#ff8c00" font-family="JetBrains Mono, monospace">TOOL</text>
+<text x="558" y="489" font-size="13" font-weight="600" fill="#e8e8ec">工具调用 / 函数调用</text>
+<text x="510" y="514" font-size="10" font-weight="600" fill="#7a7a85">推荐参数</text>
+<text x="510" y="528" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">temperature:</text>
+<text x="584.2" y="528" font-size="10" fill="#ff8c00" font-family="JetBrains Mono, monospace">0.0</text>
+<text x="510" y="542" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">top_p:</text>
+<text x="547.0" y="542" font-size="10" fill="#ff8c00" font-family="JetBrains Mono, monospace">0.3</text>
+<text x="510" y="556" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">max_tokens:</text>
+<text x="578.0" y="556" font-size="10" fill="#ff8c00" font-family="JetBrains Mono, monospace">512</text>
+<text x="510" y="570" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">tool_choice:</text>
+<text x="584.2" y="570" font-size="10" fill="#ff8c00" font-family="JetBrains Mono, monospace">auto</text>
+<text x="510" y="584" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">stream:</text>
+<text x="553.2" y="584" font-size="10" fill="#ff8c00" font-family="JetBrains Mono, monospace">false</text>
+<line x1="510" y1="600" x2="704" y2="600" stroke="#2a2a35" stroke-width="1"/>
+<text x="510" y="614" font-size="10" font-weight="600" fill="#7a7a85">Prompt 要点</text>
+<text x="510" y="627" font-size="10" fill="#e8e8ec">工具描述要精确</text>
+<text x="510" y="640" font-size="10" fill="#e8e8ec">参数 Schema 清晰</text>
+<text x="510" y="653" font-size="10" fill="#e8e8ec">+ few-shot 示例</text>
+<rect x="508" y="668" width="198" height="30" rx="4" fill="#ff4466" opacity="0.08"/>
+<text x="512" y="680" font-size="9" font-weight="600" fill="#ff4466">⚠ 风险</text>
+<text x="512" y="692" font-size="9" fill="#7a7a85">temp > 0.3</text>
+<text x="512" y="691" font-size="9" fill="#7a7a85">→ 工具名/参数</text>
+<text x="512" y="702" font-size="9" fill="#7a7a85">可能乱编</text>
+<rect x="732" y="468" width="218" height="200" rx="8" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
+<rect x="732" y="468" width="218" height="32" rx="8" fill="#a855f7" opacity="0.12"/>
+<rect x="732" y="492" width="218" height="8" fill="#a855f7" opacity="0.12"/>
+<rect x="742" y="474" width="44" height="20" rx="4" fill="#a855f7" opacity="0.2"/>
+<text x="764" y="488" text-anchor="middle" font-size="10" font-weight="700" fill="#a855f7" font-family="JetBrains Mono, monospace">CHAT</text>
+<text x="792" y="489" font-size="13" font-weight="600" fill="#e8e8ec">多轮对话 Agent</text>
+<text x="744" y="514" font-size="10" font-weight="600" fill="#7a7a85">推荐参数</text>
+<text x="744" y="528" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">temperature:</text>
+<text x="818.2" y="528" font-size="10" fill="#a855f7" font-family="JetBrains Mono, monospace">0.7</text>
+<text x="744" y="542" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">top_p:</text>
+<text x="781.0" y="542" font-size="10" fill="#a855f7" font-family="JetBrains Mono, monospace">0.9</text>
+<text x="744" y="556" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">max_tokens:</text>
+<text x="812.0" y="556" font-size="10" fill="#a855f7" font-family="JetBrains Mono, monospace">1024</text>
+<text x="744" y="570" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">frequency_penalty:</text>
+<text x="855.4" y="570" font-size="10" fill="#a855f7" font-family="JetBrains Mono, monospace">0</text>
+<text x="744" y="584" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">stream:</text>
+<text x="787.2" y="584" font-size="10" fill="#a855f7" font-family="JetBrains Mono, monospace">true</text>
+<line x1="744" y1="600" x2="938" y2="600" stroke="#2a2a35" stroke-width="1"/>
+<text x="744" y="614" font-size="10" font-weight="600" fill="#7a7a85">Prompt 要点</text>
+<text x="744" y="627" font-size="10" fill="#e8e8ec">System Prompt 定义</text>
+<text x="744" y="640" font-size="10" fill="#e8e8ec">角色和边界</text>
+<text x="744" y="653" font-size="10" fill="#e8e8ec">+ 历史消息管理</text>
+<rect x="742" y="668" width="198" height="30" rx="4" fill="#ff4466" opacity="0.08"/>
+<text x="746" y="680" font-size="9" font-weight="600" fill="#ff4466">⚠ 风险</text>
+<text x="746" y="692" font-size="9" fill="#7a7a85">temp 太低 → 机械感</text>
+<text x="746" y="691" font-size="9" fill="#7a7a85">temp 太高 → 跑题</text>
+<rect x="966" y="468" width="218" height="200" rx="8" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
+<rect x="966" y="468" width="218" height="32" rx="8" fill="#ff4466" opacity="0.12"/>
+<rect x="966" y="492" width="218" height="8" fill="#ff4466" opacity="0.12"/>
+<rect x="976" y="474" width="44" height="20" rx="4" fill="#ff4466" opacity="0.2"/>
+<text x="998" y="488" text-anchor="middle" font-size="10" font-weight="700" fill="#ff4466" font-family="JetBrains Mono, monospace">IDEA</text>
+<text x="1026" y="489" font-size="13" font-weight="600" fill="#e8e8ec">创意生成 / 文案</text>
+<text x="978" y="514" font-size="10" font-weight="600" fill="#7a7a85">推荐参数</text>
+<text x="978" y="528" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">temperature:</text>
+<text x="1052.2" y="528" font-size="10" fill="#ff4466" font-family="JetBrains Mono, monospace">1.0</text>
+<text x="978" y="542" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">top_p:</text>
+<text x="1015.0" y="542" font-size="10" fill="#ff4466" font-family="JetBrains Mono, monospace">0.95</text>
+<text x="978" y="556" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">max_tokens:</text>
+<text x="1046.0" y="556" font-size="10" fill="#ff4466" font-family="JetBrains Mono, monospace">4096</text>
+<text x="978" y="570" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">frequency_penalty:</text>
+<text x="1089.4" y="570" font-size="10" fill="#ff4466" font-family="JetBrains Mono, monospace">0.2</text>
+<text x="978" y="584" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">presence_penalty:</text>
+<text x="1083.2" y="584" font-size="10" fill="#ff4466" font-family="JetBrains Mono, monospace">0.2</text>
+<line x1="978" y1="600" x2="1172" y2="600" stroke="#2a2a35" stroke-width="1"/>
+<text x="978" y="614" font-size="10" font-weight="600" fill="#7a7a85">Prompt 要点</text>
+<text x="978" y="627" font-size="10" fill="#e8e8ec">给风格参考和</text>
+<text x="978" y="640" font-size="10" fill="#e8e8ec">创作约束</text>
+<text x="978" y="653" font-size="10" fill="#e8e8ec">+ 放宽格式要求</text>
+<rect x="976" y="668" width="198" height="30" rx="4" fill="#ff4466" opacity="0.08"/>
+<text x="980" y="680" font-size="9" font-weight="600" fill="#ff4466">⚠ 风险</text>
+<text x="980" y="692" font-size="9" fill="#7a7a85">temp > 1.2</text>
+<text x="980" y="691" font-size="9" fill="#7a7a85">→ 逻辑崩坏</text>
+<text x="980" y="702" font-size="9" fill="#7a7a85">内容不可控</text>
+<rect x="30" y="720" width="1140" height="170" rx="10" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
+<text x="50" y="746" font-size="14" font-weight="600" fill="#00f0ff">工程实战六条铁律</text>
+<circle cx="64" cy="780" r="12" fill="#00ff88" opacity="0.15"/>
+<text x="64" y="784" text-anchor="middle" font-size="11" font-weight="700" fill="#00ff88" font-family="JetBrains Mono, monospace">01</text>
+<text x="84" y="778" font-size="12" font-weight="600" fill="#e8e8ec">temperature=0 ≠ 无幻觉</text>
+<text x="84" y="794" font-size="10" fill="#7a7a85">只是概率降低，RAG 仍需结果校验</text>
+<circle cx="434" cy="780" r="12" fill="#00f0ff" opacity="0.15"/>
+<text x="434" y="784" text-anchor="middle" font-size="11" font-weight="700" fill="#00f0ff" font-family="JetBrains Mono, monospace">02</text>
+<text x="454" y="778" font-size="12" font-weight="600" fill="#e8e8ec">temperature 和 top_p 不要同时调高</text>
+<text x="454" y="794" font-size="10" fill="#7a7a85">行为不可预测，线上二选一为主</text>
+<circle cx="804" cy="780" r="12" fill="#ff8c00" opacity="0.15"/>
+<text x="804" y="784" text-anchor="middle" font-size="11" font-weight="700" fill="#ff8c00" font-family="JetBrains Mono, monospace">03</text>
+<text x="824" y="778" font-size="12" font-weight="600" fill="#e8e8ec">JSON 模式必须 Prompt 明确要求</text>
+<text x="824" y="794" font-size="10" fill="#7a7a85">否则 API 直接报错</text>
+<circle cx="64" cy="836" r="12" fill="#a855f7" opacity="0.15"/>
+<text x="64" y="840" text-anchor="middle" font-size="11" font-weight="700" fill="#a855f7" font-family="JetBrains Mono, monospace">04</text>
+<text x="84" y="834" font-size="12" font-weight="600" fill="#e8e8ec">后端解析 JSON 关闭 stream</text>
+<text x="84" y="850" font-size="10" fill="#7a7a85">流式增加解析复杂度</text>
+<circle cx="434" cy="836" r="12" fill="#ff4466" opacity="0.15"/>
+<text x="434" y="840" text-anchor="middle" font-size="11" font-weight="700" fill="#ff4466" font-family="JetBrains Mono, monospace">05</text>
+<text x="454" y="834" font-size="12" font-weight="600" fill="#e8e8ec">必须检测 finish_reason</text>
+<text x="454" y="850" font-size="10" fill="#7a7a85">length=截断 / stop=正常 / tool_calls=工具</text>
+<circle cx="804" cy="836" r="12" fill="#00a0b0" opacity="0.15"/>
+<text x="804" y="840" text-anchor="middle" font-size="11" font-weight="700" fill="#00a0b0" font-family="JetBrains Mono, monospace">06</text>
+<text x="824" y="834" font-size="12" font-weight="600" fill="#e8e8ec">penalty 参数默认保持 0</text>
+<text x="824" y="850" font-size="10" fill="#7a7a85">乱加会破坏 JSON 格式和代码语法</text>
+<text x="600" y="904" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">主流模型：OpenAI / DeepSeek / GLM / 通义千问 / 豆包 — 参数语义基本一致</text>
+</svg>

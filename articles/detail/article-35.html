@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>大模型参数不会调？Agent开发7大参数实战指南 - 馒头仔 | Smart Open</title>
+  <meta name="description" content="深度解析大模型 API 核心参数（temperature、top_p、max_tokens、penalty 等）在 Agent 开发中的实战搭配，结合 Prompt 工程的协同策略，附参数影响示意图与5套可直接复制的生产配置模板">
+  <link rel="icon" type="image/png" href="../../favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/preview-rail.css">
+  <style>
+    .param-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
+    .param-table th { background: var(--bg-secondary); color: var(--accent); padding: 12px 14px; text-align: left; border-bottom: 2px solid var(--divider); font-family: var(--font-mono); font-size: 0.8rem; }
+    .param-table td { padding: 10px 14px; border-bottom: 1px solid var(--divider); color: var(--text-primary); }
+    .param-table tr:hover td { background: var(--bg-secondary); }
+    .param-table .mono { font-family: var(--font-mono); color: var(--accent); }
+    .code-block { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 8px; padding: 16px 20px; margin: 16px 0; overflow-x: auto; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.6; color: var(--text-primary); white-space: pre; }
+    .code-block .cmt { color: var(--text-secondary); font-style: italic; }
+    .code-block .kw { color: #c792ea; }
+    .code-block .str { color: #c3e88d; }
+    .code-block .num { color: #f78c6c; }
+    .callout { background: rgba(0,240,255,0.05); border: 1px solid var(--divider); border-left: 3px solid var(--accent); border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.6; }
+    .callout strong { color: var(--accent); }
+    .callout-warn { background: rgba(255,68,102,0.05); border: 1px solid var(--divider); border-left: 3px solid #ff4466; border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.6; }
+    .callout-warn strong { color: #ff4466; }
+    .scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 24px 0; }
+    .scenario-card { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 18px 20px; border-left: 3px solid var(--accent); }
+    .scenario-card-tag { display: inline-block; font-family: var(--font-mono); font-size: 0.72rem; color: var(--accent); background: rgba(0,240,255,0.1); padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; }
+    .scenario-card-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 8px; }
+    .scenario-card-body { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
+    .scenario-card-body strong { color: var(--text-primary); }
+    .template-card { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 20px; margin: 20px 0; border-top: 3px solid var(--accent); }
+    .template-card-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 12px; color: var(--accent); font-family: var(--font-mono); }
+    .template-card-desc { font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.6; }
+    .template-card-desc strong { color: var(--text-primary); }
+    .pitfall-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 24px 0; }
+    .pitfall-card { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 18px 20px; border-left: 3px solid #ff4466; }
+    .pitfall-card-num { font-family: var(--font-mono); font-size: 0.75rem; color: #ff4466; margin-bottom: 8px; }
+    .pitfall-card-title { font-weight: 600; font-size: 0.92rem; margin-bottom: 8px; }
+    .pitfall-card-body { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
+    .pitfall-card-body strong { color: var(--text-primary); }
+    .synergy-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 24px 0; }
+    .synergy-step { flex: 1; min-width: 120px; background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 14px; text-align: center; position: relative; }
+    .synergy-step::after { content: '→'; position: absolute; right: -14px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 1.2rem; }
+    .synergy-step:last-child::after { display: none; }
+    .synergy-step-title { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent); margin-bottom: 6px; }
+    .synergy-step-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; }
+    .checklist { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 20px 24px; margin: 20px 0; }
+    .checklist-title { font-weight: 600; font-size: 0.92rem; color: var(--accent); margin-bottom: 12px; font-family: var(--font-mono); }
+    .checklist ul { list-style: none; padding: 0; margin: 0; }
+    .checklist li { font-size: 0.84rem; color: var(--text-primary); line-height: 1.8; padding-left: 24px; position: relative; }
+    .checklist li::before { content: '[ ]'; position: absolute; left: 0; color: var(--accent); font-family: var(--font-mono); font-size: 0.8rem; }
+    @media (max-width: 768px) {
+      .scenario-grid, .pitfall-grid { grid-template-columns: 1fr; }
+      .param-table { font-size: 0.78rem; }
+      .param-table th, .param-table td { padding: 8px 10px; }
+      .synergy-flow { flex-direction: column; }
+      .synergy-step::after { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav" id="nav">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-brand"><img src="../../assets/img/logo.png" alt="Smart Open" class="nav-logo"><span>Smart Open</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="切换导航">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#about">关于</a></li>
+        <li><a href="../../index.html#projects">项目</a></li>
+        <li><a href="../../index.html#skills">技能</a></li>
+        <li><a href="../../index.html#experience">经历</a></li>
+        <li><a href="../index.html">文章</a></li>
+        <li><a href="../../trending/index.html">趋势</a></li>
+        <li><a href="../../index.html#contact">联系</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="article-hero">
+    <div class="article-hero-content">
+      <h1 class="article-title">大模型参数不会调？Agent开发7大参数实战指南</h1>
+      <div class="article-meta">
+        <span class="article-date">2026-08-05</span>
+        <div class="article-tags">
+          <span class="tag">大模型参数</span>
+          <span class="tag">Agent 开发</span>
+          <span class="tag">Prompt 工程</span>
+          <span class="tag">生产配置</span>
+        </div>
+      </div>
+    </div>
+    <div class="article-hero-bg" style="background-image: url('../../assets/img/article-35-hero.svg')"></div>
+    <div class="article-hero-overlay"></div>
+  </section>
+
+  <div class="article-container">
+    <aside class="article-sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">目录</h3>
+        <nav class="article-toc" id="articleToc"></nav>
+      </div>
+    </aside>
+
+    <article class="article-content">
+      <div class="markdown-body">
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-35-hero.svg" alt="大模型 API 核心参数与输出影响示意图">
+          <figcaption>参数控制的是「随机性 / 创造性」，不是正确性 - 参数决定天花板，Prompt 决定地板</figcaption>
+        </figure>
+
+        <p>很多开发者第一次调大模型 API，面对 temperature、top_p、max_tokens、frequency_penalty 一堆参数，要么全用默认值不敢动，要么随手一调结果完全不可控。更常见的情况是：Agent 项目在测试环境跑得好好的，一上生产就开始胡说八道、JSON 解析报错、工具调用乱编参数。</p>
+
+        <p>问题的根源不是模型不够聪明，而是<strong>参数和 Prompt 没有协同</strong>。大模型 API 的参数控制的是输出的「随机性 / 创造性」，不是控制正确性。想要严谨输出，不是调大模型智商，而是压低随机参数 + 写好 Prompt。本文系统拆解 7 大核心参数的语义、取值范围、场景搭配，并结合 Agent 开发的真实需求，给出参数 × Prompt 协同的实战方法论。</p>
+
+        <h2 id="section-1">一、核心认知：参数控制什么，不控制什么</h2>
+
+        <p>在深入每个参数之前，必须先建立一个正确的心智模型。这是所有后续配置决策的基础。</p>
+
+        <div class="callout"><strong>第一原则：</strong>参数控制的是「随机性 / 创造性」，不是「正确性」。temperature=0 不代表无幻觉，只是幻觉概率降低。模型的知识边界由训练数据决定，参数只能影响它在知识边界内如何表达。</p></div>
+
+        <p>打个比方：大模型像一个读过万卷书的人。参数决定这个人回答你时是「严谨复述」还是「自由发挥」，但它脑子里有没有这个知识，是训练阶段就定了的。Prompt 决定你问的问题够不够清晰、给的上下文够不够充分，参数决定它回答时有多大的「自由度」。</p>
+
+        <p>因此，生产环境的核心策略是：<strong>参数决定输出的天花板（多样性上限），Prompt 决定输出的地板（质量下限）</strong>。两者必须匹配 - 低 temperature 配精准 Prompt 可以做到极高一致性；高 temperature 配松散 Prompt 只会得到不可控的垃圾输出。</p>
+
+        <h2 id="section-2">二、7 大核心参数逐一拆解</h2>
+
+        <h3 id="param-temperature">2.1 temperature 温度 - 最常用也是最危险的参数</h3>
+
+        <p>temperature 是开发者接触最多、也最容易误用的参数。取值范围 0 ~ 2.0，大部分 API 默认 0.7。</p>
+
+        <p><strong>本质：</strong>对 token 概率分布做缩放。temperature = 0 时，模型优先选概率最高的词，输出几乎确定；temperature 升高，模型愿意选择概率更低的 token，多样性和想象力提升，但幻觉和胡说概率同步上升。</p>
+
+        <table class="param-table">
+          <tr><th>场景</th><th>temperature 推荐</th><th>说明</th></tr>
+          <tr><td>工具调用、函数调用、结构化输出(JSON)、代码生成、数据抽取、企业RAG问答</td><td class="mono">0.0 ~ 0.2</td><td>尽量稳定、少幻觉，不要自由发挥</td></tr>
+          <tr><td>业务文案摘要、需求分析、技术文档、翻译</td><td class="mono">0.3 ~ 0.5</td><td>兼顾通顺，适度灵活，拒绝乱编</td></tr>
+          <tr><td>通用对话、头脑风暴、普通客服聊天</td><td class="mono">0.6 ~ 0.8</td><td>API 常见默认值，平衡稳定与自然</td></tr>
+          <tr><td>小说创作、故事、创意文案、写诗、脑洞生成</td><td class="mono">0.9 ~ 1.2</td><td>鼓励多样性，接受部分不合理内容</td></tr>
+        </table>
+
+        <div class="callout-warn"><strong>关键认知：</strong>temperature=0 不代表完全无幻觉，只是幻觉概率降低。RAG 场景下 Prompt 写得差，temperature=0 照样胡说。temperature > 1 非常天马行空，容易逻辑崩坏，生产环境慎用。</div>
+
+        <h3 id="param-top-p">2.2 top_p 核采样 - temperature 的搭档而非替代</h3>
+
+        <p>取值范围 0 ~ 1.0，默认一般 0.7~0.9。top_p 按<strong>累计概率阈值</strong>选取候选词集合，只从概率累加达到 top_p 的 token 池子里采样。</p>
+
+        <ul>
+          <li><code>top_p=0.1</code>：只选概率最高的一小部分 token，输出保守，变化很小</li>
+          <li><code>top_p=0.9</code>：取累计概率 90% 的候选，允许更多备选词</li>
+          <li><code>top_p=1.0</code>：启用全部词表，完全由 temperature 控制</li>
+        </ul>
+
+        <div class="callout"><strong>业界最佳实践：</strong>不要同时大幅度调 temperature 和 top_p，二选一为主。官方建议优先改 temperature，top_p 固定 0.9 不动；或者固定 temperature=1，调 top_p。两个都乱调，行为不可控。很多企业生产配置：temperature=0.1，top_p=0.9 - 只控温度，top_p 不动。</div>
+
+        <h3 id="param-max-tokens">2.3 max_tokens 最大输出长度</h3>
+
+        <p>max_tokens 控制<strong>最大输出 token 数量</strong>，不是总上下文。输入 prompt 不算在内。1 token ≈ 0.75 中文汉字，2000 token ≈ 1500 汉字。</p>
+
+        <p>最大风险：输出达到 max_tokens 会<strong>强制截断</strong>，返回半截文本。业务上必须检测 <code>finish_reason="length"</code> 做判断，否则下游解析 JSON 会直接报错。</p>
+
+        <table class="param-table">
+          <tr><th>场景</th><th>max_tokens 推荐</th><th>说明</th></tr>
+          <tr><td>短回答、JSON 工具调用</td><td class="mono">512 ~ 1024</td><td>够用即可，避免浪费</td></tr>
+          <tr><td>文档摘要、分析</td><td class="mono">2048 ~ 4096</td><td>中等长度输出</td></tr>
+          <tr><td>长文本生成、报告</td><td class="mono">模型上限</td><td>注意计费，token 越多越贵</td></tr>
+        </table>
+
+        <h3 id="param-stop">2.4 stop 停止符</h3>
+
+        <p>自定义字符串列表，模型输出遇到该字符串立刻终止，不返回 stop 字符串本身。例如 <code>stop:["\\n\\n---","###"]</code>。</p>
+
+        <p>三个典型使用场景：</p>
+        <ul>
+          <li><strong>多轮 Prompt 模板</strong>：防止模型模拟用户说话，到用户轮次标记就停</li>
+          <li><strong>结构化输出</strong>：到结束标记就截断，避免模型继续编内容</li>
+          <li><strong>Agent 循环调用</strong>：防止模型无限续写，在特定边界自动停止</li>
+        </ul>
+
+        <h3 id="param-penalty">2.5 presence_penalty 与 frequency_penalty - 两个惩罚参数</h3>
+
+        <p>这两个参数容易混淆，但语义不同：</p>
+
+        <table class="param-table">
+          <tr><th>参数</th><th>范围</th><th>语义</th><th>正数效果</th><th>负数效果</th></tr>
+          <tr><td class="mono">presence_penalty</td><td class="mono">-2 ~ +2</td><td>惩罚<strong>已经出现过</strong>的 token</td><td>鼓励新话题，减少重复</td><td>鼓励复刻固定格式</td></tr>
+          <tr><td class="mono">frequency_penalty</td><td class="mono">-2 ~ +2</td><td>惩罚<strong>高频重复</strong>的 token</td><td>降低词句重复</td><td>鼓励重复关键词</td></tr>
+        </table>
+
+        <p>简单记：<strong>presence_penalty 看有没有出现过，frequency_penalty 看出现了多少次</strong>。</p>
+
+        <div class="callout-warn"><strong>生产建议：</strong>绝大多数业务系统这两个参数保持 0，不要乱加。加错会破坏 JSON 格式、代码语法。只有长文本写作容易车轱辘话时，frequency_penalty 设 0.1~0.3 才有意义。</div>
+
+        <h3 id="param-response-format">2.6 response_format 返回格式</h3>
+
+        <p>现代 API 支持两种模式：</p>
+        <ul>
+          <li><code>{ "type":"text" }</code>：普通文本输出</li>
+          <li><code>{ "type":"json_object" }</code>：强制输出合法 JSON</li>
+        </ul>
+
+        <div class="callout-warn"><strong>关键坑点：</strong>开启 JSON 模式后，Prompt 必须明确要求输出 JSON，否则 API 会报错。企业 Agent、数据抽取场景强烈建议开启 JSON 模式 + 低 temperature，但 Prompt 里一定要写明「请输出 JSON 格式」并给出 Schema。</div>
+
+        <h3 id="param-stream-tool">2.7 stream 流式开关 与 tool_choice 工具调用</h3>
+
+        <p><strong>stream</strong> 控制返回方式：</p>
+        <ul>
+          <li><code>stream=true</code>：SSE 流式返回，边生成边返回，前端打字机效果，适合聊天界面</li>
+          <li><code>stream=false</code>：等待全部生成完一次性返回。后端业务处理、解析 JSON、API 调用优先用非流式，代码处理简单</li>
+        </ul>
+
+        <p><strong>tool_choice</strong> 控制工具调用行为：</p>
+        <ul>
+          <li><code>auto</code>：模型自己决定要不要调用工具</li>
+          <li><code>required</code>：强制必须调用工具</li>
+          <li><code>none</code>：禁止调用任何工具</li>
+        </ul>
+
+        <p>Agent 场景常用策略：查询外部数据时用 <code>auto</code> 让模型自主判断；需要必须查数据库时设 <code>required</code> 确保不跳过。</p>
+
+        <h2 id="section-3">三、参数影响全景示意图</h2>
+
+        <p>下图将 7 大核心参数的取值范围、场景分布、以及参数 × Prompt 的协同配置浓缩在一张图中。上半部分是参数卡片和输出行为光谱，下半部分是 5 个 Agent 典型场景的推荐参数 + Prompt 要点 + 风险提示，底部是工程实战六条铁律。</p>
+
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-35-diagram.svg" alt="大模型 API 核心参数对输出影响示意图 - 参数取值范围、场景分布、Agent 协同配置与工程铁律">
+          <figcaption>大模型 API 核心参数对输出影响示意图：从参数卡片到输出光谱，再到 5 大 Agent 场景的参数 × Prompt 协同配置</figcaption>
+        </figure>
+
+        <p>图中光谱条从左到右依次为「确定性 → 稳定 → 平衡 → 发散 → 失控」，对应 temperature 从 0.0 到 2.0 的变化。每个场景卡片标注了推荐参数值、Prompt 编写要点和踩坑风险，可以直接作为配置参考。</p>
+
+        <h2 id="section-4">四、Agent 开发中参数 × Prompt 的协同实战</h2>
+
+        <p>理解了单个参数的语义还不够。Agent 开发的核心挑战是：参数和 Prompt 必须协同，否则参数调得再好，Prompt 写得烂照样翻车。下面通过 5 个真实场景，拆解参数 × Prompt 的协同策略。</p>
+
+        <h3 id="scenario-rag">4.1 场景一：RAG 知识库问答</h3>
+
+        <p>RAG 是企业 Agent 最常见的场景。核心诉求是：基于检索到的上下文回答，不要胡编。</p>
+
+        <div class="synergy-flow">
+          <div class="synergy-step">
+            <div class="synergy-step-title">用户提问</div>
+            <div class="synergy-step-desc">自然语言 query</div>
+          </div>
+          <div class="synergy-step">
+            <div class="synergy-step-title">向量检索</div>
+            <div class="synergy-step-desc">召回 top-k 文档</div>
+          </div>
+          <div class="synergy-step">
+            <div class="synergy-step-title">Prompt 组装</div>
+            <div class="synergy-step-desc">context + query + 指令</div>
+          </div>
+          <div class="synergy-step">
+            <div class="synergy-step-title">低温度生成</div>
+            <div class="synergy-step-desc">temp=0.1 忠于上下文</div>
+          </div>
+          <div class="synergy-step">
+            <div class="synergy-step-title">结果校验</div>
+            <div class="synergy-step-desc">finish_reason 检测</div>
+          </div>
+        </div>
+
+        <p><strong>参数策略：</strong>temperature=0.1, top_p=0.9, max_tokens=2048, stream=false。低温度确保忠于检索内容，不开 JSON 模式（RAG 答案通常是自然语言）。</p>
+
+        <p><strong>Prompt 协同要点：</strong></p>
+        <ul>
+          <li>Prompt 必须包含 retrieved context，且明确标注「以下是参考资料」</li>
+          <li>明确指令：「请仅基于以下参考资料回答，如果资料中没有相关信息，请回答"我不知道"」</li>
+          <li>给出输出格式要求，避免模型自由发挥长度</li>
+        </ul>
+
+        <div class="code-block"><span class="cmt">// RAG 场景 Prompt 模板</span>
+<span class="kw">system</span>: 你是一个严谨的知识库问答助手。请仅基于以下参考资料回答问题。
+如果参考资料中没有相关信息，请回答"我不知道"。不要编造信息。
+
+<span class="kw">user</span>: 参考资料：
+{retrieved_context}
+
+问题：{user_query}
+
+请回答：</div>
+
+        <div class="callout-warn"><strong>风险：</strong>幻觉风险最低，但 Prompt 差照样胡说。常见错误是 Prompt 没写「不要编造」，模型会基于自己的知识补充检索结果中缺失的部分，产生「半真半假」的幻觉。</div>
+
+        <h3 id="scenario-json">4.2 场景二：结构化 JSON 输出</h3>
+
+        <p>Agent 做数据抽取、意图分类、信息结构化时，需要模型输出严格合法的 JSON。这是翻车重灾区。</p>
+
+        <p><strong>参数策略：</strong>temperature=0.1, top_p=0.9, max_tokens=1024, response_format={"type":"json_object"}, stream=false。</p>
+
+        <p><strong>Prompt 协同要点：</strong></p>
+        <ul>
+          <li>Prompt 必须明确要求输出 JSON（否则 API 报错）</li>
+          <li>给出 JSON Schema 或示例，明确字段名和类型</li>
+          <li>后端关闭 stream，一次性拿到完整 JSON 再解析</li>
+        </ul>
+
+        <div class="code-block"><span class="cmt">// JSON 抽取场景 Prompt 模板</span>
+<span class="kw">system</span>: 你是一个数据抽取助手。请从用户输入中提取信息，
+输出 JSON 格式。Schema 如下：
+
+{
+  <span class="str">"name"</span>: <span class="str">"string - 姓名"</span>,
+  <span class="str">"age"</span>: <span class="str">"number - 年龄"</span>,
+  <span class="str">"intent"</span>: <span class="str">"string - 意图分类"</span>
+}
+
+只输出 JSON，不要输出其他内容。
+
+<span class="kw">user</span>: {raw_text}</div>
+
+        <div class="callout-warn"><strong>关键坑：</strong>不开 json 模式，或 Prompt 不提 JSON，模型可能输出 ```json ... ``` 包裹的文本，后端 JSON.parse 直接报错。开了 json 模式但 Prompt 不提 JSON，API 直接返回 400 错误。</div>
+
+        <h3 id="scenario-tool">4.3 场景三：工具调用 / 函数调用</h3>
+
+        <p>Agent 调用外部工具（查询数据库、调 API、执行代码）时，参数稳定性直接决定工具名和参数值是否正确。</p>
+
+        <p><strong>参数策略：</strong>temperature=0.0, top_p=0.3, max_tokens=512, tool_choice=auto, stream=false。温度压到最低，确保工具名和参数值不乱编。</p>
+
+        <p><strong>Prompt 协同要点：</strong></p>
+        <ul>
+          <li>工具描述要精确：函数名、参数名、参数类型、返回值格式全部写清</li>
+          <li>参数 Schema 清晰：用 JSON Schema 描述每个参数的类型和约束</li>
+          <li>给 few-shot 示例：展示几个正确的工具调用案例</li>
+        </ul>
+
+        <div class="callout-warn"><strong>风险：</strong>temperature > 0.3 时，模型可能编造不存在的工具名，或给正确的工具传错误的参数类型（比如把 string 传成 number）。工具调用场景温度宁低不高。</div>
+
+        <h3 id="scenario-chat">4.4 场景四：多轮对话 Agent</h3>
+
+        <p>客服聊天、个人助手等场景需要自然流畅的多轮对话。温度太低显得机械，太高容易跑题。</p>
+
+        <p><strong>参数策略：</strong>temperature=0.7, top_p=0.9, max_tokens=1024, frequency_penalty=0, stream=true。中等温度兼顾自然和稳定，开流式提升用户体验。</p>
+
+        <p><strong>Prompt 协同要点：</strong></p>
+        <ul>
+          <li>System Prompt 定义角色、能力边界和行为规范</li>
+          <li>历史消息管理：超出上下文窗口时要做摘要压缩，不能直接截断</li>
+          <li>明确「不知道就说不知道」的兜底指令</li>
+        </ul>
+
+        <h3 id="scenario-creative">4.5 场景五：创意生成 / 文案写作</h3>
+
+        <p>营销文案、故事创作、头脑风暴等场景需要发散思维，参数配置与严谨场景完全相反。</p>
+
+        <p><strong>参数策略：</strong>temperature=1.0, top_p=0.95, max_tokens=4096, frequency_penalty=0.2, presence_penalty=0.2。高温度鼓励多样性，penalty 轻微正值避免车轱辘话。</p>
+
+        <p><strong>Prompt 协同要点：</strong></p>
+        <ul>
+          <li>给风格参考和创作约束，而不是放任自由</li>
+          <li>放宽格式要求，允许模型发挥</li>
+          <li>设置 stop 序列防止无限续写</li>
+        </ul>
+
+        <div class="callout-warn"><strong>风险：</strong>temperature > 1.2 时逻辑容易崩坏，内容不可控。创意场景也要有边界，不是越放飞越好。</div>
+
+        <h2 id="section-5">五、5 套可直接复制的生产配置模板</h2>
+
+        <p>以下 5 套参数模板覆盖了 Agent 开发的主流场景，可以直接复制使用。每套模板都经过生产验证，配合对应的 Prompt 策略可以快速落地。</p>
+
+        <div class="template-card">
+          <div class="template-card-title">模板 1：企业 RAG / 知识库问答 / 数据抽取 / JSON 输出 / 函数调用</div>
+          <div class="template-card-desc"><strong>目标：</strong>稳定、低幻觉、输出合法 JSON。最常用的生产配置。</div>
+<div class="code-block">{
+  <span class="str">"temperature"</span>: <span class="num">0.1</span>,
+  <span class="str">"top_p"</span>: <span class="num">0.9</span>,
+  <span class="str">"max_tokens"</span>: <span class="num">2048</span>,
+  <span class="str">"frequency_penalty"</span>: <span class="num">0</span>,
+  <span class="str">"presence_penalty"</span>: <span class="num">0</span>,
+  <span class="str">"response_format"</span>: {"type":"json_object"},
+  <span class="str">"stream"</span>: <span class="kw">false</span>
+}</div>
+        </div>
+
+        <div class="template-card">
+          <div class="template-card-title">模板 2：翻译 / 技术文档 / 摘要（需一定灵活，不能乱编）</div>
+          <div class="template-card-desc"><strong>目标：</strong>兼顾通顺和准确，适度灵活但拒绝编造。</div>
+<div class="code-block">{
+  <span class="str">"temperature"</span>: <span class="num">0.4</span>,
+  <span class="str">"top_p"</span>: <span class="num">0.9</span>,
+  <span class="str">"max_tokens"</span>: <span class="num">4096</span>,
+  <span class="str">"frequency_penalty"</span>: <span class="num">0.1</span>,
+  <span class="str">"presence_penalty"</span>: <span class="num">0</span>,
+  <span class="str">"stream"</span>: <span class="kw">false</span>
+}</div>
+        </div>
+
+        <div class="template-card">
+          <div class="template-card-title">模板 3：聊天助手 / 业务客服 / 普通对话</div>
+          <div class="template-card-desc"><strong>目标：</strong>自然流畅的对话体验，平衡稳定与灵活。</div>
+<div class="code-block">{
+  <span class="str">"temperature"</span>: <span class="num">0.7</span>,
+  <span class="str">"top_p"</span>: <span class="num">0.9</span>,
+  <span class="str">"max_tokens"</span>: <span class="num">1024</span>,
+  <span class="str">"frequency_penalty"</span>: <span class="num">0</span>,
+  <span class="str">"presence_penalty"</span>: <span class="num">0</span>
+}</div>
+        </div>
+
+        <div class="template-card">
+          <div class="template-card-title">模板 4：创意生成 / 小说 / 文案 / 头脑风暴</div>
+          <div class="template-card-desc"><strong>目标：</strong>鼓励多样性，接受部分不合理内容。</div>
+<div class="code-block">{
+  <span class="str">"temperature"</span>: <span class="num">1.0</span>,
+  <span class="str">"top_p"</span>: <span class="num">0.95</span>,
+  <span class="str">"max_tokens"</span>: <span class="num">4096</span>,
+  <span class="str">"frequency_penalty"</span>: <span class="num">0.2</span>,
+  <span class="str">"presence_penalty"</span>: <span class="num">0.2</span>
+}</div>
+        </div>
+
+        <div class="template-card">
+          <div class="template-card-title">模板 5：确定性极强 / 可复现输出 / 测试 / 单元测试</div>
+          <div class="template-card-desc"><strong>目标：</strong>每次输入相同 Prompt，输出几乎完全一样。</div>
+<div class="code-block">{
+  <span class="str">"temperature"</span>: <span class="num">0.0</span>,
+  <span class="str">"top_p"</span>: <span class="num">0.1</span>,
+  <span class="str">"max_tokens"</span>: <span class="num">2048</span>
+}</div>
+        </div>
+
+        <h2 id="section-6">六、工程踩坑总结：6 条生产铁律</h2>
+
+        <p>以下是 Agent 上生产环境前必须知道的 6 条铁律，每一条都是用真实事故换来的教训。</p>
+
+        <div class="pitfall-grid">
+          <div class="pitfall-card">
+            <div class="pitfall-card-num">铁律 01</div>
+            <div class="pitfall-card-title">temperature=0 ≠ 无幻觉</div>
+            <div class="pitfall-card-body">只是概率降低，不是消除。<strong>RAG 仍然要做结果校验</strong>。常见错误：以为温度调到 0 就万事大吉，结果模型基于训练知识补全了检索结果中没有的内容，产生「半真半假」的幻觉。</div>
+          </div>
+          <div class="pitfall-card">
+            <div class="pitfall-card-num">铁律 02</div>
+            <div class="pitfall-card-title">temperature 和 top_p 不要同时调高</div>
+            <div class="pitfall-card-body">行为不可预测，线上尽量<strong>一个为主，另一个固定</strong>。官方建议优先改 temperature，top_p 固定 0.9。两个都乱调，输出行为完全不可控，排查问题无从下手。</div>
+          </div>
+          <div class="pitfall-card">
+            <div class="pitfall-card-num">铁律 03</div>
+            <div class="pitfall-card-title">JSON 模式必须 Prompt 明确要求</div>
+            <div class="pitfall-card-body">开启 response_format=json_object 后，<strong>Prompt 必须包含"输出 JSON"的字样</strong>，否则 API 直接报错。更隐蔽的坑：Prompt 提了 JSON 但没给 Schema，模型输出格式不固定，后端解析照样崩。</div>
+          </div>
+          <div class="pitfall-card">
+            <div class="pitfall-card-num">铁律 04</div>
+            <div class="pitfall-card-title">后端解析 JSON 关闭 stream</div>
+            <div class="pitfall-card-body">流式返回的 JSON 是<strong>分片</strong>的，不能直接 JSON.parse。<strong>后端业务处理优先用非流式</strong>，一次性拿到完整 JSON。流式只适合前端打字机效果展示，不适合后端数据解析。</div>
+          </div>
+          <div class="pitfall-card">
+            <div class="pitfall-card-num">铁律 05</div>
+            <div class="pitfall-card-title">必须检测 finish_reason</div>
+            <div class="pitfall-card-body">三个值必须区分处理：<code>stop</code>=正常结束；<code>length</code>=被 max_tokens 截断（业务要做异常处理）；<code>tool_calls</code>=工具调用结束。不检测 length，JSON 被截断成半截，下游全崩。</div>
+          </div>
+          <div class="pitfall-card">
+            <div class="pitfall-card-num">铁律 06</div>
+            <div class="pitfall-card-title">penalty 参数默认保持 0</div>
+            <div class="pitfall-card-body">frequency_penalty 和 presence_penalty <strong>绝大多数业务系统保持 0</strong>。乱加会破坏 JSON 格式、代码语法。只有长文本写作出现车轱辘话时，frequency_penalty 设 0.1~0.3 才有意义。</div>
+          </div>
+        </div>
+
+        <h2 id="section-7">七、Agent 上生产检查清单</h2>
+
+        <p>以下清单覆盖了 Agent 项目上生产前必须验证的参数与 Prompt 相关关键项：</p>
+
+        <div class="checklist">
+          <div class="checklist-title">参数配置</div>
+          <ul>
+            <li>temperature 和 top_p 没有同时调高，一个为主另一个固定</li>
+            <li>工具调用 / JSON 输出场景 temperature ≤ 0.2</li>
+            <li>max_tokens 设置合理，够用即可，不盲目开大</li>
+            <li>frequency_penalty / presence_penalty 保持 0（除非长文本场景）</li>
+            <li>JSON 输出场景开启了 response_format=json_object</li>
+            <li>后端业务处理场景 stream=false</li>
+          </ul>
+        </div>
+
+        <div class="checklist">
+          <div class="checklist-title">Prompt 协同</div>
+          <ul>
+            <li>RAG 场景 Prompt 包含 retrieved context 且标注「参考资料」</li>
+            <li>RAG 场景 Prompt 包含「不要编造」指令</li>
+            <li>JSON 输出场景 Prompt 明确要求输出 JSON 且给出 Schema</li>
+            <li>工具调用场景工具描述精确、参数 Schema 清晰、有 few-shot 示例</li>
+            <li>多轮对话场景 System Prompt 定义了角色和能力边界</li>
+            <li>所有场景 Prompt 都包含「不知道就说不知道」的兜底指令</li>
+          </ul>
+        </div>
+
+        <div class="checklist">
+          <div class="checklist-title">异常处理</div>
+          <ul>
+            <li>检测 finish_reason，length 截断有异常处理逻辑</li>
+            <li>JSON 解析有 try-catch，解析失败有重试或降级策略</li>
+            <li>工具调用失败有重试机制，重试次数可配</li>
+            <li>模型超时有熔断和降级策略</li>
+            <li>流式输出有断线重连机制（如使用 stream=true）</li>
+          </ul>
+        </div>
+
+        <h2 id="conclusion">结语</h2>
+
+        <p>大模型 API 的参数不是玄学，是有明确语义的工程工具。temperature 控制随机性，top_p 控制候选词池，max_tokens 控制输出长度，penalty 控制重复度 - 每个参数都有明确的作用域和副作用。理解了这些，参数配置就从「试错」变成了「设计」。</p>
+
+        <p>但参数只是故事的一半。Agent 开发的真正难点在于<strong>参数 × Prompt 的协同</strong>：低 temperature 配精准 Prompt 可以做到极高一致性；高 temperature 配松散 Prompt 只会得到不可控的垃圾。参数决定输出的天花板，Prompt 决定输出的地板 - 两者必须匹配，缺一不可。</p>
+
+        <p>最后记住一条核心原则：参数控制的是「随机性 / 创造性」，不是正确性。想要严谨输出，不是调大模型智商，而是压低随机参数 + 写好 Prompt。这 12 个字，比任何参数调优技巧都重要。</p>
+
+        <h3>参考资料</h3>
+        <ol>
+          <li>OpenAI API 参数文档 <a href="https://platform.openai.com/docs/api-reference/chat" target="_blank" rel="noopener">https://platform.openai.com/docs/api-reference/chat</a></li>
+          <li>DeepSeek API 文档 <a href="https://platform.deepseek.com/api-docs" target="_blank" rel="noopener">https://platform.deepseek.com/api-docs</a></li>
+          <li>智谱 GLM API 文档 <a href="https://open.bigmodel.cn/dev/api" target="_blank" rel="noopener">https://open.bigmodel.cn/dev/api</a></li>
+          <li>通义千问 API 文档 <a href="https://help.aliyun.com/zh/dashscope/developer-reference/api-details" target="_blank" rel="noopener">https://help.aliyun.com/zh/dashscope/developer-reference/api-details</a></li>
+          <li>豆包 API 文档 <a href="https://www.volcengine.com/docs/82379" target="_blank" rel="noopener">https://www.volcengine.com/docs/82379</a></li>
+          <li>Hugging Face - How to generate text <a href="https://huggingface.co/blog/how-to-generate" target="_blank" rel="noopener">https://huggingface.co/blog/how-to-generate</a></li>
+        </ol>
+
+      </div>
+      <nav class="article-nav" id="articleNav"></nav>
+    </article>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; 2024-2026 馒头仔 | Smart Open. Built with care.</p>
+    </div>
+  </footer>
+
+  <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
+  <script src="../../js/article.js"></script>
+  <script src="../../js/preview-rail.js"></script>
+</body>
+</html>

@@ -3,6 +3,14 @@
    ======================================== */
 const ARTICLES_DATA = [
   {
+    id: 'article-35',
+    title: '大模型参数不会调？Agent开发7大参数实战指南',
+    excerpt: '深度解析大模型 API 核心参数（temperature、top_p、max_tokens、penalty 等）在 Agent 开发中的实战搭配，结合 Prompt 工程的协同策略，附参数影响示意图与5套可直接复制的生产配置模板，覆盖 RAG 问答、JSON 输出、工具调用、多轮对话、创意生成五大场景',
+    tags: ['大模型参数', 'Agent 开发', 'Prompt 工程', '生产配置'],
+    date: '2026-08-05',
+    detailUrl: 'detail/article-35.html'
+  },
+  {
     id: 'article-34',
     title: 'AgentScope搭企业级Agent平台实战',
     excerpt: '基于 AgentScope Java v2 + SpringBoot + Spring Cloud Alibaba + HarnessAgent 构建企业级 Agent 平台的全景拆解：身份权限三态决策、MCP/Skill 工具双引擎、三层记忆管理、安全沙箱隔离、无状态水平扩展、零停机滚动发布，覆盖架构解析、代码实战与三个真实落地场景',
