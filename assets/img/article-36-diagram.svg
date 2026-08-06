@@ -1,151 +1,148 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1000" font-family="Inter, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1080" font-family="Inter, sans-serif">
 <defs>
 <filter id="glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-<linearGradient id="flow-grad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#00f0ff" stop-opacity="0.3"/><stop offset="100%" stop-color="#00f0ff" stop-opacity="0.05"/></linearGradient>
+<marker id="m-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#00ff88"/></marker>
+<marker id="m-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#00f0ff"/></marker>
+<marker id="m-orange" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff8c00"/></marker>
+<marker id="m-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff4466"/></marker>
+<marker id="m-purple" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#a855f7"/></marker>
+<marker id="m-gray" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#7a7a85"/></marker>
 </defs>
-<rect width="1200" height="1000" fill="#0a0a0f"/>
+<rect width="1200" height="1080" fill="#0a0a0f"/>
 <text x="600" y="42" text-anchor="middle" font-size="22" font-weight="700" fill="#e8e8ec">动态多级 Agent 编排架构全景</text>
 <text x="600" y="66" text-anchor="middle" font-size="13" fill="#7a7a85">元数据驱动 - 动态能力目录 - LLM选择+代码校验 - 串行/并行调度 - 结果汇总容错</text>
 <text x="30" y="90" font-size="14" font-weight="600" fill="#e8e8ec">五大阶段流水线</text>
-<rect x="30" y="120" width="210" height="160" rx="8" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
+<rect x="30" y="120" width="210" height="150" rx="8" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
 <rect x="30" y="120" width="210" height="3" rx="1.5" fill="#00ff88"/>
 <circle cx="52" cy="146" r="12" fill="#00ff88" opacity="0.15"/>
 <text x="52" y="150" text-anchor="middle" font-size="12" font-weight="700" fill="#00ff88" font-family="JetBrains Mono, monospace">1</text>
 <text x="72" y="150" font-size="13" font-weight="600" fill="#e8e8ec">动态能力目录</text>
-<text x="44" y="180" font-size="11" fill="#7a7a85">从DB查询启用子Agent</text>
-<text x="44" y="200" font-size="11" fill="#7a7a85">组装能力目录注入Prompt</text>
-<text x="44" y="220" font-size="11" fill="#7a7a85">每次请求动态生成</text>
-<path d="M 244,200 L 258,200" stroke="#00ff88" stroke-width="2" fill="none" marker-end="url(#arrow-0)"/>
-<marker id="arrow-0" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#00ff88"/></marker>
-<rect x="262" y="120" width="210" height="160" rx="8" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
+<text x="44" y="178" font-size="11" fill="#7a7a85">从DB查询启用子Agent</text>
+<text x="44" y="198" font-size="11" fill="#7a7a85">组装能力目录注入Prompt</text>
+<text x="44" y="218" font-size="11" fill="#7a7a85">每次请求动态生成</text>
+<line x1="242" y1="195" x2="260" y2="195" stroke="#00ff88" stroke-width="2" marker-end="url(#m-green)"/>
+<rect x="262" y="120" width="210" height="150" rx="8" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
 <rect x="262" y="120" width="210" height="3" rx="1.5" fill="#00f0ff"/>
 <circle cx="284" cy="146" r="12" fill="#00f0ff" opacity="0.15"/>
 <text x="284" y="150" text-anchor="middle" font-size="12" font-weight="700" fill="#00f0ff" font-family="JetBrains Mono, monospace">2</text>
 <text x="304" y="150" font-size="13" font-weight="600" fill="#e8e8ec">主Agent任务规划</text>
-<text x="276" y="180" font-size="11" fill="#7a7a85">隐式规划: LLM直接调工具</text>
-<text x="276" y="200" font-size="11" fill="#7a7a85">显式规划: 先输出JSON任务清单</text>
-<text x="276" y="220" font-size="11" fill="#7a7a85">Middleware可拦截</text>
-<path d="M 476,200 L 490,200" stroke="#00f0ff" stroke-width="2" fill="none" marker-end="url(#arrow-1)"/>
-<marker id="arrow-1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#00f0ff"/></marker>
-<rect x="494" y="120" width="210" height="160" rx="8" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
+<text x="276" y="178" font-size="11" fill="#7a7a85">隐式: LLM直接调工具</text>
+<text x="276" y="198" font-size="11" fill="#7a7a85">显式: 先输出JSON清单</text>
+<text x="276" y="218" font-size="11" fill="#7a7a85">Middleware可拦截</text>
+<line x1="474" y1="195" x2="492" y2="195" stroke="#00f0ff" stroke-width="2" marker-end="url(#m-accent)"/>
+<rect x="494" y="120" width="210" height="150" rx="8" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
 <rect x="494" y="120" width="210" height="3" rx="1.5" fill="#ff8c00"/>
 <circle cx="516" cy="146" r="12" fill="#ff8c00" opacity="0.15"/>
 <text x="516" y="150" text-anchor="middle" font-size="12" font-weight="700" fill="#ff8c00" font-family="JetBrains Mono, monospace">3</text>
 <text x="536" y="150" font-size="13" font-weight="600" fill="#e8e8ec">子Agent选择</text>
-<text x="508" y="180" font-size="11" fill="#7a7a85">&lt;10个: LLM自主选择</text>
-<text x="508" y="200" font-size="11" fill="#7a7a85">&gt;10个: 向量RAG检索</text>
-<text x="508" y="220" font-size="11" fill="#7a7a85">代码侧校验合法性</text>
-<path d="M 708,200 L 722,200" stroke="#ff8c00" stroke-width="2" fill="none" marker-end="url(#arrow-2)"/>
-<marker id="arrow-2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff8c00"/></marker>
-<rect x="726" y="120" width="210" height="160" rx="8" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
+<text x="508" y="178" font-size="11" fill="#7a7a85">&lt;10个: LLM自主选择</text>
+<text x="508" y="198" font-size="11" fill="#7a7a85">&gt;10个: 向量RAG检索</text>
+<text x="508" y="218" font-size="11" fill="#7a7a85">代码侧校验合法性</text>
+<line x1="706" y1="195" x2="724" y2="195" stroke="#ff8c00" stroke-width="2" marker-end="url(#m-orange)"/>
+<rect x="726" y="120" width="210" height="150" rx="8" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
 <rect x="726" y="120" width="210" height="3" rx="1.5" fill="#a855f7"/>
 <circle cx="748" cy="146" r="12" fill="#a855f7" opacity="0.15"/>
 <text x="748" y="150" text-anchor="middle" font-size="12" font-weight="700" fill="#a855f7" font-family="JetBrains Mono, monospace">4</text>
 <text x="768" y="150" font-size="13" font-weight="600" fill="#e8e8ec">调度执行</text>
-<text x="740" y="180" font-size="11" fill="#7a7a85">串行: 有数据依赖</text>
-<text x="740" y="200" font-size="11" fill="#7a7a85">并行: 无依赖batch_call</text>
-<text x="740" y="220" font-size="11" fill="#7a7a85">调用栈深度保护</text>
-<path d="M 940,200 L 954,200" stroke="#a855f7" stroke-width="2" fill="none" marker-end="url(#arrow-3)"/>
-<marker id="arrow-3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#a855f7"/></marker>
-<rect x="958" y="120" width="210" height="160" rx="8" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
+<text x="740" y="178" font-size="11" fill="#7a7a85">串行: 有数据依赖</text>
+<text x="740" y="198" font-size="11" fill="#7a7a85">并行: 无依赖batch_call</text>
+<text x="740" y="218" font-size="11" fill="#7a7a85">调用栈深度保护</text>
+<line x1="938" y1="195" x2="956" y2="195" stroke="#a855f7" stroke-width="2" marker-end="url(#m-purple)"/>
+<rect x="958" y="120" width="210" height="150" rx="8" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
 <rect x="958" y="120" width="210" height="3" rx="1.5" fill="#ff4466"/>
 <circle cx="980" cy="146" r="12" fill="#ff4466" opacity="0.15"/>
 <text x="980" y="150" text-anchor="middle" font-size="12" font-weight="700" fill="#ff4466" font-family="JetBrains Mono, monospace">5</text>
 <text x="1000" y="150" font-size="13" font-weight="600" fill="#e8e8ec">结果汇总容错</text>
-<text x="972" y="180" font-size="11" fill="#7a7a85">主Agent整合去重</text>
-<text x="972" y="200" font-size="11" fill="#7a7a85">失败换Agent重试</text>
-<text x="972" y="220" font-size="11" fill="#7a7a85">超时降级处理</text>
-<text x="30" y="290" font-size="14" font-weight="600" fill="#e8e8ec">运行时架构：从用户请求到最终回答</text>
-<rect x="80" y="320" width="120" height="40" rx="6" fill="#12121a" stroke="#00f0ff" stroke-width="1.5"/>
-<text x="140" y="345" text-anchor="middle" font-size="12" fill="#00f0ff">用户请求</text>
-<line x1="140" y1="360" x2="140" y2="380" stroke="#7a7a85" stroke-width="1.5" marker-end="url(#arrow-down)"/>
-<marker id="arrow-down" markerWidth="8" markerHeight="6" refX="4" refY="5" orient="auto"><path d="M0,0 L8,0 L4,6 Z" fill="#7a7a85"/></marker>
-<rect x="30" y="385" width="220" height="50" rx="6" fill="#12121a" stroke="#00ff88" stroke-width="1"/>
-<text x="140" y="405" text-anchor="middle" font-size="11" font-weight="600" fill="#00ff88" font-family="JetBrains Mono, monospace">t_agent_meta</text>
-<text x="140" y="421" text-anchor="middle" font-size="10" fill="#7a7a85">子Agent元数据 (DB)</text>
-<rect x="30" y="450" width="220" height="50" rx="6" fill="#12121a" stroke="#00ff88" stroke-width="1" filter="url(#glow)"/>
-<text x="140" y="470" text-anchor="middle" font-size="11" font-weight="600" fill="#00ff88">CatalogBuilder</text>
-<text x="140" y="486" text-anchor="middle" font-size="10" fill="#7a7a85">动态构建能力目录</text>
-<line x1="140" y1="435" x2="140" y2="450" stroke="#00ff88" stroke-width="1.5"/>
-<rect x="320" y="340" width="560" height="120" rx="10" fill="#12121a" stroke="#00f0ff" stroke-width="2" filter="url(#glow)"/>
-<rect x="320" y="340" width="560" height="28" rx="10" fill="#00f0ff" opacity="0.1"/>
-<rect x="320" y="360" width="560" height="8" fill="#00f0ff" opacity="0.1"/>
-<text x="340" y="360" font-size="13" font-weight="700" fill="#00f0ff" font-family="JetBrains Mono, monospace">Main Agent (Orchestrator)</text>
-<text x="340" y="388" font-size="11" fill="#e8e8ec">sys_prompt + 动态能力目录 (内存拼接, 不持久化)</text>
-<text x="340" y="408" font-size="11" fill="#7a7a85">LLM 分析需求 -> 选择子Agent -> 调用 agent_send 工具</text>
-<text x="340" y="428" font-size="11" fill="#7a7a85">收集结果 -> 整合去重 -> 输出最终回答</text>
-<text x="340" y="446" font-size="10" fill="#a855f7" font-family="JetBrains Mono, monospace">HarnessAgent 全局单例引擎</text>
-<path d="M 250,475 L 320,390" stroke="#00ff88" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#arrow-green)"/>
-<marker id="arrow-green" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#00ff88"/></marker>
-<text x="270" y="460" font-size="10" fill="#00ff88">注入Prompt</text>
-<path d="M 200,340 L 320,360" stroke="#00f0ff" stroke-width="1.5" fill="none" marker-end="url(#arrow-accent2)"/>
-<marker id="arrow-accent2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#00f0ff"/></marker>
-<rect x="500" y="480" width="200" height="36" rx="6" fill="#12121a" stroke="#ff8c00" stroke-width="1"/>
-<text x="600" y="503" text-anchor="middle" font-size="11" fill="#ff8c00" font-family="JetBrains Mono, monospace">sub_agent_call 工具</text>
-<line x1="600" y1="460" x2="600" y2="480" stroke="#ff8c00" stroke-width="1.5" marker-end="url(#arrow-orange)"/>
-<marker id="arrow-orange" markerWidth="8" markerHeight="6" refX="4" refY="5" orient="auto"><path d="M0,0 L8,0 L4,6 Z" fill="#ff8c00"/></marker>
-<rect x="500" y="530" width="200" height="56" rx="6" fill="#12121a" stroke="#ff4466" stroke-width="1" stroke-dasharray="4,2"/>
-<text x="600" y="548" text-anchor="middle" font-size="10" font-weight="600" fill="#ff4466">代码侧校验</text>
-<text x="600" y="564" text-anchor="middle" font-size="9" fill="#7a7a85">agentId合法性</text>
-<text x="600" y="578" text-anchor="middle" font-size="9" fill="#7a7a85">权限+启用+深度</text>
-<line x1="600" y1="516" x2="600" y2="530" stroke="#ff4466" stroke-width="1.5"/>
-<rect x="140" y="610" width="200" height="70" rx="8" fill="#12121a" stroke="#00ff88" stroke-width="1.5"/>
-<rect x="140" y="610" width="200" height="3" rx="1.5" fill="#00ff88"/>
-<text x="150" y="632" font-size="11" font-weight="600" fill="#00ff88" font-family="JetBrains Mono, monospace">agent_data_query</text>
-<text x="150" y="650" font-size="11" fill="#e8e8ec">数据查询Agent</text>
-<text x="150" y="666" font-size="10" fill="#7a7a85">SQL/业务数据</text>
-<path d="M 600,586 L 600,590 L 240,590 L 240,610" stroke="#00ff88" stroke-width="1" fill="none" opacity="0.5" stroke-dasharray="3,2"/>
-<rect x="370" y="610" width="200" height="70" rx="8" fill="#12121a" stroke="#00f0ff" stroke-width="1.5"/>
-<rect x="370" y="610" width="200" height="3" rx="1.5" fill="#00f0ff"/>
-<text x="380" y="632" font-size="11" font-weight="600" fill="#00f0ff" font-family="JetBrains Mono, monospace">agent_report_gen</text>
-<text x="380" y="650" font-size="11" fill="#e8e8ec">报表生成Agent</text>
-<text x="380" y="666" font-size="10" fill="#7a7a85">分析报表/可视化</text>
-<path d="M 600,586 L 600,590 L 470,590 L 470,610" stroke="#00f0ff" stroke-width="1" fill="none" opacity="0.5" stroke-dasharray="3,2"/>
-<rect x="600" y="610" width="200" height="70" rx="8" fill="#12121a" stroke="#ff8c00" stroke-width="1.5"/>
-<rect x="600" y="610" width="200" height="3" rx="1.5" fill="#ff8c00"/>
-<text x="610" y="632" font-size="11" font-weight="600" fill="#ff8c00" font-family="JetBrains Mono, monospace">agent_code_review</text>
-<text x="610" y="650" font-size="11" fill="#e8e8ec">代码审查Agent</text>
-<text x="610" y="666" font-size="10" fill="#7a7a85">安全/性能/规范</text>
-<path d="M 600,586 L 600,590 L 700,590 L 700,610" stroke="#ff8c00" stroke-width="1" fill="none" opacity="0.5" stroke-dasharray="3,2"/>
-<text x="140" y="700" font-size="10" fill="#a855f7" font-family="JetBrains Mono, monospace">串行调度: A -&gt; B (有依赖)  |  并行调度: batch_call (无依赖) | Mono.zip</text>
-<rect x="940" y="380" width="120" height="50" rx="6" fill="#12121a" stroke="#00f0ff" stroke-width="1"/>
-<text x="1000" y="400" text-anchor="middle" font-size="11" fill="#00f0ff">结果汇总</text>
-<text x="1000" y="416" text-anchor="middle" font-size="10" fill="#7a7a85">整合/去重</text>
-<path d="M 340,645 L 940,405" stroke="#00ff88" stroke-width="1" fill="none" opacity="0.4" stroke-dasharray="4,2"/>
-<path d="M 570,645 L 940,405" stroke="#00f0ff" stroke-width="1" fill="none" opacity="0.4" stroke-dasharray="4,2"/>
-<path d="M 800,645 L 940,405" stroke="#ff8c00" stroke-width="1" fill="none" opacity="0.4" stroke-dasharray="4,2"/>
-<path d="M 940,405 L 880,390" stroke="#00f0ff" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#arrow-accent2)"/>
-<rect x="940" y="460" width="120" height="40" rx="6" fill="#12121a" stroke="#00f0ff" stroke-width="1.5"/>
-<text x="1000" y="485" text-anchor="middle" font-size="12" fill="#00f0ff">最终回答</text>
-<line x1="880" y1="430" x2="940" y2="480" stroke="#00f0ff" stroke-width="1.5" marker-end="url(#arrow-accent2)"/>
-<rect x="30" y="720" width="1140" height="240" rx="10" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
-<text x="50" y="746" font-size="14" font-weight="600" fill="#00f0ff">子Agent选择策略</text>
-<rect x="50" y="768" width="500" height="62" rx="6" fill="#0a0a0f" stroke="#00ff88" stroke-width="1"/>
-<text x="64" y="786" font-size="12" font-weight="600" fill="#00ff88">LLM自主选择</text>
-<text x="200" y="786" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">(子Agent &lt; 10个)</text>
-<text x="64" y="804" font-size="10" fill="#7a7a85">全量能力目录注入Prompt</text>
-<text x="64" y="818" font-size="10" fill="#7a7a85">LLM根据description匹配</text>
-<text x="64" y="832" font-size="10" fill="#7a7a85">实现最简单</text>
-<rect x="50" y="840" width="500" height="62" rx="6" fill="#0a0a0f" stroke="#00f0ff" stroke-width="1"/>
-<text x="64" y="858" font-size="12" font-weight="600" fill="#00f0ff">向量RAG检索</text>
-<text x="200" y="858" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">(子Agent &gt; 10个)</text>
-<text x="64" y="876" font-size="10" fill="#7a7a85">query向量检索召回Top-N</text>
-<text x="64" y="890" font-size="10" fill="#7a7a85">只把候选子集注入Prompt</text>
-<text x="64" y="904" font-size="10" fill="#7a7a85">防止token爆炸</text>
-<text x="620" y="746" font-size="14" font-weight="600" fill="#ff4466">安全防护三道防线</text>
-<rect x="620" y="768" width="530" height="54" rx="6" fill="#0a0a0f" stroke="#ff4466" stroke-width="1"/>
-<text x="634" y="786" font-size="12" font-weight="600" fill="#ff4466">调用栈深度保护</text>
-<text x="634" y="802" font-size="9" fill="#7a7a85">RuntimeContext维护call_depth</text>
-<text x="634" y="814" font-size="9" fill="#7a7a85">超过MAX_DEPTH(3)拒绝调用</text>
-<text x="634" y="826" font-size="9" fill="#7a7a85">防止A-&gt;B-&gt;A无限递归</text>
-<rect x="620" y="830" width="530" height="54" rx="6" fill="#0a0a0f" stroke="#ff8c00" stroke-width="1"/>
-<text x="634" y="848" font-size="12" font-weight="600" fill="#ff8c00">权限隔离</text>
-<text x="634" y="864" font-size="9" fill="#7a7a85">callable_sub_agent_ids白名单</text>
-<text x="634" y="876" font-size="9" fill="#7a7a85">主Agent只能调配置的子Agent</text>
-<text x="634" y="888" font-size="9" fill="#7a7a85">不在列表中直接拒绝</text>
-<rect x="620" y="892" width="530" height="54" rx="6" fill="#0a0a0f" stroke="#a855f7" stroke-width="1"/>
-<text x="634" y="910" font-size="12" font-weight="600" fill="#a855f7">并发数限制</text>
-<text x="634" y="926" font-size="9" fill="#7a7a85">MAX_PARALLEL=5</text>
-<text x="634" y="938" font-size="9" fill="#7a7a85">Semaphore控制并行信号量</text>
-<text x="634" y="950" font-size="9" fill="#7a7a85">超限返回错误提示</text>
+<text x="972" y="178" font-size="11" fill="#7a7a85">主Agent整合去重</text>
+<text x="972" y="198" font-size="11" fill="#7a7a85">失败换Agent重试</text>
+<text x="972" y="218" font-size="11" fill="#7a7a85">超时降级处理</text>
+<text x="30" y="300" font-size="14" font-weight="600" fill="#e8e8ec">运行时架构：从用户请求到最终回答</text>
+<rect x="80" y="330" width="140" height="36" rx="6" fill="#12121a" stroke="#00f0ff" stroke-width="1.5"/>
+<text x="150" y="353" text-anchor="middle" font-size="12" fill="#00f0ff">用户请求</text>
+<line x1="150" y1="366" x2="150" y2="384" stroke="#7a7a85" stroke-width="1.5" marker-end="url(#m-gray)"/>
+<rect x="60" y="388" width="180" height="44" rx="6" fill="#12121a" stroke="#00ff88" stroke-width="1"/>
+<text x="150" y="406" text-anchor="middle" font-size="11" font-weight="600" fill="#00ff88" font-family="JetBrains Mono, monospace">t_agent_meta</text>
+<text x="150" y="422" text-anchor="middle" font-size="10" fill="#7a7a85">子Agent元数据 (DB)</text>
+<line x1="150" y1="432" x2="150" y2="448" stroke="#00ff88" stroke-width="1.5" marker-end="url(#m-green)"/>
+<rect x="60" y="452" width="180" height="44" rx="6" fill="#12121a" stroke="#00ff88" stroke-width="1" filter="url(#glow)"/>
+<text x="150" y="470" text-anchor="middle" font-size="11" font-weight="600" fill="#00ff88">CatalogBuilder</text>
+<text x="150" y="486" text-anchor="middle" font-size="10" fill="#7a7a85">动态构建能力目录</text>
+<rect x="340" y="340" width="520" height="110" rx="10" fill="#12121a" stroke="#00f0ff" stroke-width="2" filter="url(#glow)"/>
+<rect x="340" y="340" width="520" height="26" rx="10" fill="#00f0ff" opacity="0.1"/>
+<rect x="340" y="358" width="520" height="8" fill="#00f0ff" opacity="0.1"/>
+<text x="356" y="358" font-size="13" font-weight="700" fill="#00f0ff" font-family="JetBrains Mono, monospace">Main Agent (Orchestrator)</text>
+<text x="356" y="384" font-size="11" fill="#e8e8ec">sys_prompt + 动态能力目录 (内存拼接, 不持久化)</text>
+<text x="356" y="404" font-size="11" fill="#7a7a85">LLM 分析需求 -&gt; 选择子Agent -&gt; 调用 agent_send</text>
+<text x="356" y="424" font-size="11" fill="#7a7a85">收集结果 -&gt; 整合去重 -&gt; 输出最终回答</text>
+<text x="356" y="440" font-size="10" fill="#a855f7" font-family="JetBrains Mono, monospace">HarnessAgent 全局单例引擎</text>
+<line x1="220" y1="348" x2="340" y2="348" stroke="#00f0ff" stroke-width="1.5" marker-end="url(#m-accent)"/>
+<path d="M 240,474 L 290,474 L 290,410 L 340,410" stroke="#00ff88" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#m-green)"/>
+<text x="252" y="466" font-size="10" fill="#00ff88">注入Prompt</text>
+<rect x="500" y="466" width="200" height="32" rx="6" fill="#12121a" stroke="#ff8c00" stroke-width="1"/>
+<text x="600" y="487" text-anchor="middle" font-size="11" fill="#ff8c00" font-family="JetBrains Mono, monospace">sub_agent_call 工具</text>
+<line x1="600" y1="450" x2="600" y2="466" stroke="#ff8c00" stroke-width="1.5" marker-end="url(#m-orange)"/>
+<rect x="500" y="510" width="200" height="50" rx="6" fill="#12121a" stroke="#ff4466" stroke-width="1" stroke-dasharray="4,2"/>
+<text x="600" y="526" text-anchor="middle" font-size="10" font-weight="600" fill="#ff4466">代码侧校验</text>
+<text x="600" y="540" text-anchor="middle" font-size="9" fill="#7a7a85">agentId合法性 + 权限</text>
+<text x="600" y="552" text-anchor="middle" font-size="9" fill="#7a7a85">启用状态 + 调用栈深度</text>
+<line x1="600" y1="498" x2="600" y2="510" stroke="#ff4466" stroke-width="1.5"/>
+<rect x="140" y="580" width="200" height="64" rx="8" fill="#12121a" stroke="#00ff88" stroke-width="1.5"/>
+<rect x="140" y="580" width="200" height="3" rx="1.5" fill="#00ff88"/>
+<text x="150" y="602" font-size="11" font-weight="600" fill="#00ff88" font-family="JetBrains Mono, monospace">agent_data_query</text>
+<text x="150" y="620" font-size="11" fill="#e8e8ec">数据查询Agent</text>
+<text x="150" y="636" font-size="10" fill="#7a7a85">SQL / 业务数据</text>
+<path d="M 600,560 L 600,564 L 240,564 L 240,580" stroke="#00ff88" stroke-width="1" fill="none" opacity="0.5" stroke-dasharray="3,2"/>
+<rect x="370" y="580" width="200" height="64" rx="8" fill="#12121a" stroke="#00f0ff" stroke-width="1.5"/>
+<rect x="370" y="580" width="200" height="3" rx="1.5" fill="#00f0ff"/>
+<text x="380" y="602" font-size="11" font-weight="600" fill="#00f0ff" font-family="JetBrains Mono, monospace">agent_report_gen</text>
+<text x="380" y="620" font-size="11" fill="#e8e8ec">报表生成Agent</text>
+<text x="380" y="636" font-size="10" fill="#7a7a85">分析报表 / 可视化</text>
+<path d="M 600,560 L 600,564 L 470,564 L 470,580" stroke="#00f0ff" stroke-width="1" fill="none" opacity="0.5" stroke-dasharray="3,2"/>
+<rect x="600" y="580" width="200" height="64" rx="8" fill="#12121a" stroke="#ff8c00" stroke-width="1.5"/>
+<rect x="600" y="580" width="200" height="3" rx="1.5" fill="#ff8c00"/>
+<text x="610" y="602" font-size="11" font-weight="600" fill="#ff8c00" font-family="JetBrains Mono, monospace">agent_code_review</text>
+<text x="610" y="620" font-size="11" fill="#e8e8ec">代码审查Agent</text>
+<text x="610" y="636" font-size="10" fill="#7a7a85">安全 / 性能 / 规范</text>
+<path d="M 600,560 L 600,564 L 700,564 L 700,580" stroke="#ff8c00" stroke-width="1" fill="none" opacity="0.5" stroke-dasharray="3,2"/>
+<text x="140" y="664" font-size="10" fill="#a855f7" font-family="JetBrains Mono, monospace">串行: A -&gt; B (有依赖)  |  并行: batch_call / Mono.zip (无依赖)</text>
+<rect x="970" y="370" width="130" height="44" rx="6" fill="#12121a" stroke="#00f0ff" stroke-width="1"/>
+<text x="1035" y="388" text-anchor="middle" font-size="11" fill="#00f0ff">结果汇总</text>
+<text x="1035" y="404" text-anchor="middle" font-size="10" fill="#7a7a85">整合 / 去重</text>
+<path d="M 340,612 L 960,612 L 960,392 L 970,392" stroke="#00ff88" stroke-width="1" fill="none" opacity="0.4" stroke-dasharray="4,2"/>
+<path d="M 570,612 L 960,612 L 960,392 L 970,392" stroke="#00f0ff" stroke-width="1" fill="none" opacity="0.4" stroke-dasharray="4,2"/>
+<path d="M 800,612 L 960,612 L 960,392 L 970,392" stroke="#ff8c00" stroke-width="1" fill="none" opacity="0.4" stroke-dasharray="4,2"/>
+<path d="M 970,392 L 860,400" stroke="#00f0ff" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#m-accent)"/>
+<rect x="970" y="440" width="130" height="36" rx="6" fill="#12121a" stroke="#00f0ff" stroke-width="1.5"/>
+<text x="1035" y="463" text-anchor="middle" font-size="12" fill="#00f0ff">最终回答</text>
+<line x1="1035" y1="414" x2="1035" y2="440" stroke="#00f0ff" stroke-width="1.5" marker-end="url(#m-accent)"/>
+<rect x="30" y="750" width="1140" height="310" rx="10" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
+<text x="50" y="776" font-size="14" font-weight="600" fill="#00f0ff">子Agent选择策略</text>
+<rect x="50" y="798" width="500" height="86" rx="6" fill="#0a0a0f" stroke="#00ff88" stroke-width="1"/>
+<text x="64" y="818" font-size="12" font-weight="600" fill="#00ff88">LLM自主选择</text>
+<text x="200" y="818" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">(子Agent &lt; 10个)</text>
+<text x="64" y="838" font-size="10" fill="#7a7a85">全量能力目录注入Prompt</text>
+<text x="64" y="854" font-size="10" fill="#7a7a85">LLM根据description匹配</text>
+<text x="64" y="870" font-size="10" fill="#7a7a85">实现最简单</text>
+<rect x="50" y="898" width="500" height="86" rx="6" fill="#0a0a0f" stroke="#00f0ff" stroke-width="1"/>
+<text x="64" y="918" font-size="12" font-weight="600" fill="#00f0ff">向量RAG检索</text>
+<text x="200" y="918" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">(子Agent &gt; 10个)</text>
+<text x="64" y="938" font-size="10" fill="#7a7a85">query向量检索召回Top-N</text>
+<text x="64" y="954" font-size="10" fill="#7a7a85">只把候选子集注入Prompt</text>
+<text x="64" y="970" font-size="10" fill="#7a7a85">防止token爆炸</text>
+<text x="620" y="776" font-size="14" font-weight="600" fill="#ff4466">安全防护三道防线</text>
+<rect x="620" y="798" width="530" height="74" rx="6" fill="#0a0a0f" stroke="#ff4466" stroke-width="1"/>
+<text x="634" y="818" font-size="12" font-weight="600" fill="#ff4466">调用栈深度保护</text>
+<text x="634" y="836" font-size="9" fill="#7a7a85">RuntimeContext维护call_depth</text>
+<text x="634" y="850" font-size="9" fill="#7a7a85">超过MAX_DEPTH(3)拒绝调用</text>
+<text x="634" y="864" font-size="9" fill="#7a7a85">防止A-&gt;B-&gt;A无限递归</text>
+<rect x="620" y="884" width="530" height="74" rx="6" fill="#0a0a0f" stroke="#ff8c00" stroke-width="1"/>
+<text x="634" y="904" font-size="12" font-weight="600" fill="#ff8c00">权限隔离</text>
+<text x="634" y="922" font-size="9" fill="#7a7a85">callable_sub_agent_ids白名单</text>
+<text x="634" y="936" font-size="9" fill="#7a7a85">主Agent只能调配置的子Agent</text>
+<text x="634" y="950" font-size="9" fill="#7a7a85">不在列表中直接拒绝</text>
+<rect x="620" y="970" width="530" height="74" rx="6" fill="#0a0a0f" stroke="#a855f7" stroke-width="1"/>
+<text x="634" y="990" font-size="12" font-weight="600" fill="#a855f7">并发数限制</text>
+<text x="634" y="1008" font-size="9" fill="#7a7a85">MAX_PARALLEL=5</text>
+<text x="634" y="1022" font-size="9" fill="#7a7a85">Semaphore控制并行信号量</text>
+<text x="634" y="1036" font-size="9" fill="#7a7a85">超限返回错误提示</text>
 </svg>
