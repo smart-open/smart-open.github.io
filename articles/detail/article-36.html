@@ -117,7 +117,7 @@
 
         <p>上一篇文章《AgentScope搭企业级Agent平台实战》拆解了企业级 Agent 平台的架构全景：身份权限、MCP/Skill 工具、上下文记忆、安全沙箱、高可用扩展。那篇文章解决的是「单个 Agent 怎么在企业环境里安全稳定运行」的问题。但真实业务场景中，一个 Agent 不可能什么都干--报表Agent擅长数据分析，代码Agent擅长审查代码，数据查询Agent擅长SQL。这就引出了一个更复杂的问题：<strong>主Agent怎么动态发现、选择、调度众多子Agent？</strong></p>
 
-        <p>本文是上一篇的续篇，聚焦「动态多级 Agent 编排」这一核心场景。后台配置大量子Agent，主Agent收到用户问题后，完成任务拆解、感知子Agent能力池、挑选对应子Agent、调度执行、汇总结果。整个链路涉及5大阶段，每个阶段都有独立的工程挑战。本文基于 AgentScope Java v2.0.0 SDK，全链路拆解动态主子 Agent 编排的实现方案。</p>
+        <p>本文是上一篇的续篇，聚焦「动态多级 Agent 编排」这一核心场景。后台配置大量子Agent，主Agent收到用户问题后，完成任务拆解、感知子Agent能力池、挑选对应子Agent、调度执行、汇总结果。整个链路涉及5大阶段，每个阶段都有独立的工程挑战。本文基于 AgentScope Java v2.0.0 SDK，结合核心代码片段，全链路拆解动态主子 Agent 编排的实现方案。</p>
 
         <h2 id="section-1">一、核心痛点：主Agent怎么知道子Agent擅长什么</h2>
 
@@ -160,30 +160,83 @@
 
         <h2 id="section-3">三、阶段1：子Agent元数据与动态能力目录</h2>
 
-        <h3 id="meta-table">3.1 元数据表设计</h3>
+        <h3 id="meta-table">3.1 元数据表设计与 AgentMeta 构建</h3>
 
-        <p>所有子Agent定义存数据库，主Agent和子Agent共用同一张表。关键字段包括能力描述（给LLM看）、能力标签、可调用的子Agent ID列表（权限隔离）、温度、最大迭代次数等。</p>
+        <p>所有子Agent定义存数据库，主Agent和子Agent共用同一张 <code>t_agent_meta</code> 表。关键字段包括能力描述（给LLM看）、能力标签、可调用的子Agent ID列表（权限隔离）、温度、最大迭代次数等。</p>
 
-        <div class="code-block"><span class="cmt">-- t_agent_meta: Agent元数据表</span>
+        <div class="code-block"><span class="cmt">-- t_agent_meta: Agent元数据表（主Agent和子Agent共用）</span>
 <span class="kw">CREATE TABLE</span> t_agent_meta (
-    agent_id         <span class="kw">VARCHAR</span>(64)  <span class="kw">PRIMARY KEY</span>,
-    name             <span class="kw">VARCHAR</span>(128) <span class="kw">NOT NULL</span>,
-    description      <span class="kw">TEXT</span>         <span class="kw">NOT NULL</span>,         <span class="cmt">-- 能力描述（给LLM看）</span>
-    sys_prompt       <span class="kw">TEXT</span>,                            <span class="cmt">-- 系统提示词</span>
-    capability_tags  <span class="kw">JSON</span>,                             <span class="cmt">-- ["报表","数据分析"]</span>
-    callable_sub_agent_ids <span class="kw">JSON</span>,                    <span class="cmt">-- 权限：可调用的子Agent列表</span>
-    temperature      <span class="kw">DECIMAL</span>(3,2) <span class="kw">DEFAULT</span> 0.70,
-    status           <span class="kw">TINYINT</span> <span class="kw">DEFAULT</span> 1,                 <span class="cmt">-- 1=启用, 0=禁用</span>
-    is_main          <span class="kw">TINYINT</span> <span class="kw">DEFAULT</span> 0                  <span class="cmt">-- 1=主Agent, 0=子Agent</span>
+    agent_id              <span class="kw">VARCHAR</span>(64)  <span class="kw">PRIMARY KEY</span>,     <span class="cmt">-- Agent唯一标识</span>
+    name                  <span class="kw">VARCHAR</span>(128) <span class="kw">NOT NULL</span>,         <span class="cmt">-- Agent名称</span>
+    description           <span class="kw">TEXT</span>         <span class="kw">NOT NULL</span>,         <span class="cmt">-- 能力描述（给LLM看）</span>
+    sys_prompt            <span class="kw">TEXT</span>,                            <span class="cmt">-- 系统提示词</span>
+    model_id              <span class="kw">VARCHAR</span>(128),                     <span class="cmt">-- 模型标识 (如 dashscope:qwen-max)</span>
+    capability_tags       <span class="kw">JSON</span>,                             <span class="cmt">-- ["报表","数据分析"]</span>
+    skill_id_list         <span class="kw">JSON</span>,                             <span class="cmt">-- 绑定的技能ID列表</span>
+    callable_sub_agent_ids <span class="kw">JSON</span>,                        <span class="cmt">-- 权限：可调用的子Agent ID列表</span>
+    max_iters             <span class="kw">INT</span> <span class="kw">DEFAULT</span> 5,                    <span class="cmt">-- 最大迭代次数</span>
+    temperature           <span class="kw">DECIMAL</span>(3,2) <span class="kw">DEFAULT</span> 0.70,         <span class="cmt">-- 温度</span>
+    status                <span class="kw">TINYINT</span> <span class="kw">DEFAULT</span> 1,                 <span class="cmt">-- 1=启用, 0=禁用</span>
+    is_main               <span class="kw">TINYINT</span> <span class="kw">DEFAULT</span> 0                  <span class="cmt">-- 1=主Agent, 0=子Agent</span>
 );</div>
 
-        <h3 id="catalog-builder">3.2 动态构建能力目录</h3>
+        <p>在 Java 侧，用一条 record 映射表结构，作为整个编排链路的数据载体：</p>
+
+        <div class="code-block"><span class="cmt">/**
+ * Agent元数据记录，映射 t_agent_meta 表的一行
+ */</span>
+<span class="kw">public record</span> AgentMeta(
+    String agentId,                   <span class="cmt">// 唯一标识</span>
+    String name,                      <span class="cmt">// 名称</span>
+    String description,               <span class="cmt">// 能力描述（给LLM选择用）</span>
+    String sysPrompt,                 <span class="cmt">// 系统提示词</span>
+    String modelId,                   <span class="cmt">// 模型标识，null则用默认模型</span>
+    <span class="kw">int</span> maxIters,                    <span class="cmt">// 最大迭代次数</span>
+    List&lt;String&gt; capabilityTags,      <span class="cmt">// 能力标签</span>
+    List&lt;String&gt; callableSubAgentIds, <span class="cmt">// 可调用的子Agent ID（权限白名单）</span>
+    <span class="kw">int</span> status                       <span class="cmt">// 1=启用 0=禁用</span>
+) {}</div>
+
+        <p>以企业数据分析平台为例，通常配置3个子Agent：数据查询Agent、报表生成Agent、代码审查Agent。每个Agent有独立的 sysPrompt、能力标签和最大迭代次数，全部存入 <code>t_agent_meta</code> 表，通过管理后台增删改，不需要修改代码或重启服务。</p>
+
+        <h3 id="declaration-build">3.2 从元数据构建 SubagentDeclaration</h3>
+
+        <p>AgentScope Java v2 提供了 <code>SubagentDeclaration</code> API 来声明子Agent规格。生产环境中，不是在代码里写死声明，而是从数据库加载 <code>AgentMeta</code> 后动态构建 <code>SubagentDeclaration</code>，再注册到主Agent：</p>
+
+        <div class="code-block"><span class="cmt">// 从 t_agent_meta 加载启用的子Agent元数据</span>
+List&lt;AgentMeta&gt; enabledAgents = metaRepo.findEnabledByIds(mainMeta.getCallableSubAgentIds());
+
+<span class="cmt">// 遍历元数据，动态构建 SubagentDeclaration</span>
+List&lt;SubagentDeclaration&gt; declarations = <span class="kw">new</span> ArrayList&lt;&gt;();
+<span class="kw">for</span> (AgentMeta meta : enabledAgents) {
+    SubagentDeclaration.Builder builder = SubagentDeclaration.builder()
+            .name(meta.agentId())                         <span class="cmt">// agent_id 作为唯一标识</span>
+            .description(meta.description())               <span class="cmt">// 能力描述，给主Agent LLM看</span>
+            .inlineAgentsBody(meta.sysPrompt())            <span class="cmt">// 子Agent的System Prompt</span>
+            .maxIters(meta.maxIters())                     <span class="cmt">// 最大迭代次数</span>
+            .workspaceMode(WorkspaceMode.SHARED)           <span class="cmt">// 共享工作区</span>
+            .mode(SubagentDeclaration.Mode.SUBAGENT)       <span class="cmt">// 子Agent模式</span>
+            .inheritParentPermissions(<span class="kw">true</span>);              <span class="cmt">// 继承主Agent权限</span>
+
+    <span class="cmt">// 元数据指定了模型则用指定模型，否则用默认模型</span>
+    <span class="kw">if</span> (meta.modelId() != <span class="kw">null</span>) {
+        builder.model(meta.modelId());
+    } <span class="kw">else</span> {
+        builder.model(defaultModel);
+    }
+
+    declarations.add(builder.build());
+}</div>
+
+        <div class="callout"><strong>关键设计：</strong>SubagentDeclaration 的 name 必须与 t_agent_meta 的 agent_id 一致，因为主Agent LLM 通过能力目录中的 agent_id 发起调用，工具内部根据 name 匹配到对应的子Agent。description 是 LLM 做选择的核心依据，必须精准描述能力边界。</div>
+
+        <h3 id="catalog-builder">3.3 动态构建能力目录</h3>
 
         <p>核心思路：不是修改数据库里主Agent的 <code>sys_prompt</code>，而是在构建 <code>RuntimeContext</code> 时<strong>内存拼接</strong>能力目录，不持久化。每次请求动态生成，后台新增子Agent下次请求立即生效。</p>
 
         <div class="code-block"><span class="cmt">/**
  * 从子Agent元数据列表构建能力目录文本
- * 模拟生产环境：从DB查询 -> 组装Markdown表格 -> 注入Prompt
+ * 生产环境：从DB查询 -&gt; 组装Markdown表格 -&gt; 注入Prompt（不持久化）
  */</span>
 <span class="kw">private static</span> String buildCatalog(List&lt;AgentMeta&gt; agents) {
     StringBuilder sb = <span class="kw">new</span> StringBuilder();
@@ -200,9 +253,28 @@
     <span class="kw">return</span> sb.toString();
 }</div>
 
-        <p>以一个企业数据分析平台为例，通常配置3个子Agent：数据查询Agent、报表生成Agent、代码审查Agent。每个Agent有独立的 sysPrompt、能力标签和最大迭代次数。运行时从数据库加载启用的Agent列表，构建能力目录文本，拼接到主Agent的 System Prompt 尾部。</p>
+        <p>能力目录生成后，拼接到主Agent System Prompt 尾部，通过 <code>RuntimeContext</code> 注入：</p>
 
-        <div class="callout"><strong>关键设计：</strong>能力目录是 Markdown 表格格式，LLM 天然擅长理解表格。每行包含 agent_id、名称、能力描述和能力标签，LLM 根据用户需求做语义匹配，选择最合适的子Agent。</div>
+        <div class="code-block"><span class="cmt">// 加载主Agent元数据</span>
+AgentMeta mainMeta = metaRepo.findById(mainAgentId);
+
+<span class="cmt">// 动态构建能力目录（每次请求重新生成）</span>
+String catalog = buildCatalog(enabledAgents);
+
+<span class="cmt">// 内存拼接：原始sys_prompt + 动态能力目录（不持久化到数据库）</span>
+String dynamicSysPrompt = mainMeta.sysPrompt() + catalog;
+
+<span class="cmt">// 通过 RuntimeContext 注入动态 prompt</span>
+RuntimeContext ctx = RuntimeContext.builder()
+        .userId(userId)
+        .sessionId(UUID.randomUUID().toString())
+        .build();
+ctx.setSystemPromptOverride(dynamicSysPrompt);
+
+<span class="cmt">// 调用全局单例引擎</span>
+Msg reply = engine.call(<span class="kw">new</span> UserMessage(userMessage), ctx).block();</div>
+
+        <div class="callout"><strong>能力目录格式选择：</strong>用 Markdown 表格，LLM 天然擅长理解表格结构。每行包含 agent_id、名称、能力描述和能力标签，LLM 根据用户需求做语义匹配，选择最合适的子Agent。表格格式比 JSON 更节省 token，也比纯文本更结构化。</div>
 
         <h2 id="section-4">四、阶段2：主Agent任务规划</h2>
 
@@ -221,7 +293,26 @@
           </div>
         </div>
 
-        <p>显式规划模式下，LLM 输出的任务清单是一个 JSON 数组，每个任务包含步骤号、描述、目标 agent_id 和依赖关系。Middleware 拦截后可以校验所有 agent_id 的合法性--如果 LLM 编造了不存在的 agent_id，Middleware 注入错误提示让 LLM 重新规划。</p>
+        <p>隐式规划模式下，主Agent System Prompt 指引 LLM 自主决策：</p>
+
+        <div class="code-block"><span class="cmt">// 主Agent System Prompt（隐式规划模式）</span>
+你是任务协调主Agent。根据用户问题和子Agent能力目录，自主决定调用哪些子Agent。
+
+工作流程：
+1. 分析用户需求，判断需要哪些子能力
+2. 使用 sub_agent_call 工具调用对应子Agent
+3. 如果有数据依赖，先调用数据提供方，拿到结果后再调用消费方
+4. 收集所有子Agent返回结果后，整合输出最终回答
+
+汇总规则：
+- 整合多个子Agent的输出为连贯回答
+- 去重冗余信息，保留最准确的
+- 如果子Agent返回错误，尝试换一个子Agent重试
+- 最终回答直接回应用户问题，不暴露内部调用细节
+
+注意：不要自己执行子Agent的专业工作，通过 sub_agent_call 委派。</div>
+
+        <p>显式规划模式下，LLM 先输出结构化任务清单 JSON，Middleware 拦截后校验所有 agent_id 合法性。如果 LLM 编造了不存在的 agent_id，Middleware 注入错误提示让 LLM 重新规划。这种模式适合需要人工确认的复杂场景：前端可以展示任务清单，用户确认后再执行。</p>
 
         <h2 id="section-5">五、阶段3：子Agent选择策略</h2>
 
@@ -229,26 +320,13 @@
 
         <h3 id="strategy-llm">5.1 策略1：LLM自主选择（子Agent少于10个）</h3>
 
-        <p>把完整能力目录交给LLM，由大模型根据子任务描述和每个Agent的 <code>description</code>、<code>capability_tags</code> 做匹配选择。这是默认策略，实现最简单。</p>
-
-        <p>LLM 通过 <code>sub_agent_call</code> 工具调用子Agent，工具内部做三道代码侧校验：</p>
-        <ul>
-          <li><strong>合法性校验</strong>：agent_id 是否在主Agent允许调用的列表中</li>
-          <li><strong>启用状态校验</strong>：子Agent是否存在且 status=1</li>
-          <li><strong>调用栈深度校验</strong>：当前深度是否超过 MAX_DEPTH(3)</li>
-        </ul>
-
-        <div class="callout-warn"><strong>关键原则：</strong>不完全信任LLM输出。LLM可能编造不存在的agent_id，或选择已禁用的子Agent。代码侧必须做完整校验，校验失败返回错误信息让LLM重新选择。</div>
+        <p>把完整能力目录交给LLM，由大模型根据子任务描述和每个Agent的 <code>description</code>、<code>capability_tags</code> 做匹配选择。这是默认策略，实现最简单。LLM 通过 <code>sub_agent_call</code> 工具调用子Agent，工具内部做三道代码侧校验。</p>
 
         <h3 id="strategy-rag">5.2 策略2：向量RAG检索（子Agent超过10个）</h3>
 
         <p>当子Agent数量很多，全部塞Prompt会token爆炸。这时需要先做向量检索，召回最匹配的Top-N候选子Agent，只把候选子集注入Prompt。</p>
 
-        <div class="code-block"><span class="cmt">// 向量检索流程</span>
-<span class="cmt">// 1. 将每个子Agent的元数据向量化存入向量库</span>
-<span class="cmt">// 2. 用户query做向量检索，召回top-N最匹配的子Agent</span>
-<span class="cmt">// 3. 只把召回的少数候选注入Prompt</span>
-
+        <div class="code-block"><span class="cmt">// 向量检索流程：query -&gt; 召回Top-N候选 -&gt; 只注入候选子集</span>
 List&lt;ScoredAgent&gt; scored = candidates.stream()
     .map(agent -> {
         <span class="kw">double</span> score = vectorStore.similarity(
@@ -265,17 +343,86 @@ List&lt;ScoredAgent&gt; scored = candidates.stream()
 
         <h2 id="section-6">六、阶段4：子Agent调度执行</h2>
 
-        <p>选定子Agent后，进入调度执行阶段。调度方式取决于子任务之间是否有数据依赖。</p>
+        <p>选定子Agent后，进入调度执行阶段。调度方式取决于子任务之间是否有数据依赖。整个调度过程通过 <code>sub_agent_call</code> 和 <code>sub_agent_batch_call</code> 两个工具实现。</p>
 
-        <h3 id="serial-schedule">6.1 串行调度（有数据依赖）</h3>
+        <h3 id="sub-agent-call">6.1 sub_agent_call：单子Agent调用工具</h3>
 
-        <p>子任务之间有数据依赖时，必须串行执行：前一步的输出是后一步的输入。比如"查询数据 -> 基于数据生成报表"，报表Agent需要数据查询Agent的结果作为输入。</p>
+        <p>这是核心工具。LLM 从能力目录中选择 agent_id，通过此工具发起调用。工具内部做完整的三道安全校验，然后通过 <code>DefaultAgentManager</code> 创建子Agent实例并执行任务。</p>
 
-        <p>HarnessAgent 原生工具调用就是串行模式--LLM在一次迭代中调用一个工具，拿到结果后进入下一次迭代。不需要额外开发，LLM自然行为就是串行调度：</p>
+        <div class="code-block"><span class="ann">@Tool</span>(
+    name = <span class="str">"sub_agent_call"</span>,
+    description = <span class="str">"调用子Agent执行子任务。传入agent_id（从能力目录中选择）和task（子任务描述）。"</span>
+)
+<span class="kw">public</span> String callSubAgent(
+        <span class="ann">@ToolParam</span>(name = <span class="str">"agent_id"</span>, description = <span class="str">"子Agent的唯一标识"</span>)
+        String agentId,
+        <span class="ann">@ToolParam</span>(name = <span class="str">"task"</span>, description = <span class="str">"子任务描述"</span>)
+        String task,
+        ToolCallContext context
+) {
+    RuntimeContext ctx = context.getRuntimeContext();
 
-        <div class="code-block"><span class="cmt">// 串行调度：有数据依赖时，前一步输出作为后一步输入</span>
+    <span class="cmt">// === 代码侧三道校验（不完全信任LLM输出） ===</span>
+
+    <span class="cmt">// 1. 校验 agent_id 是否在主Agent允许调用的列表中（权限隔离）</span>
+    String mainAgentId = ctx.get(<span class="str">"main_agent_id"</span>);
+    AgentMeta mainMeta = metaRepo.findById(mainAgentId);
+    <span class="kw">if</span> (!mainMeta.getCallableSubAgentIds().contains(agentId)) {
+        <span class="kw">return</span> <span class="str">"错误: agent_id 不在允许调用的子Agent列表中。请从能力目录中选择。"</span>;
+    }
+
+    <span class="cmt">// 2. 校验子Agent是否存在且启用</span>
+    AgentMeta subMeta = metaRepo.findById(agentId);
+    <span class="kw">if</span> (subMeta == <span class="kw">null</span> || subMeta.getStatus() != 1) {
+        <span class="kw">return</span> <span class="str">"错误: 子Agent不存在或已禁用。请选择其他Agent。"</span>;
+    }
+
+    <span class="cmt">// 3. 调用栈深度校验（防递归）</span>
+    <span class="kw">int</span> currentDepth = ctx.get(<span class="str">"call_depth"</span>, 0);
+    <span class="kw">if</span> (currentDepth &gt;= 3) {
+        <span class="kw">return</span> <span class="str">"错误: 调用栈深度超过最大限制(3)，已拒绝调用。"</span>;
+    }
+
+    <span class="cmt">// === 执行子Agent调用 ===</span>
+    ctx.set(<span class="str">"call_depth"</span>, currentDepth + 1);
+    <span class="kw">try</span> {
+        DefaultAgentManager manager = orchestrator.getSubagentAgentManager();
+        Agent subAgent = manager.createAgent(agentId, ctx);
+        Msg result = manager.invokeAgent(
+                subAgent, ctx.getSessionId(), task, <span class="str">"sub_agent_call"</span>
+        ).timeout(Duration.ofSeconds(30)).block();
+
+        <span class="kw">return</span> result != <span class="kw">null</span> ? result.getTextContent() : <span class="str">"(子Agent无响应)"</span>;
+    } <span class="kw">catch</span> (TimeoutException e) {
+        <span class="kw">return</span> <span class="str">"子Agent执行超时(30s)。请简化任务或更换Agent。"</span>;
+    } <span class="kw">catch</span> (Exception e) {
+        <span class="kw">return</span> <span class="str">"子Agent执行错误: "</span> + e.getMessage() + <span class="str">"。请尝试更换Agent。"</span>;
+    } <span class="kw">finally</span> {
+        ctx.set(<span class="str">"call_depth"</span>, currentDepth);  <span class="cmt">// 恢复深度</span>
+    }
+}</div>
+
+        <div class="callout-warn"><strong>关键原则：</strong>不完全信任LLM输出。LLM可能编造不存在的agent_id，或选择已禁用的子Agent。代码侧必须做完整校验，校验失败返回错误信息让LLM重新选择。超时控制和异常捕获确保子Agent故障不会拖垮主Agent。</div>
+
+        <h3 id="serial-schedule">6.2 串行调度（有数据依赖）</h3>
+
+        <p>子任务之间有数据依赖时，必须串行执行：前一步的输出是后一步的输入。HarnessAgent 原生工具调用就是串行模式--LLM在一次迭代中调用一个 <code>sub_agent_call</code>，拿到结果后进入下一次迭代，基于结果再调用下一个子Agent。不需要额外开发，LLM自然行为就是串行调度：</p>
+
+        <div class="code-block"><span class="cmt">// 串行调度的执行时序（LLM自主驱动）</span>
+<span class="cmt">// Turn 1: LLM输出 sub_agent_call(agent_data_query, "查询本月销售数据")</span>
+<span class="cmt">//         -&gt; 工具执行，返回 {"total_sales": 1250000, "orders": 350, ...}</span>
+
+<span class="cmt">// Turn 2: LLM拿到数据，输出 sub_agent_call(agent_report_gen, "基于数据生成报表: ...")</span>
+<span class="cmt">//         -&gt; 工具执行，返回 "## 销售分析报表\n本月总销售额125万..."</span>
+
+<span class="cmt">// Turn 3: LLM拿到报表，输出最终回答给用户</span>
+
+
+<span class="cmt">// 程序化串行调用（DefaultAgentManager，适用于需要代码侧控制调度逻辑的场景）</span>
+<span class="kw">var</span> manager = orchestrator.getSubagentAgentManager();
+
 <span class="cmt">// Step 1: 先查询数据</span>
-<span class="kw">var</span> dataAgent = manager.createAgent(<span class="str">"agent_data_query"</span>, ctx);
+Agent dataAgent = manager.createAgent(<span class="str">"agent_data_query"</span>, ctx);
 Msg dataResult = manager.invokeAgent(
     dataAgent, ctx.getSessionId(),
     <span class="str">"查询本月销售数据，包括总销售额、订单数、客单价"</span>,
@@ -283,39 +430,87 @@ Msg dataResult = manager.invokeAgent(
 ).block();
 
 <span class="cmt">// Step 2: 基于数据生成报表（依赖Step 1的结果）</span>
-<span class="kw">var</span> reportAgent = manager.createAgent(<span class="str">"agent_report_gen"</span>, ctx);
+Agent reportAgent = manager.createAgent(<span class="str">"agent_report_gen"</span>, ctx);
 Msg reportResult = manager.invokeAgent(
     reportAgent, ctx.getSessionId(),
     <span class="str">"基于以下销售数据生成分析报表:\n"</span> + dataResult.getTextContent(),
     <span class="str">"serial-step-2"</span>
 ).block();</div>
 
-        <h3 id="parallel-schedule">6.2 并行调度（无数据依赖）</h3>
+        <h3 id="parallel-schedule">6.3 sub_agent_batch_call：并行调度（无数据依赖）</h3>
 
-        <p>子任务之间无依赖时，可以同时跑多个子Agent。用 Reactor 的 <code>Mono.zip</code> 实现并行调用，两个子Agent同时执行，等待全部完成后收集结果：</p>
+        <p>子任务之间无依赖时，可以同时跑多个子Agent。<code>sub_agent_batch_call</code> 工具让 LLM 一次传入多个子Agent任务，工具内部用 <code>Flux.merge</code> 并行执行，有最大并行数限制（MAX_PARALLEL=5）。</p>
 
-        <div class="code-block"><span class="cmt">// 并行调度：无依赖任务同时执行</span>
-<span class="cmt">// 同时查询销售数据和审查代码（两个无依赖的子任务）</span>
-<span class="kw">var</span> dataMono = manager.invokeAgent(
+        <div class="code-block"><span class="ann">@Tool</span>(
+    name = <span class="str">"sub_agent_batch_call"</span>,
+    description = <span class="str">"批量并行调用多个子Agent。适用于子任务之间无数据依赖的场景。"</span>
+)
+<span class="kw">public</span> String batchCall(
+        <span class="ann">@ToolParam</span>(name = <span class="str">"tasks"</span>, description = <span class="str">"子任务数组JSON: [{\"agent_id\":\"xxx\",\"task\":\"xxx\"}]"</span>)
+        String tasksJson,
+        ToolCallContext context
+) {
+    RuntimeContext ctx = context.getRuntimeContext();
+
+    <span class="cmt">// 1. 解析任务列表</span>
+    List&lt;SubTask&gt; tasks = parseTasks(tasksJson);
+    <span class="kw">if</span> (tasks.size() &gt; MAX_PARALLEL) {
+        <span class="kw">return</span> <span class="str">"错误: 并行调用数量超过限制("</span> + MAX_PARALLEL + <span class="str">")"</span>;
+    }
+
+    <span class="cmt">// 2. 校验所有agent_id合法性（复用单调用的校验逻辑）</span>
+    <span class="kw">for</span> (SubTask task : tasks) {
+        <span class="kw">if</span> (!validateAgent(task.agentId(), ctx)) {
+            <span class="kw">return</span> <span class="str">"错误: agent_id '"</span> + task.agentId() + <span class="str">"' 不合法或已禁用。"</span>;
+        }
+    }
+
+    <span class="cmt">// 3. 并行执行所有子Agent（Reactor Flux.merge）</span>
+    DefaultAgentManager manager = orchestrator.getSubagentAgentManager();
+    List&lt;Mono&lt;SubAgentResult&gt;&gt; monos = tasks.stream()
+            .map(task -> {
+                Agent subAgent = manager.createAgent(task.agentId(), ctx);
+                <span class="kw">return</span> manager.invokeAgent(subAgent, ctx.getSessionId(),
+                                task.task(), <span class="str">"batch_call"</span>)
+                        .map(msg -> <span class="kw">new</span> SubAgentResult(task.agentId(),
+                                msg != <span class="kw">null</span> ? msg.getTextContent() : <span class="str">"(无响应)"</span>))
+                        .onErrorResume(e -> Mono.just(<span class="kw">new</span> SubAgentResult(
+                                task.agentId(), <span class="str">"执行错误: "</span> + e.getMessage())));
+            })
+            .toList();
+
+    <span class="cmt">// 4. 等待全部完成，收集结果</span>
+    List&lt;SubAgentResult&gt; results = Flux.merge(monos).collectList().block();
+
+    <span class="cmt">// 5. 返回汇总结果给主Agent</span>
+    StringBuilder sb = <span class="kw">new</span> StringBuilder();
+    <span class="kw">for</span> (SubAgentResult r : results) {
+        sb.append(String.format(<span class="str">"[子Agent: %s]\n%s\n\n"</span>, r.agentId(), r.result()));
+    }
+    <span class="kw">return</span> sb.toString();
+}</div>
+
+        <p>程序化并行调用也可以直接用 <code>Mono.zip</code> 实现，适用于需要代码侧精确控制并行的场景：</p>
+
+        <div class="code-block"><span class="cmt">// 程序化并行调用：两个无依赖的子任务同时执行</span>
+<span class="kw">var</span> manager = orchestrator.getSubagentAgentManager();
+
+Mono&lt;Msg&gt; dataMono = manager.invokeAgent(
     manager.createAgent(<span class="str">"agent_data_query"</span>, ctx),
     ctx.getSessionId(), <span class="str">"查询本月用户增长数据"</span>, <span class="str">"parallel-1"</span>
 );
 
-<span class="kw">var</span> codeMono = manager.invokeAgent(
+Mono&lt;Msg&gt; codeMono = manager.invokeAgent(
     manager.createAgent(<span class="str">"agent_code_review"</span>, ctx),
-    ctx.getSessionId(),
-    <span class="str">"审查代码: String sql = \"SELECT * FROM users WHERE id=\" + userId;"</span>,
-    <span class="str">"parallel-2"</span>
+    ctx.getSessionId(), <span class="str">"审查代码: SQL拼接是否有注入风险"</span>, <span class="str">"parallel-2"</span>
 );
 
 <span class="cmt">// 并行执行，等待全部完成</span>
-<span class="kw">var</span> parallelResults = Mono.zip(dataMono, codeMono).block();
+<span class="kw">var</span> results = Mono.zip(dataMono, codeMono).block();
+String dataResult = results.getT1().getTextContent();
+String codeResult = results.getT2().getTextContent();</div>
 
-<span class="cmt">// 对比：串行两步 vs 并行两步 -> 并行节省了等待时间</span>
-System.out.printf(<span class="str">"[COMPARE] Serial(%dms) vs Parallel(%dms) -> saved %dms%n"</span>,
-    serialTotal, parallelTotal, serialTotal - parallelTotal);</div>
-
-        <p>除了程序化并行调用，还可以通过 <code>sub_agent_batch_call</code> 工具让 LLM 一次传入多个子Agent任务，工具内部用 <code>Flux.merge</code> 并行执行。批量调用有最大并行数限制（MAX_PARALLEL=5），超限返回错误。</p>
+        <p>两种并行方式的区别：<code>sub_agent_batch_call</code> 由 LLM 发起，适合 LLM 自主判断"这些子任务无依赖可以并行"的场景；<code>Mono.zip</code> 由代码发起，适合开发者已知任务间无依赖、需要精确控制的场景。</p>
 
         <h2 id="section-7">七、阶段5：结果汇总与容错</h2>
 
@@ -357,8 +552,8 @@ System.out.printf(<span class="str">"[COMPARE] Serial(%dms) vs Parallel(%dms) ->
           <tr><td>子Agent 超过10个</td><td class="mono">向量RAG检索候选</td><td>先召回Top-N，再注入Prompt，防token爆炸</td></tr>
           <tr><td>简单任务</td><td class="mono">隐式规划</td><td>LLM直接工具调用，边想边做</td></tr>
           <tr><td>复杂多步骤任务</td><td class="mono">显式JSON规划 + Middleware拦截</td><td>先规划再执行，可展示给用户，可人工干预</td></tr>
-          <tr><td>子任务有数据依赖</td><td class="mono">串行调度</td><td>前一步输出=后一步输入，原生支持</td></tr>
-          <tr><td>子任务无依赖</td><td class="mono">并行调度</td><td>batch_call工具或Mono.zip并行执行</td></tr>
+          <tr><td>子任务有数据依赖</td><td class="mono">串行调度 (sub_agent_call)</td><td>前一步输出=后一步输入，LLM原生行为</td></tr>
+          <tr><td>子任务无依赖</td><td class="mono">并行调度 (sub_agent_batch_call)</td><td>Flux.merge或Mono.zip并行执行</td></tr>
           <tr><td>子Agent数量动态变化</td><td class="mono">动态能力目录</td><td>每次请求重新生成，无需重启</td></tr>
         </table>
 
@@ -368,6 +563,8 @@ System.out.printf(<span class="str">"[COMPARE] Serial(%dms) vs Parallel(%dms) ->
           <div class="checklist-title">元数据与能力目录</div>
           <ul>
             <li>t_agent_meta 表设计完整，包含 callable_sub_agent_ids 权限字段</li>
+            <li>AgentMeta record 字段与表结构对齐，包含 modelId/maxIters/temperature</li>
+            <li>SubagentDeclaration 从元数据动态构建，name 与 agent_id 一致</li>
             <li>能力目录每次请求动态生成，不持久化到数据库</li>
             <li>后台新增/修改/禁用子Agent后，下次请求立即生效</li>
             <li>子Agent超过10个时启用向量RAG检索策略</li>
@@ -375,12 +572,14 @@ System.out.printf(<span class="str">"[COMPARE] Serial(%dms) vs Parallel(%dms) ->
         </div>
 
         <div class="checklist">
-          <div class="checklist-title">安全防护</div>
+          <div class="checklist-title">工具实现与校验</div>
           <ul>
-            <li>调用栈深度保护 MAX_DEPTH=3，防递归死循环</li>
+            <li>sub_agent_call 工具内部三道校验：合法性 + 启用状态 + 调用栈深度</li>
+            <li>sub_agent_batch_call 校验所有 agent_id 后再并行执行</li>
+            <li>校验失败返回结构化错误信息，引导 LLM 重新选择</li>
+            <li>调用栈深度保护 MAX_DEPTH=3，finally 块中恢复 depth</li>
             <li>权限隔离：主Agent只能调 callable_sub_agent_ids 白名单中的子Agent</li>
             <li>并发数限制 MAX_PARALLEL=5，Semaphore 控制并行信号量</li>
-            <li>sub_agent_call 工具内部三道校验：合法性 + 启用状态 + 深度</li>
           </ul>
         </div>
 
@@ -388,7 +587,7 @@ System.out.printf(<span class="str">"[COMPARE] Serial(%dms) vs Parallel(%dms) ->
           <div class="checklist-title">调度与容错</div>
           <ul>
             <li>串行调度：有数据依赖时前一步输出作为后一步输入</li>
-            <li>并行调度：无依赖任务用 Mono.zip 或 Flux.merge 并行执行</li>
+            <li>并行调度：无依赖任务用 Flux.merge 或 Mono.zip 并行执行</li>
             <li>每个子Agent调用有 timeout(30s) 超时控制</li>
             <li>子Agent失败返回结构化错误信息，主Agent可决策重试或降级</li>
             <li>主Agent System Prompt 包含汇总规则：整合、去重、不暴露内部调用细节</li>
