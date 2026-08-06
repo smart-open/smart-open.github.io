@@ -4,9 +4,9 @@
 const ARTICLES_DATA = [
   {
     id: 'article-36',
-    title: '多级Agent管理实战：从单体到协作的跃迁',
-    excerpt: '深入解析AgentScope 2.0多级Agent架构，涵盖子Agent生命周期管理、任务分解策略、通信机制设计、监控与调试，结合代码评审协作系统实战案例，展示如何构建高效的多Agent协作系统，附6大反模式避坑指南',
-    tags: ['多级Agent', '子Agent编排', '任务分解', '协作系统'],
+    title: '主子Agent动态编排怎么实现？5阶段全链路实战',
+    excerpt: '基于 AgentScope Java v2 的动态多级 Agent 编排实战：从子Agent元数据驱动、动态能力目录构建、LLM选择+代码校验、串行/并行调度到结果汇总容错，5大阶段全链路拆解，附完整Demo代码与架构示意图，覆盖安全防护三道防线',
+    tags: ['Agent 编排', 'AgentScope', '动态调度', '主子Agent'],
     date: '2026-08-06',
     detailUrl: 'detail/article-36.html'
   },

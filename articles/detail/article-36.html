@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>多级Agent管理实战：从单体到协作的跃迁 - 馒头仔 | Smart Open</title>
-  <meta name="description" content="深入解析AgentScope 2.0多级Agent架构，涵盖子Agent生命周期管理、任务分解策略、通信机制设计、监控与调试，结合实战案例展示如何构建高效的多Agent协作系统">
+  <title>主子Agent动态编排怎么实现？5阶段全链路实战 - 馒头仔 | Smart Open</title>
+  <meta name="description" content="基于 AgentScope Java v2 的动态多级 Agent 编排实战：从子Agent元数据驱动、动态能力目录构建、LLM选择+代码校验、串行/并行调度到结果汇总容错，5大阶段全链路拆解，附完整代码示例与架构示意图">
   <link rel="icon" type="image/png" href="../../favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,67 +13,54 @@
   <link rel="stylesheet" href="../../css/article.css">
   <link rel="stylesheet" href="../../css/preview-rail.css">
   <style>
+    .param-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
+    .param-table th { background: var(--bg-secondary); color: var(--accent); padding: 12px 14px; text-align: left; border-bottom: 2px solid var(--divider); font-family: var(--font-mono); font-size: 0.8rem; }
+    .param-table td { padding: 10px 14px; border-bottom: 1px solid var(--divider); color: var(--text-primary); }
+    .param-table tr:hover td { background: var(--bg-secondary); }
+    .param-table .mono { font-family: var(--font-mono); color: var(--accent); }
     .code-block { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 8px; padding: 16px 20px; margin: 16px 0; overflow-x: auto; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.6; color: var(--text-primary); white-space: pre; }
     .code-block .cmt { color: var(--text-secondary); font-style: italic; }
     .code-block .kw { color: #c792ea; }
     .code-block .str { color: #c3e88d; }
     .code-block .num { color: #f78c6c; }
-    .code-block .fn { color: #82aaff; }
+    .code-block .ann { color: #82aaff; }
     .callout { background: rgba(0,240,255,0.05); border: 1px solid var(--divider); border-left: 3px solid var(--accent); border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.6; }
     .callout strong { color: var(--accent); }
     .callout-warn { background: rgba(255,68,102,0.05); border: 1px solid var(--divider); border-left: 3px solid #ff4466; border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.6; }
     .callout-warn strong { color: #ff4466; }
-    .arch-layer-stack { margin: 24px 0; }
-    .arch-layer { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 8px; padding: 16px 20px; margin-bottom: 12px; border-left: 3px solid var(--accent); }
-    .arch-layer-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 8px; color: var(--accent); font-family: var(--font-mono); }
-    .arch-layer-body { font-size: 0.84rem; color: var(--text-secondary); line-height: 1.6; }
-    .arch-layer-body strong { color: var(--text-primary); }
-    .pillar-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin: 24px 0; }
-    .pillar-card { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 20px; transition: all 0.2s ease; }
-    .pillar-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-    .pillar-card-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); background: rgba(0,240,255,0.1); display: inline-block; padding: 2px 10px; border-radius: 4px; margin-bottom: 10px; }
-    .pillar-card-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 8px; }
+    .pillar-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 24px 0; }
+    .pillar-card { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 20px; border-top: 3px solid var(--accent); }
+    .pillar-card-num { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); margin-bottom: 8px; }
+    .pillar-card-title { font-weight: 600; font-size: 1rem; margin-bottom: 8px; }
     .pillar-card-desc { font-size: 0.84rem; color: var(--text-secondary); line-height: 1.6; }
-    .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
-    .compare-table th { background: var(--bg-secondary); color: var(--accent); padding: 12px 14px; text-align: left; border-bottom: 2px solid var(--divider); font-family: var(--font-mono); font-size: 0.8rem; }
-    .compare-table td { padding: 10px 14px; border-bottom: 1px solid var(--divider); color: var(--text-primary); }
-    .compare-table tr:hover td { background: var(--bg-secondary); }
+    .pillar-card-desc strong { color: var(--text-primary); }
+    .flow-stages { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
+    .flow-stage { flex: 1; min-width: 140px; background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 14px; position: relative; }
+    .flow-stage::after { content: '->'; position: absolute; right: -14px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 1.2rem; }
+    .flow-stage:last-child::after { display: none; }
+    .flow-stage-title { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent); margin-bottom: 6px; }
+    .flow-stage-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; }
     .scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 24px 0; }
     .scenario-card { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 18px 20px; border-left: 3px solid var(--accent); }
     .scenario-card-tag { display: inline-block; font-family: var(--font-mono); font-size: 0.72rem; color: var(--accent); background: rgba(0,240,255,0.1); padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; }
     .scenario-card-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 8px; }
     .scenario-card-body { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
     .scenario-card-body strong { color: var(--text-primary); }
+    .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
+    .compare-table th { background: var(--bg-secondary); color: var(--accent); padding: 10px 14px; text-align: left; border-bottom: 2px solid var(--divider); font-family: var(--font-mono); font-size: 0.8rem; }
+    .compare-table td { padding: 10px 14px; border-bottom: 1px solid var(--divider); color: var(--text-primary); }
+    .compare-table tr:hover td { background: var(--bg-secondary); }
     .checklist { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 20px 24px; margin: 20px 0; }
     .checklist-title { font-weight: 600; font-size: 0.92rem; color: var(--accent); margin-bottom: 12px; font-family: var(--font-mono); }
     .checklist ul { list-style: none; padding: 0; margin: 0; }
     .checklist li { font-size: 0.84rem; color: var(--text-primary); line-height: 1.8; padding-left: 24px; position: relative; }
     .checklist li::before { content: '[ ]'; position: absolute; left: 0; color: var(--accent); font-family: var(--font-mono); font-size: 0.8rem; }
-    .lifecycle-flow { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; margin: 24px 0; padding: 20px; background: var(--bg-secondary); border-radius: 10px; }
-    .lifecycle-step { flex: 1; min-width: 100px; text-align: center; padding: 12px; }
-    .lifecycle-step-icon { font-size: 1.5rem; margin-bottom: 6px; }
-    .lifecycle-step-title { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); margin-bottom: 4px; }
-    .lifecycle-step-desc { font-size: 0.75rem; color: var(--text-secondary); }
-    .lifecycle-arrow { color: var(--accent); font-size: 1.2rem; }
-    .monitor-dash { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 20px 0; }
-    .monitor-card { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 8px; padding: 14px 16px; text-align: center; }
-    .monitor-card-value { font-size: 1.8rem; font-weight: 700; color: var(--accent); font-family: var(--font-mono); margin-bottom: 4px; }
-    .monitor-card-label { font-size: 0.78rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
-    .strategy-card { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 18px; margin: 12px 0; }
-    .strategy-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-    .strategy-card-icon { font-size: 1.3rem; }
-    .strategy-card-title { font-weight: 600; font-size: 0.92rem; color: var(--accent); }
-    .strategy-card-body { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
-    .strategy-card-body strong { color: var(--text-primary); }
-    .anti-pattern-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 24px 0; }
-    .anti-pattern-card { background: rgba(255,68,102,0.05); border: 1px solid var(--divider); border-radius: 10px; padding: 18px; border-left: 3px solid #ff4466; }
-    .anti-pattern-title { font-weight: 600; font-size: 0.9rem; color: #ff4466; margin-bottom: 8px; }
-    .anti-pattern-body { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
     @media (max-width: 768px) {
-      .pillar-cards, .scenario-grid, .anti-pattern-grid { grid-template-columns: 1fr; }
-      .lifecycle-flow { flex-direction: column; }
-      .lifecycle-arrow { transform: rotate(90deg); }
-      .monitor-dash { grid-template-columns: repeat(2, 1fr); }
+      .flow-stages { flex-direction: column; }
+      .flow-stage::after { display: none; }
+      .pillar-cards, .scenario-grid { grid-template-columns: 1fr; }
+      .param-table, .compare-table { font-size: 0.78rem; }
+      .param-table th, .param-table td, .compare-table th, .compare-table td { padding: 8px 10px; }
     }
   </style>
 </head>
@@ -98,18 +85,18 @@
 
   <section class="article-hero">
     <div class="article-hero-content">
-      <h1 class="article-title">多级Agent管理实战：从单体到协作的跃迁</h1>
+      <h1 class="article-title">主子Agent动态编排怎么实现？5阶段全链路实战</h1>
       <div class="article-meta">
         <span class="article-date">2026-08-06</span>
         <div class="article-tags">
-          <span class="tag">多级Agent</span>
-          <span class="tag">子Agent编排</span>
-          <span class="tag">任务分解</span>
-          <span class="tag">协作系统</span>
+          <span class="tag">Agent 编排</span>
+          <span class="tag">AgentScope</span>
+          <span class="tag">动态调度</span>
+          <span class="tag">主子Agent</span>
         </div>
       </div>
     </div>
-    <div class="article-hero-bg" style="background-image: url('../../assets/img/article-36-hero.svg')"></div>
+    <div class="article-hero-bg" style="background-image: url('../../assets/img/article-36-diagram.svg')"></div>
     <div class="article-hero-overlay"></div>
   </section>
 
@@ -123,519 +110,341 @@
 
     <article class="article-content">
       <div class="markdown-body">
-        <p><em>本文是《<a href="article-34.html">AgentScope搭企业级Agent平台实战</a>》的续篇，深入探讨多级Agent架构的设计原则、管理机制与实战应用。</em></p>
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-36-diagram.svg" alt="动态多级 Agent 编排架构全景示意图">
+          <figcaption>动态多级 Agent 编排架构：5大阶段流水线 + 运行时架构 + 选择策略与安全防护</figcaption>
+        </figure>
 
-        <p>在前文中，我们介绍了 HarnessAgent 的子智能体编排能力——在 Markdown 里声明子 Agent 规格，运行时按需 <code>agent_spawn</code> / <code>agent_send</code>，支持同步与后台委派。这只是多级 Agent 的起点。真正的挑战在于：当系统中有几十个甚至上百个 Agent 同时运行时，如何管理它们的生命周期？如何确保任务分解合理？如何监控协作效率？如何调试跨 Agent 的问题？</p>
+        <p>上一篇文章《AgentScope搭企业级Agent平台实战》拆解了企业级 Agent 平台的架构全景：身份权限、MCP/Skill 工具、上下文记忆、安全沙箱、高可用扩展。那篇文章解决的是「单个 Agent 怎么在企业环境里安全稳定运行」的问题。但真实业务场景中，一个 Agent 不可能什么都干--报表Agent擅长数据分析，代码Agent擅长审查代码，数据查询Agent擅长SQL。这就引出了一个更复杂的问题：<strong>主Agent怎么动态发现、选择、调度众多子Agent？</strong></p>
 
-        <p>从单体 Agent 到多级 Agent 协作，不是简单地"多开几个 Agent"，而是一次架构范式的跃迁。本文将从实战角度，全面解析多级 Agent 系统的设计、管理、监控与优化。</p>
+        <p>本文是上一篇的续篇，聚焦「动态多级 Agent 编排」这一核心场景。后台配置大量子Agent，主Agent收到用户问题后，完成任务拆解、感知子Agent能力池、挑选对应子Agent、调度执行、汇总结果。整个链路涉及5大阶段，每个阶段都有独立的工程挑战。本文基于 AgentScope Java v2.0.0 SDK，结合完整可运行的 Demo 代码，全链路拆解动态主子 Agent 编排的实现方案。</p>
 
-        <h2 id="section-1">一、多级Agent架构设计原则</h2>
+        <h2 id="section-1">一、核心痛点：主Agent怎么知道子Agent擅长什么</h2>
 
-        <p>多级 Agent 架构不是技术炫技，而是解决复杂问题的必然选择。当一个任务涉及多个领域知识、需要多种工具能力、或者可以并行处理时，单体 Agent 就会遇到能力瓶颈。多级 Agent 通过"分而治之"的思想，把复杂任务拆解为可管理的子任务。</p>
+        <p>动态编排的第一道门槛不是技术实现，而是认知问题：<strong>主Agent怎么知道众多子Agent分别擅长什么？</strong></p>
+
+        <p>最直觉的方案是手动写死 Prompt，把子Agent列表塞进主Agent的 System Prompt。但这在生产环境根本行不通--后台新增子Agent、修改能力描述、禁用某个子Agent时，难道每次都要修改主Agent配置、重启服务？这完全违背了「元数据驱动」的工程原则。</p>
+
+        <div class="callout"><strong>核心设计原则：</strong>所有子Agent定义存数据库，页面配置，不写死代码。运行时动态生成子Agent能力描述注入 Prompt，后台增删改即时生效。下一次请求就能感知到变化，不需要重启服务。</div>
+
+        <p>这就引出了整个动态编排架构的设计哲学：元数据驱动 + 动态能力目录 + LLM选择 + 代码校验。LLM 负责智能选择子Agent，代码负责权限校验、合法性校验、深度保护。两者缺一不可--完全信任 LLM 会出安全问题，完全靠代码又失去了灵活性。</p>
+
+        <h2 id="section-2">二、五大阶段流水线总览</h2>
+
+        <p>动态主子Agent编排的完整链路分为5个阶段，每个阶段解决一个独立问题：</p>
+
+        <div class="flow-stages">
+          <div class="flow-stage">
+            <div class="flow-stage-title">阶段1</div>
+            <div class="flow-stage-desc">动态构建子Agent能力目录，从DB查询启用的子Agent，组装文本注入Prompt</div>
+          </div>
+          <div class="flow-stage">
+            <div class="flow-stage-title">阶段2</div>
+            <div class="flow-stage-desc">主Agent任务规划，隐式规划LLM直接调工具，显式规划先输出JSON任务清单</div>
+          </div>
+          <div class="flow-stage">
+            <div class="flow-stage-title">阶段3</div>
+            <div class="flow-stage-desc">子Agent选择，LLM自主选择或向量RAG检索，代码侧校验合法性</div>
+          </div>
+          <div class="flow-stage">
+            <div class="flow-stage-title">阶段4</div>
+            <div class="flow-stage-desc">调度执行，串行有依赖/并行无依赖，调用栈深度保护</div>
+          </div>
+          <div class="flow-stage">
+            <div class="flow-stage-title">阶段5</div>
+            <div class="flow-stage-desc">结果汇总与容错，主Agent整合去重，失败换Agent重试</div>
+          </div>
+        </div>
+
+        <p>上图展示了完整的运行时架构：用户请求进来后，CatalogBuilder 从 <code>t_agent_meta</code> 表查询启用的子Agent元数据，动态构建能力目录文本，内存拼接到主Agent的 System Prompt 中（不持久化）。主Agent的 LLM 分析用户需求，从能力目录中选择合适的子Agent，通过 <code>sub_agent_call</code> 工具发起调用。工具内部经过三道安全校验（合法性、权限、深度），然后将任务委派给对应的子Agent执行。子Agent返回结果后，主Agent整合去重，输出最终回答。</p>
+
+        <h2 id="section-3">三、阶段1：子Agent元数据与动态能力目录</h2>
+
+        <h3 id="meta-table">3.1 元数据表设计</h3>
+
+        <p>所有子Agent定义存数据库，主Agent和子Agent共用同一张表。关键字段包括能力描述（给LLM看）、能力标签、可调用的子Agent ID列表（权限隔离）、温度、最大迭代次数等。</p>
+
+        <div class="code-block"><span class="cmt">-- t_agent_meta: Agent元数据表</span>
+<span class="kw">CREATE TABLE</span> t_agent_meta (
+    agent_id         <span class="kw">VARCHAR</span>(64)  <span class="kw">PRIMARY KEY</span>,
+    name             <span class="kw">VARCHAR</span>(128) <span class="kw">NOT NULL</span>,
+    description      <span class="kw">TEXT</span>         <span class="kw">NOT NULL</span>,         <span class="cmt">-- 能力描述（给LLM看）</span>
+    sys_prompt       <span class="kw">TEXT</span>,                            <span class="cmt">-- 系统提示词</span>
+    capability_tags  <span class="kw">JSON</span>,                             <span class="cmt">-- ["报表","数据分析"]</span>
+    callable_sub_agent_ids <span class="kw">JSON</span>,                    <span class="cmt">-- 权限：可调用的子Agent列表</span>
+    temperature      <span class="kw">DECIMAL</span>(3,2) <span class="kw">DEFAULT</span> 0.70,
+    status           <span class="kw">TINYINT</span> <span class="kw">DEFAULT</span> 1,                 <span class="cmt">-- 1=启用, 0=禁用</span>
+    is_main          <span class="kw">TINYINT</span> <span class="kw">DEFAULT</span> 0                  <span class="cmt">-- 1=主Agent, 0=子Agent</span>
+);</div>
+
+        <h3 id="catalog-builder">3.2 动态构建能力目录</h3>
+
+        <p>核心思路：不是修改数据库里主Agent的 <code>sys_prompt</code>，而是在构建 <code>RuntimeContext</code> 时<strong>内存拼接</strong>能力目录，不持久化。每次请求动态生成，后台新增子Agent下次请求立即生效。</p>
+
+        <div class="code-block"><span class="cmt">/**
+ * 从子Agent元数据列表构建能力目录文本
+ * 模拟生产环境：从DB查询 -> 组装Markdown表格 -> 注入Prompt
+ */</span>
+<span class="kw">private static</span> String buildCatalog(List&lt;AgentMeta&gt; agents) {
+    StringBuilder sb = <span class="kw">new</span> StringBuilder();
+    sb.append(<span class="str">"\n\n## 可调用的子Agent能力目录\n"</span>);
+    sb.append(<span class="str">"| agent_id | 名称 | 能力描述 | 能力标签 |\n"</span>);
+    sb.append(<span class="str">"|----------|------|---------|----------|\n"</span>);
+    <span class="kw">for</span> (AgentMeta a : agents) {
+        sb.append(String.format(<span class="str">"| %s | %s | %s | %s |\n"</span>,
+                a.agentId(), a.name(),
+                truncate(a.description(), 40),
+                String.join(<span class="str">", "</span>, a.capabilityTags())));
+    }
+    sb.append(<span class="str">"\n使用 agent_send 工具调用子Agent。"</span>);
+    <span class="kw">return</span> sb.toString();
+}</div>
+
+        <p>Demo 代码中的 Mock 数据库模拟了3个子Agent：数据查询Agent、报表生成Agent、代码审查Agent。每个Agent有独立的 sysPrompt、能力标签和最大迭代次数。运行时从 Mock DB 加载启用的Agent列表，构建能力目录文本，拼接到主Agent的 System Prompt 尾部。</p>
+
+        <div class="callout"><strong>关键设计：</strong>能力目录是 Markdown 表格格式，LLM 天然擅长理解表格。每行包含 agent_id、名称、能力描述和能力标签，LLM 根据用户需求做语义匹配，选择最合适的子Agent。</div>
+
+        <h2 id="section-4">四、阶段2：主Agent任务规划</h2>
+
+        <p>主Agent收到用户问题后，需要决定怎么拆解任务、调用哪些子Agent、以什么顺序调用。有两种规划模式，适用不同复杂度的场景。</p>
 
         <div class="pillar-cards">
           <div class="pillar-card">
-            <div class="pillar-card-num">Principle 1</div>
-            <div class="pillar-card-title">职责单一原则</div>
-            <div class="pillar-card-desc">每个 Agent 只负责一个明确的职责领域。写代码的 Agent 不要同时做安全扫描，做数据分析的 Agent 不要同时写报告。单一职责让 Agent 的 System Prompt 更聚焦，工具集更精简，推理质量更高，调试更容易。</div>
+            <div class="pillar-card-num">模式A</div>
+            <div class="pillar-card-title">隐式规划（推荐大多数业务）</div>
+            <div class="pillar-card-desc">不需要输出结构化任务清单，LLM根据能力目录自主思考，直接通过工具调用完成。<strong>优势：</strong>实现简单，LLM自然行为，不需要额外解析逻辑。<strong>适用：</strong>子Agent数量少、任务链路不复杂的场景。</div>
           </div>
           <div class="pillar-card">
-            <div class="pillar-card-num">Principle 2</div>
-            <div class="pillar-card-title">层级清晰原则</div>
-            <div class="pillar-card-desc">Agent 之间必须有明确的层级关系。顶层协调者（Orchestrator）负责任务分解和结果汇总，中层专家（Specialist）负责特定领域任务，底层执行器（Executor）负责具体工具调用。避免跨层级越级调用和循环依赖。</div>
-          </div>
-          <div class="pillar-card">
-            <div class="pillar-card-num">Principle 3</div>
-            <div class="pillar-card-title">松耦合原则</div>
-            <div class="pillar-card-desc">Agent 之间通过消息通信，不直接共享内存状态。消息格式标准化，通信协议统一。子 Agent 的实现细节对父 Agent 透明。这样才能支持 Agent 的独立开发、独立测试、独立升级。</div>
-          </div>
-          <div class="pillar-card">
-            <div class="pillar-card-num">Principle 4</div>
-            <div class="pillar-card-title">容错设计原则</div>
-            <div class="pillar-card-desc">任何子 Agent 都可能失败。父 Agent 必须有超时机制、重试机制、降级机制。一个子 Agent 的失败不应该拖垮整个任务链。关键路径要有备用 Agent 或备用方案。</div>
+            <div class="pillar-card-num">模式B</div>
+            <div class="pillar-card-title">显式规划（复杂任务，可控性更高）</div>
+            <div class="pillar-card-desc">让LLM先输出结构化任务拆解JSON，先规划再执行。<strong>优势：</strong>Middleware可拦截规划结果，前端展示"正在规划任务"，用户可人工干预修改，步骤可审计。<strong>适用：</strong>多步骤复杂任务、需要人工确认的场景。</div>
           </div>
         </div>
 
-        <p>基于这些原则，AgentScope 2.0 推荐三种经典的多级 Agent 拓扑结构，适用于不同场景：</p>
+        <p>显式规划模式下，LLM 输出的任务清单是一个 JSON 数组，每个任务包含步骤号、描述、目标 agent_id 和依赖关系。Middleware 拦截后可以校验所有 agent_id 的合法性--如果 LLM 编造了不存在的 agent_id，Middleware 注入错误提示让 LLM 重新规划。</p>
 
-        <div class="arch-layer-stack">
-          <div class="arch-layer">
-            <div class="arch-layer-title">树形层次结构（Hierarchical）</div>
-            <div class="arch-layer-body">最经典的结构。顶层 <strong>Orchestrator Agent</strong> 接收用户请求，分解为子任务，分配给下一层的 <strong>Specialist Agents</strong>。每个 Specialist 可以进一步分解给更底层的 <strong>Executor Agents</strong>。结果沿树向上汇总。<br><br><strong>适用场景：</strong>复杂项目管理、多步骤业务流程、需要明确责任划分的场景<br><strong>优点：</strong>结构清晰、易于管理、便于调试<br><strong>缺点：</strong>顶层节点可能成为瓶颈，层级深时延迟较高</div>
-          </div>
-          <div class="arch-layer">
-            <div class="arch-layer-title">扁平并行结构（Flat Parallel）</div>
-            <div class="arch-layer-body">多个同级 Agent 并行工作，各自独立处理任务的不同方面，最后由 <strong>Aggregator Agent</strong> 统一汇总。没有中间层级，所有 Specialist 直接向 Aggregator 汇报。<br><br><strong>适用场景：</strong>数据分析（多维度并行计算）、多源信息检索、内容多轮评审<br><strong>优点：</strong>并行度高、延迟低、适合可分解的独立任务<br><strong>缺点：</strong>任务间有依赖时需要额外协调，结果汇总逻辑复杂</div>
-          </div>
-          <div class="arch-layer">
-            <div class="arch-layer-title">流水线结构（Pipeline）</div>
-            <div class="arch-layer-body">Agent 按顺序组成处理链，每个 Agent 负责一个处理阶段，输出作为下一个 Agent 的输入。数据在链上流动，每个阶段只关心自己的输入输出。<br><br><strong>适用场景：</strong>文档处理（读取→分析→总结→格式化）、代码生成（需求→设计→编码→测试）、顺序执行的业务流程<br><strong>优点：</strong>逻辑线性、易于理解、每个阶段可独立优化<br><strong>缺点：</strong>串行执行延迟高，一个阶段失败整条链中断</div>
-          </div>
-        </div>
+        <h2 id="section-5">五、阶段3：子Agent选择策略</h2>
 
-        <div class="callout"><strong>拓扑混合是常态：</strong>真实系统很少只用单一拓扑。常见的混合模式是：顶层用树形层次做任务分解，每个分支根据任务特性选择并行结构或流水线结构。比如一个文档处理任务：顶层 Orchestrator 分解为"内容分析"和"格式处理"两条分支，内容分析分支用并行结构跑多个维度分析，格式处理分支用流水线做格式化→渲染→导出。</div>
+        <p>子Agent选择是整个编排链路中最关键的决策点。选错了子Agent，后面的调度和汇总做得再好也没用。</p>
 
-        <h2 id="section-2">二、子Agent生命周期管理</h2>
+        <h3 id="strategy-llm">5.1 策略1：LLM自主选择（子Agent少于10个）</h3>
 
-        <p>管理几十个 Agent 的核心是管理它们的生命周期。AgentScope 2.0 为子 Agent 定义了完整的生命周期状态机，从创建到销毁的每个阶段都有明确的行为定义和钩子接口。</p>
+        <p>把完整能力目录交给LLM，由大模型根据子任务描述和每个Agent的 <code>description</code>、<code>capability_tags</code> 做匹配选择。这是默认策略，实现最简单。</p>
 
-        <div class="lifecycle-flow">
-          <div class="lifecycle-step">
-            <div class="lifecycle-step-icon">📝</div>
-            <div class="lifecycle-step-title">DECLARATION</div>
-            <div class="lifecycle-step-desc">在 subagents/ 目录声明规格</div>
-          </div>
-          <div class="lifecycle-arrow">→</div>
-          <div class="lifecycle-step">
-            <div class="lifecycle-step-icon">🚀</div>
-            <div class="lifecycle-step-title">SPAWNING</div>
-            <div class="lifecycle-step-desc">agent_spawn 创建实例</div>
-          </div>
-          <div class="lifecycle-arrow">→</div>
-          <div class="lifecycle-step">
-            <div class="lifecycle-step-icon">⚡</div>
-            <div class="lifecycle-step-title">RUNNING</div>
-            <div class="lifecycle-step-desc">agent_send 发送任务执行</div>
-          </div>
-          <div class="lifecycle-arrow">→</div>
-          <div class="lifecycle-step">
-            <div class="lifecycle-step-icon">✅</div>
-            <div class="lifecycle-step-title">COMPLETED</div>
-            <div class="lifecycle-step-desc">任务完成，结果返回</div>
-          </div>
-          <div class="lifecycle-arrow">→</div>
-          <div class="lifecycle-step">
-            <div class="lifecycle-step-icon">🗑️</div>
-            <div class="lifecycle-step-title">TERMINATED</div>
-            <div class="lifecycle-step-desc">agent_terminate 销毁实例</div>
-          </div>
-        </div>
+        <p>LLM 通过 <code>sub_agent_call</code> 工具调用子Agent，工具内部做三道代码侧校验：</p>
+        <ul>
+          <li><strong>合法性校验</strong>：agent_id 是否在主Agent允许调用的列表中</li>
+          <li><strong>启用状态校验</strong>：子Agent是否存在且 status=1</li>
+          <li><strong>调用栈深度校验</strong>：当前深度是否超过 MAX_DEPTH(3)</li>
+        </ul>
 
-        <h3>子Agent规格声明</h3>
+        <div class="callout-warn"><strong>关键原则：</strong>不完全信任LLM输出。LLM可能编造不存在的agent_id，或选择已禁用的子Agent。代码侧必须做完整校验，校验失败返回错误信息让LLM重新选择。</div>
 
-        <p>子 Agent 的规格不是在代码里硬编码，而是以 Markdown 文件声明在工作区的 <code>subagents/</code> 目录下。这种"配置即代码"的方式让子 Agent 规格可以版本化管理、可以热更新、可以跨会话复用。</p>
+        <h3 id="strategy-rag">5.2 策略2：向量RAG检索（子Agent超过10个）</h3>
 
-        <div class="code-block"><span class="cmt"># workspace/subagents/code-writer.md</span>
-<span class="cmt"># 子Agent名称：代码编写专家</span>
+        <p>当子Agent数量很多，全部塞Prompt会token爆炸。这时需要先做向量检索，召回最匹配的Top-N候选子Agent，只把候选子集注入Prompt。</p>
 
-<span class="kw">## System Prompt</span>
+        <div class="code-block"><span class="cmt">// 向量检索流程</span>
+<span class="cmt">// 1. 将每个子Agent的元数据向量化存入向量库</span>
+<span class="cmt">// 2. 用户query做向量检索，召回top-N最匹配的子Agent</span>
+<span class="cmt">// 3. 只把召回的少数候选注入Prompt</span>
 
-你是专业的代码编写专家，负责根据需求描述生成高质量、可运行、
-符合规范的代码。你精通 Java、Python、TypeScript 三种语言，
-熟悉 Spring Boot、React、FastAPI 等主流框架。
+List&lt;ScoredAgent&gt; scored = candidates.stream()
+    .map(agent -> {
+        <span class="kw">double</span> score = vectorStore.similarity(
+            query, agent.getAgentId(),
+            agent.getDescription() + <span class="str">" "</span> + String.join(<span class="str">" "</span>, agent.getCapabilityTags())
+        );
+        <span class="kw">return new</span> ScoredAgent(agent, score);
+    })
+    .sorted((a, b) -> Double.compare(b.score, a.score))
+    .limit(TOP_N)  <span class="cmt">// 默认召回5个</span>
+    .toList();</div>
 
-编写原则：
-1. 先写测试，再写实现（TDD）
-2. 每个函数都有完整的文档字符串
-3. 包含完整的异常处理
-4. 代码风格遵循 Google 规范
+        <p>这个策略的本质是：<strong>先用向量检索做粗筛，再用LLM做精筛</strong>。向量检索负责从几十上百个子Agent中快速召回最相关的5个，LLM再从这5个中做最终选择。既避免了token爆炸，又保留了LLM的语义理解能力。</p>
 
-<span class="kw">## Model</span>
-model: deepseek:deepseek-chat
-temperature: 0.2
-max_tokens: 4096
+        <h2 id="section-6">六、阶段4：子Agent调度执行</h2>
 
-<span class="kw">## Tools</span>
-- filesystem: read, write, list
-- shell: exec (仅限 npm install / pip install)
-- memory: recall, remember
+        <p>选定子Agent后，进入调度执行阶段。调度方式取决于子任务之间是否有数据依赖。</p>
 
-<span class="kw">## Memory</span>
-auto_compress: true
-max_context_tokens: 32000
+        <h3 id="serial-schedule">6.1 串行调度（有数据依赖）</h3>
 
-<span class="kw">## Permission</span>
-mode: EXPLORE
-rules:
-  - allow: filesystem:write:/workspace/src/**
-  - ask: shell:exec:**</div>
+        <p>子任务之间有数据依赖时，必须串行执行：前一步的输出是后一步的输入。比如"查询数据 -> 基于数据生成报表"，报表Agent需要数据查询Agent的结果作为输入。</p>
 
-        <p>规格文件定义了子 Agent 的所有行为边界：System Prompt 决定它的角色和行事方式，Model 配置决定推理能力，Tools 决定它能调用什么工具，Permission 决定它的安全边界。父 Agent 不需要知道这些细节，只需要知道这个子 Agent 叫 "code-writer"，可以帮它写代码。</p>
+        <p>HarnessAgent 原生工具调用就是串行模式--LLM在一次迭代中调用一个工具，拿到结果后进入下一次迭代。不需要额外开发，LLM自然行为就是串行调度：</p>
 
-        <h3>创建与销毁策略</h3>
+        <div class="code-block"><span class="cmt">// Demo中的串行调度演示</span>
+<span class="cmt">// Step 1: 先查询数据</span>
+<span class="kw">var</span> dataAgent = manager.createAgent(<span class="str">"agent_data_query"</span>, ctx);
+Msg dataResult = manager.invokeAgent(
+    dataAgent, ctx.getSessionId(),
+    <span class="str">"查询本月销售数据，包括总销售额、订单数、客单价"</span>,
+    <span class="str">"serial-step-1"</span>
+).block();
 
-        <p>什么时候创建子 Agent？什么时候销毁？AgentScope 2.0 支持三种创建策略，各有适用场景：</p>
+<span class="cmt">// Step 2: 基于数据生成报表（依赖Step 1的结果）</span>
+<span class="kw">var</span> reportAgent = manager.createAgent(<span class="str">"agent_report_gen"</span>, ctx);
+Msg reportResult = manager.invokeAgent(
+    reportAgent, ctx.getSessionId(),
+    <span class="str">"基于以下销售数据生成分析报表:\n"</span> + dataResult.getTextContent(),
+    <span class="str">"serial-step-2"</span>
+).block();</div>
 
-        <table class="compare-table">
-          <tr><th>策略</th><th>创建时机</th><th>销毁时机</th><th>适用场景</th><th>优缺点</th></tr>
-          <tr><td>按需创建</td><td>父Agent需要时 spawn</td><td>任务完成后立即 terminate</td><td>低频调用的工具型Agent</td><td>资源占用少，但每次有创建开销</td></tr>
-          <tr><td>池化复用</td><td>系统启动时预创建N个实例</td><td>系统关闭时统一销毁</td><td>高频调用的核心Agent</td><td>无创建延迟，但需要池大小调优</td></tr>
-          <tr><td>会话绑定</td><td>用户会话开始时创建</td><td>会话结束/超时后销毁</td><td>需要维护用户上下文的Agent</td><td>状态连续性好，但并发用户多时占用资源</td></tr>
-        </table>
+        <h3 id="parallel-schedule">6.2 并行调度（无数据依赖）</h3>
 
-        <div class="code-block"><span class="cmt">// 子Agent池化配置</span>
-SubagentPoolConfig poolConfig = SubagentPoolConfig.builder()
-    <span class="cmt">// code-writer 池：最小2个，最大8个</span>
-    .pool(<span class="str">"code-writer"</span>, PoolParams.builder()
-        .minIdle(2)
-        .maxTotal(8)
-        .maxWaitMillis(5000)
-        .build())
-    <span class="cmt">// data-analyst 池：最小1个，最大4个</span>
-    .pool(<span class="str">"data-analyst"</span>, PoolParams.builder()
-        .minIdle(1)
-        .maxTotal(4)
-        .build())
-    <span class="cmt">// 空闲检查：每60秒检查一次，超过30分钟空闲销毁</span>
-    .idleCheckInterval(60000)
-    .maxIdleTime(1800000)
-    .build();
+        <p>子任务之间无依赖时，可以同时跑多个子Agent。Demo 代码中用 Reactor 的 <code>Mono.zip</code> 实现并行调用，两个子Agent同时执行，等待全部完成后收集结果：</p>
 
-HarnessAgent agent = HarnessAgent.builder()
-    .subagentPool(poolConfig)  <span class="cmt">// 启用池化</span>
-    .build();</div>
+        <div class="code-block"><span class="cmt">// Demo中的并行调度演示</span>
+<span class="cmt">// 同时查询销售数据和审查代码（两个无依赖的子任务）</span>
+<span class="kw">var</span> dataMono = manager.invokeAgent(
+    manager.createAgent(<span class="str">"agent_data_query"</span>, ctx),
+    ctx.getSessionId(), <span class="str">"查询本月用户增长数据"</span>, <span class="str">"parallel-1"</span>
+);
 
-        <div class="callout-warn"><strong>避免子Agent泄漏：</strong>最常见的问题是父Agent创建了子Agent但忘记销毁，导致资源泄漏。AgentScope 有两层保护：1）会话结束时自动销毁该会话下的所有子Agent；2）全局的 idle 超时机制，超过 maxIdleTime 的子Agent会被强制回收。但最好的保护还是在代码里显式管理生命周期。</div>
+<span class="kw">var</span> codeMono = manager.invokeAgent(
+    manager.createAgent(<span class="str">"agent_code_review"</span>, ctx),
+    ctx.getSessionId(),
+    <span class="str">"审查代码: String sql = \"SELECT * FROM users WHERE id=\" + userId;"</span>,
+    <span class="str">"parallel-2"</span>
+);
 
-        <h2 id="section-3">三、任务分解与调度策略</h2>
+<span class="cmt">// 并行执行，等待全部完成</span>
+<span class="kw">var</span> parallelResults = Mono.zip(dataMono, codeMono).block();
 
-        <p>多级 Agent 系统的效率天花板，很大程度上取决于任务分解的质量。分解得好，10 个 Agent 并行能得到接近 10 倍的加速；分解得不好，10 个 Agent 互相等待，反而比单体还慢。</p>
+<span class="cmt">// 对比：串行两步 vs 并行两步 -> 并行节省了等待时间</span>
+System.out.printf(<span class="str">"[COMPARE] Serial(%dms) vs Parallel(%dms) -> saved %dms%n"</span>,
+    serialTotal, parallelTotal, serialTotal - parallelTotal);</div>
 
-        <h3>任务分解的四层评估框架</h3>
+        <p>除了程序化并行调用，还可以通过 <code>sub_agent_batch_call</code> 工具让 LLM 一次传入多个子Agent任务，工具内部用 <code>Flux.merge</code> 并行执行。批量调用有最大并行数限制（MAX_PARALLEL=5），超限返回错误。</p>
 
-        <p>一个任务能不能拆、拆成几个、怎么拆，不是拍脑袋决定的。AgentScope 推荐用四层评估框架来判断分解质量：</p>
+        <h2 id="section-7">七、阶段5：结果汇总与容错</h2>
 
-        <div class="strategy-card">
-          <div class="strategy-card-header">
-            <div class="strategy-card-icon">🔗</div>
-            <div class="strategy-card-title">第一层：依赖分析（Dependency）</div>
-          </div>
-          <div class="strategy-card-body">子任务之间有没有数据依赖或时序依赖？如果任务B的输入依赖任务A的输出，那么A和B只能串行。如果两个任务完全独立，那么可以并行。<strong>分解目标：最大化可并行的子任务数量。</strong><br><br><strong>实战技巧：</strong>用任务依赖图（Task Dependency Graph）可视化依赖关系，关键路径上的任务优先分配资源。</div>
-        </div>
+        <p>子Agent执行完毕，结果作为工具返回值交给主Agent。主Agent负责整合多个子Agent的输出、去重冗余信息、校验结果是否满足需求。不需要业务代码手动拼接结果，交给LLM主Agent自己做汇总。</p>
 
-        <div class="strategy-card">
-          <div class="strategy-card-header">
-            <div class="strategy-card-icon">📦</div>
-            <div class="strategy-card-title">第二层：粒度评估（Granularity）</div>
-          </div>
-          <div class="strategy-card-body">子任务的粒度多大合适？太细（比如每个子任务只写一行代码）会导致大量的通信开销和调度开销，得不偿失。太粗（比如整个系统就两个子任务）又发挥不出并行优势。<br><br><strong>黄金法则：</strong>子任务的执行时间应该在<strong>30秒到5分钟</strong>之间。太短了 overhead 太高，太长了并行度不够，而且失败重试成本太高。</div>
-        </div>
+        <p>容错是生产环境的关键能力。子Agent可能执行失败、超时、返回空结果。Demo 代码中每个子Agent调用都有 <code>timeout(Duration.ofSeconds(30))</code> 超时控制，失败时返回结构化的错误信息给主Agent，主Agent可以决策：换一个子Agent重试、修改子任务指令重试、或告知用户无法完成。</p>
 
-        <div class="strategy-card">
-          <div class="strategy-card-header">
-            <div class="strategy-card-icon">🎯</div>
-            <div class="strategy-card-title">第三层：领域匹配（Domain Match）</div>
-          </div>
-          <div class="strategy-card-body">每个子任务应该正好匹配一个 Agent 的专业领域。不要让代码编写 Agent 去做数据可视化，也不要让数据分析 Agent 去写单元测试。领域不匹配会导致推理质量下降、工具调用错误增多、提示词变长。<br><br><strong>边界判断：</strong>如果某个子任务的 System Prompt 需要加上"同时你还要懂XXX"，说明这个任务可能拆得不够细。</div>
-        </div>
+        <div class="callout"><strong>汇总规则注入Prompt：</strong>主Agent的 System Prompt 中明确写了汇总规则--整合为连贯回答、去重保留最准确的、如果子Agent返回错误尝试换一个重试、最终回答不暴露内部调用细节。这些规则让LLM的汇总行为可控。</div>
 
-        <div class="strategy-card">
-          <div class="strategy-card-header">
-            <div class="strategy-card-icon">🔄</div>
-            <div class="strategy-card-title">第四层：失败隔离（Failure Isolation）</div>
-          </div>
-          <div class="strategy-card-body">子任务的边界应该正好是失败隔离的边界。高风险操作（比如调用外部API、执行shell命令、写数据库）应该单独拆成一个子任务，这样失败时只需要重试这个子任务，不会影响已经完成的部分。<br><br><strong>关键原则：</strong>有副作用的操作尽量单独成子任务，无副作用的纯计算操作可以合并以减少 overhead。</div>
-        </div>
+        <h2 id="section-8">八、安全防护三道防线</h2>
 
-        <h3>调度策略：先做什么，后做什么</h3>
-
-        <p>任务分解完成后，调度策略决定了整体完成时间。AgentScope 2.0 内置三种调度算法，适用于不同场景：</p>
-
-        <table class="compare-table">
-          <tr><th>调度算法</th><th>策略</th><th>优化目标</th><th>适用场景</th></tr>
-          <tr><td>关键路径优先</td><td>优先调度关键路径上的任务</td><td>最小化整体完成时间</td><td>有明确deadline的项目</td></tr>
-          <tr><td>最长任务优先</td><td>优先调度预计执行时间最长的任务</td><td>最大化资源利用率</td><td>资源有限、任务差异大的场景</td></tr>
-          <tr><td>最大依赖优先</td><td>被最多任务依赖的任务优先执行</td><td>减少下游等待时间</td><td>依赖关系复杂的项目</td></tr>
-        </table>
-
-        <h2 id="section-4">四、多级Agent通信机制</h2>
-
-        <p>Agent 之间怎么说话？说什么？谁能跟谁说？这是协作系统的核心问题。通信机制设计得好，Agent 之间配合流畅；设计得不好，整个系统会变成信息孤岛或者消息洪泛。</p>
-
-        <h3>三种通信模式</h3>
-
-        <p>AgentScope 2.0 支持三种通信模式，对应不同的协作场景：</p>
-
-        <div class="arch-layer-stack">
-          <div class="arch-layer">
-            <div class="arch-layer-title">点对点消息（Point-to-Point）</div>
-            <div class="arch-layer-body">父 Agent 直接给指定的子 Agent 发送消息，子 Agent 直接回复父 Agent。这是最常用、最安全的模式。<br><br><code>agent_send(target, message)</code><br><br><strong>适用场景：</strong>父子 Agent 之间的任务分配、结果汇报、状态查询<br><strong>安全保障：</strong>接收方可以验证发送方身份，消息内容可加密传输</div>
-          </div>
-          <div class="arch-layer">
-            <div class="arch-layer-title">发布订阅（Publish-Subscribe）</div>
-            <div class="arch-layer-body">Agent 发布事件到特定主题，所有订阅该主题的 Agent 都会收到通知。这是松耦合的广播模式，发布者不需要知道谁订阅了。<br><br><code>agent_publish(topic, payload)</code><br><br><strong>适用场景：</strong>进度通知、状态变更、事件驱动的工作流<br><strong>典型案例：</strong>代码分析 Agent 发布"发现安全漏洞"事件，安全扫描 Agent 和报告生成 Agent 同时收到并处理</div>
-          </div>
-          <div class="arch-layer">
-            <div class="arch-layer-title">共享黑板（Shared Blackboard）</div>
-            <div class="arch-layer-body">多个 Agent 读写同一个共享存储区域。一个 Agent 写入中间结果，其他 Agent 可以读取并继续处理。这是增量协作的经典模式。<br><br><code>blackboard_write(key, value)</code> / <code>blackboard_read(key)</code><br><br><strong>适用场景：</strong>增量式内容创作、多轮迭代设计、集体决策过程<br><strong>典型案例：</strong>报告撰写：大纲 Agent 写目录→内容 Agent 填充章节→编辑 Agent 润色→排版 Agent 格式化，所有人操作同一份文档</div>
-          </div>
-        </div>
-
-        <h3>消息格式标准化</h3>
-
-        <p>通信的基础是协议。AgentScope 2.0 推荐使用结构化 JSON 作为消息格式，包含元数据、内容、上下文三部分：</p>
-
-        <div class="code-block">{
-  <span class="str">"metadata"</span>: {
-    <span class="str">"message_id"</span>: <span class="str">"msg_abc123"</span>,
-    <span class="str">"sender"</span>: <span class="str">"orchestrator"</span>,
-    <span class="str">"recipient"</span>: <span class="str">"code-writer"</span>,
-    <span class="str">"timestamp"</span>: <span class="str">"2026-08-06T10:30:00Z"</span>,
-    <span class="str">"type"</span>: <span class="str">"TASK_ASSIGN"</span>,
-    <span class="str">"correlation_id"</span>: <span class="str">"task_xyz789"</span>
-  },
-  <span class="str">"content"</span>: {
-    <span class="str">"task"</span>: <span class="str">"Implement user authentication module"</span>,
-    <span class="str">"requirements"</span>: [ ... ],
-    <span class="str">"deadline"</span>: <span class="str">"2026-08-07T18:00:00Z"</span>
-  },
-  <span class="str">"context"</span>: {
-    <span class="str">"project_id"</span>: <span class="str">"proj_123"</span>,
-    <span class="str">"user_id"</span>: <span class="str">"user_456"</span>,
-    <span class="str">"previous_results"</span>: [ ... ]
-  }
-}</div>
-
-        <div class="callout"><strong>correlation_id 是调试神器：</strong>每个任务分配时生成一个唯一的 correlation_id，贯穿这个任务的所有消息。出问题时，用这个 ID 就能把整个任务链的前后消息全部捞出来，清晰看到每个 Agent 做了什么、说了什么、哪里出了错。没有 correlation_id，跨 Agent 调试就是灾难。</div>
-
-        <h2 id="section-5">五、监控、度量与可观测性</h2>
-
-        <p>几十个 Agent 同时运行，系统内部发生了什么？哪个 Agent 快？哪个 Agent 慢？哪里卡住了？哪里失败了？可观测性是多级 Agent 系统上生产的前提条件。</p>
-
-        <h3>四大黄金指标</h3>
-
-        <p>AgentScope 2.0 定义了多级 Agent 系统的四大监控指标，覆盖效率、质量、资源三个维度：</p>
-
-        <div class="monitor-dash">
-          <div class="monitor-card">
-            <div class="monitor-card-value">2.3s</div>
-            <div class="monitor-card-label">平均响应时间</div>
-          </div>
-          <div class="monitor-card">
-            <div class="monitor-card-value">98.5%</div>
-            <div class="monitor-card-label">任务成功率</div>
-          </div>
-          <div class="monitor-card">
-            <div class="monitor-card-value">127</div>
-            <div class="monitor-card-label">并发 Agent 数</div>
-          </div>
-          <div class="monitor-card">
-            <div class="monitor-card-value">4.2x</div>
-            <div class="monitor-card-label">并行加速比</div>
-          </div>
-        </div>
-
-        <table class="compare-table">
-          <tr><th>指标</th><th>定义</th><th>目标值</th><th>告警阈值</th></tr>
-          <tr><td>任务成功率</td><td>成功完成的任务数 / 总任务数</td><td>> 99%</td><td>< 95% 时告警</td></tr>
-          <tr><td>平均响应时间</td><td>从任务分配到结果返回的时间</td><td>根据SLA定义</td><td>P95 > 目标值×2时告警</td></tr>
-          <tr><td>并行加速比</td><td>单体执行时间 / 多Agent执行时间</td><td>> 1.5x</td><td>< 1.0x 时说明并行反而变慢</td></tr>
-          <tr><td>资源利用率</td><td>Agent忙碌时间 / 总时间</td><td>60% - 80%</td><td>< 30% 说明资源浪费，> 90% 说明资源瓶颈</td></tr>
-        </table>
-
-        <h3>分布式追踪：从请求到响应的全链路</h3>
-
-        <p>AgentScope 2.0 内置 OpenTelemetry 支持，每个 Agent 的每次执行都生成一个 trace span。correlation_id 作为 trace_id，把整个调用链串联起来。</p>
-
-        <div class="code-block"><span class="cmt">// Trace 结构示意</span>
-Span (trace_id=correlation_id):
-  ├─ Orchestrator: analyze_request
-  ├─ Orchestrator: decompose_task
-  ├─ CodeWriterAgent: implement (span_id=1, parent=orchestrator)
-  │  ├─ ModelCall: deepseek-chat
-  │  └─ ToolCall: filesystem:write
-  ├─ TestAgent: write_tests (span_id=2, parent=orchestrator)
-  │  └─ ToolCall: shell:exec:npm test
-  └─ Orchestrator: aggregate_results</div>
-
-        <p>接入 Jaeger 或 Zipkin 后，你就能看到完整的瀑布图：哪个 Agent 花了多少时间，哪个工具调用最慢，哪里失败了。这是多级 Agent 系统调试的第一利器。</p>
-
-        <h3>Agent健康状态</h3>
-
-        <p>每个 Agent 实例都有健康状态，系统定期进行健康检查：</p>
-
-        <div class="arch-layer-stack">
-          <div class="arch-layer">
-            <div class="arch-layer-title">Liveness Check（存活检查）</div>
-            <div class="arch-layer-body">Agent 是否还在正常响应心跳？如果连续 3 次没有心跳，标记为 DEAD，从池中移除，创建新实例替换。</div>
-          </div>
-          <div class="arch-layer">
-            <div class="arch-layer-title">Readiness Check（就绪检查）</div>
-            <div class="arch-layer-body">Agent 是否准备好接收新任务？如果正在处理高优先级任务、或者内存占用过高，临时标记为 BUSY，不接收新任务直到空闲。</div>
-          </div>
-          <div class="arch-layer">
-            <div class="arch-layer-title">Performance Check（性能检查）</div>
-            <div class="arch-layer-body">Agent 的近期表现如何？如果最近 N 个任务的平均响应时间超过阈值、或者成功率低于阈值，标记为 DEGRADED，触发告警和自动排查。</div>
-          </div>
-        </div>
-
-        <h2 id="section-6">六、实战案例：代码评审协作系统</h2>
-
-        <p>理论讲了这么多，我们来看一个完整的实战案例。假设我们要构建一个自动化代码评审系统，用多级 Agent 协作完成代码的全面审查。</p>
-
-        <h3>系统架构设计</h3>
+        <p>动态编排涉及主Agent调用子Agent、子Agent可能再调用其他子Agent，安全风险不容忽视。生产环境必须部署三道防线：</p>
 
         <div class="scenario-grid">
           <div class="scenario-card">
-            <div class="scenario-card-tag">Orchestrator</div>
-            <div class="scenario-card-title">评审协调者</div>
-            <div class="scenario-card-body">接收代码提交，分解为多个评审维度，分配给各个 Specialist Agent。收集所有评审结果，去重合并，生成最终的评审报告。负责整体进度跟踪和超时处理。</div>
+            <div class="scenario-card-tag">防线1</div>
+            <div class="scenario-card-title">调用栈深度保护</div>
+            <div class="scenario-card-body">在 RuntimeContext 中维护 <code>call_depth</code> 计数器，每次子Agent调用前 +1，调用后 -1。超过 <strong>MAX_DEPTH(3)</strong> 直接拒绝调用。<strong>防止A调用B、B调用A的无限递归</strong>，这是动态编排最致命的风险。</div>
           </div>
           <div class="scenario-card">
-            <div class="scenario-card-tag">Specialist x5</div>
-            <div class="scenario-card-title">专项评审专家</div>
-            <div class="scenario-card-body"><strong>CodeStyleAgent：</strong>检查代码风格、命名规范、格式规范<br><strong>SecurityAgent：</strong>扫描安全漏洞、注入风险、敏感信息泄露<br><strong>PerformanceAgent：</strong>检查性能问题、N+1查询、资源泄漏<br><strong>MaintainabilityAgent：</strong>评估可维护性、复杂度、测试覆盖率<br><strong>ArchitectureAgent：</strong>检查架构合理性、依赖关系、设计模式</div>
+            <div class="scenario-card-tag">防线2</div>
+            <div class="scenario-card-title">权限隔离</div>
+            <div class="scenario-card-body">主Agent配置 <code>callable_sub_agent_ids</code> 白名单，只有列表中的子Agent可以被调用。<strong>LLM 可能选择不在列表中的 agent_id</strong>，代码侧校验不通过直接拒绝，返回错误提示让 LLM 重新选择。</div>
           </div>
           <div class="scenario-card">
-            <div class="scenario-card-tag">Executor x2</div>
-            <div class="scenario-card-title">执行器</div>
-            <div class="scenario-card-body"><strong>ToolAgent：</strong>运行静态分析工具、单元测试、构建命令<br><strong>ReportAgent：</strong>汇总所有问题，生成格式化的评审报告，标注严重等级，给出修复建议</div>
+            <div class="scenario-card-tag">防线3</div>
+            <div class="scenario-card-title">并发数限制</div>
+            <div class="scenario-card-body">并行调用时限制最大并发数 <strong>MAX_PARALLEL=5</strong>。使用 Semaphore 控制并行信号量，超限返回错误提示。<strong>防止 LLM 一次性发起过多并行调用</strong>，压垮下游服务。</div>
           </div>
         </div>
 
-        <h3>执行流程详解</h3>
+        <h2 id="section-9">九、架构选型速查表</h2>
 
-        <div class="code-block"><span class="cmt">// 代码评审执行流程（时序）</span>
-1. 开发者提交代码 → Orchestrator 接收请求
-2. Orchestrator 执行初步分析：
-   - 识别变更文件列表
-   - 估算代码变更规模
-   - 判断需要哪些 Specialist
-3. Orchestrator 并行分配任务：
-   → CodeStyleAgent: 检查代码风格
-   → SecurityAgent: 安全扫描
-   → PerformanceAgent: 性能检查
-   → MaintainabilityAgent: 可维护性评估
-   → ArchitectureAgent: 架构评审
-   → ToolAgent: 运行静态分析 + 单元测试
-4. 每个 Specialist 并行执行，发现问题写入 Blackboard
-5. 所有 Specialist 完成后 → ReportAgent 读取 Blackboard
-6. ReportAgent:
-   - 去重重复问题
-   - 按严重等级排序
-   - 生成修复建议
-   - 格式化输出评审报告
-7. Orchestrator 返回最终结果给开发者
-8. 开发者修复后，Orchestrator 触发增量重审</div>
+        <p>不同场景下的推荐方案，可以直接对照选择：</p>
 
-        <h3>关键优化点</h3>
+        <table class="compare-table">
+          <tr><th>场景</th><th>推荐方案</th><th>说明</th></tr>
+          <tr><td>子Agent 少于10个</td><td class="mono">全量Prompt注入能力目录</td><td>LLM自主选择，实现最简单</td></tr>
+          <tr><td>子Agent 超过10个</td><td class="mono">向量RAG检索候选</td><td>先召回Top-N，再注入Prompt，防token爆炸</td></tr>
+          <tr><td>简单任务</td><td class="mono">隐式规划</td><td>LLM直接工具调用，边想边做</td></tr>
+          <tr><td>复杂多步骤任务</td><td class="mono">显式JSON规划 + Middleware拦截</td><td>先规划再执行，可展示给用户，可人工干预</td></tr>
+          <tr><td>子任务有数据依赖</td><td class="mono">串行调度</td><td>前一步输出=后一步输入，原生支持</td></tr>
+          <tr><td>子任务无依赖</td><td class="mono">并行调度</td><td>batch_call工具或Mono.zip并行执行</td></tr>
+          <tr><td>子Agent数量动态变化</td><td class="mono">动态能力目录</td><td>每次请求重新生成，无需重启</td></tr>
+        </table>
 
-        <p>这个系统在实际应用中有几个关键的优化点，体现了多级 Agent 架构的优势：</p>
+        <h2 id="section-10">十、Demo运行实战</h2>
 
-        <div class="arch-layer-stack">
-          <div class="arch-layer">
-            <div class="arch-layer-title">增量评审</div>
-            <div class="arch-layer-body">开发者修复部分问题后重新提交，不需要全量重审。Orchestrator 对比前后两次提交的差异，只把有变更的文件分配给对应的 Specialist。其他 Specialist 的评审结果直接从 Blackboard 复用。<br><br><strong>效果：</strong>平均评审时间从 5 分钟降到 45 秒。</div>
-          </div>
-          <div class="arch-layer">
-            <div class="arch-layer-title">分级加速</div>
-            <div class="arch-layer-body">根据代码变更大小自动调整并行度。小变更（< 100行）只启用 CodeStyle + Security，中等变更（100-500行）启用前4个 Specialist，大变更（> 500行）全量启用。<br><br><strong>效果：</strong>小变更 10 秒出结果，大变更全面检查，资源消耗和响应时间动态平衡。</div>
-          </div>
-          <div class="arch-layer">
-            <div class="arch-layer-title">结果缓存</div>
-            <div class="arch-layer-body">相同的代码片段提交多次时，ToolAgent 的静态分析结果可以缓存复用。SecurityAgent 的扫描结果也按文件哈希缓存。<br><br><strong>效果：</strong>重复提交的响应时间 < 1 秒，热门文件的扫描成本降低 90%。</div>
-          </div>
-        </div>
+        <p>Demo 代码完整模拟了数据库驱动的动态主子Agent调用流程。运行 <code>mvn compile exec:java -Dexec.args="7"</code> 后，可以看到6个阶段的完整输出：</p>
 
-        <div class="callout"><strong>真实效果数据：</strong>这个代码评审协作系统在实际项目中运行 3 个月后的数据：单次评审平均耗时 2.3 分钟（vs 人工评审平均 45 分钟），发现的问题数量是人工评审的 2.7 倍，漏检率从 32% 降到 5%。1 个 Orchestrator + 8 个 Specialist 的配置，可以支持 50 个开发者同时提交。</div>
-
-        <h2 id="section-7">七、常见陷阱与反模式</h2>
-
-        <p>在多个团队的实践中，我们总结了多级 Agent 系统最容易踩的坑。了解这些反模式，可以帮你少走半年弯路。</p>
-
-        <div class="anti-pattern-grid">
-          <div class="anti-pattern-card">
-            <div class="anti-pattern-title">反模式一：超级全能Agent</div>
-            <div class="anti-pattern-body">一个 Agent 什么都想做，System Prompt 写了 2000 字，Tool 配了几十个。结果就是：推理经常跑偏，工具调用经常错，上下文经常爆，出了问题根本不知道是哪部分出的。<br><br><strong>修正：</strong>坚持单一职责原则，超过 3 个核心能力就该拆分。</div>
+        <div class="flow-stages">
+          <div class="flow-stage">
+            <div class="flow-stage-title">Phase 1</div>
+            <div class="flow-stage-desc">从Mock DB加载3个子Agent元数据，打印agentId、能力标签、模型配置</div>
           </div>
-          <div class="anti-pattern-card">
-            <div class="anti-pattern-title">反模式二：过度拆分</div>
-            <div class="anti-pattern-body">每个子任务只有几秒钟工作量，创建 Agent 的开销比执行任务还大。10 个 Agent 并行，每个跑 5 秒，加上调度和通信，总共花了 30 秒，还不如单体 Agent 直接跑 10 秒。<br><br><strong>修正：</strong>记住 30 秒到 5 分钟的黄金粒度区间。</div>
+          <div class="flow-stage">
+            <div class="flow-stage-title">Phase 2</div>
+            <div class="flow-stage-desc">动态构建能力目录Markdown表格，注入主Agent System Prompt</div>
           </div>
-          <div class="anti-pattern-card">
-            <div class="anti-pattern-title">反模式三：通信过密</div>
-            <div class="anti-pattern-body">Agent 之间高频发送小消息，每条消息才几个字。大量时间花在序列化/反序列化/网络传输上，真正做事情的时间不到 20%。<br><br><strong>修正：</strong>批量发送消息，避免chatty通信。能一次说清楚的不要分 10 次。</div>
+          <div class="flow-stage">
+            <div class="flow-stage-title">Phase 3</div>
+            <div class="flow-stage-desc">从元数据动态创建SubagentDeclaration，注册到主Agent</div>
           </div>
-          <div class="anti-pattern-card">
-            <div class="anti-pattern-title">反模式四：没有监控</div>
-            <div class="anti-pattern-body">系统上线后就是黑盒。只知道最终返回了结果，不知道中间发生了什么。出了问题只能猜，无法定位是哪个 Agent 出的错。<br><br><strong>修正：</strong>correlation_id + OpenTelemetry 追踪，这是上线前必须搞定的。</div>
+          <div class="flow-stage">
+            <div class="flow-stage-title">Phase 4</div>
+            <div class="flow-stage-desc">构建Orchestrator，动态System Prompt + 能力目录 + 子Agent注册</div>
           </div>
-          <div class="anti-pattern-card">
-            <div class="anti-pattern-title">反模式五：忽略错误处理</div>
-            <div class="anti-pattern-body">假设所有子 Agent 一定会成功，没有超时、没有重试、没有降级。只要有一个子 Agent 失败，整个系统就挂了。失败的 Agent 没有人清理，资源泄漏越来越严重。<br><br><strong>修正：</strong>每个 agent_send 都要有超时和重试。子 Agent 池要有 idle 超时和健康检查。</div>
+          <div class="flow-stage">
+            <div class="flow-stage-title">Phase 5</div>
+            <div class="flow-stage-desc">LLM驱动的动态委派，事件流实时展示工具调用、子Agent执行、结果返回</div>
           </div>
-          <div class="anti-pattern-card">
-            <div class="anti-pattern-title">反模式六：状态混乱</div>
-            <div class="anti-pattern-body">多个 Agent 同时读写同一个共享状态，没有同步机制。A Agent 读的时候 B Agent 正在写，读到的数据是脏的，导致后续全部推理错误。<br><br><strong>修正：</strong>Blackboard 操作必须带版本号和乐观锁。一个 key 同一时间最好只有一个写者。或者用事件溯源模式，只追加不修改。</div>
+          <div class="flow-stage">
+            <div class="flow-stage-title">Phase 6</div>
+            <div class="flow-stage-desc">程序化直接调用对比演示：串行调度 vs 并行调度，输出耗时对比</div>
           </div>
         </div>
 
-        <h2 id="section-8">八、性能优化最佳实践</h2>
+        <p>Phase 5 是最核心的演示--用户发送一个复合请求："帮我查询本月销售数据，生成分析报表，并审查生成报表用的代码是否有安全问题"。LLM 需要自主判断这个请求涉及3个子Agent：先调数据查询Agent拿数据，再调报表生成Agent基于数据生成报表，同时调代码审查Agent审查代码。事件流实时展示每个工具调用的开始、参数、子Agent启动、结果返回，最后汇总为完整回答。</p>
 
-        <p>多级 Agent 系统的性能优化，和传统分布式系统有共通之处，但也有其特殊性。下面是经过实战验证的优化手段。</p>
+        <p>Phase 6 的对比演示直观展示了串行和并行的性能差异：串行执行两步（数据查询 + 报表生成）的总耗时， vs 并行执行两个无依赖任务（数据查询 + 代码审查）的耗时，并行模式显著节省了等待时间。</p>
 
-        <h3>资源层优化</h3>
+        <h2 id="section-11">十一、上生产检查清单</h2>
 
         <div class="checklist">
-          <div class="checklist-title">Agent 池化与复用</div>
+          <div class="checklist-title">元数据与能力目录</div>
           <ul>
-            <li>高频使用的核心 Agent 全部池化，不要每次 spawn/terminate</li>
-            <li>池大小根据实际负载压测确定，不是越大越好</li>
-            <li>池化的 Agent 定期重置状态，防止状态污染</li>
-            <li>冷启动时间长的 Agent 优先预创建预热</li>
+            <li>t_agent_meta 表设计完整，包含 callable_sub_agent_ids 权限字段</li>
+            <li>能力目录每次请求动态生成，不持久化到数据库</li>
+            <li>后台新增/修改/禁用子Agent后，下次请求立即生效</li>
+            <li>子Agent超过10个时启用向量RAG检索策略</li>
           </ul>
         </div>
 
         <div class="checklist">
-          <div class="checklist-title">模型分层调用</div>
+          <div class="checklist-title">安全防护</div>
           <ul>
-            <li>简单任务用小模型：路由判断、格式检查、关键词提取用 qwen-turbo</li>
-            <li>复杂任务用大模型：代码生成、架构设计用 deepseek-chat</li>
-            <li>同一个 Agent 内部可以动态切换模型，不是绑定死的</li>
-            <li>模型调用结果缓存，相同的 prompt 直接返回缓存</li>
-          </ul>
-        </div>
-
-        <h3>架构层优化</h3>
-
-        <div class="checklist">
-          <div class="checklist-title">流水线并行（Pipeline Parallelism）</div>
-          <ul>
-            <li>把大任务拆成流水线，前一个任务输出后立即开始处理，不必等全部完成</li>
-            <li>代码评审的例子：第一个文件分析完成后，ReportAgent 就可以开始写，不需要等所有文件都分析完</li>
-            <li>流水线的每个阶段应该有相近的处理时间，避免木桶效应</li>
+            <li>调用栈深度保护 MAX_DEPTH=3，防递归死循环</li>
+            <li>权限隔离：主Agent只能调 callable_sub_agent_ids 白名单中的子Agent</li>
+            <li>并发数限制 MAX_PARALLEL=5，Semaphore 控制并行信号量</li>
+            <li>sub_agent_call 工具内部三道校验：合法性 + 启用状态 + 深度</li>
           </ul>
         </div>
 
         <div class="checklist">
-          <div class="checklist-title">推测执行（Speculative Execution）</div>
+          <div class="checklist-title">调度与容错</div>
           <ul>
-            <li>高概率需要的后续任务可以提前开始，不需要等前面确认</li>
-            <li>用户提了一个需求，Orchestrator 分解的同时，CodeStyleAgent 可以先去读取相关文件</li>
-            <li>推测错误的代价可以接受时才用这个优化</li>
-            <li>成功概率 > 70% 时，推测执行通常能带来净收益</li>
-          </ul>
-        </div>
-
-        <h3>业务层优化</h3>
-
-        <div class="checklist">
-          <div class="checklist-title">渐进式结果返回</div>
-          <ul>
-            <li>不要等所有子 Agent 都完成才返回最终结果</li>
-            <li>发现一个问题就立即推送给用户，用户可以边看边等后面的</li>
-            <li>先返回高优先级的结果，低优先级的后台继续算</li>
-            <li>用户的感知等待时间比实际完成时间更重要</li>
+            <li>串行调度：有数据依赖时前一步输出作为后一步输入</li>
+            <li>并行调度：无依赖任务用 Mono.zip 或 Flux.merge 并行执行</li>
+            <li>每个子Agent调用有 timeout(30s) 超时控制</li>
+            <li>子Agent失败返回结构化错误信息，主Agent可决策重试或降级</li>
+            <li>主Agent System Prompt 包含汇总规则：整合、去重、不暴露内部调用细节</li>
           </ul>
         </div>
 
         <h2 id="conclusion">结语</h2>
 
-        <p>从单体 Agent 到多级 Agent 协作，是 AI 应用从"玩具"到"工具"的关键一跃。单体 Agent 像独行侠，什么都能做一点，但什么都做不深、什么都做不快。而多级 Agent 系统像一支专业团队，有明确的分工、有高效的协作、有质量的保障。</p>
+        <p>动态多级 Agent 编排的核心挑战不是"让 Agent 能调用子 Agent"，而是"让主 Agent 在运行时动态感知、智能选择、安全调度众多子 Agent"。这套5阶段流水线--动态能力目录、任务规划、子Agent选择、调度执行、结果汇总--把整个链路的复杂度收敛到了工程框架内。</p>
 
-        <p>本文介绍的架构设计原则、生命周期管理、任务分解策略、通信机制、监控体系，不是凭空想出来的理论，而是从几十个真实项目的实践中总结出来的经验。每一个原则、每一条建议、每一个反模式，背后都有踩过的坑和付出的代价。</p>
+        <p>与上一篇文章的单 Agent 企业级平台相比，动态编排引入了一个新的维度：<strong>Agent 之间的协作关系</strong>。单 Agent 解决的是"一个 Agent 怎么安全运行"，动态编排解决的是"多个 Agent 怎么高效协作"。元数据驱动让子Agent管理变成配置而非代码，动态能力目录让主Agent的感知能力实时更新，LLM选择 + 代码校验的分工让智能和安全兼得。</p>
 
-        <p>但技术只是手段，不是目的。多级 Agent 真正的价值在于：它让我们可以用团队协作的方式来构建 AI 应用。你不需要一个无所不能的超级模型，你只需要一群各有所长的专业 Agent，配合默契地一起工作。这正是 AgentScope 设计哲学的核心：<strong>不是构建一个更聪明的 Agent，而是构建一个更聪明的 Agent 系统。</strong></p>
-
-        <p>当你掌握了这些方法，你会发现：原来很多你觉得"AI 做不了"的事情，不是 AI 能力不够，而是你在用单体的思维方式限制了 AI 的可能性。把任务拆开，让多个 Agent 协作，奇迹就会发生。</p>
+        <p>从 demo 到生产，关键在于三道安全防线是否到位：调用栈深度防递归、权限白名单防越权、并发限制防压垮。这三道防线不是可选项，是动态编排上生产的必要条件。没有安全防护的动态编排，就像没有刹车的汽车--跑得越快越危险。</p>
 
         <h3>参考资料</h3>
         <ol>
-          <li>AgentScope Java v2 子Agent文档 <a href="https://java.agentscope.io/v2/zh/docs/harness/subagents.html" target="_blank" rel="noopener">https://java.agentscope.io/v2/zh/docs/harness/subagents.html</a></li>
-          <li>AgentScope 多Agent编排指南 <a href="https://agentscope.io/docs/tutorials/multi_agent.html" target="_blank" rel="noopener">https://agentscope.io/docs/tutorials/multi_agent.html</a></li>
-          <li>OpenTelemetry 官方文档 <a href="https://opentelemetry.io/docs/" target="_blank" rel="noopener">https://opentelemetry.io/docs/</a></li>
-          <li>Multi-Agent Orchestration Patterns <a href="https://www.promptingguide.ai/techniques/multi_agent" target="_blank" rel="noopener">https://www.promptingguide.ai/techniques/multi_agent</a></li>
-          <li>2026年Multi-Agent编排落地 <a href="http://m.toutiao.com/group/7669325045658944000/" target="_blank" rel="noopener">http://m.toutiao.com/group/7669325045658944000/</a></li>
+          <li>AgentScope Java v2 官方文档 <a href="https://java.agentscope.io/v2/zh/intro.html" target="_blank" rel="noopener">https://java.agentscope.io/v2/zh/intro.html</a></li>
+          <li>AgentScope Java v2 子Agent文档 <a href="https://java.agentscope.io/v2/zh/docs/building-blocks/subagent.html" target="_blank" rel="noopener">https://java.agentscope.io/v2/zh/docs/building-blocks/subagent.html</a></li>
+          <li>AgentScope Java v2 Harness 架构 <a href="https://java.agentscope.io/v2/zh/docs/harness/architecture.html" target="_blank" rel="noopener">https://java.agentscope.io/v2/zh/docs/harness/architecture.html</a></li>
+          <li>Reactor 文档 - Mono.zip <a href="https://projectreactor.io/docs/core/release/api/" target="_blank" rel="noopener">https://projectreactor.io/docs/core/release/api/</a></li>
+          <li>上一篇文章：AgentScope搭企业级Agent平台实战 <a href="./article-34.html" target="_blank" rel="noopener">AgentScope搭企业级Agent平台实战</a></li>
         </ol>
 
       </div>
