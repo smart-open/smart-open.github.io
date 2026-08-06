@@ -117,7 +117,7 @@
 
         <p>上一篇文章《AgentScope搭企业级Agent平台实战》拆解了企业级 Agent 平台的架构全景：身份权限、MCP/Skill 工具、上下文记忆、安全沙箱、高可用扩展。那篇文章解决的是「单个 Agent 怎么在企业环境里安全稳定运行」的问题。但真实业务场景中，一个 Agent 不可能什么都干--报表Agent擅长数据分析，代码Agent擅长审查代码，数据查询Agent擅长SQL。这就引出了一个更复杂的问题：<strong>主Agent怎么动态发现、选择、调度众多子Agent？</strong></p>
 
-        <p>本文是上一篇的续篇，聚焦「动态多级 Agent 编排」这一核心场景。后台配置大量子Agent，主Agent收到用户问题后，完成任务拆解、感知子Agent能力池、挑选对应子Agent、调度执行、汇总结果。整个链路涉及5大阶段，每个阶段都有独立的工程挑战。本文基于 AgentScope Java v2.0.0 SDK，结合完整可运行的 Demo 代码，全链路拆解动态主子 Agent 编排的实现方案。</p>
+        <p>本文是上一篇的续篇，聚焦「动态多级 Agent 编排」这一核心场景。后台配置大量子Agent，主Agent收到用户问题后，完成任务拆解、感知子Agent能力池、挑选对应子Agent、调度执行、汇总结果。整个链路涉及5大阶段，每个阶段都有独立的工程挑战。本文基于 AgentScope Java v2.0.0 SDK，全链路拆解动态主子 Agent 编排的实现方案。</p>
 
         <h2 id="section-1">一、核心痛点：主Agent怎么知道子Agent擅长什么</h2>
 
@@ -200,7 +200,7 @@
     <span class="kw">return</span> sb.toString();
 }</div>
 
-        <p>Demo 代码中的 Mock 数据库模拟了3个子Agent：数据查询Agent、报表生成Agent、代码审查Agent。每个Agent有独立的 sysPrompt、能力标签和最大迭代次数。运行时从 Mock DB 加载启用的Agent列表，构建能力目录文本，拼接到主Agent的 System Prompt 尾部。</p>
+        <p>以一个企业数据分析平台为例，通常配置3个子Agent：数据查询Agent、报表生成Agent、代码审查Agent。每个Agent有独立的 sysPrompt、能力标签和最大迭代次数。运行时从数据库加载启用的Agent列表，构建能力目录文本，拼接到主Agent的 System Prompt 尾部。</p>
 
         <div class="callout"><strong>关键设计：</strong>能力目录是 Markdown 表格格式，LLM 天然擅长理解表格。每行包含 agent_id、名称、能力描述和能力标签，LLM 根据用户需求做语义匹配，选择最合适的子Agent。</div>
 
@@ -273,7 +273,7 @@ List&lt;ScoredAgent&gt; scored = candidates.stream()
 
         <p>HarnessAgent 原生工具调用就是串行模式--LLM在一次迭代中调用一个工具，拿到结果后进入下一次迭代。不需要额外开发，LLM自然行为就是串行调度：</p>
 
-        <div class="code-block"><span class="cmt">// Demo中的串行调度演示</span>
+        <div class="code-block"><span class="cmt">// 串行调度：有数据依赖时，前一步输出作为后一步输入</span>
 <span class="cmt">// Step 1: 先查询数据</span>
 <span class="kw">var</span> dataAgent = manager.createAgent(<span class="str">"agent_data_query"</span>, ctx);
 Msg dataResult = manager.invokeAgent(
@@ -292,9 +292,9 @@ Msg reportResult = manager.invokeAgent(
 
         <h3 id="parallel-schedule">6.2 并行调度（无数据依赖）</h3>
 
-        <p>子任务之间无依赖时，可以同时跑多个子Agent。Demo 代码中用 Reactor 的 <code>Mono.zip</code> 实现并行调用，两个子Agent同时执行，等待全部完成后收集结果：</p>
+        <p>子任务之间无依赖时，可以同时跑多个子Agent。用 Reactor 的 <code>Mono.zip</code> 实现并行调用，两个子Agent同时执行，等待全部完成后收集结果：</p>
 
-        <div class="code-block"><span class="cmt">// Demo中的并行调度演示</span>
+        <div class="code-block"><span class="cmt">// 并行调度：无依赖任务同时执行</span>
 <span class="cmt">// 同时查询销售数据和审查代码（两个无依赖的子任务）</span>
 <span class="kw">var</span> dataMono = manager.invokeAgent(
     manager.createAgent(<span class="str">"agent_data_query"</span>, ctx),
@@ -321,7 +321,7 @@ System.out.printf(<span class="str">"[COMPARE] Serial(%dms) vs Parallel(%dms) ->
 
         <p>子Agent执行完毕，结果作为工具返回值交给主Agent。主Agent负责整合多个子Agent的输出、去重冗余信息、校验结果是否满足需求。不需要业务代码手动拼接结果，交给LLM主Agent自己做汇总。</p>
 
-        <p>容错是生产环境的关键能力。子Agent可能执行失败、超时、返回空结果。Demo 代码中每个子Agent调用都有 <code>timeout(Duration.ofSeconds(30))</code> 超时控制，失败时返回结构化的错误信息给主Agent，主Agent可以决策：换一个子Agent重试、修改子任务指令重试、或告知用户无法完成。</p>
+        <p>容错是生产环境的关键能力。子Agent可能执行失败、超时、返回空结果。每个子Agent调用都应配置 <code>timeout(Duration.ofSeconds(30))</code> 超时控制，失败时返回结构化的错误信息给主Agent，主Agent可以决策：换一个子Agent重试、修改子任务指令重试、或告知用户无法完成。</p>
 
         <div class="callout"><strong>汇总规则注入Prompt：</strong>主Agent的 System Prompt 中明确写了汇总规则--整合为连贯回答、去重保留最准确的、如果子Agent返回错误尝试换一个重试、最终回答不暴露内部调用细节。这些规则让LLM的汇总行为可控。</div>
 
@@ -362,42 +362,7 @@ System.out.printf(<span class="str">"[COMPARE] Serial(%dms) vs Parallel(%dms) ->
           <tr><td>子Agent数量动态变化</td><td class="mono">动态能力目录</td><td>每次请求重新生成，无需重启</td></tr>
         </table>
 
-        <h2 id="section-10">十、Demo运行实战</h2>
-
-        <p>Demo 代码完整模拟了数据库驱动的动态主子Agent调用流程。运行 <code>mvn compile exec:java -Dexec.args="7"</code> 后，可以看到6个阶段的完整输出：</p>
-
-        <div class="flow-stages">
-          <div class="flow-stage">
-            <div class="flow-stage-title">Phase 1</div>
-            <div class="flow-stage-desc">从Mock DB加载3个子Agent元数据，打印agentId、能力标签、模型配置</div>
-          </div>
-          <div class="flow-stage">
-            <div class="flow-stage-title">Phase 2</div>
-            <div class="flow-stage-desc">动态构建能力目录Markdown表格，注入主Agent System Prompt</div>
-          </div>
-          <div class="flow-stage">
-            <div class="flow-stage-title">Phase 3</div>
-            <div class="flow-stage-desc">从元数据动态创建SubagentDeclaration，注册到主Agent</div>
-          </div>
-          <div class="flow-stage">
-            <div class="flow-stage-title">Phase 4</div>
-            <div class="flow-stage-desc">构建Orchestrator，动态System Prompt + 能力目录 + 子Agent注册</div>
-          </div>
-          <div class="flow-stage">
-            <div class="flow-stage-title">Phase 5</div>
-            <div class="flow-stage-desc">LLM驱动的动态委派，事件流实时展示工具调用、子Agent执行、结果返回</div>
-          </div>
-          <div class="flow-stage">
-            <div class="flow-stage-title">Phase 6</div>
-            <div class="flow-stage-desc">程序化直接调用对比演示：串行调度 vs 并行调度，输出耗时对比</div>
-          </div>
-        </div>
-
-        <p>Phase 5 是最核心的演示--用户发送一个复合请求："帮我查询本月销售数据，生成分析报表，并审查生成报表用的代码是否有安全问题"。LLM 需要自主判断这个请求涉及3个子Agent：先调数据查询Agent拿数据，再调报表生成Agent基于数据生成报表，同时调代码审查Agent审查代码。事件流实时展示每个工具调用的开始、参数、子Agent启动、结果返回，最后汇总为完整回答。</p>
-
-        <p>Phase 6 的对比演示直观展示了串行和并行的性能差异：串行执行两步（数据查询 + 报表生成）的总耗时， vs 并行执行两个无依赖任务（数据查询 + 代码审查）的耗时，并行模式显著节省了等待时间。</p>
-
-        <h2 id="section-11">十一、上生产检查清单</h2>
+        <h2 id="section-10">十、上生产检查清单</h2>
 
         <div class="checklist">
           <div class="checklist-title">元数据与能力目录</div>
@@ -436,7 +401,7 @@ System.out.printf(<span class="str">"[COMPARE] Serial(%dms) vs Parallel(%dms) ->
 
         <p>与上一篇文章的单 Agent 企业级平台相比，动态编排引入了一个新的维度：<strong>Agent 之间的协作关系</strong>。单 Agent 解决的是"一个 Agent 怎么安全运行"，动态编排解决的是"多个 Agent 怎么高效协作"。元数据驱动让子Agent管理变成配置而非代码，动态能力目录让主Agent的感知能力实时更新，LLM选择 + 代码校验的分工让智能和安全兼得。</p>
 
-        <p>从 demo 到生产，关键在于三道安全防线是否到位：调用栈深度防递归、权限白名单防越权、并发限制防压垮。这三道防线不是可选项，是动态编排上生产的必要条件。没有安全防护的动态编排，就像没有刹车的汽车--跑得越快越危险。</p>
+        <p>从架构设计到生产，关键在于三道安全防线是否到位：调用栈深度防递归、权限白名单防越权、并发限制防压垮。这三道防线不是可选项，是动态编排上生产的必要条件。没有安全防护的动态编排，就像没有刹车的汽车--跑得越快越危险。</p>
 
         <h3>参考资料</h3>
         <ol>
