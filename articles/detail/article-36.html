@@ -115,7 +115,7 @@
           <figcaption>动态多级 Agent 编排架构：5大阶段流水线 + 运行时架构 + 选择策略与安全防护</figcaption>
         </figure>
 
-        <p>上一篇文章《AgentScope搭企业级Agent平台实战》拆解了企业级 Agent 平台的架构全景：身份权限、MCP/Skill 工具、上下文记忆、安全沙箱、高可用扩展。那篇文章解决的是「单个 Agent 怎么在企业环境里安全稳定运行」的问题。但真实业务场景中，一个 Agent 不可能什么都干--报表Agent擅长数据分析，代码Agent擅长审查代码，数据查询Agent擅长SQL。这就引出了一个更复杂的问题：<strong>主Agent怎么动态发现、选择、调度众多子Agent？</strong></p>
+        <p>上一篇文章<a href="./article-34.html">《AgentScope搭企业级Agent平台实战》</a>拆解了企业级 Agent 平台的架构全景：身份权限、MCP/Skill 工具、上下文记忆、安全沙箱、高可用扩展。那篇文章解决的是「单个 Agent 怎么在企业环境里安全稳定运行」的问题。但真实业务场景中，一个 Agent 不可能什么都干--报表Agent擅长数据分析，代码Agent擅长审查代码，数据查询Agent擅长SQL。这就引出了一个更复杂的问题：<strong>主Agent怎么动态发现、选择、调度众多子Agent？</strong></p>
 
         <p>本文是上一篇的续篇，聚焦「动态多级 Agent 编排」这一核心场景。后台配置大量子Agent，主Agent收到用户问题后，完成任务拆解、感知子Agent能力池、挑选对应子Agent、调度执行、汇总结果。整个链路涉及5大阶段，每个阶段都有独立的工程挑战。本文基于 AgentScope Java v2.0.0 SDK，结合核心代码片段，全链路拆解动态主子 Agent 编排的实现方案。</p>
 
