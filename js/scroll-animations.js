@@ -14,7 +14,7 @@
   const sections = document.querySelectorAll('.section');
   sections.forEach(section => {
     const title = section.querySelector('.section-title');
-    const body = section.querySelector('.about-lead, .timeline, .projects-list, .services-list, .contact-body, .skills-container');
+    const body = section.querySelector('.about-lead, .timeline, .projects-list, .services-list, .contact-body, .skills-container, .trending-preview');
 
     if (title) {
       gsap.fromTo(title,
@@ -256,6 +256,46 @@
           ease: 'power2.out',
           scrollTrigger: {
             trigger: moreLink,
+            start: 'top 85%',
+            toggleActions: 'play none none none'
+          }
+        }
+      );
+    }
+  }
+
+  /* Trending items stagger + view more link */
+  const trendingList = document.querySelector('.trending-top-list');
+  if (trendingList) {
+    const trendingItems = trendingList.querySelectorAll('.trending-item');
+    gsap.fromTo(trendingItems,
+      { y: 24, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.5,
+        stagger: 0.12,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: trendingList,
+          start: 'top 80%',
+          toggleActions: 'play none none none'
+        }
+      }
+    );
+
+    const trendingMore = document.querySelector('.trending-more');
+    if (trendingMore) {
+      gsap.fromTo(trendingMore,
+        { y: 20, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.5,
+          delay: 0.4,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: trendingMore,
             start: 'top 85%',
             toggleActions: 'play none none none'
           }
