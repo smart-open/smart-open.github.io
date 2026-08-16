@@ -250,13 +250,28 @@
 }
 
 /* Classic Games - Inline within service card */
-.games-inline {
+.project-card--games {
   display: flex;
+  flex-direction: column;
+}
+
+.project-card--games .project-card-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex: 1;
+  padding-top: 0;
+}
+
+.games-inline {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
   gap: var(--space-sm);
+  flex: 1;
 }
 
 .game-inline {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -266,7 +281,7 @@
 
 .game-inline-image {
   width: 100%;
-  aspect-ratio: 3/4;
+  flex: 1;
   overflow: hidden;
   border: 1px solid var(--divider);
   transition: border-color var(--transition-base);
