@@ -1,239 +1,241 @@
 /* ========================================
    Trending Data - update weekly
+   数据调研日期：2026-08-24（本周 08-17 ~ 08-24）
+   来源：GitHub Trending 第三方周榜、仓库页、skills 排行榜
    ======================================== */
 const TRENDING_DATA = {
-  updated: "2026-08-17",
+  updated: "2026-08-24",
   weekly: [
     {
       rank: 1,
       name: "cathrynlavery/diagram-design",
       url: "https://github.com/cathrynlavery/diagram-design",
       lang: "HTML",
-      desc: "29 种编辑级图表模板，Claude Code 自包含 HTML+SVG 输出，本周飙升 +15600 星",
-      stars: "19.6k"
+      desc: "Claude Code/Codex 绘图 Skill，38 种图样式输出 HTML+SVG，本周 +11325 星",
+      stars: "24.3k"
     },
     {
       rank: 2,
-      name: "PrimeIntellect-ai/prime-agent",
-      url: "https://github.com/PrimeIntellect-ai/prime-agent",
+      name: "openai/codex",
+      url: "https://github.com/openai/codex",
       lang: "TypeScript",
-      desc: "自我改进的 RLM Agent，编码工作流与长期自治任务，持续学习优化",
-      stars: "16.6k"
+      desc: "OpenAI 轻量终端编码 Agent，本周编码 Agent 榜增长突出 +8967 星",
+      stars: "89.1k"
     },
     {
       rank: 3,
-      name: "stablyai/orca",
-      url: "https://github.com/stablyai/orca",
-      lang: "TypeScript",
-      desc: "并行 Agent 舰队开发环境，桌面/移动/VSS 全平台，YC 投持",
-      stars: "46.6k"
+      name: "public-apis/public-apis",
+      url: "https://github.com/public-apis/public-apis",
+      lang: "Python",
+      desc: "免费 API 集合常青树，开发者发现免费接口的核心资源，本周 +8646 星",
+      stars: "468.5k"
     },
     {
       rank: 4,
-      name: "earendil-works/pi",
-      url: "https://github.com/earendil-works/pi",
-      lang: "TypeScript",
-      desc: "统一 LLM API + Agent Loop + TUI + 编码 CLI，一体化 AI Agent 工具包",
-      stars: "91.5k"
+      name: "cactus-compute/needle",
+      url: "https://github.com/cactus-compute/needle",
+      lang: "Python",
+      desc: "端侧小模型推理：45M 参数、14MB 二进制、28MB 内存，本周 +3772 星",
+      stars: "6.7k"
     },
     {
       rank: 5,
-      name: "msitarzewski/agency-agents",
-      url: "https://github.com/msitarzewski/agency-agents",
-      lang: "Shell",
-      desc: "完整 AI 机构，从前端到社区的专家 Agent 集合，个性+流程+交付物",
-      stars: "145.8k"
-    },
-    {
-      rank: 6,
       name: "semantica-agi/semantica",
       url: "https://github.com/semantica-agi/semantica",
       lang: "Python",
-      desc: "图原生上下文基础设施，为 AI 系统提供可问责的知识图谱与推理路径",
-      stars: "8.2k"
+      desc: "图原生 Context 基础设施，知识图谱补全向量检索，来源可追溯，本周 +3674 星",
+      stars: "10.0k"
+    },
+    {
+      rank: 6,
+      name: "unslothai/unsloth",
+      url: "https://github.com/unslothai/unsloth",
+      lang: "Python",
+      desc: "本地训练与运行 LLM/扩散模型提速工具，本地部署热点，本周 +3636 星",
+      stars: "73.7k"
     },
     {
       rank: 7,
-      name: "DietrichGebert/ponytail",
-      url: "https://github.com/DietrichGebert/ponytail",
-      lang: "JavaScript",
-      desc: "让 AI Agent 像最懒的高级开发一样思考，三层推理砍掉冗余输出",
-      stars: "104.1k"
+      name: "volcengine/OpenViking",
+      url: "https://github.com/volcengine/OpenViking",
+      lang: "Python",
+      desc: "火山引擎 Agent 上下文数据库，统一记忆/知识 RAG/Skills，本周 +3447 星",
+      stars: "32.0k"
     },
     {
       rank: 8,
-      name: "firecrawl/firecrawl",
-      url: "https://github.com/firecrawl/firecrawl",
+      name: "cordiverse/cordis",
+      url: "https://github.com/cordiverse/cordis",
       lang: "TypeScript",
-      desc: "网页搜索、抓取与交互的上下文 API，Agent 访问互联网的标准层",
-      stars: "168.2k"
+      desc: "时空可组合元框架，DeepSeek Harness 插件系统底座，本周 +2725 星",
+      stars: "7.2k"
     },
     {
       rank: 9,
-      name: "TencentCloud/TencentDB-Agent-Memory",
-      url: "https://github.com/TencentCloud/TencentDB-Agent-Memory",
+      name: "deepseek-ai/deepseek-harness",
+      url: "https://github.com/deepseek-ai/deepseek-harness",
       lang: "TypeScript",
-      desc: "腾讯团队级 AI Agent 记忆中心，四类记忆资产：对话/技能/Wiki/代码图谱",
-      stars: "22.2k"
+      desc: "DeepSeek 插件化 AI 工作流工具，适配模型/工具/会话日志，本周周榜居首",
+      stars: "136.1k"
     },
     {
       rank: 10,
-      name: "addyosmani/agent-skills",
-      url: "https://github.com/addyosmani/agent-skills",
-      lang: "JavaScript",
-      desc: "Google 工程总监出品的 Agent 技能集，生产级工程实践，本周 +2882 星",
-      stars: "87.8k"
+      name: "anywhere-labs/deepseek-harness-desktop",
+      url: "https://github.com/anywhere-labs/deepseek-harness-desktop",
+      lang: "TypeScript",
+      desc: "DeepSeek Harness 插件生态的现代化桌面端，进入 AI 编程生态前列",
+      stars: "9.6k"
     }
   ],
   monthly: [
     {
       rank: 1,
-      name: "stablyai/orca",
-      url: "https://github.com/stablyai/orca",
+      name: "deepseek-ai/deepseek-harness",
+      url: "https://github.com/deepseek-ai/deepseek-harness",
       lang: "TypeScript",
-      desc: "并行 Agent 舰队开发环境，任意编码 Agent 用自己的订阅跑，全平台覆盖"
+      desc: "DeepSeek 插件化 AI 工作流，一切皆插件的 Agent 内核范式"
     },
     {
       rank: 2,
-      name: "earendil-works/pi",
-      url: "https://github.com/earendil-works/pi",
-      lang: "TypeScript",
-      desc: "统一 LLM API + Agent Loop + TUI + 编码 CLI，一体化 AI Agent 工具包"
+      name: "cathrynlavery/diagram-design",
+      url: "https://github.com/cathrynlavery/diagram-design",
+      lang: "HTML",
+      desc: "Claude Code 绘图 Skill，38 种图样式，单周破万星的现象级增长"
     },
     {
       rank: 3,
-      name: "DietrichGebert/ponytail",
-      url: "https://github.com/DietrichGebert/ponytail",
-      lang: "JavaScript",
-      desc: "让 AI Agent 像最懒的高级开发一样思考，三层推理砍掉冗余输出"
+      name: "unslothai/unsloth",
+      url: "https://github.com/unslothai/unsloth",
+      lang: "Python",
+      desc: "本地训练与推理加速，小模型本地化部署首选"
     },
     {
       rank: 4,
-      name: "semantica-agi/semantica",
-      url: "https://github.com/semantica-agi/semantica",
-      lang: "Python",
-      desc: "图原生上下文基础设施，为 AI 系统提供可问责的知识图谱与推理路径"
+      name: "openai/codex",
+      url: "https://github.com/openai/codex",
+      lang: "TypeScript",
+      desc: "OpenAI 终端编码 Agent，AI 编程赛道标杆"
     },
     {
       rank: 5,
-      name: "PrimeIntellect-ai/prime-agent",
-      url: "https://github.com/PrimeIntellect-ai/prime-agent",
-      lang: "TypeScript",
-      desc: "自我改进的 RLM Agent，编码工作流与长期自治任务，持续学习优化"
+      name: "volcengine/OpenViking",
+      url: "https://github.com/volcengine/OpenViking",
+      lang: "Python",
+      desc: "火山引擎 Agent 上下文数据库，长期记忆统一管理"
     },
     {
       rank: 6,
-      name: "TencentCloud/TencentDB-Agent-Memory",
-      url: "https://github.com/TencentCloud/TencentDB-Agent-Memory",
-      lang: "TypeScript",
-      desc: "腾讯团队级 AI Agent 记忆中心，四类记忆资产：对话/技能/Wiki/代码图谱"
+      name: "harry0703/MoneyPrinterTurbo",
+      url: "https://github.com/harry0703/MoneyPrinterTurbo",
+      lang: "Python",
+      desc: "AI 短视频一键生成工具，本周热度持续爆发"
     },
     {
       rank: 7,
-      name: "msitarzewski/agency-agents",
-      url: "https://github.com/msitarzewski/agency-agents",
-      lang: "Shell",
-      desc: "完整 AI 机构，从前端到社区的专家 Agent 集合，个性+流程+交付物"
+      name: "semantica-agi/semantica",
+      url: "https://github.com/semantica-agi/semantica",
+      lang: "Python",
+      desc: "图原生上下文基础设施，让 Agent 决策来源可审计"
     },
     {
       rank: 8,
-      name: "esengine/DeepSeek-Reasonix",
-      url: "https://github.com/esengine/DeepSeek-Reasonix",
-      lang: "Go",
-      desc: "围绕 DeepSeek 前缀缓存优化的终端 AI 编程 Agent，单二进制部署"
+      name: "cordiverse/cordis",
+      url: "https://github.com/cordiverse/cordis",
+      lang: "TypeScript",
+      desc: "时空可组合元框架，插件系统设计新范式"
     },
     {
       rank: 9,
-      name: "vitali87/code-graph-rag",
-      url: "https://github.com/vitali87/code-graph-rag",
+      name: "cactus-compute/needle",
+      url: "https://github.com/cactus-compute/needle",
       lang: "Python",
-      desc: "Monorepo 终极 RAG，知识图谱+AI 理解多语言代码库，支持 MCP Server"
+      desc: "端侧小模型推理，45M 参数极轻量部署"
     },
     {
       rank: 10,
-      name: "firecrawl/firecrawl",
-      url: "https://github.com/firecrawl/firecrawl",
-      lang: "TypeScript",
-      desc: "网页搜索、抓取与交互的上下文 API，Agent 访问互联网的标准层"
+      name: "NVIDIA-NeMo/Switchyard",
+      url: "https://github.com/NVIDIA-NeMo/Switchyard",
+      lang: "Rust",
+      desc: "NVIDIA LLM 流量路由库，多种模型协议间转换与路由"
     }
   ],
   skills: [
     {
       rank: 1,
-      name: "mattpocock-skills",
-      installs: "214.0K",
-      source: "mattpocock/skills",
-      desc: "真实工程师的技能集，本周 +10411 星，TypeScript 与前端工程实践"
+      name: "superpowers",
+      installs: "275.0K",
+      source: "obra/superpowers",
+      desc: "计划→规格→TDD 全栈方法论，本周 v6.3.0 支持 Devin CLI 与 Kimi harness"
     },
     {
       rank: 2,
-      name: "agent-skills",
-      installs: "86.3K",
-      source: "addyosmani/agent-skills",
-      desc: "Google 工程总监出品，生产级工程技能集，本周 +4624 星"
+      name: "mattpocock-skills",
+      installs: "224.0K",
+      source: "mattpocock/skills",
+      desc: "「为真实工程师而写」的技能集，TypeScript 与前端工程实践"
     },
     {
       rank: 3,
-      name: "superpowers",
-      installs: "270.8K",
-      source: "obra/superpowers",
-      desc: "计划→规格→TDD 完整开发流程，子 Agent 隔离，最热门 Skill 框架"
+      name: "andrej-karpathy-skills",
+      installs: "204.0K",
+      source: "multica-ai/andrej-karpathy-skills",
+      desc: "围绕 Karpathy AI 工程经验整理的技能集，多 Agent 入口"
     },
     {
       rank: 4,
-      name: "agent-reach",
-      installs: "70.8K",
-      source: "Panniantong/Agent-Reach",
-      desc: "给 AI Agent 装上眼睛，搜索 Twitter/Reddit/YouTube/GitHub 等全网内容"
+      name: "anthropics-skills",
+      installs: "171.0K",
+      source: "anthropics/skills",
+      desc: "Anthropic 官方 Skills 库，Claude API 与模型能力说明"
     },
     {
       rank: 5,
-      name: "hermes-agent",
-      installs: "229.1K",
-      source: "NousResearch/hermes-agent",
-      desc: "长期运行 AI Agent，从使用经验中形成记忆、创建技能并持续自我改进"
+      name: "system-prompts-of-ai-tools",
+      installs: "143.0K",
+      source: "x1xhlol/system-prompts-and-models-of-ai-tools",
+      desc: "AI 工具系统提示词与模型配置文件汇总，追踪 Prompt 实践"
     },
     {
       rank: 6,
-      name: "taste-skill",
-      installs: "75.5K",
-      source: "Leonxlnx/taste-skill",
-      desc: "改善 AI 生成界面设计质量，告别模板化 AI 界面，本周 +3487 星"
+      name: "ui-ux-pro-max-skill",
+      installs: "118.0K",
+      source: "nextlevelbuilder/ui-ux-pro-max-skill",
+      desc: "UI/UX 高阶设计技能包，专业级前端设计指导"
     },
     {
       rank: 7,
-      name: "graphify",
-      installs: "105.4K",
-      source: "Graphify-Labs/graphify",
-      desc: "将代码库、文档、SQL、配置、PDF 转成可查询知识图谱"
+      name: "ponytail",
+      installs: "106.0K",
+      source: "DietrichGebert/ponytail",
+      desc: "让 AI 生成整洁的前端样式与布局，设计与前端维护"
     },
     {
       rank: 8,
-      name: "i-have-adhd",
-      installs: "19.8K",
-      source: "ayghri/i-have-adhd",
-      desc: "防止编码 Agent 把答案埋进长输出，ADHD 友好的聚焦输出 Skill"
+      name: "caveman",
+      installs: "99.0K",
+      source: "JuliusBrussee/caveman",
+      desc: "复杂系统设计与架构拆解的 Agent Skill，适合大型项目规划"
     },
     {
       rank: 9,
-      name: "ui-ux-pro-max-skill",
-      installs: "115.8K",
-      source: "nextlevelbuilder/ui-ux-pro-max-skill",
-      desc: "多平台 UI/UX 设计智能 Skill，专业级界面设计指导"
+      name: "agent-skills",
+      installs: "89.0K",
+      source: "addyosmani/agent-skills",
+      desc: "Google 工程总监出品，本周 421 commits 高频更新"
     },
     {
       rank: 10,
-      name: "caveman",
-      installs: "97.6K",
-      source: "JuliusBrussee/caveman",
-      desc: "🪨 省话省 Token，压缩 65% 输出，少字多义的极简通信 Skill"
+      name: "taste-skill",
+      installs: "75.0K",
+      source: "Leonxlnx/taste-skill",
+      desc: "前端审美技能包，告别模板化 AI 界面，设计类榜首"
     }
   ],
   skillRepos: [
-    { name: "obra/superpowers", stars: "270.8K+", desc: "最流行的 Skills 框架，含 TDD、计划、子 Agent 隔离" },
-    { name: "NousResearch/hermes-agent", stars: "229.1K+", desc: "长期运行 AI Agent，记忆+技能创建+自我改进" },
-    { name: "mattpocock/skills", stars: "214.0K+", desc: "TypeScript/前端工程实践技能集合，含 Grill Me 等" },
-    { name: "multica-ai/andrej-karpathy-skills", stars: "201.7K+", desc: "源自 Karpathy 观察的 CLAUDE.md，改进 Claude Code 行为" },
-    { name: "anthropics/skills", stars: "168.3K+", desc: "Anthropic 官方技能仓库，含 frontend-design、mcp-builder 等" }
+    { name: "obra/superpowers", stars: "275.0K+", desc: "最流行 Skills 框架，本周 v6.3.0 支持 Devin CLI 与 Kimi harness" },
+    { name: "mattpocock/skills", stars: "224.0K+", desc: "真实工程师技能集，TypeScript/前端工程，本周持续更新" },
+    { name: "multica-ai/andrej-karpathy-skills", stars: "204.0K+", desc: "源自 Karpathy AI 工程经验的技能集合，多 Agent 入口" },
+    { name: "anthropics/skills", stars: "171.0K+", desc: "Anthropic 官方技能仓库，Claude API 与工具能力" },
+    { name: "addyosmani/agent-skills", stars: "89.0K+", desc: "Google 工程总监技能集，本周 421 commits 高频迭代" }
   ]
 };
