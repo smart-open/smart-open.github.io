@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 960" font-family="Inter, sans-serif">
+<defs>
+<marker id="m-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#00ff88"/></marker>
+<marker id="m-cyan" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#00f0ff"/></marker>
+<marker id="m-orange" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff8c00"/></marker>
+<marker id="m-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff4466"/></marker>
+<marker id="m-purple" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#a855f7"/></marker>
+<marker id="m-gray" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#7a7a85"/></marker>
+</defs>
+<rect width="1200" height="960" fill="#0a0a0f"/>
+<text x="600" y="42" text-anchor="middle" font-size="22" font-weight="700" fill="#e8e8ec">Agent 生命周期：一次 Turn 的全链路事件流</text>
+<text x="600" y="66" text-anchor="middle" font-size="13" fill="#7a7a85">Step = 一次模型请求 + 其工具调用；Turn = 若干 Step；会话事件持久化，扩展事件即插件切入点</text>
+<rect x="60" y="86" width="11" height="11" rx="2" fill="#00ff88"/>
+<text x="77" y="96" font-size="10.5" fill="#7a7a85">持久会话事件（可重放）</text>
+<rect x="262" y="86" width="11" height="11" rx="2" fill="#00f0ff"/>
+<text x="279" y="96" font-size="10.5" fill="#7a7a85">瀑布事件 waterfall（须 next()）</text>
+<rect x="620" y="86" width="11" height="11" rx="2" fill="#a855f7"/>
+<text x="637" y="96" font-size="10.5" fill="#7a7a85">串行事件 serial</text>
+<rect x="822" y="86" width="11" height="11" rx="2" fill="#ff8c00"/>
+<text x="839" y="96" font-size="10.5" fill="#7a7a85">实时扩展点</text>
+<rect x="90" y="130" width="300" height="40" rx="8" fill="#00ff88" fill-opacity="0.07" stroke="#00ff88" stroke-width="1.4"/>
+<rect x="90" y="130" width="5" height="40" rx="2" fill="#00ff88"/>
+<text x="112" y="155" font-size="13" font-weight="600" fill="#e8e8ec" font-family="JetBrains Mono, monospace">turn/start</text>
+<line x1="240" y1="170" x2="240" y2="172" stroke="#7a7a85" stroke-width="1.5" marker-end="url(#m-gray)"/>
+<rect x="90" y="182" width="300" height="40" rx="8" fill="#00f0ff" fill-opacity="0.07" stroke="#00f0ff" stroke-width="1.4"/>
+<rect x="90" y="182" width="5" height="40" rx="2" fill="#00f0ff"/>
+<text x="112" y="207" font-size="13" font-weight="600" fill="#e8e8ec" font-family="JetBrains Mono, monospace">agent/pre-step</text>
+<line x1="240" y1="222" x2="240" y2="224" stroke="#7a7a85" stroke-width="1.5" marker-end="url(#m-gray)"/>
+<rect x="90" y="234" width="300" height="40" rx="8" fill="#00ff88" fill-opacity="0.07" stroke="#00ff88" stroke-width="1.4"/>
+<rect x="90" y="234" width="5" height="40" rx="2" fill="#00ff88"/>
+<text x="112" y="259" font-size="13" font-weight="600" fill="#e8e8ec" font-family="JetBrains Mono, monospace">step/start</text>
+<line x1="240" y1="274" x2="240" y2="276" stroke="#7a7a85" stroke-width="1.5" marker-end="url(#m-gray)"/>
+<rect x="90" y="286" width="300" height="40" rx="8" fill="#00f0ff" fill-opacity="0.07" stroke="#00f0ff" stroke-width="1.4"/>
+<rect x="90" y="286" width="5" height="40" rx="2" fill="#00f0ff"/>
+<text x="112" y="311" font-size="13" font-weight="600" fill="#e8e8ec" font-family="JetBrains Mono, monospace">agent/request</text>
+<line x1="240" y1="326" x2="240" y2="328" stroke="#7a7a85" stroke-width="1.5" marker-end="url(#m-gray)"/>
+<rect x="90" y="338" width="300" height="40" rx="8" fill="#00f0ff" fill-opacity="0.07" stroke="#00f0ff" stroke-width="1.4"/>
+<rect x="90" y="338" width="5" height="40" rx="2" fill="#00f0ff"/>
+<text x="112" y="363" font-size="13" font-weight="600" fill="#e8e8ec" font-family="JetBrains Mono, monospace">llm/stream</text>
+<line x1="240" y1="378" x2="240" y2="380" stroke="#7a7a85" stroke-width="1.5" marker-end="url(#m-gray)"/>
+<rect x="90" y="390" width="300" height="40" rx="8" fill="#00ff88" fill-opacity="0.07" stroke="#00ff88" stroke-width="1.4"/>
+<rect x="90" y="390" width="5" height="40" rx="2" fill="#00ff88"/>
+<text x="112" y="415" font-size="13" font-weight="600" fill="#e8e8ec" font-family="JetBrains Mono, monospace">assistant/chunk*</text>
+<line x1="240" y1="430" x2="240" y2="432" stroke="#7a7a85" stroke-width="1.5" marker-end="url(#m-gray)"/>
+<rect x="90" y="442" width="300" height="40" rx="8" fill="#00ff88" fill-opacity="0.07" stroke="#00ff88" stroke-width="1.4"/>
+<rect x="90" y="442" width="5" height="40" rx="2" fill="#00ff88"/>
+<text x="112" y="467" font-size="13" font-weight="600" fill="#e8e8ec" font-family="JetBrains Mono, monospace">assistant/message</text>
+<line x1="240" y1="482" x2="240" y2="484" stroke="#7a7a85" stroke-width="1.5" marker-end="url(#m-gray)"/>
+<rect x="90" y="494" width="300" height="40" rx="8" fill="#00ff88" fill-opacity="0.07" stroke="#00ff88" stroke-width="1.4"/>
+<rect x="90" y="494" width="5" height="40" rx="2" fill="#00ff88"/>
+<text x="112" y="519" font-size="13" font-weight="600" fill="#e8e8ec" font-family="JetBrains Mono, monospace">tool/call*</text>
+<line x1="240" y1="534" x2="240" y2="536" stroke="#7a7a85" stroke-width="1.5" marker-end="url(#m-gray)"/>
+<rect x="90" y="546" width="300" height="40" rx="8" fill="#00f0ff" fill-opacity="0.07" stroke="#00f0ff" stroke-width="1.4"/>
+<rect x="90" y="546" width="5" height="40" rx="2" fill="#00f0ff"/>
+<text x="112" y="571" font-size="13" font-weight="600" fill="#e8e8ec" font-family="JetBrains Mono, monospace">tools/pre-execute</text>
+<line x1="240" y1="586" x2="240" y2="588" stroke="#7a7a85" stroke-width="1.5" marker-end="url(#m-gray)"/>
+<rect x="90" y="598" width="300" height="40" rx="8" fill="#ff8c00" fill-opacity="0.07" stroke="#ff8c00" stroke-width="1.4"/>
+<rect x="90" y="598" width="5" height="40" rx="2" fill="#ff8c00"/>
+<text x="112" y="623" font-size="13" font-weight="600" fill="#e8e8ec" font-family="JetBrains Mono, monospace">tools/execute</text>
+<line x1="240" y1="638" x2="240" y2="640" stroke="#7a7a85" stroke-width="1.5" marker-end="url(#m-gray)"/>
+<rect x="90" y="650" width="300" height="40" rx="8" fill="#ff8c00" fill-opacity="0.07" stroke="#ff8c00" stroke-width="1.4"/>
+<rect x="90" y="650" width="5" height="40" rx="2" fill="#ff8c00"/>
+<text x="112" y="675" font-size="13" font-weight="600" fill="#e8e8ec" font-family="JetBrains Mono, monospace">tools/post-execute</text>
+<line x1="240" y1="690" x2="240" y2="692" stroke="#7a7a85" stroke-width="1.5" marker-end="url(#m-gray)"/>
+<rect x="90" y="702" width="300" height="40" rx="8" fill="#00ff88" fill-opacity="0.07" stroke="#00ff88" stroke-width="1.4"/>
+<rect x="90" y="702" width="5" height="40" rx="2" fill="#00ff88"/>
+<text x="112" y="727" font-size="13" font-weight="600" fill="#e8e8ec" font-family="JetBrains Mono, monospace">tool/result*</text>
+<line x1="240" y1="742" x2="240" y2="744" stroke="#7a7a85" stroke-width="1.5" marker-end="url(#m-gray)"/>
+<rect x="90" y="754" width="300" height="40" rx="8" fill="#00ff88" fill-opacity="0.07" stroke="#00ff88" stroke-width="1.4"/>
+<rect x="90" y="754" width="5" height="40" rx="2" fill="#00ff88"/>
+<text x="112" y="779" font-size="13" font-weight="600" fill="#e8e8ec" font-family="JetBrains Mono, monospace">step/end</text>
+<line x1="240" y1="794" x2="240" y2="796" stroke="#7a7a85" stroke-width="1.5" marker-end="url(#m-gray)"/>
+<rect x="90" y="806" width="300" height="40" rx="8" fill="#a855f7" fill-opacity="0.07" stroke="#a855f7" stroke-width="1.4"/>
+<rect x="90" y="806" width="5" height="40" rx="2" fill="#a855f7"/>
+<text x="112" y="831" font-size="13" font-weight="600" fill="#e8e8ec" font-family="JetBrains Mono, monospace">agent/turn-stopping</text>
+<line x1="240" y1="846" x2="240" y2="848" stroke="#7a7a85" stroke-width="1.5" marker-end="url(#m-gray)"/>
+<rect x="90" y="858" width="300" height="40" rx="8" fill="#00ff88" fill-opacity="0.07" stroke="#00ff88" stroke-width="1.4"/>
+<rect x="90" y="858" width="5" height="40" rx="2" fill="#00ff88"/>
+<text x="112" y="883" font-size="13" font-weight="600" fill="#e8e8ec" font-family="JetBrains Mono, monospace">turn/end</text>
+<line x1="240" y1="898" x2="240" y2="900" stroke="#7a7a85" stroke-width="1.5" marker-end="url(#m-gray)"/>
+<rect x="440" y="130" width="330" height="66" rx="8" fill="#12121a" stroke="#00f0ff" stroke-width="1.2"/>
+<rect x="440" y="130" width="4" height="66" rx="2" fill="#00f0ff"/>
+<text x="458" y="156" font-size="12" font-weight="700" fill="#00f0ff">ctx.agents 事件域</text>
+<text x="458" y="176" font-size="10" fill="#7a7a85">inbox·step·status·request·continuation</text>
+<text x="458" y="190" font-size="10" fill="#7a7a85" opacity="0.7">挂在左侧对应事件的扩展点</text>
+<rect x="440" y="348.4" width="330" height="66" rx="8" fill="#12121a" stroke="#00f0ff" stroke-width="1.2"/>
+<rect x="440" y="348.4" width="4" height="66" rx="2" fill="#00f0ff"/>
+<text x="458" y="374.4" font-size="12" font-weight="700" fill="#00f0ff">ctx.llm 适配器接缝</text>
+<text x="458" y="394.4" font-size="10" fill="#7a7a85">LlmAdapter 子类经 registerAdapter 注册</text>
+<text x="458" y="408.4" font-size="10" fill="#7a7a85" opacity="0.7">挂在左侧对应事件的扩展点</text>
+<rect x="440" y="546.0" width="330" height="66" rx="8" fill="#12121a" stroke="#ff8c00" stroke-width="1.2"/>
+<rect x="440" y="546.0" width="4" height="66" rx="2" fill="#ff8c00"/>
+<text x="458" y="572.0" font-size="12" font-weight="700" fill="#ff8c00">ctx.tools 管线</text>
+<text x="458" y="592.0" font-size="10" fill="#7a7a85">ctx.tools.guard() 提供单调终局拒绝</text>
+<text x="458" y="606.0" font-size="10" fill="#7a7a85" opacity="0.7">挂在左侧对应事件的扩展点</text>
+<rect x="440" y="816.4" width="330" height="66" rx="8" fill="#12121a" stroke="#ff4466" stroke-width="1.2"/>
+<rect x="440" y="816.4" width="4" height="66" rx="2" fill="#ff4466"/>
+<text x="458" y="842.4" font-size="12" font-weight="700" fill="#ff4466">ctx.jobs 后台任务</text>
+<text x="458" y="862.4" font-size="10" fill="#7a7a85">run_in_background 经 jobs.start() 发布</text>
+<text x="458" y="876.4" font-size="10" fill="#7a7a85" opacity="0.7">挂在左侧对应事件的扩展点</text>
+<rect x="830" y="130" width="336" height="768" rx="10" fill="#00ff88" fill-opacity="0.04" stroke="#00ff88" stroke-width="1.5"/>
+<rect x="830" y="130" width="336" height="4" rx="2" fill="#00ff88"/>
+<text x="998.0" y="162" text-anchor="middle" font-size="14" font-weight="700" fill="#00ff88">会话日志 Session Log</text>
+<text x="998.0" y="184" text-anchor="middle" font-size="11" fill="#7a7a85">追加式事件流 = 模型上下文的唯一来源</text>
+<rect x="854" y="216" width="288" height="56" rx="8" fill="#12121a" stroke="#00ff88" stroke-width="0.9" opacity="0.9"/>
+<text x="870" y="240" font-size="11.5" font-weight="600" fill="#00ff88" font-family="JetBrains Mono, monospace">deriveMessages()</text>
+<text x="870" y="260" font-size="10" fill="#7a7a85">从日志投影模型历史</text>
+<rect x="854" y="284" width="288" height="56" rx="8" fill="#12121a" stroke="#00ff88" stroke-width="0.9" opacity="0.9"/>
+<text x="870" y="308" font-size="11.5" font-weight="600" fill="#00ff88" font-family="JetBrains Mono, monospace">fork()</text>
+<text x="870" y="328" font-size="10" fill="#7a7a85">按边界分叉会话</text>
+<rect x="854" y="352" width="288" height="56" rx="8" fill="#12121a" stroke="#00ff88" stroke-width="0.9" opacity="0.9"/>
+<text x="870" y="376" font-size="11.5" font-weight="600" fill="#00ff88" font-family="JetBrains Mono, monospace">replay</text>
+<text x="870" y="396" font-size="10" fill="#7a7a85">原始 chunk 保重放保真</text>
+<rect x="854" y="420" width="288" height="56" rx="8" fill="#12121a" stroke="#00ff88" stroke-width="0.9" opacity="0.9"/>
+<text x="870" y="444" font-size="11.5" font-weight="600" fill="#00ff88" font-family="JetBrains Mono, monospace">telemetry</text>
+<text x="870" y="464" font-size="10" fill="#7a7a85">JSONL 落盘 / trace 回放</text>
+<rect x="854" y="488" width="288" height="56" rx="8" fill="#12121a" stroke="#00ff88" stroke-width="0.9" opacity="0.9"/>
+<text x="870" y="512" font-size="11.5" font-weight="600" fill="#00ff88" font-family="JetBrains Mono, monospace">persistence</text>
+<text x="870" y="532" font-size="10" fill="#7a7a85">JSONL 持久化插件</text>
+<text x="998.0" y="884" text-anchor="middle" font-size="10" fill="#00ff88" font-family="JetBrains Mono, monospace">不变量: 模型可见 = 已记录</text>
+<text x="600" y="942" text-anchor="middle" font-size="10" fill="#7a7a85" opacity="0.6">模型可见 = 已记录：新增模型可见输入必须新增会话事件，运行时以不变量断言</text>
+</svg>

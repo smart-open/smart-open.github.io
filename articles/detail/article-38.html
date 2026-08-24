@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeepSeek把Agent内核拆成了插件 - 馒头仔 | Smart Open</title>
+  <meta name="description" content="深度拆解 DeepSeek Harness（dsh）的一切皆插件架构：Cordis 插件系统五大核心机制、四种事件分发模式与 waterfall 短路语义、Agent 生命周期 turn/step 全链路事件流、会话日志不变量、工具插件与 Hook 插件的完整技术契约，以及从第一个工具、权限门禁、配置补丁到 MCP 接入的实战路径">
+  <link rel="icon" type="image/png" href="../../favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/preview-rail.css">
+  <style>
+    .dsh-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
+    .dsh-table th { background: var(--bg-secondary); color: var(--accent); padding: 12px 14px; text-align: left; border-bottom: 2px solid var(--divider); font-family: var(--font-mono); font-size: 0.8rem; }
+    .dsh-table td { padding: 10px 14px; border-bottom: 1px solid var(--divider); color: var(--text-primary); vertical-align: top; }
+    .dsh-table tr:hover td { background: var(--bg-secondary); }
+    .dsh-table .mono { font-family: var(--font-mono); color: var(--accent); font-size: 0.78rem; }
+    .code-block { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 8px; padding: 16px 20px; margin: 16px 0; overflow-x: auto; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.65; color: var(--text-primary); white-space: pre; }
+    .code-block .cmt { color: var(--text-secondary); font-style: italic; }
+    .code-block .kw { color: #c792ea; }
+    .code-block .str { color: #c3e88d; }
+    .code-block .num { color: #f78c6c; }
+    .code-block .ann { color: #82aaff; }
+    .code-block .fn { color: #82aaff; }
+    .callout { background: rgba(0,240,255,0.05); border: 1px solid var(--divider); border-left: 3px solid var(--accent); border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.6; }
+    .callout strong { color: var(--accent); }
+    .callout-warn { background: rgba(255,68,102,0.05); border: 1px solid var(--divider); border-left: 3px solid #ff4466; border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.6; }
+    .callout-warn strong { color: #ff4466; }
+    .mode-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 24px 0; }
+    .mode-card { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 18px 20px; border-top: 3px solid var(--accent); }
+    .mode-card-name { font-family: var(--font-mono); font-weight: 700; font-size: 1rem; color: var(--accent); margin-bottom: 4px; }
+    .mode-card-sub { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 10px; }
+    .mode-card-desc { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.65; }
+    .mode-card-desc strong { color: var(--text-primary); }
+    .pipeline-flow { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
+    .pipeline-stage { flex: 1; min-width: 160px; background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 14px; position: relative; }
+    .pipeline-stage::after { content: '->'; position: absolute; right: -14px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 1.2rem; }
+    .pipeline-stage:last-child::after { display: none; }
+    .pipeline-stage-title { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent); margin-bottom: 6px; }
+    .pipeline-stage-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; }
+    .seam-tri { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 24px 0; }
+    .seam-card { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 20px; border-top: 3px solid var(--accent); text-align: center; }
+    .seam-card-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; color: var(--accent); font-family: var(--font-mono); }
+    .seam-card-desc { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
+    .seam-card-desc strong { color: var(--text-primary); }
+    .contract-item { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 18px 20px; margin: 14px 0; border-left: 3px solid var(--accent); }
+    .contract-item-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; }
+    .contract-item-title .num { color: var(--accent); font-family: var(--font-mono); margin-right: 8px; }
+    .contract-item-body { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; }
+    .contract-item-body strong { color: var(--text-primary); }
+    .contract-item-body code, .markdown-body code { font-family: var(--font-mono); font-size: 0.8em; background: rgba(0,240,255,0.08); color: var(--accent); padding: 1px 6px; border-radius: 4px; }
+    .practice-card { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 20px 24px; margin: 20px 0; border-left: 3px solid #00ff88; }
+    .practice-card-step { display: inline-block; font-family: var(--font-mono); font-size: 0.72rem; color: #00ff88; background: rgba(0,255,136,0.1); padding: 2px 10px; border-radius: 4px; margin-bottom: 10px; }
+    .practice-card-title { font-weight: 700; font-size: 1rem; margin-bottom: 10px; }
+    .checklist { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 20px 24px; margin: 20px 0; }
+    .checklist-title { font-weight: 600; font-size: 0.92rem; color: var(--accent); margin-bottom: 12px; font-family: var(--font-mono); }
+    .checklist ul { list-style: none; padding: 0; margin: 0; }
+    .checklist li { font-size: 0.84rem; color: var(--text-primary); line-height: 1.8; padding-left: 24px; position: relative; }
+    .checklist li::before { content: '[ ]'; position: absolute; left: 0; color: var(--accent); font-family: var(--font-mono); font-size: 0.8rem; }
+    .markdown-body table { display: block; overflow-x: auto; }
+    @media (max-width: 768px) {
+      .pipeline-flow { flex-direction: column; }
+      .pipeline-stage::after { display: none; }
+      .mode-grid, .seam-tri { grid-template-columns: 1fr; }
+      .dsh-table { font-size: 0.78rem; }
+      .dsh-table th, .dsh-table td { padding: 8px 10px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav" id="nav">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-brand"><img src="../../assets/img/logo.png" alt="Smart Open" class="nav-logo"><span>Smart Open</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="切换导航">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#about">关于</a></li>
+        <li><a href="../../index.html#projects">项目</a></li>
+        <li><a href="../../index.html#skills">技能</a></li>
+        <li><a href="../../index.html#experience">经历</a></li>
+        <li><a href="../index.html">文章</a></li>
+        <li><a href="../../trending/index.html">趋势</a></li>
+        <li><a href="../../index.html#contact">联系</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="article-hero">
+    <div class="article-hero-content">
+      <h1 class="article-title">DeepSeek把Agent内核拆成了插件</h1>
+      <div class="article-meta">
+        <span class="article-date">2026-08-23</span>
+        <div class="article-tags">
+          <span class="tag">DeepSeek Harness</span>
+          <span class="tag">Cordis</span>
+          <span class="tag">Agent 架构</span>
+          <span class="tag">插件系统</span>
+        </div>
+      </div>
+    </div>
+    <div class="article-hero-bg" style="background-image: url('../../assets/img/article-38-arch.svg')"></div>
+    <div class="article-hero-overlay"></div>
+  </section>
+
+  <div class="article-container">
+    <aside class="article-sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">目录</h3>
+        <nav class="article-toc" id="articleToc"></nav>
+      </div>
+    </aside>
+
+    <article class="article-content">
+      <div class="markdown-body">
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-38-arch.svg" alt="DeepSeek Harness 整体架构图">
+          <figcaption>DeepSeek Harness 整体架构：Profile/Bundle 分层组装，Cordis 插件树没有特权内核，能力接缝与运行形态全部可替换</figcaption>
+        </figure>
+
+        <p>2026 年的 Agent 框架赛道挤满了「内核 + 插件」的设计：核心循环写死在框架里，插件只能在边缘挂一点工具和提示词。DeepSeek 开源的 DeepSeek Harness（命令行叫 <code>dsh</code>）走了一条极端路线——<strong>没有内核</strong>。模型适配器是插件，工具注册表是插件，会话日志是插件，连 Agent 循环本身都是插件。你可以从配置文件里把官方实现整行替换成自己的版本，框架对此没有任何怨言。</p>
+
+        <p>这种「一切皆插件」（everything is a plugin）的架构不是营销话术，而是一套可验证的工程主张：仓库文档里有一张「产品特性 → 插件机制」的映射表，每一行产品功能都对应某个已文档化扩展点上的监听器，没有一行直接修改循环。支撑这一切的底座是 <strong>Cordis</strong>——一个把「时空可组合性」当作第一性原理的插件框架，其设计思想写在论文《A Programming Paradigm for Spatiotemporal Composability》里。</p>
+
+        <p>本文按四层展开：先看整体架构怎么分层组装，再拆 Cordis 插件机制的五个核心概念与四种事件分发模式，然后走一遍 Agent 生命周期的全链路事件流，最后落到工具插件与 Hook 插件的完整技术契约，以及从零扩展一个 dsh 的实战路径。</p>
+
+        <div class="callout">
+          <strong>一句话主线</strong>：dsh 的可扩展性来自三个设计决策——<strong>注册即效应</strong>（所有注册都是可回滚的副作用）、<strong>事件即扩展点</strong>（插件通过类型化事件互相协作）、<strong>模型可见即已记录</strong>（会话日志是模型上下文的唯一来源）。理解这三句，就理解了 dsh 的全部插件设计。
+        </div>
+
+        <h2 id="architecture">整体架构：一切皆插件</h2>
+
+        <p>一个正在运行的 dsh 进程，本质上是一棵启动时装配出来的 Cordis 插件树。装配不是写代码，而是<strong>分层叠加配置</strong>。</p>
+
+        <h3>Profile 与 Bundle：配置层的乐高</h3>
+
+        <p>dsh 用两个概念管理组装：</p>
+
+        <ul>
+          <li><strong>Profile（画像）</strong>：一个命名组合模板，存放在 Harness home 目录。它声明自己堆叠哪些 bundle、持有哪些目录外的第三方插件，还保留用户自己的 <code>cordis.patch.yml</code> 补丁。官方内置 <code>web</code> 和 <code>headless</code> 两个模板。</li>
+          <li><strong>Bundle（捆）</strong>：Cordis 配置行及其所挂载代码的分发格式。bundle 插入的任何配置行，仍然可以被它上层的 patch 覆盖——分发与定制不冲突。</li>
+        </ul>
+
+        <p>两者都在各自 <code>package.json</code> 的 <code>dsh</code> 字段里自我声明：<code>dsh.profile</code> 列出 profile 堆叠的 bundle 列表，<code>dsh.bundle</code> 指向 bundle 的 patch 文件。</p>
+
+        <div class="code-block"><span class="cmt">// 一个 bundle 的 package.json 自我声明</span>
+{
+  <span class="str">"name"</span>: <span class="str">"my-bundle"</span>,
+  <span class="str">"dsh"</span>: {
+    <span class="str">"bundle"</span>: <span class="str">"./cordis.patch.yml"</span>   <span class="cmt">// 本 bundle 插入的配置行</span>
+  }
+}</div>
+
+        <h3>三层 bundle：base、web、headless</h3>
+
+        <table class="dsh-table">
+          <thead>
+            <tr><th>Bundle</th><th>职责</th><th>搭配 Profile</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="mono">dsh-base</td><td>所有 profile 的第一层：模型适配器、工具、持久化、沙箱与审批策略、设置、凭据、遥测</td><td class="mono">web / headless</td></tr>
+            <tr><td class="mono">dsh-web-app</td><td>浏览器应用与 Web UI、对话节点、编辑器联动</td><td class="mono">web</td></tr>
+            <tr><td class="mono">dsh-headless</td><td>一次性执行器，无服务器、纯 CLI</td><td class="mono">headless</td></tr>
+          </tbody>
+        </table>
+
+        <p>装配顺序严格确定：profile 列出的 bundle 按声明顺序依次应用到空列表上，然后叠加 profile 自己的 <code>cordis.patch.yml</code>，再叠加 home 级补丁，最后是命令行 <code>--patch</code> 覆盖。补丁按 id 定位目标行，<strong>整行替换</strong>其配置，或插入全新行。想看你的机器实际启动了哪棵树：</p>
+
+        <div class="code-block"><span class="cmt"># 打印当前实际装配的插件树，任何一行都可以被你自己的补丁替换</span>
+$ dsh --profile web --dump-config</div>
+
+        <h3>核心包与稳定的服务键</h3>
+
+        <p>插件树上的核心包各自贡献一个稳定的服务键，插件之间不 import 实现，只按键查找：</p>
+
+        <table class="dsh-table">
+          <thead>
+            <tr><th>核心包</th><th>拥有什么</th><th>服务键</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="mono">core/session</td><td>追加式 <code>SessionEvent</code> 日志与内存存储</td><td class="mono">ctx.sessions</td></tr>
+            <tr><td class="mono">core/system-prompt</td><td>提示词段落与工具 schema 的装配</td><td class="mono">ctx.systemPrompt</td></tr>
+            <tr><td class="mono">core/tools</td><td>作用域工具注册表与受守卫的执行管线</td><td class="mono">ctx.tools</td></tr>
+            <tr><td class="mono">core/agent</td><td><code>Agent</code> 接口、活动注册表与 <code>agent/*</code> 事件</td><td class="mono">ctx.agents</td></tr>
+            <tr><td class="mono">core/agent-loop</td><td>实现该接口的默认驱动器</td><td class="mono">ctx.agentLoop</td></tr>
+            <tr><td class="mono">llm/llm</td><td>消息与流式词汇表 + 模型适配器接缝</td><td class="mono">ctx.llm</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <strong>关键点</strong>：连 <code>core/agent-loop</code>（Agent 循环的默认实现）都是插件。理论上你可以写一个自己的循环驱动器，用配置补丁把官方实现整行换掉——这就是「没有特权内核」的字面意思。
+        </div>
+
+        <h2 id="cordis">插件系统底座：Cordis 五大核心</h2>
+
+        <p>Cordis 是 dsh 脚下的框架。官方文档的表述很精确：插件向共享上下文贡献<strong>服务、类型化事件、可逆效应</strong>。拆开看是五个环环相扣的核心概念。</p>
+
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-38-plugin.svg" alt="Cordis 插件机制五大核心概念图">
+          <figcaption>Cordis 插件机制：五大核心概念 + waterfall 短路语义 + 四种事件分发模式</figcaption>
+        </figure>
+
+        <h3>一个插件的最小形状</h3>
+
+        <p>函数插件只有三个字段，这是 Cordis 世界的 Hello World：</p>
+
+        <div class="code-block"><span class="kw">import</span> type { Context } <span class="kw">from</span> <span class="str">'@deepseek-ai/cordis'</span>
+
+<span class="kw">export const</span> name = <span class="str">'my-plugin'</span>        <span class="cmt">// 插件名：树上的唯一标识</span>
+<span class="kw">export const</span> inject = [<span class="str">'tools'</span>]          <span class="cmt">// 声明依赖的服务键</span>
+
+<span class="kw">export function</span> <span class="fn">apply</span>(ctx: Context) {   <span class="cmt">// 挂载时执行，ctx 是本插件的上下文</span>
+  ctx.tools.register(<span class="cmt">/* 注册你的能力 */</span>)
+}</div>
+
+        <p>也可以写成 Service 子类，由 Cordis 挂载完整生命周期。两种形态等价，函数形态覆盖绝大多数场景。</p>
+
+        <h3>核心一：插件即 Service</h3>
+
+        <p>插件不是一个「挂件」，而是一个服务单元。它的生命周期由 Cordis 管理：挂载时执行 <code>apply(ctx)</code>，卸载时自动撤销 <code>apply</code> 里做过的所有事。插件可以随时被加载、被替换、被卸载——这就是「时空可组合性」里的时间维度。</p>
+
+        <h3>核心二：上下文即仓库</h3>
+
+        <p>每个插件拿到自己的 <code>ctx</code>，而 <code>ctx</code> 树是一个<strong>服务仓库</strong>：服务用稳定键声明（<code>ctx.tools</code>、<code>ctx.llm</code>、<code>ctx.sessions</code>、<code>ctx.agents</code>……），消费方按键查找，从不 import 具体实现。这带来一个直接后果：任何服务的实现都可以被另一个插件替换，消费方代码一行不改。</p>
+
+        <h3>核心三：inject 声明依赖</h3>
+
+        <p><code>inject: ['tools']</code> 不是装饰性注释，而是<strong>加载顺序的编排依据</strong>。Cordis 看到这个声明，会等 <code>tools</code> 服务就绪后再挂载你的插件。整棵插件树的加载顺序由所有插件的 inject 声明自动推导，不需要任何手工编排的启动序列——这是依赖注入在插件系统里的完全体。</p>
+
+        <h3>核心四：类型化事件</h3>
+
+        <p>插件之间通过<strong>类型化事件</strong>协作。事件名和载荷用 TypeScript 声明合并（declaration merging）定义在 <code>Events</code> 接口上，监听器签名由编译器检查。事件不是字符串魔法，而是编译期契约——拼错事件名、载荷类型不匹配，都会在构建时报错，而不是运行时静默失败。</p>
+
+        <h3>核心五：注册即效应</h3>
+
+        <p>这是整个架构的灵魂。插件在 <code>apply</code> 里做的一切——注册工具、安装提示词段落、监听事件——都通过 <code>ctx.effect()</code> / <code>ctx.on()</code> 登记为<strong>可逆副作用</strong>。插件卸载（dispose）时，这些副作用按注册的逆序全部回滚：</p>
+
+        <ul>
+          <li>注册过的工具自动注销，模型不再看到它</li>
+          <li>安装过的提示词段落自动拆除</li>
+          <li>监听中的事件自动解绑</li>
+        </ul>
+
+        <div class="callout">
+          <strong>为什么「注册即效应」重要</strong>：它让插件热重载成为免费功能。dsh vendor 了 HMR（热模块替换），因为「每次注册都是一个 ctx.effect」，热更新一个插件文件 = 卸载旧效应 + 挂载新效应，框架不需要为此写任何专门代码。写作插件的人也不需要记住「退出时清理」——没有清理函数这个概念，只有效应栈。
+        </div>
+
+        <h2 id="events">四种事件分发模式与短路语义</h2>
+
+        <p>类型化事件怎么分发，决定了插件间协作的表达力。Cordis 提供四种分发模式，每种语义精确对应一类协作场景：</p>
+
+        <div class="mode-grid">
+          <div class="mode-card">
+            <div class="mode-card-name">emit</div>
+            <div class="mode-card-sub">广播</div>
+            <div class="mode-card-desc">通知所有监听器，不关心返回值。适合<strong>纯通知</strong>场景：遥测上报、日志落盘、UI 刷新。</div>
+          </div>
+          <div class="mode-card">
+            <div class="mode-card-name">waterfall</div>
+            <div class="mode-card-sub">瀑布</div>
+            <div class="mode-card-desc">监听器收到 <code>(...args, next)</code>，上一个的产出作为下一个的输入，<strong>可改写、可短路</strong>。适合拦截决策：权限、改写、拒绝。</div>
+          </div>
+          <div class="mode-card">
+            <div class="mode-card-name">parallel</div>
+            <div class="mode-card-sub">并行</div>
+            <div class="mode-card-desc">所有监听器并行执行，等全部完成。适合<strong>互不依赖的旁路处理</strong>：多个观测者各自独立消费同一事实。</div>
+          </div>
+          <div class="mode-card">
+            <div class="mode-card-name">serial</div>
+            <div class="mode-card-sub">串行</div>
+            <div class="mode-card-desc">监听器严格按顺序执行，前一个完成才轮到下一个，<strong>无 next()</strong>。适合强序场景：回合收尾时的收束逻辑。</div>
+          </div>
+        </div>
+
+        <h3>waterfall：around 中间件，可改写、可短路</h3>
+
+        <p>waterfall 是表达力最强的一种，语义类似 Koa 的中间件：监听器可以选择调用 <code>next()</code> 把调用委托给下游，也可以<strong>不调用 next() 直接返回</strong>——这就是短路，意味着「这次调用到此为止，我的返回值就是最终结果」。</p>
+
+        <p>以工具执行前的 <code>tools/pre-execute</code> 瀑布为例，三个插件排成一条链：</p>
+
+        <div class="code-block"><span class="cmt">// 链上的三个监听器，注册顺序即执行顺序</span>
+
+<span class="cmt">// 1. 权限门：不决策，只观察，原样放行</span>
+ctx.<span class="fn">on</span>(<span class="str">'tools/pre-execute'</span>, <span class="kw">async</span> (exec, next) =&gt; {
+  <span class="fn">audit</span>(exec)                    <span class="cmt">// 记录审计日志</span>
+  <span class="kw">return</span> <span class="fn">next</span>()                   <span class="cmt">// 委托下游</span>
+})
+
+<span class="cmt">// 2. 策略插件：拥有决策权，直接短路</span>
+ctx.<span class="fn">on</span>(<span class="str">'tools/pre-execute'</span>, <span class="kw">async</span> (exec, next) =&gt; {
+  <span class="kw">if</span> (!<span class="fn">isAllowed</span>(exec)) {
+    <span class="kw">return</span> { kind: <span class="str">'deny'</span>, reason: <span class="str">'Denied by policy.'</span> }
+  }                              <span class="cmt">// 不调用 next() = 短路</span>
+  <span class="kw">return</span> <span class="fn">next</span>()
+})
+
+<span class="cmt">// 3. 最终执行：只有上游全部放行才会到达</span></div>
+
+        <p>短路语义的精妙之处在于<strong>决策权的显式化</strong>：一个插件返回什么类型，就宣称自己拥有什么决策权。<code>PreToolDecision</code> 的 <code>allow</code> / <code>deny</code> / <code>ask</code> 是类型系统的产物，不是靠约定字符串。而 <code>agent/turn-stopping</code> 用的是 serial——它没有 <code>next()</code>，监听器按序执行完，回合才真正收束，因为收尾逻辑天然需要强序。</p>
+
+        <h2 id="lifecycle">Agent 生命周期：一次 Turn 的全链路事件流</h2>
+
+        <p>dsh 的 Agent 循环用两个时间单位组织：<strong>Step 是一次模型请求加上它引发的所有工具调用；Turn 是零到多个 Step</strong>，在第一份输入被认领前开启，在「不再欠任何一方任何东西」时闭合。把生命周期摊开，是 15 个事件的接力：</p>
+
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-38-flow.svg" alt="Agent 生命周期事件流图">
+          <figcaption>一次 Turn 的全链路事件流：左侧 15 步接力，右侧会话日志以「模型可见 = 已记录」为不变量投影模型上下文</figcaption>
+        </figure>
+
+        <h3>事件的三种身份</h3>
+
+        <p>这 15 个事件不是同质的，按身份分三类，选错类别是扩展 dsh 时最常见的错误：</p>
+
+        <table class="dsh-table">
+          <thead>
+            <tr><th>类别</th><th>事件</th><th>语义</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>持久会话事件</strong></td><td class="mono">turn/* · step/* · user/message · assistant/* · tool/*</td><td>追加到会话日志的<strong>持久事实</strong>，重载后仍存在，经 <code>session/event</code> 广播</td></tr>
+            <tr><td><strong>Agent 事件</strong></td><td class="mono">agent/pre-step · agent/request · agent/turn-stopping</td><td>携带活动 <code>Agent</code> 的实时事件：收件箱、步骤、状态、请求</td></tr>
+            <tr><td><strong>能力事件</strong></td><td class="mono">llm/stream · tools/* · fs/* · telemetry/*</td><td>往接缝上挂策略与适配器，不 import 循环本身</td></tr>
+          </tbody>
+        </table>
+
+        <p>其中 <code>agent/pre-step</code>、<code>agent/request</code>、<code>llm/stream</code> 和三个 <code>tools/*</code> 事件是 waterfall（必须调 <code>next()</code> 委托），<code>agent/turn-stopping</code> 是 serial（无 <code>next()</code>）。</p>
+
+        <h3>收件箱与 pre-step：模型看到什么，插件说了算</h3>
+
+        <p>所有输入通过<strong>单一收件箱</strong>到达驱动器：有的消息立刻唤醒 Agent，注入的上下文则在收件箱里安静排队，直到下一条消息到来。<code>agent/pre-step</code> 决定模型看到什么——监听器可以<strong>改写</strong>认领到的消息，也可以直接<strong>拒绝</strong>。一个耐人寻味的细节：被拒绝的、或首条消息被改写为空的首个回合，仍然会以一个「没花任何 step 的 durable turn」闭合——日志必须记录这次尝试，哪怕模型根本没被调用。</p>
+
+        <h3>会话日志：模型上下文的唯一来源</h3>
+
+        <p>右侧的会话日志（Session Log）是整个架构的支点。<code>deriveMessages()</code> 从日志投影出模型历史；原始的 <code>assistant/chunk</code> 事件逐块保存流式增量，保证重放与 UI 保真；fork、resume、transcript、遥测、持久化，全部从这一条事件流派生。</p>
+
+        <div class="callout">
+          <strong>不变量：模型可见 = 已记录</strong>。任何到达模型请求的内容，都必须能从日志重建——运行时用断言强制这一点。所以「新增一种模型可见的输入」在 dsh 里只有一条正确路径：<strong>扩展 <code>SessionEventMap</code>，新增一种会话事件，从日志渲染</strong>。直接往请求里塞字段的路被架构性封死了。
+        </div>
+
+        <h2 id="tool-contract">技术实现：工具插件的完整契约</h2>
+
+        <p>工具是插件系统里最高频的扩展形态。dsh 用一个 <code>defineTool</code> 帮手把「模型可见的契约」收进类型系统：</p>
+
+        <div class="code-block"><span class="kw">import</span> { readFile } <span class="kw">from</span> <span class="str">'node:fs/promises'</span>
+<span class="kw">import</span> type { Context } <span class="kw">from</span> <span class="str">'@deepseek-ai/cordis'</span>
+<span class="kw">import</span> { defineTool } <span class="kw">from</span> <span class="str">'@deepseek-ai/dsh-tools'</span>
+
+<span class="kw">export const</span> name = <span class="str">'my-tool'</span>
+<span class="kw">export const</span> inject = [<span class="str">'tools'</span>]
+
+<span class="kw">export function</span> <span class="fn">apply</span>(ctx: Context) {
+  ctx.tools.<span class="fn">register</span>(<span class="fn">defineTool</span>({
+    name: <span class="str">'read_file'</span>,
+    description: <span class="str">'Read a file from disk.'</span>,        <span class="cmt">// 模型看到的说明</span>
+    parameters: {
+      path: { type: <span class="str">'string'</span>, required: <span class="kw">true</span>, description: <span class="str">'Absolute path'</span> },
+      limit: { type: <span class="str">'number'</span> },                  <span class="cmt">// 缺省即可选</span>
+    },
+    output: {
+      schema: { type: <span class="str">'string'</span> },
+      render: (_args, value) =&gt; [{ type: <span class="str">'text'</span>, text: value }],
+    },
+    <span class="kw">async</span> <span class="fn">execute</span>(args, exec) {
+      <span class="cmt">// args 已按 schema 推导出类型: { path: string; limit?: number }</span>
+      <span class="cmt">// exec 携带不可变身份 + token；signal 是唯一的操作字段</span>
+      <span class="kw">return</span> <span class="fn">readFile</span>(args.path, { encoding: <span class="str">'utf8'</span>, signal: exec.signal })
+    },
+  }))
+}</div>
+
+        <p>注册即效应：销毁插件纤程即注销工具。schema 自动流入系统提示词装配，模型由此得知工具的存在。这份契约有五条铁律，每条都在解决一类真实的工程事故：</p>
+
+        <div class="contract-item">
+          <div class="contract-item-title"><span class="num">01</span>参数已为你校验</div>
+          <div class="contract-item-body"><code>defineTool</code> 在 <code>execute</code> 运行前，就用统一的 <code>ParameterSchemaSpec</code> 校验模型生成的 <code>arguments</code>：类型、必填键、字面量约束、exact-one 联合、嵌套值，全部过关才进入执行。DSL 表达不了的约束（非空字符串、正数、跨字段规则）仍需手工检查。直接注册原始 JSON-Schema 的工具（MCP 来源的工具就是这样进来的）则自己负责输入校验。</div>
+        </div>
+
+        <div class="contract-item">
+          <div class="contract-item-title"><span class="num">02</span>注册借用只读定义</div>
+          <div class="contract-item-body">同进程内的类型化贡献不是序列化边界，<strong>注册后不得变更 schema 或替换回调</strong>。想热替换一个工具？销毁它的持有效应，注册新版本——而不是原地改。<code>schemas()</code> 只物化显式的模型侧投影。</div>
+        </div>
+
+        <div class="contract-item">
+          <div class="contract-item-title"><span class="num">03</span>执行身份受保护</div>
+          <div class="contract-item-body">注册表把 <code>arguments</code> 物化为<strong>脱离原引用的无损 JSON</strong>（一次递归遍历完成），在策略启动前冻结，并分配不透明的 <code>exec.token</code>。<code>callId</code>、<code>name</code>、<code>arguments</code>、<code>agent</code>、<code>token</code>、<code>signal</code> 在整个分发过程中不可变。唯一例外：around 分发包装器拿到的是可变视图，可以<strong>替换并恢复</strong> <code>exec.signal</code> 来施加截止时间，但不能删除它。</div>
+        </div>
+
+        <div class="contract-item">
+          <div class="contract-item-title"><span class="num">04</span>声明并返回单一规范值</div>
+          <div class="contract-item-body"><code>output.schema</code> 用 <code>ValueSchemaSpec</code>，根可以是对象、数组、标量或 null。<code>execute</code> 只返回推导类型的值；注册表将其快照为无损 JSON、校验、冻结，再交给 <code>output.render(args, value)</code>。不要从执行体里返回内容块，也不要让调用方解析散文来找 id——<strong>结构化数据走规范值，呈现走 render</strong>。</div>
+        </div>
+
+        <div class="contract-item">
+          <div class="contract-item-title"><span class="num">05</span>抛错或非法值即 isError</div>
+          <div class="contract-item-body">注册表捕获执行体的抛错，并兜住 schema、渲染器、元数据投影、无损 JSON 的所有失败，不让异常逃逸到观测者之前。基础设施故障用 throw 表达；业务上的「不理想结果」放进规范值里，由 Native 渲染器解释给用户。</div>
+        </div>
+
+        <h3>工具执行管线：五层各司其职</h3>
+
+        <p>一次工具调用从模型发出到结果落日志，经过一条五层管线。dsh 文档给出了精确的选型规则——用错层是最常见的集成错误：</p>
+
+        <div class="pipeline-flow">
+          <div class="pipeline-stage">
+            <div class="pipeline-stage-title">tools/pre-execute</div>
+            <div class="pipeline-stage-desc">策略门，waterfall。返回 allow / deny / ask 类型化决策；审批、沙箱策略、计划模式都在这层。</div>
+          </div>
+          <div class="pipeline-stage">
+            <div class="pipeline-stage-title">tools/execute</div>
+            <div class="pipeline-stage-desc">包装执行生命周期。截止时间、重试、指标采集；唯一可替换 exec.signal 的位置。</div>
+          </div>
+          <div class="pipeline-stage">
+            <div class="pipeline-stage-title">tools/post-execute</div>
+            <div class="pipeline-stage-desc">显式变换结果：改写呈现内容、附加面向模型的上下文。</div>
+          </div>
+          <div class="pipeline-stage">
+            <div class="pipeline-stage-title">tool/result*</div>
+            <div class="pipeline-stage-desc">不可变最终结果的持久落日志（durable 会话事件），被观测者消费。</div>
+          </div>
+          <div class="pipeline-stage">
+            <div class="pipeline-stage-title">tools/result</div>
+            <div class="pipeline-stage-desc">对不可变权威结果的只读观测：最终审计、指标、捕获。</div>
+          </div>
+        </div>
+
+        <p>此外还有两个不走管线的闸门：<code>ctx.tools.guard()</code> 提供<strong>单调终局拒绝</strong>（一旦 guard 拒绝，后续任何插件都翻不了案）；<code>ctx.tools.restrict()</code> 做<strong>对齐的可见集过滤</strong>——工具搜索、渐进披露这类「可见工具集动态变化」的场景用它，注册表会同时保持呈现、查找、执行三处对齐。</p>
+
+        <h2 id="hook">Hook 插件：可重排的策略层</h2>
+
+        <p>权限门禁是 Hook 插件的教科书案例。完整代码不到 20 行：</p>
+
+        <div class="code-block"><span class="kw">import</span> type { Context } <span class="kw">from</span> <span class="str">'@deepseek-ai/cordis'</span>
+<span class="kw">import</span> type { PreToolDecision, ToolExecution } <span class="kw">from</span> <span class="str">'@deepseek-ai/dsh-tools'</span>
+
+<span class="kw">declare function</span> <span class="fn">isAllowed</span>(exec: ToolExecution): Promise&lt;<span class="kw">boolean</span>&gt;
+
+<span class="kw">export const</span> name = <span class="str">'permission-gate'</span>
+
+<span class="kw">export function</span> <span class="fn">apply</span>(ctx: Context) {
+  ctx.<span class="fn">on</span>(<span class="str">'tools/pre-execute'</span>, <span class="kw">async</span> (exec, next): Promise&lt;PreToolDecision&gt; =&gt; {
+    <span class="kw">if</span> (!(<span class="kw">await</span> <span class="fn">isAllowed</span>(exec))) {
+      <span class="kw">return</span> { kind: <span class="str">'deny'</span>, reason: <span class="str">'Denied by policy.'</span> }
+    }
+    <span class="kw">return</span> <span class="fn">next</span>()
+  })
+}</div>
+
+        <p>这条 waterfall 是一个<strong>可重排的策略层</strong>：多个门禁插件各自监听同一事件，注册顺序决定优先级，每个插件都可以改写决策对象后放行，也可以直接返回类型化决策短路。所谓「原生 Hook」就是拦截点上的普通 Cordis 插件，不需要任何外部协议。</p>
+
+        <p>审批闭环是这套设计的点睛之笔：门禁返回 <code>{ kind: 'ask' }</code>，问题经 <code>ctx.approval</code> 送达用户，用户的回答回流为最终决策——AskUserQuestion 交互、权限系统全部建立在这一个机制上。而需要「单调终局拒绝」的不变量（比如沙箱硬边界）则绕过 waterfall，直接用 <code>ctx.tools.guard()</code>，保证任何插件都无法翻转。</p>
+
+        <div class="callout">
+          <strong>与传统 middleware 对比</strong>：Express/Koa 中间件靠 <code>app.use</code> 顺序堆叠，决策是隐式的、无类型的；dsh 的 Hook 靠事件系统组织，决策是<strong>类型化的显式返回值</strong>，且生命周期跟随插件——插件卸载，Hook 自动摘除。你可以给同一个项目同时装三个来源的权限策略，它们天然可组合、可重排、可整体替换。
+        </div>
+
+        <h2 id="practice">实战：从零扩展一个 dsh</h2>
+
+        <p>下面五个实战由浅入深，覆盖从跑起来到深度定制的完整路径。dsh 目前处于 developer preview 阶段（官方明确会有破坏性变更），以下 API 以仓库 master 分支为准。</p>
+
+        <div class="practice-card">
+          <div class="practice-card-step">实战 1</div>
+          <div class="practice-card-title">跑起来，看一眼插件树</div>
+          <div class="code-block">$ npx @deepseek-ai/dsh web          <span class="cmt"># Web UI 默认 http://127.0.0.1:3080</span>
+$ dsh --profile web --dump-config  <span class="cmt"># 打印实际装配的整棵插件树</span></div>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; margin: 10px 0 0;">dump-config 打印的每一行都能被你的补丁按 id 替换。把输出存下来，是理解「我这台机器上 dsh 到底由什么组成」的最快方式——也是后续所有定制操作的地图。</p>
+        </div>
+
+        <div class="practice-card">
+          <div class="practice-card-step">实战 2</div>
+          <div class="practice-card-title">写第一个工具插件</div>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; margin: 0 0 10px;">直接使用上文 defineTool 的完整模板。三个工程要点：</p>
+          <ul style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8; padding-left: 20px; margin: 0;">
+            <li>长任务用 <code>run_in_background</code> 模式：经 <code>ctx.jobs.start()</code> 发布为后台任务，模型用 <code>job_*</code> 工具收集或停止它，而不是阻塞一个 step</li>
+            <li>把 <code>exec.signal</code> 传给所有异步操作，让取消能够传导到 I/O 层</li>
+            <li>参考实现看 <code>packages/shell/tool-bash</code>——官方称它是「生产级三包示例」，参数 schema、输出规范、后台执行一应俱全</li>
+          </ul>
+        </div>
+
+        <div class="practice-card">
+          <div class="practice-card-step">实战 3</div>
+          <div class="practice-card-title">组合一个带审批的权限门禁</div>
+          <div class="code-block">ctx.<span class="fn">on</span>(<span class="str">'tools/pre-execute'</span>, <span class="kw">async</span> (exec, next): Promise&lt;PreToolDecision&gt; =&gt; {
+  <span class="kw">const</span> risk = <span class="fn">classify</span>(exec.name, exec.arguments)
+  <span class="kw">if</span> (risk === <span class="str">'safe'</span>) <span class="kw">return</span> <span class="fn">next</span>()
+  <span class="kw">if</span> (risk === <span class="str">'dangerous'</span>) {
+    <span class="kw">return</span> { kind: <span class="str">'deny'</span>, reason: <span class="str">'Blocked by org policy.'</span> }
+  }
+  <span class="kw">return</span> { kind: <span class="str">'ask'</span>, reason: <span class="str">'This command writes outside the repo.'</span> }
+                                   <span class="cmt">// ask → ctx.approval → 用户回答回流为决策</span>
+})</div>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; margin: 10px 0 0;">组织级不变量（如「生产目录只读」）再加一道 <code>ctx.tools.guard()</code> 单调终局拒绝，任何插件都无法翻转。能力级拒绝放 pre-execute，进程级隔离交给 <code>ctx.sandbox</code> 后端（官方 <code>dsh-bash-sandbox</code> 用 landlock / sandbox-exec 实现）。</p>
+        </div>
+
+        <div class="practice-card">
+          <div class="practice-card-step">实战 4</div>
+          <div class="practice-card-title">用补丁替换任意一行配置</div>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; margin: 0 0 10px;">补丁机制是「没有特权内核」的兑现方式：按 id 定位 <code>dump-config</code> 输出中的任意一行，整行替换其配置，或插入全新行。典型用法：</p>
+          <ul style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8; padding-left: 20px; margin: 0;">
+            <li>换掉默认的持久化插件，指向自己的存储</li>
+            <li>给 <code>ctx.llm</code> 换一个自建模型网关的适配器</li>
+            <li>在 <code>dsh-base</code> 之上插入公司内部的审批策略插件行</li>
+          </ul>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; margin: 10px 0 0;">覆盖顺序是：bundle（按 profile 声明序）→ profile 级 <code>cordis.patch.yml</code> → home 级 → 命令行 <code>--patch</code>。所有配置字段的权威说明在仓库的 config catalog 文档里。</p>
+        </div>
+
+        <div class="practice-card">
+          <div class="practice-card-step">实战 5</div>
+          <div class="practice-card-title">接入 MCP 与自定义模型</div>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; margin: 0 0 10px;">MCP 在 dsh 里的实现方式出乎意料地朴素：<strong>每个 MCP server 一个插件</strong>——发现工具，然后逐个 <code>ctx.tools.register()</code>。MCP 工具以原始 JSON-Schema <code>ToolDefinition</code> 注册（这就是它们需要自管输入校验的原因），与第一方 defineTool 工具在同一注册表中平起平坐。</p>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; margin: 0;">接自定义模型则走 <code>ctx.llm</code> 接缝：写一个 <code>LlmAdapter</code> 子类，经 <code>registerAdapter</code> 注册（官方 <code>dsh-llm-deepseek</code>、<code>dsh-llm-pi-ai</code> 就是这么做的）。循环、工具、UI 全部不用动。</p>
+        </div>
+
+        <h3>调试与可观测</h3>
+
+        <p>遥测走同一条会话事件流：<code>session/event</code> 落 JSONL；回放 = <code>sessions.create(id, { seed })</code>。因为原始 chunk 全量在日志里，回放是逐比特保真的——UI 长什么样、模型看到了什么，事后都能完整复现。想分叉一个会话做对照实验，<code>ctx.sessions.fork(source, boundary?)</code> 按边界复制。</p>
+
+        <h2 id="seams">能力接缝：一次换动，全局生效</h2>
+
+        <p>「一切皆插件」的深层价值，体现在 dsh 文档所谓的<strong>能力接缝（capability seam）</strong>上。一条接缝由三种角色构成，缺一不可：</p>
+
+        <div class="seam-tri">
+          <div class="seam-card">
+            <div class="seam-card-title">Service Definition</div>
+            <div class="seam-card-desc">声明接口的服务定义——接缝的<strong>契约面</strong>。</div>
+          </div>
+          <div class="seam-card">
+            <div class="seam-card-title">Service Provider</div>
+            <div class="seam-card-desc">实现接口的服务提供者——可替换的<strong>实现面</strong>。</div>
+          </div>
+          <div class="seam-card">
+            <div class="seam-card-title">Consumer</div>
+            <div class="seam-card-desc">使用能力的消费者，通常是模型可见的工具——<strong>消费面</strong>。</div>
+          </div>
+        </div>
+
+        <p>一个包可以同时扮演多种角色，但只有一种角色不构成接缝；新增一个能力，意味着三种角色都要设计。接缝的威力在于<strong>一次换动，全局生效</strong>：文件系统与子进程提供者共享同一个执行世界，把二者指向一个远程沙箱后端，Bash、PTY、LSP 就整体迁移过去了——没有任何一个工具需要 fork 出「远程版」。子 Agent 的提供者谱系更宽：从全新子进程 Agent 到委托给另一个产品的一个回合，藏在同一个接口后面。</p>
+
+        <p>回看那张「产品特性 → 插件机制」映射表，每个特性都是某个扩展点上的监听器，没有一行直接改循环：Hook 系统桥接 Claude Code / Codex 的配置文件（<code>dsh-hooks-claude-code</code> / <code>dsh-hooks-codex</code>），上下文压缩走 <code>ctx.compaction</code> 接缝（自动压缩在 serial 的 <code>agent/pre-step</code> 上由压力触发），系统提示词用 <code>ctx.systemPrompt.section()</code> 分段落装配，定时任务在计时器触发时以 <code>{source: {kind: 'cron'}}</code> 的身份 <code>followup()</code>——微内核的主张由此变成可审计的清单，而不是架构图上的口号。</p>
+
+        <h2 id="summary">总结：什么时候该认真看 dsh</h2>
+
+        <p>把 dsh 的插件设计压缩成三个可迁移的洞见：</p>
+
+        <ul>
+          <li><strong>可逆性先于功能性</strong>。「注册即效应」让加载与卸载对称，热重载、A/B 换实现、故障回滚全部免费。任何插件系统在设计第一天的第一问应该是：这个操作怎么撤销？</li>
+          <li><strong>事件分发模式就是协作语法</strong>。emit / waterfall / parallel / serial 四种模式各对应一类协作，类型化决策让「谁拥有决定权」显式化——这比任何权限文档都可靠。</li>
+          <li><strong>持久化的事实只有一个来源</strong>。「模型可见 = 已记录」把上下文、遥测、重放、分叉统一到一条追加式事件流上，消灭了一整类「内存态与日志不一致」的 bug。</li>
+        </ul>
+
+        <div class="checklist">
+          <div class="checklist-title">dsh 适合你的判断清单</div>
+          <ul>
+            <li>需要把 Agent 嵌进自己的产品，且要控制模型接入、工具集、权限策略的每一层</li>
+            <li>团队要给同一个 Agent 叠加多个来源的策略（安全、审计、合规），且策略必须可组合可回滚</li>
+            <li>对会话的可回放性、可分叉性有硬需求（评测、对照实验、事后审计）</li>
+            <li>能接受 developer preview 阶段的破坏性变更，愿意跟 master 演进</li>
+          </ul>
+        </div>
+
+        <p>如果只是想要一个开箱即用的编码助手，dsh 的极致可拆卸反而是负担；但如果你在构建自己的 Agent 平台，dsh 是目前把「插件化」推进到哲学高度、又用类型系统和不变量把它约束成工程实践的最佳样本——毕竟，能被配置文件整体替换的 Agent 循环，市面上独此一家。</p>
+
+        <h3>参考资料</h3>
+        <ol>
+          <li>deepseek-ai · DeepSeek Harness 仓库（README、开发者预览声明、运行方式） <a href="https://github.com/deepseek-ai/deepseek-harness" target="_blank" rel="noopener">github.com/deepseek-ai/deepseek-harness</a></li>
+          <li>deepseek-harness · docs/architecture.md（Cordis、Profiles 与 Bundles、核心包、事件、Turn Flow、接缝） <a href="https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/architecture.md" target="_blank" rel="noopener">docs/architecture.md</a></li>
+          <li>deepseek-harness · docs/cookbook/extension-cookbook.md（工具/Hook/UI/协议驱动插件模式与特性映射表） <a href="https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/cookbook/extension-cookbook.md" target="_blank" rel="noopener">extension-cookbook.md</a></li>
+          <li>deepseek-harness · docs/cookbook/adding-a-tool.md（工具契约五条铁律与执行身份保护） <a href="https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/cookbook/adding-a-tool.md" target="_blank" rel="noopener">adding-a-tool.md</a></li>
+          <li>cordiverse · Cordis 与《A Programming Paradigm for Spatiotemporal Composability》论文 <a href="https://github.com/cordiverse/paper" target="_blank" rel="noopener">github.com/cordiverse/paper</a></li>
+          <li>deepseek-harness · docs/cordis-primer.md（Cordis 入门指南） <a href="https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/cordis-primer.md" target="_blank" rel="noopener">docs/cordis-primer.md</a></li>
+        </ol>
+
+      </div>
+      <nav class="article-nav" id="articleNav"></nav>
+    </article>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; 2024-2026 馒头仔 | Smart Open. Built with care.</p>
+    </div>
+  </footer>
+
+  <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
+  <script src="../../js/article.js"></script>
+  <script src="../../js/preview-rail.js"></script>
+</body>
+</html>

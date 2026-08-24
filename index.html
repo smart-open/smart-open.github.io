@@ -186,14 +186,14 @@
           <div class="project-card">
             <div class="project-card-content">
               <div class="project-card-header">
-                <h3 class="project-card-name">SearchEvery</h3>
-                <a href="https://github.com/smart-open/SearchEvery" class="project-card-link" target="_blank" rel="noopener">GitHub</a>
+                <h3 class="project-card-name">MCPilot</h3>
+                <a href="https://github.com/smart-open/MCPilot" class="project-card-link" target="_blank" rel="noopener">GitHub</a>
               </div>
-              <p class="project-card-desc">基于 Tauri + Vite + Rust 的跨平台桌面应用，提供高效的本地文件检索与聚合功能，支持全局索引构建、搜索去重、高亮显示。</p>
+              <p class="project-card-desc">通用AI工具接入平台，支持多AI系统通过适配器统一接入，管理 MCP（Model Context Protocol）服务，实现工具的热插拔、动态路由和统一管理，适配小智 MCP 接入点。</p>
               <div class="project-card-stack">
-                <span class="stack-item">Rust</span>
-                <span class="stack-item">TypeScript</span>
-                <span class="stack-item">Tauri</span>
+                <span class="stack-item">MCP</span>
+                <span class="stack-item">适配器</span>
+                <span class="stack-item">小智</span>
               </div>
             </div>
           </div>
@@ -458,6 +458,32 @@
     <div class="section-inner">
       <h2 class="section-title">文章</h2>
      <div class="articles-grid">
+        <a href="articles/detail/article-38.html" class="article-card">
+          <h3 class="article-card-title">DeepSeek把Agent内核拆成了插件</h3>
+          <p class="article-card-excerpt">深度拆解 DeepSeek Harness 的一切皆插件架构：Cordis 五大核心机制、waterfall 短路语义、Agent 生命周期 15 步事件流、会话日志不变量，附权限门禁、配置补丁、MCP 接入五大实战</p>
+          <div class="article-card-footer">
+            <span class="article-date">2026-08-23</span>
+            <span class="article-read">阅读全文 &#8599;</span>
+          </div>
+          <div class="article-card-tags">
+            <span class="article-tag">DeepSeek Harness</span>
+            <span class="article-tag">Cordis</span>
+            <span class="article-tag">Agent 架构</span>
+          </div>
+        </a>
+        <a href="articles/detail/article-37.html" class="article-card">
+          <h3 class="article-card-title">Java GC三十年，停顿从秒到亚毫秒</h3>
+          <p class="article-card-excerpt">从 Serial、Parallel、CMS 到 G1、ZGC，全景拆解 Java GC 三十年演进：算法更替、堆模型变革、停顿从秒级降到亚毫秒、PermGen 到 Metaspace，覆盖 JDK 8/11/17/21/25 与容器、微服务、低延迟、大内存四类环境的配置实战</p>
+          <div class="article-card-footer">
+            <span class="article-date">2026-08-23</span>
+            <span class="article-read">阅读全文 &#8599;</span>
+          </div>
+          <div class="article-card-tags">
+            <span class="article-tag">Java GC</span>
+            <span class="article-tag">JVM 调优</span>
+            <span class="article-tag">ZGC</span>
+          </div>
+        </a>
         <a href="articles/detail/article-36.html" class="article-card">
           <h3 class="article-card-title">主子Agent动态编排怎么实现？5阶段全链路实战</h3>
           <p class="article-card-excerpt">基于 AgentScope Java v2 的动态多级 Agent 编排实战：从子Agent元数据驱动、动态能力目录构建、LLM选择+代码校验、串行/并行调度到结果汇总容错，5大阶段全链路拆解，附完整Demo代码与架构示意图</p>
@@ -469,32 +495,6 @@
             <span class="article-tag">Agent 编排</span>
             <span class="article-tag">AgentScope</span>
             <span class="article-tag">动态调度</span>
-          </div>
-        </a>
-        <a href="articles/detail/article-35.html" class="article-card">
-          <h3 class="article-card-title">大模型参数不会调？Agent开发7大参数实战指南</h3>
-          <p class="article-card-excerpt">深度解析大模型 API 核心参数（temperature、top_p、max_tokens、penalty 等）在 Agent 开发中的实战搭配，结合 Prompt 工程的协同策略，附参数影响示意图与5套可直接复制的生产配置模板</p>
-          <div class="article-card-footer">
-            <span class="article-date">2026-08-05</span>
-            <span class="article-read">阅读全文 &#8599;</span>
-          </div>
-          <div class="article-card-tags">
-            <span class="article-tag">大模型参数</span>
-            <span class="article-tag">Agent 开发</span>
-            <span class="article-tag">Prompt 工程</span>
-          </div>
-        </a>
-        <a href="articles/detail/article-34.html" class="article-card">
-          <h3 class="article-card-title">AgentScope搭企业级Agent平台实战</h3>
-          <p class="article-card-excerpt">基于 AgentScope Java v2 + SpringBoot + Spring Cloud Alibaba + HarnessAgent 构建企业级 Agent 平台的全景拆解：身份权限三态决策、MCP/Skill 工具双引擎、三层记忆管理、安全沙箱隔离、无状态水平扩展、零停机滚动发布，覆盖架构解析、代码实战与三个真实落地场景</p>
-          <div class="article-card-footer">
-            <span class="article-date">2026-08-04</span>
-            <span class="article-read">阅读全文 &#8599;</span>
-          </div>
-          <div class="article-card-tags">
-            <span class="article-tag">AgentScope</span>
-            <span class="article-tag">HarnessAgent</span>
-            <span class="article-tag">Spring Cloud Alibaba</span>
           </div>
         </a>
       </div>

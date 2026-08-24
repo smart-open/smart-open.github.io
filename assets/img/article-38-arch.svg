@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 710" font-family="Inter, sans-serif">
+<defs>
+<marker id="m-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#00ff88"/></marker>
+<marker id="m-cyan" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#00f0ff"/></marker>
+<marker id="m-orange" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff8c00"/></marker>
+<marker id="m-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff4466"/></marker>
+<marker id="m-purple" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#a855f7"/></marker>
+<marker id="m-gray" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#7a7a85"/></marker>
+</defs>
+<rect width="1200" height="710" fill="#0a0a0f"/>
+<text x="600" y="42" text-anchor="middle" font-size="22" font-weight="700" fill="#e8e8ec">DeepSeek Harness 整体架构：一切皆插件</text>
+<text x="600" y="66" text-anchor="middle" font-size="13" fill="#7a7a85">启动分层组装 Profile / Bundle → Cordis 插件树（无特权内核）→ 运行形态</text>
+<text x="36" y="110" font-size="14" font-weight="600" fill="#e8e8ec">启动层：Profile 与 Bundle 分层组装</text>
+<text x="660" y="110" font-size="11" fill="#7a7a85">有序叠加，上层 patch 可整行替换下层任意插件配置</text>
+<rect x="36" y="126" width="150" height="104" rx="8" fill="#a855f7" fill-opacity="0.06" stroke="#a855f7" stroke-width="1.5"/>
+<text x="111" y="166" text-anchor="middle" font-size="14" font-weight="700" fill="#a855f7">Profile</text>
+<text x="111" y="188" text-anchor="middle" font-size="10" fill="#7a7a85">命名组合模板</text>
+<text x="111" y="208" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">web / headless</text>
+<rect x="210" y="126" width="250" height="104" rx="8" fill="#00ff88" fill-opacity="0.05" stroke="#00ff88" stroke-width="1.5"/>
+<text x="335.0" y="154" text-anchor="middle" font-size="13" font-weight="700" fill="#00ff88" font-family="JetBrains Mono, monospace">dsh-base 基础层</text>
+<text x="335.0" y="176" text-anchor="middle" font-size="10" fill="#7a7a85">模型适配器 / 工具注册表</text>
+<text x="335.0" y="193" text-anchor="middle" font-size="10" fill="#7a7a85">会话日志 / 持久化</text>
+<text x="335.0" y="210" text-anchor="middle" font-size="10" fill="#7a7a85">沙箱 / 审批策略 / 遥测</text>
+<text x="335.0" y="227" text-anchor="middle" font-size="10" fill="#7a7a85">设置 / 凭据</text>
+<rect x="480" y="126" width="180" height="104" rx="8" fill="#00f0ff" fill-opacity="0.05" stroke="#00f0ff" stroke-width="1.5"/>
+<text x="570.0" y="154" text-anchor="middle" font-size="13" font-weight="700" fill="#00f0ff" font-family="JetBrains Mono, monospace">dsh-web-app</text>
+<text x="570.0" y="176" text-anchor="middle" font-size="10" fill="#7a7a85">浏览器应用 / Web UI</text>
+<text x="570.0" y="193" text-anchor="middle" font-size="10" fill="#7a7a85">对话节点 / 编辑器联动</text>
+<text x="570.0" y="210" text-anchor="middle" font-size="10" fill="#7a7a85">搭配 web profile</text>
+<rect x="680" y="126" width="150" height="104" rx="8" fill="#ff8c00" fill-opacity="0.05" stroke="#ff8c00" stroke-width="1.5"/>
+<text x="755.0" y="154" text-anchor="middle" font-size="13" font-weight="700" fill="#ff8c00" font-family="JetBrains Mono, monospace">dsh-headless</text>
+<text x="755.0" y="176" text-anchor="middle" font-size="10" fill="#7a7a85">一次性执行器</text>
+<text x="755.0" y="193" text-anchor="middle" font-size="10" fill="#7a7a85">无服务器 / 纯 CLI</text>
+<text x="755.0" y="210" text-anchor="middle" font-size="10" fill="#7a7a85">搭配 headless profile</text>
+<line x1="188" y1="178" x2="206" y2="178" stroke="#7a7a85" stroke-width="2" marker-end="url(#m-gray)"/>
+<line x1="462" y1="178" x2="476" y2="178" stroke="#7a7a85" stroke-width="2" marker-end="url(#m-gray)"/>
+<line x1="662" y1="178" x2="676" y2="178" stroke="#7a7a85" stroke-width="2" marker-end="url(#m-gray)"/>
+<rect x="860" y="126" width="304" height="104" rx="8" fill="#ff4466" fill-opacity="0.04" stroke="#ff4466" stroke-width="1.5" stroke-dasharray="6,3"/>
+<text x="1012" y="152" text-anchor="middle" font-size="12" font-weight="700" fill="#ff4466">Patch 逐层覆盖</text>
+<text x="1012" y="178" text-anchor="middle" font-size="10.5" fill="#7a7a85">① profile 内 cordis.patch.yml</text>
+<text x="1012" y="197" text-anchor="middle" font-size="10.5" fill="#7a7a85">② Harness home 全局 patch</text>
+<text x="1012" y="216" text-anchor="middle" font-size="10.5" fill="#7a7a85">③ --patch 命令行覆盖</text>
+<line x1="832" y1="178" x2="856" y2="178" stroke="#ff4466" stroke-width="2" marker-end="url(#m-red)"/>
+<text x="36" y="256" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">dsh --profile web --dump-config   # 查看本机实际启动的完整插件树</text>
+<text x="36" y="276" font-size="14" font-weight="600" fill="#e8e8ec">Cordis 插件树：无特权内核，产品即插件</text>
+<text x="660" y="276" font-size="11" fill="#7a7a85">模型适配器、工具注册表、会话日志、Agent 循环本身都是插件，皆可被配置替换</text>
+<rect x="36" y="294" width="174" height="118" rx="8" fill="#00ff88" fill-opacity="0.05" stroke="#00ff88" stroke-width="1.5"/>
+<rect x="36" y="294" width="174" height="4" rx="2" fill="#00ff88"/>
+<text x="123.0" y="324" text-anchor="middle" font-size="12" font-weight="700" fill="#e8e8ec" font-family="JetBrains Mono, monospace">core/session</text>
+<rect x="66" y="336" width="114" height="20" rx="4" fill="#12121a"/>
+<text x="123.0" y="350" text-anchor="middle" font-size="11" fill="#00ff88" font-family="JetBrains Mono, monospace">ctx.sessions</text>
+<text x="123.0" y="376" text-anchor="middle" font-size="9.5" fill="#7a7a85">追加式会话事件日志</text>
+<text x="123.0" y="392" text-anchor="middle" font-size="9.5" fill="#7a7a85">内存态存储 / fork</text>
+<rect x="224" y="294" width="174" height="118" rx="8" fill="#00f0ff" fill-opacity="0.05" stroke="#00f0ff" stroke-width="1.5"/>
+<rect x="224" y="294" width="174" height="4" rx="2" fill="#00f0ff"/>
+<text x="311.0" y="324" text-anchor="middle" font-size="12" font-weight="700" fill="#e8e8ec" font-family="JetBrains Mono, monospace">core/tools</text>
+<rect x="254" y="336" width="114" height="20" rx="4" fill="#12121a"/>
+<text x="311.0" y="350" text-anchor="middle" font-size="11" fill="#00f0ff" font-family="JetBrains Mono, monospace">ctx.tools</text>
+<text x="311.0" y="376" text-anchor="middle" font-size="9.5" fill="#7a7a85">作用域工具注册表</text>
+<text x="311.0" y="392" text-anchor="middle" font-size="9.5" fill="#7a7a85">守卫执行管线</text>
+<rect x="412" y="294" width="174" height="118" rx="8" fill="#ff8c00" fill-opacity="0.05" stroke="#ff8c00" stroke-width="1.5"/>
+<rect x="412" y="294" width="174" height="4" rx="2" fill="#ff8c00"/>
+<text x="499.0" y="324" text-anchor="middle" font-size="12" font-weight="700" fill="#e8e8ec" font-family="JetBrains Mono, monospace">core/agent</text>
+<rect x="442" y="336" width="114" height="20" rx="4" fill="#12121a"/>
+<text x="499.0" y="350" text-anchor="middle" font-size="11" fill="#ff8c00" font-family="JetBrains Mono, monospace">ctx.agents</text>
+<text x="499.0" y="376" text-anchor="middle" font-size="9.5" fill="#7a7a85">Agent 接口 / 活动注册</text>
+<text x="499.0" y="392" text-anchor="middle" font-size="9.5" fill="#7a7a85">agent/* 事件域</text>
+<rect x="600" y="294" width="174" height="118" rx="8" fill="#a855f7" fill-opacity="0.05" stroke="#a855f7" stroke-width="1.5"/>
+<rect x="600" y="294" width="174" height="4" rx="2" fill="#a855f7"/>
+<text x="687.0" y="324" text-anchor="middle" font-size="12" font-weight="700" fill="#e8e8ec" font-family="JetBrains Mono, monospace">core/agent-loop</text>
+<rect x="630" y="336" width="114" height="20" rx="4" fill="#12121a"/>
+<text x="687.0" y="350" text-anchor="middle" font-size="11" fill="#a855f7" font-family="JetBrains Mono, monospace">ctx.agentLoop</text>
+<text x="687.0" y="376" text-anchor="middle" font-size="9.5" fill="#7a7a85">默认驱动器实现</text>
+<text x="687.0" y="392" text-anchor="middle" font-size="9.5" fill="#7a7a85">turn/step 调度</text>
+<rect x="788" y="294" width="174" height="118" rx="8" fill="#ff4466" fill-opacity="0.05" stroke="#ff4466" stroke-width="1.5"/>
+<rect x="788" y="294" width="174" height="4" rx="2" fill="#ff4466"/>
+<text x="875.0" y="324" text-anchor="middle" font-size="12" font-weight="700" fill="#e8e8ec" font-family="JetBrains Mono, monospace">llm/llm</text>
+<rect x="818" y="336" width="114" height="20" rx="4" fill="#12121a"/>
+<text x="875.0" y="350" text-anchor="middle" font-size="11" fill="#ff4466" font-family="JetBrains Mono, monospace">ctx.llm</text>
+<text x="875.0" y="376" text-anchor="middle" font-size="9.5" fill="#7a7a85">消息与流式词表</text>
+<text x="875.0" y="392" text-anchor="middle" font-size="9.5" fill="#7a7a85">适配器接缝 seam</text>
+<rect x="976" y="294" width="174" height="118" rx="8" fill="#7a7a85" fill-opacity="0.05" stroke="#7a7a85" stroke-width="1.5"/>
+<rect x="976" y="294" width="174" height="4" rx="2" fill="#7a7a85"/>
+<text x="1063.0" y="324" text-anchor="middle" font-size="12" font-weight="700" fill="#e8e8ec" font-family="JetBrains Mono, monospace">core/system-prompt</text>
+<rect x="1006" y="336" width="114" height="20" rx="4" fill="#12121a"/>
+<text x="1063.0" y="350" text-anchor="middle" font-size="11" fill="#7a7a85" font-family="JetBrains Mono, monospace">ctx.systemPrompt</text>
+<text x="1063.0" y="376" text-anchor="middle" font-size="9.5" fill="#7a7a85">提示词段落组装</text>
+<text x="1063.0" y="392" text-anchor="middle" font-size="9.5" fill="#7a7a85">工具 Schema 投影</text>
+<text x="36" y="446" font-size="14" font-weight="600" fill="#e8e8ec">能力接缝 Capability Seams：换一个 Provider，整个产品换世界</text>
+<rect x="36" y="456" width="536" height="72" rx="8" fill="#00ff88" fill-opacity="0.05" stroke="#00ff88" stroke-width="1.2"/>
+<text x="54" y="484" font-size="11.5" font-weight="700" fill="#00ff88" font-family="JetBrains Mono, monospace">ctx.fs / ctx.shell / ctx.subprocess</text>
+<text x="54" y="508" font-size="10.5" fill="#7a7a85">文件系统 / Shell / 子进程共享一个执行世界，指向远程沙箱时 Bash、PTY、LSP 随之迁移</text>
+<rect x="628" y="456" width="536" height="72" rx="8" fill="#00f0ff" fill-opacity="0.05" stroke="#00f0ff" stroke-width="1.2"/>
+<text x="646" y="484" font-size="11.5" font-weight="700" fill="#00f0ff" font-family="JetBrains Mono, monospace">ctx.sandbox / ctx.terminals</text>
+<text x="646" y="508" font-size="10.5" fill="#7a7a85">Landlock / sandbox-exec 原生沙箱后端；持久终端由后端 + 工具插件组合提供</text>
+<text x="36" y="556" font-size="14" font-weight="600" fill="#e8e8ec">运行形态：同一插件树，多种宿主</text>
+<rect x="36" y="568" width="264" height="82" rx="8" fill="#00ff88" fill-opacity="0.05" stroke="#00ff88" stroke-width="1.2"/>
+<text x="168" y="596" text-anchor="middle" font-size="13" font-weight="700" fill="#00ff88">Web UI</text>
+<text x="168" y="618" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">npx @deepseek-ai/dsh web</text>
+<text x="168" y="636" text-anchor="middle" font-size="10" fill="#7a7a85">默认 127.0.0.1:3080</text>
+<rect x="324" y="568" width="264" height="82" rx="8" fill="#00f0ff" fill-opacity="0.05" stroke="#00f0ff" stroke-width="1.2"/>
+<text x="456" y="596" text-anchor="middle" font-size="13" font-weight="700" fill="#00f0ff">Headless</text>
+<text x="456" y="618" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">dsh-headless 一次性执行</text>
+<text x="456" y="636" text-anchor="middle" font-size="10" fill="#7a7a85">无服务器 / 脚本化</text>
+<rect x="612" y="568" width="264" height="82" rx="8" fill="#ff8c00" fill-opacity="0.05" stroke="#ff8c00" stroke-width="1.2"/>
+<text x="744" y="596" text-anchor="middle" font-size="13" font-weight="700" fill="#ff8c00">ACP / JSON-RPC</text>
+<text x="744" y="618" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">Agent Client Protocol 桥</text>
+<text x="744" y="636" text-anchor="middle" font-size="10" fill="#7a7a85">stdio JSON-RPC 自动化</text>
+<rect x="900" y="568" width="264" height="82" rx="8" fill="#a855f7" fill-opacity="0.05" stroke="#a855f7" stroke-width="1.2"/>
+<text x="1032" y="596" text-anchor="middle" font-size="13" font-weight="700" fill="#a855f7">Python SDK</text>
+<text x="1032" y="618" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">python/ 目录</text>
+<text x="1032" y="636" text-anchor="middle" font-size="10" fill="#7a7a85">脚本驱动同一内核</text>
+<line x1="600" y1="264" x2="600" y2="288" stroke="#7a7a85" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.5"/>
+<line x1="600" y1="420" x2="600" y2="456" stroke="#7a7a85" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.5"/>
+<line x1="600" y1="532" x2="600" y2="568" stroke="#7a7a85" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.5"/>
+<text x="600" y="686" text-anchor="middle" font-size="10" fill="#7a7a85" opacity="0.6">扩展 dsh 的唯一方式：在其它插件旁挂载你自己的插件——注册即效应，卸载即回滚</text>
+</svg>

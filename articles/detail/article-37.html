@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Java GC三十年，停顿从秒到亚毫秒 - 馒头仔 | Smart Open</title>
+  <meta name="description" content="从 Serial、Parallel、CMS 到 G1、ZGC，全景拆解 Java GC 三十年演进：算法更替、堆模型从物理分代到 Region 化、停顿从秒级降到亚毫秒、PermGen 到 Metaspace 变革，覆盖 JDK 8/11/17/21/25 各版本默认收集器与容器、微服务、低延迟、大内存四类环境的生产级 JVM 配置实战">
+  <link rel="icon" type="image/png" href="../../favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/preview-rail.css">
+  <style>
+    .gc-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
+    .gc-table th { background: var(--bg-secondary); color: var(--accent); padding: 12px 14px; text-align: left; border-bottom: 2px solid var(--divider); font-family: var(--font-mono); font-size: 0.8rem; }
+    .gc-table td { padding: 10px 14px; border-bottom: 1px solid var(--divider); color: var(--text-primary); }
+    .gc-table tr:hover td { background: var(--bg-secondary); }
+    .gc-table .mono { font-family: var(--font-mono); color: var(--accent); font-size: 0.78rem; }
+    .code-block { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 8px; padding: 16px 20px; margin: 16px 0; overflow-x: auto; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.6; color: var(--text-primary); white-space: pre; }
+    .code-block .cmt { color: var(--text-secondary); font-style: italic; }
+    .code-block .kw { color: #c792ea; }
+    .code-block .str { color: #c3e88d; }
+    .code-block .num { color: #f78c6c; }
+    .code-block .ann { color: #82aaff; }
+    .callout { background: rgba(0,240,255,0.05); border: 1px solid var(--divider); border-left: 3px solid var(--accent); border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.6; }
+    .callout strong { color: var(--accent); }
+    .callout-warn { background: rgba(255,68,102,0.05); border: 1px solid var(--divider); border-left: 3px solid #ff4466; border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.6; }
+    .callout-warn strong { color: #ff4466; }
+    .algo-stages { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
+    .algo-stage { flex: 1; min-width: 150px; background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 14px; position: relative; }
+    .algo-stage::after { content: '->'; position: absolute; right: -14px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 1.2rem; }
+    .algo-stage:last-child::after { display: none; }
+    .algo-stage-title { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent); margin-bottom: 6px; }
+    .algo-stage-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; }
+    .collector-card { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 18px 20px; margin: 16px 0; border-left: 3px solid var(--accent); }
+    .collector-card-header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+    .collector-card-name { font-weight: 700; font-size: 1.05rem; }
+    .collector-card-version { display: inline-block; font-family: var(--font-mono); font-size: 0.72rem; color: var(--accent); background: rgba(0,240,255,0.1); padding: 2px 10px; border-radius: 4px; }
+    .collector-card-status { display: inline-block; font-family: var(--font-mono); font-size: 0.72rem; padding: 2px 10px; border-radius: 4px; }
+    .status-live { color: #00ff88; background: rgba(0,255,136,0.1); }
+    .status-dead { color: #ff4466; background: rgba(255,68,102,0.1); }
+    .status-legacy { color: #ff8c00; background: rgba(255,140,0,0.1); }
+    .collector-card-body { font-size: 0.86rem; color: var(--text-secondary); line-height: 1.7; }
+    .collector-card-body strong { color: var(--text-primary); }
+    .collector-flags { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent); background: rgba(0,240,255,0.06); border: 1px dashed var(--divider); border-radius: 6px; padding: 8px 12px; margin-top: 10px; }
+    .scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 24px 0; }
+    .scenario-card { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 18px 20px; border-left: 3px solid var(--accent); }
+    .scenario-card-tag { display: inline-block; font-family: var(--font-mono); font-size: 0.72rem; color: var(--accent); background: rgba(0,240,255,0.1); padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; }
+    .scenario-card-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 8px; }
+    .scenario-card-body { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
+    .scenario-card-body strong { color: var(--text-primary); }
+    .tri-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 24px 0; }
+    .tri-card { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 20px; border-top: 3px solid var(--accent); text-align: center; }
+    .tri-card-title { font-weight: 700; font-size: 1rem; margin-bottom: 10px; color: var(--accent); font-family: var(--font-mono); }
+    .tri-card-desc { font-size: 0.84rem; color: var(--text-secondary); line-height: 1.6; }
+    .tri-card-desc strong { color: var(--text-primary); }
+    .checklist { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 20px 24px; margin: 20px 0; }
+    .checklist-title { font-weight: 600; font-size: 0.92rem; color: var(--accent); margin-bottom: 12px; font-family: var(--font-mono); }
+    .checklist ul { list-style: none; padding: 0; margin: 0; }
+    .checklist li { font-size: 0.84rem; color: var(--text-primary); line-height: 1.8; padding-left: 24px; position: relative; }
+    .checklist li::before { content: '[ ]'; position: absolute; left: 0; color: var(--accent); font-family: var(--font-mono); font-size: 0.8rem; }
+    .markdown-body table { display: block; overflow-x: auto; }
+    @media (max-width: 768px) {
+      .algo-stages { flex-direction: column; }
+      .algo-stage::after { display: none; }
+      .scenario-grid, .tri-cards { grid-template-columns: 1fr; }
+      .gc-table { font-size: 0.78rem; }
+      .gc-table th, .gc-table td { padding: 8px 10px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav" id="nav">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-brand"><img src="../../assets/img/logo.png" alt="Smart Open" class="nav-logo"><span>Smart Open</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="切换导航">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#about">关于</a></li>
+        <li><a href="../../index.html#projects">项目</a></li>
+        <li><a href="../../index.html#skills">技能</a></li>
+        <li><a href="../../index.html#experience">经历</a></li>
+        <li><a href="../index.html">文章</a></li>
+        <li><a href="../../trending/index.html">趋势</a></li>
+        <li><a href="../../index.html#contact">联系</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="article-hero">
+    <div class="article-hero-content">
+      <h1 class="article-title">Java GC三十年，停顿从秒到亚毫秒</h1>
+      <div class="article-meta">
+        <span class="article-date">2026-08-23</span>
+        <div class="article-tags">
+          <span class="tag">Java GC</span>
+          <span class="tag">JVM 调优</span>
+          <span class="tag">ZGC</span>
+          <span class="tag">性能优化</span>
+        </div>
+      </div>
+    </div>
+    <div class="article-hero-bg" style="background-image: url('../../assets/img/article-37-diagram.svg')"></div>
+    <div class="article-hero-overlay"></div>
+  </section>
+
+  <div class="article-container">
+    <aside class="article-sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">目录</h3>
+        <nav class="article-toc" id="articleToc"></nav>
+      </div>
+    </aside>
+
+    <article class="article-content">
+      <div class="markdown-body">
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-37-diagram.svg" alt="Java GC 三十年演进全景图">
+          <figcaption>Java GC 演进全景：五代收集器与算法、堆模型、停顿、设计目标四条演进主线</figcaption>
+        </figure>
+
+        <p>1996 年 Java 1.0 发布时，垃圾回收还只是一个「能跑起来」的工程妥协；三十年后，ZGC 已经能在 16TB 的堆上把停顿压进 1 毫秒以内。这背后不是某一次灵光乍现，而是算法、堆模型、并发策略三条战线持续三十年的协同演进。</p>
+
+        <p>很多工程师对 GC 的认知是碎片化的：知道 CMS 被移除了、知道 G1 是默认收集器、听说过 ZGC 很快，但串不起来。本文尝试把这条演进主线完整摊开——<strong>从内存管理模型、五大基础算法、五代收集器、堆模型变革、停顿演进到内存区域变迁</strong>，最后落到不同 JDK 版本在容器、微服务、低延迟、大内存四类环境下的生产级配置实战。</p>
+
+        <div class="callout">
+          <strong>一句话主线</strong>：GC 的演进史，就是一部「把 Stop The World 时间从秒级压到亚毫秒级、同时把堆上限从百 MB 提到 16TB」的历史。每一次演进都在回答同一个问题——<strong>如何在不打断业务线程的前提下，标记并回收堆里的垃圾</strong>。
+        </div>
+
+        <h2 id="memory-model">JVM 内存管理模型</h2>
+
+        <p>谈 GC 之前必须先明确它的战场。JVM 运行时内存划分为若干区域，不同区域的生死周期和回收策略完全不同。</p>
+
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-37-memory.svg" alt="JVM 运行时内存结构图">
+          <figcaption>JVM 运行时内存结构：线程私有区、共享堆与非堆区域，及 PermGen 到 Metaspace 的演进</figcaption>
+        </figure>
+
+        <h3>运行时数据区：谁参与 GC</h3>
+
+        <p>JVM 规范定义的运行时数据区分为两类：<strong>线程私有</strong>的程序计数器、虚拟机栈、本地方法栈，与<strong>线程共享</strong>的堆和方法区。GC 的主战场只有堆——因为只有堆里的对象需要「自动回收」，其余区域随线程生灭，HotSpot 甚至把虚拟机栈和本地方法栈合二为一。</p>
+
+        <table class="gc-table">
+          <thead>
+            <tr><th>区域</th><th>归属</th><th>GC 关系</th><th>关键参数</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>程序计数器</td><td>线程私有</td><td>不参与，唯一无 OOM 区域</td><td class="mono">-</td></tr>
+            <tr><td>虚拟机栈</td><td>线程私有</td><td>不参与，StackOverflowError</td><td class="mono">-Xss</td></tr>
+            <tr><td>本地方法栈</td><td>线程私有</td><td>不参与（HotSpot 与 VM 栈合并）</td><td class="mono">-</td></tr>
+            <tr><td>堆</td><td>线程共享</td><td><strong>GC 主战场</strong></td><td class="mono">-Xms / -Xmx</td></tr>
+            <tr><td>方法区（Metaspace）</td><td>线程共享</td><td>类卸载时参与</td><td class="mono">MaxMetaspaceSize</td></tr>
+            <tr><td>直接内存</td><td>进程级</td><td>不受 GC 直接管理，靠 Cleaner 间接回收</td><td class="mono">MaxDirectMemorySize</td></tr>
+          </tbody>
+        </table>
+
+        <h3>对象的一生：分配、晋升、回收</h3>
+
+        <p>对象进入堆的路径比多数人想象的更有讲究：</p>
+
+        <ol>
+          <li><strong>TLAB 分配</strong>：绝大多数对象通过线程私有分配缓冲区（Thread Local Allocation Buffer）在 Eden 区无锁分配，指针碰撞（bump-the-pointer）只需几条指令。</li>
+          <li><strong>栈上分配</strong>：开启逃逸分析（JDK 7+ 默认开启）后，未逃逸的对象经标量替换直接拆散在栈上，随栈帧销毁，根本不进堆。</li>
+          <li><strong>大对象直通老年代</strong>：经典收集器中超过 <code>-XX:PretenureSizeThreshold</code> 的对象直接进 Old；G1 中超过 Region 一半的对象成为 Humongous，连续占用多个 Region。</li>
+          <li><strong>年龄晋升</strong>：对象每熬过一次 Minor GC 年龄 +1，达到 <code>MaxTenuringThreshold</code>（默认 15）或触发动态年龄判定（同龄对象总大小超 Survivor 一半）即晋升 Old。</li>
+        </ol>
+
+        <h3>如何判定对象是垃圾</h3>
+
+        <p>HotSpot 采用<strong>可达性分析</strong>而非引用计数：从 GC Roots（栈帧局部变量、静态变量、字符串常量池引用、JNI 全局引用、活跃线程对象等）出发标记存活对象，不可达即为垃圾。引用计数法因无法处理循环引用，从未被主流 JVM 采用。</p>
+
+        <p>配合四种引用强度，可以构建缓存类的柔性回收策略：<strong>强引用</strong>永不回收；<strong>软引用</strong>（SoftReference）内存不足才回收，适合缓存；<strong>弱引用</strong>（WeakReference）下次 GC 必回收，ThreadLocal 的 Entry 就是典型；<strong>虚引用</strong>（PhantomReference）形同虚设，唯一作用是对象回收时收到通知，用于堆外内存的清理（DirectByteBuffer 的 Cleaner）。</p>
+
+        <h3>SafePoint：STW 的物理基础</h3>
+
+        <p>Stop The World 并不是一个「开关」，而是所有业务线程跑到<strong>安全点</strong>（SafePoint）后挂起的协商过程。安全点通常位于方法调用、循环回跳、异常跳转处——保证此时线程的栈和寄存器状态是可枚举、可分析的。若某线程长时间运行在可数循环里未到安全点，会出现「其他线程全部停了等它」的 SafePoint 同步异常。理解这一点，就理解了为什么「停顿时间 = 主动挂起时间 + 等最慢线程的时间」。</p>
+
+        <h2 id="algorithm">GC 算法演进五部曲</h2>
+
+        <p>五代收集器的更替，本质是五组基础算法的组合升级。</p>
+
+        <div class="algo-stages">
+          <div class="algo-stage">
+            <div class="algo-stage-title">01 标记-清除</div>
+            <div class="algo-stage-desc">标记存活，清除垃圾。简单直接，但产生内存碎片，效率随对象数量波动</div>
+          </div>
+          <div class="algo-stage">
+            <div class="algo-stage-title">02 标记-复制</div>
+            <div class="algo-stage-desc">存活对象复制到另一半区。无碎片且高效，代价是浪费一半空间</div>
+          </div>
+          <div class="algo-stage">
+            <div class="algo-stage-title">03 标记-整理</div>
+            <div class="algo-stage-desc">存活对象向一端移动。无碎片不浪费，但移动对象要更新所有引用，停顿长</div>
+          </div>
+          <div class="algo-stage">
+            <div class="algo-stage-title">04 并发标记</div>
+            <div class="algo-stage-desc">GC 线程与业务线程同时运行。停顿大降，代价是浮动垃圾与漏标难题</div>
+          </div>
+          <div class="algo-stage">
+            <div class="algo-stage-title">05 染色指针并发</div>
+            <div class="algo-stage-desc">标记信息存进指针本身，配合读屏障自愈。标记、转移、重定位全并发</div>
+          </div>
+        </div>
+
+        <h3>前三种：物理回收的三板斧</h3>
+
+        <p><strong>标记-清除</strong>（Mark-Sweep）是 1960 年代 McCarthy 为 Lisp 设计的最早算法：先从 GC Roots 标记存活对象，再统一回收未标记者。问题有两个：碎片化导致后续大对象分配困难；分配率波动时停顿时间不可预测。</p>
+
+        <p><strong>标记-复制</strong>（Mark-Copy）把空间一分为二，每次只用一半，GC 时把存活对象复制到另一半后整体清空当前半区。复制成本只与存活对象数量成正比——对「朝生夕死」的 Young 代简直是量身定做。HotSpot 用 Eden:S0:S1 = 8:1:1 的改进方案把空间浪费从 50% 压到 10%。</p>
+
+        <p><strong>标记-整理</strong>（Mark-Compact）先标记，再把所有存活对象向内存一端移动，最后清掉边界外的空间。无碎片、无空间浪费，但「移动对象」意味着要修正所有指向它们的引用，这只能在世界完全静止时才敢做——这就是老年代 Full GC 漫长的根本原因。</p>
+
+        <h3>第四种：并发标记与三色标记法</h3>
+
+        <p>要让 GC 和业务线程同时干活，必须解决「标记过程中对象引用关系还在变」的问题。业界将其抽象为<strong>三色标记</strong>：</p>
+
+        <ul>
+          <li><strong>白色</strong>：尚未访问，最终仍是白色即为垃圾</li>
+          <li><strong>灰色</strong>：自己已标记，但成员引用还没扫描完</li>
+          <li><strong>黑色</strong>：自己与所有成员都标记完成</li>
+        </ul>
+
+        <p>并发场景下会产生<strong>漏标</strong>（存活对象被当垃圾回收，致命）和<strong>浮动垃圾</strong>（标记后才死掉的对象，本轮不回收，可容忍）。漏标的充要条件是：黑色对象新增了指向白色对象的引用，且该白色对象到灰色对象的引用链被删除。要打破它，CMS 用<strong>增量更新</strong>（记录新增引用，重新标记阶段重扫黑色对象），G1 用<strong>原始快照 SATB</strong>（记录被删除的引用，按标记开始时的快照处理）。两者的实现载体都是<strong>写屏障</strong>——编译器在每次引用赋值后插入的一小段 GC 协作代码。</p>
+
+        <h3>第五种：染色指针与读屏障</h3>
+
+        <p>ZGC 做得更彻底：直接把标记信息做进指针。64 位指针的<strong>高 4 位</strong>被征用为元数据位——Marked0、Marked1、Remapped、Finalizable。对象在转移期间，旧指针与新指针并存，业务线程读到旧指针时由<strong>读屏障</strong>当场「自愈」为正确地址。这样标记、转移、引用修正全部并发执行，应用线程全程只感知到几次纳秒级的指针检查。代价是每次对象引用读取都多几条指令，吞吐量比 Parallel GC 损失约 5%-10%。</p>
+
+        <div class="callout">
+          <strong>演进逻辑</strong>：标记清除解决「能不能回收」→ 复制/整理解决「碎片问题」→ 并发标记解决「业务线程要不要等」→ 染色指针解决「引用修正能不能也并发」。每一步都在把原来必须 STW 的阶段挪到并发侧。
+        </div>
+
+        <h2 id="collectors">五代收集器全解</h2>
+
+        <h3 id="serial">Serial GC：一切的开端</h3>
+
+        <div class="collector-card">
+          <div class="collector-card-header">
+            <span class="collector-card-name">Serial / Serial Old</span>
+            <span class="collector-card-version">1999 · JDK 1.3 HotSpot</span>
+            <span class="collector-card-status status-legacy">维护态</span>
+          </div>
+          <div class="collector-card-body">
+            <p><strong>单线程、全程 STW</strong>的收集器：Young 用标记-复制（Serial），Old 用标记-整理（Serial Old）。它的优点恰恰是「简单」——没有线程交互开销，在单核环境或<strong>百 MB 级小堆</strong>上反而是最高效的选择，因此至今仍是 client 模式和资源受限容器（JVM 自动判断 CPU 不足 2 核或内存不足 2GB 时）的默认选择。</p>
+            <p>大堆上它就是灾难：8GB 堆的 Full GC 停顿以<strong>秒</strong>计。ParNew 是它的多线程版（曾与 CMS 搭配，JDK 14 随 CMS 一同移除）。</p>
+            <div class="collector-flags">-XX:+UseSerialGC</div>
+          </div>
+        </div>
+
+        <h3 id="parallel">Parallel GC：吞吐量时代</h3>
+
+        <div class="collector-card">
+          <div class="collector-card-header">
+            <span class="collector-card-name">Parallel Scavenge / Parallel Old</span>
+            <span class="collector-card-version">2002 · JDK 1.4.1（Old 组合补齐于 2006 · JDK 6）</span>
+            <span class="collector-card-status status-live">JDK 8 默认</span>
+          </div>
+          <div class="collector-card-body">
+            <p>2002 年随 J2SE 1.4.1 登场的 Parallel Scavenge 首次引入<strong>多线程并行回收</strong>，配合 JDK 6 补齐的 Parallel Old，形成完整的并行分代组合。注意「并行」（Parallel）与「并发」（Concurrent）的区别：并行只是<strong>多个 GC 线程一起 STW 干活</strong>，业务线程仍然全停。</p>
+            <p>它的杀手锏是<strong>吞吐量优先</strong>的设计目标：用户代码时间 /（用户代码时间 + GC 时间）。通过 <code>-XX:MaxGCPauseMillis</code>（最大停顿）与 <code>-XX:GCTimeRatio</code>（GC 时间占比，默认 99 即 1%）两个目标加自适应策略（<code>-XX:+UseAdaptiveSizePolicy</code>），自动权衡新生代与老年代大小。批处理、离线计算、数据管道类任务至今仍首选它。</p>
+            <div class="collector-flags">-XX:+UseParallelGC &nbsp;（JDK 8 默认）</div>
+          </div>
+        </div>
+
+        <h3 id="cms">CMS：并发先驱，功成身退</h3>
+
+        <div class="collector-card">
+          <div class="collector-card-header">
+            <span class="collector-card-name">CMS · Concurrent Mark Sweep</span>
+            <span class="collector-card-version">2002 · JDK 1.4.1 引入，JDK 9 废弃，JDK 14 移除</span>
+            <span class="collector-card-status status-dead">已移除</span>
+          </div>
+          <div class="collector-card-body">
+            <p>CMS 同样诞生于 2002 年，目标是<strong>最短停顿</strong>。它把老年代回收拆成四段：<strong>初始标记</strong>（STW，只标 GC Roots 直连对象，极短）→ <strong>并发标记</strong>（与业务并发，遍历对象图）→ <strong>重新标记</strong>（STW，修正并发期间的变动，增量更新）→ <strong>并发清除</strong>。全程只有两个短 STW。</p>
+            <p>但代价沉重：<strong>①</strong> 标记-清除不整理，碎片化最终触发 Full GC（Serial Old 单线程整理，停顿雪崩）；<strong>②</strong> 并发标记期间业务还得分配内存，老年代必须预留空间，触发「并发回收失败」直接退化 Serial Old；<strong>③</strong> CPU 敏感，核少时并发线程抢占业务资源。这三个结构性缺陷让它在 G1 成熟后彻底失去存在价值——JDK 9 废弃，JDK 14 移除。</p>
+            <div class="collector-flags">-XX:+UseConcMarkSweepGC（JDK 8 遗留系统仍在用）</div>
+          </div>
+        </div>
+
+        <h3 id="g1">G1：Region 化革命</h3>
+
+        <div class="collector-card">
+          <div class="collector-card-header">
+            <span class="collector-card-name">G1 · Garbage First</span>
+            <span class="collector-card-version">2012 · JDK 7u4 正式支持，JDK 9 起默认</span>
+            <span class="collector-card-status status-live">JDK 9+ 默认</span>
+          </div>
+          <div class="collector-card-body">
+            <p>G1 在 JDK 7u4 转正、JDK 9 接棒默认收集器，是当下 Java 世界的事实标准。它解决的是 CMS 解决不了的问题：<strong>堆越来越大之后，停顿如何仍然可控</strong>。</p>
+            <p>核心变革是<strong>Region 化</strong>：堆被切成约 2048 个等大 Region（1-32MB，2 的幂自适应），Eden、Survivor、Old 不再是物理连续的大块，而是<strong>一组 Region 的逻辑集合</strong>，角色可以动态切换。回收时 G1 按每个 Region 的「回收价值（垃圾占比）」排序，在 <code>-XX:MaxGCPauseMillis</code>（默认 200ms）停顿目标的预算内，挑选尽可能多的 Region 组成回收集（Collection Set）——「Garbage First」的名字由此而来。</p>
+            <p>它的并发标记基于 SATB，跨 Region 引用用记忆集（RSet）维护，这是 G1 内存开销与 CPU 开销的主要来源。JDK 10 给 G1 补上了并行 Full GC（此前 Full GC 仍是单线程）。适用面极广：4GB-32GB 堆的微服务、网关、中间件通吃。</p>
+            <div class="collector-flags">-XX:+UseG1GC -XX:MaxGCPauseMillis=200 &nbsp;（JDK 9+ 默认）</div>
+          </div>
+        </div>
+
+        <h3 id="zgc">ZGC：亚毫秒时代</h3>
+
+        <div class="collector-card">
+          <div class="collector-card-header">
+            <span class="collector-card-name">ZGC · Z Garbage Collector</span>
+            <span class="collector-card-version">2018 · JDK 11 实验，JDK 15 生产，JDK 21 分代</span>
+            <span class="collector-card-status status-live">JDK 15+ 生产可用</span>
+          </div>
+          <div class="collector-card-body">
+            <p>ZGC 是 Oracle 为 Azul C4 商业收集器的思路所做的开源实现，目标一句话：<strong>停顿时间不超过 1 毫秒，且与堆大小无关</strong>（支持从几百 MB 到 16TB 的堆）。它在 JDK 11 以实验特性引入，JDK 15 转正，JDK 21 借 JEP 439 加入分代支持。</p>
+            <p>技术支柱有三：<strong>① 染色指针</strong>（把标记位做进指针高 4 位）；<strong>② 读屏障</strong>（读引用时自愈旧地址，让对象转移也能并发）；<strong>③ ZPage 分页</strong>（Small 2MB / Medium 32MB / Large N×2MB）。标记、转移、重定位三大阶段全部并发，应用线程只在一轮 GC 开始与结束各停一次，每次约几十微秒。</p>
+            <p>早期 ZGC 不分代，靠高频全堆并发回收硬扛，分配率高的服务吞吐损失明显；JDK 21 分代版让 Young 独立高频回收、Old 按需回收，吞吐大幅改善，JDK 23 起分代成为默认模式。另有 Red Hat 主导的 Shenandoah 走「转发指针 + 读写屏障」路线达到相似目标，JDK 25 也迎来了分代版本。低延迟交易、实时风控、游戏服务端这类对尾延迟极度敏感的场景，ZGC 已经是标配答案。</p>
+            <div class="collector-flags">-XX:+UseZGC -XX:+ZGenerational（JDK 23+ 分代为默认）</div>
+          </div>
+        </div>
+
+        <h3>五代收集器总对比</h3>
+
+        <table class="gc-table">
+          <thead>
+            <tr><th>收集器</th><th>登场</th><th>核心算法</th><th>GC 线程模型</th><th>典型停顿</th><th>最佳场景</th><th>现状</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Serial</td><td class="mono">JDK 1.3</td><td>复制 + 整理</td><td>单线程 STW</td><td>秒级</td><td>小堆 / 单核 / client</td><td>维护态</td></tr>
+            <tr><td>Parallel</td><td class="mono">JDK 1.4.1</td><td>复制 + 整理</td><td>多线程并行 STW</td><td>亚秒级</td><td>批处理 / 吞吐优先</td><td>JDK 8 默认</td></tr>
+            <tr><td>CMS</td><td class="mono">JDK 1.4.1</td><td>并发标记清除</td><td>并发 + 短 STW</td><td>数十 ms</td><td>曾为低停顿首选</td><td>JDK 14 移除</td></tr>
+            <tr><td>G1</td><td class="mono">JDK 7u4</td><td>Region + 并发标记</td><td>并发 + 并行可控</td><td>10-200ms 可设</td><td>通用大堆服务</td><td>JDK 9+ 默认</td></tr>
+            <tr><td>ZGC</td><td class="mono">JDK 11</td><td>染色指针 + 读屏障</td><td>几乎全并发</td><td class="mono">&lt; 1ms</td><td>超低延迟 / 超大堆</td><td>JDK 15+ 生产</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="heap-model">堆模型演进：从物理分代到逻辑分代</h2>
+
+        <p>收集器的更替必然重塑堆的物理形态。这条演进线比收集器本身更能说明 JVM 设计哲学的变化。</p>
+
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-37-heap.svg" alt="堆模型演进四阶段对比图">
+          <figcaption>堆模型四阶段：经典物理分代 → G1 Region 化 → ZGC 不分代 → 分代 ZGC</figcaption>
+        </figure>
+
+        <h3>阶段一：经典物理分代</h3>
+
+        <p>Serial、Parallel、CMS 时代，堆被物理地切成 Young（Eden + S0 + S1）与 Old 两大块，边界固定、各自连续。理论支柱是<strong>分代假说</strong>：绝大多数对象朝生夕死，按存活时间分区、区别对待，能显著降低回收成本。这套模型的代价是布局僵化——新生代比例调错了，要么 Young GC 过频，要么对象过早晋升撑爆 Old。</p>
+
+        <h3>阶段二：G1 的 Region 化</h3>
+
+        <p>G1 把「分代」从物理结构降级为<strong>逻辑标签</strong>：2048 个等大 Region 中，哪些归 Young、哪些归 Old 由运行时动态决定。分代的好处保留了，物理僵化消失了，还顺带获得停顿可控能力——回收粒度从「整代」细化为「任意 Region 组合」。跨 Region 引用靠 RSet 维护，这是灵活性的账单。</p>
+
+        <h3>阶段三：ZGC 的不分代</h3>
+
+        <p>ZGC 初期干脆放弃分代：为了把读屏障的复杂度压到最低，全堆用统一的 ZPage 管理，全并发地整体回收。模型极简、停顿极低，但不分代意味着无法利用「朝生夕死」规律，高分配率下 GC 循环被迫高频运转，吞吐明显吃亏。</p>
+
+        <h3>阶段四：分代的回归</h3>
+
+        <p>JDK 21 的分代 ZGC 证明了：<strong>分代假说没有过时，过时的只是物理分代的实现方式</strong>。Young/Old 变成两组独立的 ZPage，各自并发回收，染色指针与读屏障继续承担并发标记与转移。于是形成了有趣的螺旋上升：物理分代 → 逻辑分代 → 不分代 → 逻辑分代回归，每一圈都比上一圈更自由。</p>
+
+        <h2 id="pause">停顿演进：三个数量级的军备竞赛</h2>
+
+        <p>停顿时间的下降不是线性优化，而是算法代际跳跃的结果。</p>
+
+        <table class="gc-table">
+          <thead>
+            <tr><th>时代</th><th>代表</th><th>停顿量级</th><th>停顿与堆大小的关系</th><th>STW 阶段占比</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>串行</td><td>Serial</td><td class="mono">100ms - 10s</td><td>正相关，堆越大越糟</td><td>100%（全程）</td></tr>
+            <tr><td>并行</td><td>Parallel</td><td class="mono">100ms - 1s</td><td>正相关，被并行度摊薄</td><td>100%（全程，更快）</td></tr>
+            <tr><td>并发清除</td><td>CMS</td><td class="mono">10 - 100ms</td><td>弱相关（碎片化风险）</td><td>约 20%（两短段）</td></tr>
+            <tr><td>并发整理</td><td>G1</td><td class="mono">10 - 200ms</td><td>可控（软目标）</td><td>约 10%（Evacuation）</td></tr>
+            <tr><td>全并发</td><td>ZGC</td><td class="mono">&lt; 1ms</td><td><strong>无关</strong>（16TB 堆同样亚毫秒）</td><td>&lt; 1%（首尾两瞬）</td></tr>
+          </tbody>
+        </table>
+
+        <p>但停顿不是免费午餐，GC 设计存在经典的<strong>不可能三角</strong>：</p>
+
+        <div class="tri-cards">
+          <div class="tri-card">
+            <div class="tri-card-title">低延迟</div>
+            <div class="tri-card-desc">停顿越短，越需要并发、屏障、额外元数据，<strong>吃掉吞吐</strong>。ZGC 常年让出 5%-10% 吞吐</div>
+          </div>
+          <div class="tri-card">
+            <div class="tri-card-title">高吞吐</div>
+            <div class="tri-card-desc">总 GC 时间最少，意味着可以放心 STW 做最高效的整理，<strong>牺牲单次停顿</strong>。Parallel 的选择</div>
+          </div>
+          <div class="tri-card">
+            <div class="tri-card-title">低内存开销</div>
+            <div class="tri-card-desc">并发 GC 需要浮动垃圾缓冲、RSet、多重映射等额外结构，<strong>吃掉内存</strong>。ZGC 建议堆余量 ≥ 2-3 倍存活集</div>
+          </div>
+        </div>
+
+        <p>三者最多取二。选收集器的第一问永远是：你的业务到底在 SLA 里承诺了什么。</p>
+
+        <h2 id="memory-area">内存区域演进：PermGen 之死</h2>
+
+        <p>与堆内变革平行推进的，是方法区实现方式的大迁移。JDK 7 及之前，类元数据住在堆内的<strong>永久代</strong>（PermGen）——一个名字就带着违和感的区域：明明放的是类元数据，却按堆的分代逻辑管理，用 <code>MaxPermSize</code> 划了条死线。动态代理、脚本引擎、热部署框架大量生成类，动辄 <code>java.lang.OutOfMemoryError: PermGen space</code>，那是 2010 年代运维最熟悉的噩梦之一。</p>
+
+        <p>JDK 8 彻底移除 PermGen，类元数据迁往本地内存的<strong>Metaspace</strong>。核心变化有三：<strong>①</strong> 默认只受物理内存限制，按需扩容，用 <code>MaxMetaspaceSize</code> 兜底防泄漏；<strong>②</strong> 字符串常量池早已在 JDK 7 移入堆，类静态变量也随迁，Metaspace 职责更纯粹；<strong>③</strong> 与堆解耦后，类元数据回收不再拖累 Full GC。PermGen 不是被修好的，是被整个拆掉的——与其给错误的抽象打补丁，不如换掉抽象本身。</p>
+
+        <h2 id="jdk-versions">主流 JDK 版本与默认 GC 大事记</h2>
+
+        <p>把时间线钉在具体版本上，升级决策才有抓手：</p>
+
+        <table class="gc-table">
+          <thead>
+            <tr><th>版本</th><th>年份</th><th>GC 相关大事</th><th>默认收集器</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="mono">JDK 8</td><td>2014（LTS）</td><td>PermGen 移除，Metaspace 登场；8u191+ 补齐容器感知</td><td>Parallel</td></tr>
+            <tr><td class="mono">JDK 9</td><td>2017</td><td>G1 接棒默认；CMS 废弃；统一日志 <code>-Xlog</code> 取代 PrintGC* 系列</td><td>G1</td></tr>
+            <tr><td class="mono">JDK 10</td><td>2018</td><td>容器感知默认开启（UseContainerSupport）；G1 并行 Full GC</td><td>G1</td></tr>
+            <tr><td class="mono">JDK 11</td><td>2018（LTS）</td><td>ZGC、Shenandoah 以实验特性引入；Epsilon 无操作收集器登场</td><td>G1</td></tr>
+            <tr><td class="mono">JDK 14</td><td>2020</td><td><strong>CMS 正式移除</strong>；ZGC 支持 macOS / Windows</td><td>G1</td></tr>
+            <tr><td class="mono">JDK 15</td><td>2020</td><td>ZGC、Shenandoah 转为生产可用</td><td>G1</td></tr>
+            <tr><td class="mono">JDK 17</td><td>2021（LTS）</td><td>G1 持续优化（重建记忆集并行化等）；GC 生态稳定期</td><td>G1</td></tr>
+            <tr><td class="mono">JDK 21</td><td>2023（LTS）</td><td><strong>分代 ZGC</strong>（JEP 439）；G1 屏障向分代 ZGC 输出经验</td><td>G1</td></tr>
+            <tr><td class="mono">JDK 23</td><td>2024</td><td>ZGC 分代模式成为默认，非分代模式废弃</td><td>G1</td></tr>
+            <tr><td class="mono">JDK 25</td><td>2025（LTS）</td><td>紧凑对象头（JEP 519，对象头 12 字节 → 8 字节，堆占用降约 10%-20%）；分代 Shenandoah（JEP 521）</td><td>G1</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <strong>版本选型速记</strong>：存量 JDK 8 以「容器参数 + Parallel」稳住；新项目直接 LTS——通用服务 JDK 17（G1），延迟敏感服务 JDK 21+（分代 ZGC），追新堆优化上 JDK 25。跳过非 LTS 版本做生产，除非有明确特性诉求。
+        </div>
+
+        <h2 id="practice">生产环境最佳配置实战</h2>
+
+        <h3 id="principles">调优四原则</h3>
+
+        <ol>
+          <li><strong>先定目标再动手</strong>：吞吐 SLA → Parallel/G1；尾延迟 SLA → ZGC。没有指标的调优都是玄学。</li>
+          <li><strong>少调比多调好</strong>：G1/ZGC 的自适应能力已经很强，手工干预新生代大小、晋升阈值往往是负优化；经典参数 <code>SurvivorRatio</code>、<code>NewRatio</code> 只在 Serial/Parallel/CMS 上精细调。</li>
+          <li><strong>Xms = Xmx</strong>：固定堆大小，避免运行期扩缩抖动；对延迟敏感服务加 <code>-XX:+AlwaysPreTouch</code> 启动时即触碰全部页。</li>
+          <li><strong>日志与 dumps 先行</strong>：GC 日志和 HeapDump 参数必须在上线前配好，出事后再加等于裸奔。</li>
+        </ol>
+
+        <h3 id="practice-8">场景一：JDK 8 容器化微服务（Parallel）</h3>
+
+        <p>大量存量系统仍跑在 JDK 8 上。容器时代它最大的坑是<strong>内存感知</strong>：8u131 之前的 JVM 看不到 cgroup 限制，把宿主机内存当全世界；8u191 起才补齐 <code>UseContainerSupport</code>。所以 JDK 8 上容器配置的铁律是<strong>显式指定堆大小</strong>：</p>
+
+        <div class="code-block"><span class="cmt"># 2C4G 容器，预留元空间与堆外开销</span>
+java -server \
+  -Xms1536m -Xmx1536m \
+  -XX:+UseParallelGC -XX:ParallelGCThreads=2 \
+  -XX:MetaspaceSize=192m -XX:MaxMetaspaceSize=320m \
+  -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/data/logs/ \
+  -XX:+ExitOnOutOfMemoryError \
+  -Xloggc:/data/logs/gc.log -XX:+PrintGCDetails \
+  -XX:+PrintGCDateStamps -XX:+UseGCLogFileRotation \
+  -XX:NumberOfGCLogFiles=5 -XX:GCLogFileSize=20M \
+  -jar app.jar</div>
+
+        <p>要点：<code>ParallelGCThreads</code> 在 2 核容器默认取 2 即可，不必手调；<code>ExitOnOutOfMemoryError</code> 让进程 OOM 即退出，交给 K8s 拉起健康实例，比带病运行强；堆外（Metaspace + DirectMemory + 线程栈 + CodeCache）合计预留 1GB 左右，4GB 容器配 1.5GB 堆是稳妥起点。</p>
+
+        <h3 id="practice-cms">场景二：JDK 8 CMS 遗留系统（仅维护）</h3>
+
+        <p>CMS 系统升级前需要稳住。核心是<strong>防并发回收失败</strong>——老年代必须在业务高分配率下也留有余量：</p>
+
+        <div class="code-block"><span class="cmt"># CMS 维持态配置：防碎片 + 防并发失败</span>
+java -Xms4g -Xmx4g \
+  -XX:+UseConcMarkSweepGC -XX:+UseParNewGC \
+  -XX:CMSInitiatingOccupancyFraction=70 \
+  -XX:+UseCMSInitiatingOccupancyOnly \
+  -XX:+CMSParallelRemarkEnabled \
+  -XX:CMSMaxAbortablePrecleanTime=5000 \
+  -XX:+ScavengeBeforeFullGC \
+  -XX:MaxMetaspaceSize=512m \
+  -jar app.jar</div>
+
+        <p><code>CMSInitiatingOccupancyFraction=70</code> + <code>UseCMSInitiatingOccupancyOnly</code> 固定在 70% 启动并发回收，留 30% 缓冲。若日志频繁出现 <code>concurrent mode failure</code>，优先加大堆或调低该值，而不是调线程数。终极方案只有一条：升级 JDK，用 G1 替换。</p>
+
+        <h3 id="practice-g1">场景三：JDK 11/17 G1 标准微服务（推荐基线）</h3>
+
+        <p>绝大多数在线服务的标准答案，4C8G 容器参考配置：</p>
+
+        <div class="code-block"><span class="cmt"># JDK 17 · G1 · 4C8G 容器 · P99 敏感的通用服务</span>
+java -XX:+UseG1GC \
+  -Xms4g -Xmx4g \
+  -XX:MaxGCPauseMillis=100 \
+  -XX:InitiatingHeapOccupancyPercent=35 \
+  -XX:MetaspaceSize=192m -XX:MaxMetaspaceSize=320m \
+  -XX:ParallelGCThreads=4 -XX:ConcGCThreads=1 \
+  -XX:+AlwaysPreTouch -XX:+UseStringDeduplication \
+  -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/data/logs \
+  -Xlog:gc*,gc+heap=debug:file=/data/logs/gc.log:time,uptime,level,tags:filecount=5,filesize=20m \
+  -jar app.jar</div>
+
+        <p>逐条说明：</p>
+
+        <ul>
+          <li><strong>MaxGCPauseMillis=100</strong>：软目标而非硬承诺。设得过小（如 20ms）会迫使 G1 缩小年轻代、单次回收 Region 数减少，GC 频率上升反而伤吞吐。100ms 对多数在线服务是甜点位。</li>
+          <li><strong>IHOP=35</strong>：默认 45，高分配率服务可下调让并发标记更早启动，避免标记赶不上分配。该值 G1 会自适应调整，此参数是初始值。</li>
+          <li><strong>ConcGCThreads</strong>：并发线程默认约 ParallelGCThreads 的 1/4，容器内显式压到 1，避免并发阶段抢占业务 CPU。</li>
+          <li><strong>UseStringDeduplication</strong>：字符串去重，重复字符串多的服务能省可观堆空间（G1 专属福利）。</li>
+          <li><strong>Xlog 统一日志</strong>：JDK 9+ 请忘记 <code>PrintGCDetails</code>（会打 warning），一套 <code>-Xlog:gc*</code> 全搞定，还带轮转。</li>
+        </ul>
+
+        <h3 id="practice-zgc">场景四：JDK 21+ ZGC 低延迟服务</h3>
+
+        <p>交易、风控、推送、实时风控大屏这类 P999 不能超过个位数毫秒的服务：</p>
+
+        <div class="code-block"><span class="cmt"># JDK 21 · 分代 ZGC · 8C16G 容器 · 亚毫秒延迟目标</span>
+java -XX:+UseZGC -XX:+ZGenerational \
+  -Xms10g -Xmx10g -XX:SoftMaxHeapSize=8g \
+  -XX:ConcGCThreads=2 \
+  -XX:+ZUncommit -XX:ZUncommitDelay=300 \
+  -XX:+AlwaysPreTouch \
+  -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/data/logs \
+  -Xlog:gc*:file=/data/logs/gc.log:time,uptime,level,tags:filecount=5,filesize=20m \
+  -jar app.jar</div>
+
+        <p>几个 ZGC 特有的心法：</p>
+
+        <ul>
+          <li><strong>堆要给足</strong>：并发回收期间业务还在分配，ZGC 官方建议堆余量为存活集的 2-3 倍。拿 G1 的「堆 = 存活集 × 1.5」经验直接套 ZGC 会翻车。</li>
+          <li><strong>SoftMaxHeapSize</strong>：软上限。ZGC 会努力把用量压在 8G 以内，超了才扩到 10G——比直接 -Xmx8g 多了弹性空间。</li>
+          <li><strong>ZUncommit</strong>：空闲内存归还操作系统，云上按时计费场景的真金白银。K8s HPA 联动时也避免容器内存水位虚高。</li>
+          <li><strong>JDK 23+ 无需 <code>ZGenerational</code></strong>：分代已是默认；JDK 21/22 必须显式开启，否则跑的是不分代模式。</li>
+          <li><strong>小堆别用 ZGC</strong>：几 GB 以下且不在意 100ms 停顿的服务，G1 综合表现更好，ZGC 的并发开销在小堆上得不偿失。</li>
+        </ul>
+
+        <h3 id="practice-batch">场景五：大内存批处理</h3>
+
+        <p>离线计算、数仓 ETL、模型训练预处理——吞吐就是一切：</p>
+
+        <div class="code-block"><span class="cmt"># JDK 17 · 16C48G 物理机 · 大堆批处理 · 二选一</span>
+
+<span class="cmt"># 方案A：G1（大对象多时优先，Region 调大减少 Humongous）</span>
+java -XX:+UseG1GC -Xms40g -Xmx40g \
+  -XX:G1HeapRegionSize=16m \
+  -XX:MaxGCPauseMillis=1000 \
+  -XX:ParallelGCThreads=16 -XX:ConcGCThreads=4 \
+  -XX:+AlwaysPreTouch -jar batch.jar
+
+<span class="cmt"># 方案B：Parallel（纯吞吐极致，GC 占比目标 5%）</span>
+java -XX:+UseParallelGC -Xms40g -Xmx40g \
+  -XX:GCTimeRatio=19 \
+  -XX:+AlwaysPreTouch -jar batch.jar</div>
+
+        <p>批处理堆里常有巨型集合与数组，G1 方案把 Region 调到 16MB 能显著减少 Humongous 对象（超过 Region 一半即 Humongous，会直接进 Old 且清理成本高）。<code>GCTimeRatio=19</code> 表示 GC 时间目标占比 1/(19+1)=5%。</p>
+
+        <h3 id="practice-cloud">云原生容器适配清单</h3>
+
+        <div class="scenario-grid">
+          <div class="scenario-card">
+            <span class="scenario-card-tag">内存感知</span>
+            <div class="scenario-card-title">按比例而非绝对值配堆</div>
+            <div class="scenario-card-body">JDK 10+/8u191+ 默认容器感知。多进程容器用 <strong><code>-XX:MaxRAMPercentage=70.0</code></strong> 替代 -Xmx，单 JVM 独占容器可到 75.0。切记 Metaspace、DirectMemory、CodeCache、线程栈都不在百分比内，K8s limit 要留白。</div>
+          </div>
+          <div class="scenario-card">
+            <span class="scenario-card-tag">CPU 感知</span>
+            <div class="scenario-card-title">GC 线程数受 CPU limit 影响</div>
+            <div class="scenario-card-body">JVM 按（容器）CPU 数决定 GC/JIT 线程。CPU limit 给 2 的容器，G1 并发线程可能只有 0-1 个，并发周期被拉长。必要时 <strong><code>-XX:ActiveProcessorCount</code></strong> 显式声明。</div>
+          </div>
+          <div class="scenario-card">
+            <span class="scenario-card-tag">故障语义</span>
+            <div class="scenario-card-title">让 OOM 走 K8s 的路</div>
+            <div class="scenario-card-body">堆 dump 留现场，进程自杀让编排系统拉新：<strong><code>-XX:+ExitOnOutOfMemoryError</code></strong>。比进程僵死卡满整个 SLA 强得多。JDK 8 用 <code>-XX:+CrashOnOutOfMemoryError</code> 时注意与 kill 信号语义差异。</div>
+          </div>
+          <div class="scenario-card">
+            <span class="scenario-card-tag">弹性伸缩</span>
+            <div class="scenario-card-title">内存可上交的 GC</div>
+            <div class="scenario-card-body">ZGC 用 <code>+ZUncommit</code>；G1（JDK 12+）用 <code>-XX:G1PeriodicGCInterval=300000</code> 触发周期性并发回收并配合 <code>-XX:G1PeriodicGCSystemLoadThreshold</code> 空闲判断，低峰期归还内存给 OS，配合云成本优化。</div>
+          </div>
+        </div>
+
+        <h3>上线前检查清单</h3>
+
+        <div class="checklist">
+          <div class="checklist-title">GC CONFIG CHECKLIST</div>
+          <ul>
+            <li>堆大小固定（Xms=Xmx），容器内存 limit ≥ 堆 + 堆外开销总和，留 25% 余量</li>
+            <li>收集器与业务目标匹配：吞吐型 Parallel / 均衡型 G1 / 延迟型 ZGC</li>
+            <li>GC 日志开启并轮转（JDK 9+ 用 -Xlog:gc*，JDK 8 用 PrintGC 系列 + 轮转）</li>
+            <li>HeapDumpOnOutOfMemoryError + HeapDumpPath 指向持久卷</li>
+            <li>MaxMetaspaceSize 已设上限，防止类加载泄漏打爆容器</li>
+            <li>ExitOnOutOfMemoryError 已加，K8s liveness/readiness 探针已配</li>
+            <li>压测验证过峰值分配率下的 GC 行为，Full GC 次数为零或可解释</li>
+            <li>Grafana/ARMS 接入了 GC 指标（停顿分布、频率、堆趋势），看板可查</li>
+          </ul>
+        </div>
+
+        <div class="callout-warn">
+          <strong>高频翻车点</strong>：① JDK 8u191 之前的镜像跑在容器里，-Xmx 未设导致 JVM 按宿主机内存自膨胀，OOMKill；② MaxGCPauseMillis 设成 10ms，G1 年轻代被压扁，GC 次数翻三倍；③ ZGC 沿用 G1 的小堆习惯，并发周期追不上分配率，降级成「GC 风暴」；④ Metaspace 无上限，热部署框架类卸载失败，容器内存缓慢泄漏；⑤ 升级 JDK 14+ 时 build 里还留着 -XX:+UseConcMarkSweepGC，直接启动失败。
+        </div>
+
+        <h2 id="conclusion">结语</h2>
+
+        <p>回望这三十年，Java GC 的演进遵循着一条清晰的主线：<strong>不断把原来必须停顿的工作搬到并发侧，同时不断放大「堆」能安全达到的上限</strong>。算法上，从标记清除的碎片，到复制整理的空间换时间，到三色标记打破串行，再到染色指针把标记做进指针本体；堆模型上，从物理分代到 Region 化再到分代的螺旋回归；设计目标上，从「能跑起来」一路演进到云原生时代的弹性与可观测。</p>
+
+        <p>对工程师而言，这三十年的积累可以压缩成三个决策问题：<strong>我的 SLA 承诺的是吞吐还是延迟？我的堆有多大、分配率有多高？我用的 JDK 版本能选什么？</strong>三问之后，答案往往唯一。GC 调优没有银弹，但有谱系——理解演进脉络的人，能在任何一个版本上做出不离谱的配置决策。</p>
+
+        <p>下一个十年，GC 竞赛还在继续：紧凑对象头在 JDK 25 落地，分代 Shenandoah 补全最后一块拼图，而 GC 日志、JFR 与 OpenTelemetry 的融合正在把「可观测」变成一等公民。唯一确定的是，Stop The World 的疆域会继续收缩，直到只剩历史意义。</p>
+
+        <h3>参考资料</h3>
+        <ol>
+          <li>Oracle · Garbage-First Garbage Collector Tuning <a href="https://docs.oracle.com/en/java/javase/17/gctuning/garbage-first-garbage-collector-tuning.html" target="_blank" rel="noopener">docs.oracle.com — G1 Tuning</a></li>
+          <li>OpenJDK · ZGC 官方 Wiki（设计目标、染色指针、堆范围） <a href="https://wiki.openjdk.org/spaces/zgc/overview" target="_blank" rel="noopener">wiki.openjdk.org — ZGC Overview</a></li>
+          <li>Oracle · The Z Garbage Collector（JDK 17 调优指南） <a href="https://docs.oracle.com/en/java/javase/17/gctuning/z-garbage-collector1.html" target="_blank" rel="noopener">docs.oracle.com — ZGC</a></li>
+          <li>JEP 439 · Generational ZGC <a href="https://openjdk.org/jeps/439" target="_blank" rel="noopener">openjdk.org — JEP 439</a></li>
+          <li>Oracle · Java SE 8 G1（7u4 起正式支持） <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/vm/G1.html" target="_blank" rel="noopener">docs.oracle.com — G1 in JDK 8</a></li>
+          <li>JetBrains · Java 25 LTS 特性综述（JEP 519 紧凑对象头、JEP 521 分代 Shenandoah） <a href="https://blog.jetbrains.com/idea/2025/09/java-25-lts-and-intellij-idea/" target="_blank" rel="noopener">blog.jetbrains.com — Java 25 LTS</a></li>
+          <li>InfoQ · Java 25 Integrates Compact Object Headers <a href="https://www.infoq.com/news/2025/06/java-25-compact-object-headers/" target="_blank" rel="noopener">infoq.com — Compact Object Headers</a></li>
+        </ol>
+
+      </div>
+      <nav class="article-nav" id="articleNav"></nav>
+    </article>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; 2024-2026 馒头仔 | Smart Open. Built with care.</p>
+    </div>
+  </footer>
+
+  <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
+  <script src="../../js/article.js"></script>
+  <script src="../../js/preview-rail.js"></script>
+</body>
+</html>

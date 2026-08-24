@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 812" font-family="Inter, sans-serif">
+<defs>
+<marker id="m-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#00ff88"/></marker>
+<marker id="m-cyan" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#00f0ff"/></marker>
+<marker id="m-orange" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff8c00"/></marker>
+<marker id="m-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff4466"/></marker>
+<marker id="m-purple" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#a855f7"/></marker>
+<marker id="m-gray" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#7a7a85"/></marker>
+</defs>
+<rect width="1200" height="812" fill="#0a0a0f"/>
+<text x="600" y="42" text-anchor="middle" font-size="22" font-weight="700" fill="#e8e8ec">Cordis 插件机制五大思想</text>
+<text x="600" y="66" text-anchor="middle" font-size="13" fill="#7a7a85">插件即 Service 对象 · 上下文即服务仓库 · inject 声明依赖 · 类型化事件 · 注册即可逆效应</text>
+<rect x="36" y="96" width="212" height="200" rx="8" fill="#00ff88" fill-opacity="0.05" stroke="#00ff88" stroke-width="1.5"/>
+<rect x="36" y="96" width="212" height="4" rx="2" fill="#00ff88"/>
+<circle cx="64" cy="132" r="13" fill="#00ff88" opacity="0.2"/>
+<text x="64" y="136" text-anchor="middle" font-size="13" font-weight="700" fill="#00ff88" font-family="JetBrains Mono, monospace">1</text>
+<text x="84" y="136" font-size="13.5" font-weight="600" fill="#e8e8ec">插件即 Service</text>
+<text x="52" y="170" font-size="10.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">函数插件: name + inject</text>
+<text x="52" y="192" font-size="10.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">  + apply(ctx) 三字段</text>
+<text x="52" y="214" font-size="10.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">或 Service 子类，由</text>
+<text x="52" y="236" font-size="10.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">Cordis 挂载生命周期</text>
+<line x1="250" y1="196" x2="264" y2="196" stroke="#7a7a85" stroke-width="2" marker-end="url(#m-gray)"/>
+<rect x="266" y="96" width="212" height="200" rx="8" fill="#00f0ff" fill-opacity="0.05" stroke="#00f0ff" stroke-width="1.5"/>
+<rect x="266" y="96" width="212" height="4" rx="2" fill="#00f0ff"/>
+<circle cx="294" cy="132" r="13" fill="#00f0ff" opacity="0.2"/>
+<text x="294" y="136" text-anchor="middle" font-size="13" font-weight="700" fill="#00f0ff" font-family="JetBrains Mono, monospace">2</text>
+<text x="314" y="136" font-size="13.5" font-weight="600" fill="#e8e8ec">上下文即仓库</text>
+<text x="282" y="170" font-size="10.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">服务声明稳定键</text>
+<text x="282" y="192" font-size="10.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">ctx.tools / ctx.llm</text>
+<text x="282" y="214" font-size="10.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">ctx.sessions / ctx.agents</text>
+<text x="282" y="236" font-size="10.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">按键查找，不导入实现</text>
+<line x1="480" y1="196" x2="494" y2="196" stroke="#7a7a85" stroke-width="2" marker-end="url(#m-gray)"/>
+<rect x="496" y="96" width="212" height="200" rx="8" fill="#ff8c00" fill-opacity="0.05" stroke="#ff8c00" stroke-width="1.5"/>
+<rect x="496" y="96" width="212" height="4" rx="2" fill="#ff8c00"/>
+<circle cx="524" cy="132" r="13" fill="#ff8c00" opacity="0.2"/>
+<text x="524" y="136" text-anchor="middle" font-size="13" font-weight="700" fill="#ff8c00" font-family="JetBrains Mono, monospace">3</text>
+<text x="544" y="136" font-size="13.5" font-weight="600" fill="#e8e8ec">inject 声明依赖</text>
+<text x="512" y="170" font-size="10.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">inject: ['tools']</text>
+<text x="512" y="192" font-size="10.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">声明所需服务后等待</text>
+<text x="512" y="214" font-size="10.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">加载顺序 = 服务需求</text>
+<text x="512" y="236" font-size="10.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">无需手工编排启动</text>
+<line x1="710" y1="196" x2="724" y2="196" stroke="#7a7a85" stroke-width="2" marker-end="url(#m-gray)"/>
+<rect x="726" y="96" width="212" height="200" rx="8" fill="#a855f7" fill-opacity="0.05" stroke="#a855f7" stroke-width="1.5"/>
+<rect x="726" y="96" width="212" height="4" rx="2" fill="#a855f7"/>
+<circle cx="754" cy="132" r="13" fill="#a855f7" opacity="0.2"/>
+<text x="754" y="136" text-anchor="middle" font-size="13" font-weight="700" fill="#a855f7" font-family="JetBrains Mono, monospace">4</text>
+<text x="774" y="136" font-size="13.5" font-weight="600" fill="#e8e8ec">类型化事件</text>
+<text x="742" y="170" font-size="10.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">TS 声明合并定义事件名</text>
+<text x="742" y="192" font-size="10.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">emit / waterfall /</text>
+<text x="742" y="214" font-size="10.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">parallel / serial</text>
+<text x="742" y="236" font-size="10.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">四种分发模式即契约</text>
+<line x1="940" y1="196" x2="954" y2="196" stroke="#7a7a85" stroke-width="2" marker-end="url(#m-gray)"/>
+<rect x="956" y="96" width="212" height="200" rx="8" fill="#ff4466" fill-opacity="0.05" stroke="#ff4466" stroke-width="1.5"/>
+<rect x="956" y="96" width="212" height="4" rx="2" fill="#ff4466"/>
+<circle cx="984" cy="132" r="13" fill="#ff4466" opacity="0.2"/>
+<text x="984" y="136" text-anchor="middle" font-size="13" font-weight="700" fill="#ff4466" font-family="JetBrains Mono, monospace">5</text>
+<text x="1004" y="136" font-size="13.5" font-weight="600" fill="#e8e8ec">注册即效应</text>
+<text x="972" y="170" font-size="10.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">ctx.effect() / ctx.on()</text>
+<text x="972" y="192" font-size="10.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">安装提示词段落、工具、</text>
+<text x="972" y="214" font-size="10.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">监听器；插件卸载时</text>
+<text x="972" y="236" font-size="10.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">全部可预测回滚</text>
+<text x="36" y="348" font-size="14" font-weight="600" fill="#e8e8ec">Waterfall 语义：around 中间件，可改写、可短路</text>
+<text x="660" y="348" font-size="11" fill="#7a7a85">监听器收到 (...args, next)：调用 next() 委托，不调用即短路决策</text>
+<rect x="60" y="392" width="120" height="64" rx="8" fill="#12121a" stroke="#7a7a85" stroke-width="1.2"/>
+<text x="120" y="419" text-anchor="middle" font-size="12" fill="#e8e8ec">调用发起方</text>
+<text x="120" y="439" text-anchor="middle" font-size="10" fill="#7a7a85">ctx.dispatch</text>
+<line x1="180" y1="424" x2="208" y2="424" stroke="#00f0ff" stroke-width="2" marker-end="url(#m-cyan)"/>
+<rect x="226" y="392" width="176" height="64" rx="8" fill="#00ff88" fill-opacity="0.06" stroke="#00ff88" stroke-width="1.5"/>
+<text x="314.0" y="417" text-anchor="middle" font-size="12" font-weight="600" fill="#e8e8ec">权限门插件</text>
+<text x="314.0" y="436" text-anchor="middle" font-size="9.5" fill="#7a7a85">改写决策对象</text>
+<text x="314.0" y="450" text-anchor="middle" font-size="9.5" fill="#00ff88" font-family="JetBrains Mono, monospace">return next()</text>
+<line x1="405" y1="424" x2="428" y2="424" stroke="#00f0ff" stroke-width="2" marker-end="url(#m-cyan)"/>
+<rect x="448" y="392" width="176" height="64" rx="8" fill="#ff8c00" fill-opacity="0.06" stroke="#ff8c00" stroke-width="1.5"/>
+<text x="536.0" y="417" text-anchor="middle" font-size="12" font-weight="600" fill="#e8e8ec">审计插件</text>
+<text x="536.0" y="436" text-anchor="middle" font-size="9.5" fill="#7a7a85">只观察不决策</text>
+<text x="536.0" y="450" text-anchor="middle" font-size="9.5" fill="#ff8c00" font-family="JetBrains Mono, monospace">return next()</text>
+<line x1="627" y1="424" x2="650" y2="424" stroke="#00f0ff" stroke-width="2" marker-end="url(#m-cyan)"/>
+<rect x="670" y="392" width="176" height="64" rx="8" fill="#a855f7" fill-opacity="0.06" stroke="#a855f7" stroke-width="1.5"/>
+<text x="758.0" y="417" text-anchor="middle" font-size="12" font-weight="600" fill="#e8e8ec">策略插件</text>
+<text x="758.0" y="436" text-anchor="middle" font-size="9.5" fill="#7a7a85">owns the decision</text>
+<text x="758.0" y="450" text-anchor="middle" font-size="9.5" fill="#a855f7" font-family="JetBrains Mono, monospace">直接 return 短路</text>
+<line x1="849" y1="424" x2="872" y2="424" stroke="#00f0ff" stroke-width="2" marker-end="url(#m-cyan)"/>
+<rect x="892" y="392" width="120" height="64" rx="8" fill="#12121a" stroke="#7a7a85" stroke-width="1.2"/>
+<text x="952" y="419" text-anchor="middle" font-size="12" fill="#e8e8ec">最终执行</text>
+<text x="952" y="439" text-anchor="middle" font-size="10" fill="#7a7a85">工具 / 请求体</text>
+<text x="600" y="482" text-anchor="middle" font-size="10.5" fill="#ff4466">不调用 next() 直接返回 = 短路：该插件拥有决策权，下游监听器与最终执行都不再看到这次调用</text>
+<text x="36" y="520" font-size="14" font-weight="600" fill="#e8e8ec">四种事件分发模式：模式即公共契约</text>
+<rect x="36" y="536" width="140" height="36" rx="4" fill="#12121a"/>
+<text x="106.0" y="559" text-anchor="middle" font-size="12" font-weight="600" fill="#e8e8ec">模式</text>
+<rect x="176" y="536" width="140" height="36" rx="4" fill="#12121a"/>
+<text x="246.0" y="559" text-anchor="middle" font-size="12" font-weight="600" fill="#e8e8ec">是否 await</text>
+<rect x="316" y="536" width="260" height="36" rx="4" fill="#12121a"/>
+<text x="446.0" y="559" text-anchor="middle" font-size="12" font-weight="600" fill="#e8e8ec">分发顺序</text>
+<rect x="576" y="536" width="200" height="36" rx="4" fill="#12121a"/>
+<text x="676.0" y="559" text-anchor="middle" font-size="12" font-weight="600" fill="#e8e8ec">返回值</text>
+<rect x="776" y="536" width="388" height="36" rx="4" fill="#12121a"/>
+<text x="970.0" y="559" text-anchor="middle" font-size="12" font-weight="600" fill="#e8e8ec">典型用途</text>
+<rect x="36" y="572" width="140" height="40" rx="4" fill="#00ff88" fill-opacity="0.04" stroke="#00ff88" stroke-width="0.8" opacity="0.8"/>
+<text x="106.0" y="597" text-anchor="middle" font-size="12" font-weight="700" fill="#00ff88" font-family="JetBrains Mono, monospace">emit</text>
+<rect x="176" y="572" width="140" height="40" rx="4" fill="#00ff88" fill-opacity="0.04" stroke="#00ff88" stroke-width="0.8" opacity="0.8"/>
+<text x="246.0" y="597" text-anchor="middle" font-size="11" fill="#7a7a85">否</text>
+<rect x="316" y="572" width="260" height="40" rx="4" fill="#00ff88" fill-opacity="0.04" stroke="#00ff88" stroke-width="0.8" opacity="0.8"/>
+<text x="446.0" y="597" text-anchor="middle" font-size="11" fill="#7a7a85">注册顺序逐个观察</text>
+<rect x="576" y="572" width="200" height="40" rx="4" fill="#00ff88" fill-opacity="0.04" stroke="#00ff88" stroke-width="0.8" opacity="0.8"/>
+<text x="676.0" y="597" text-anchor="middle" font-size="11" fill="#7a7a85">无</text>
+<rect x="776" y="572" width="388" height="40" rx="4" fill="#00ff88" fill-opacity="0.04" stroke="#00ff88" stroke-width="0.8" opacity="0.8"/>
+<text x="790" y="597" font-size="11" fill="#7a7a85">纯通知：状态广播</text>
+<rect x="36" y="620" width="140" height="40" rx="4" fill="#00f0ff" fill-opacity="0.04" stroke="#00f0ff" stroke-width="0.8" opacity="0.8"/>
+<text x="106.0" y="645" text-anchor="middle" font-size="12" font-weight="700" fill="#00f0ff" font-family="JetBrains Mono, monospace">waterfall</text>
+<rect x="176" y="620" width="140" height="40" rx="4" fill="#00f0ff" fill-opacity="0.04" stroke="#00f0ff" stroke-width="0.8" opacity="0.8"/>
+<text x="246.0" y="645" text-anchor="middle" font-size="11" fill="#7a7a85">否</text>
+<rect x="316" y="620" width="260" height="40" rx="4" fill="#00f0ff" fill-opacity="0.04" stroke="#00f0ff" stroke-width="0.8" opacity="0.8"/>
+<text x="446.0" y="645" text-anchor="middle" font-size="11" fill="#7a7a85">注册顺序逐层包裹</text>
+<rect x="576" y="620" width="200" height="40" rx="4" fill="#00f0ff" fill-opacity="0.04" stroke="#00f0ff" stroke-width="0.8" opacity="0.8"/>
+<text x="676.0" y="645" text-anchor="middle" font-size="11" fill="#7a7a85">有（管道值）</text>
+<rect x="776" y="620" width="388" height="40" rx="4" fill="#00f0ff" fill-opacity="0.04" stroke="#00f0ff" stroke-width="0.8" opacity="0.8"/>
+<text x="790" y="645" font-size="11" fill="#7a7a85">拦截改写：请求 / 工具 / 步骤</text>
+<rect x="36" y="668" width="140" height="40" rx="4" fill="#ff8c00" fill-opacity="0.04" stroke="#ff8c00" stroke-width="0.8" opacity="0.8"/>
+<text x="106.0" y="693" text-anchor="middle" font-size="12" font-weight="700" fill="#ff8c00" font-family="JetBrains Mono, monospace">parallel</text>
+<rect x="176" y="668" width="140" height="40" rx="4" fill="#ff8c00" fill-opacity="0.04" stroke="#ff8c00" stroke-width="0.8" opacity="0.8"/>
+<text x="246.0" y="693" text-anchor="middle" font-size="11" fill="#7a7a85">是</text>
+<rect x="316" y="668" width="260" height="40" rx="4" fill="#ff8c00" fill-opacity="0.04" stroke="#ff8c00" stroke-width="0.8" opacity="0.8"/>
+<text x="446.0" y="693" text-anchor="middle" font-size="11" fill="#7a7a85">所有监听器并行</text>
+<rect x="576" y="668" width="200" height="40" rx="4" fill="#ff8c00" fill-opacity="0.04" stroke="#ff8c00" stroke-width="0.8" opacity="0.8"/>
+<text x="676.0" y="693" text-anchor="middle" font-size="11" fill="#7a7a85">无</text>
+<rect x="776" y="668" width="388" height="40" rx="4" fill="#ff8c00" fill-opacity="0.04" stroke="#ff8c00" stroke-width="0.8" opacity="0.8"/>
+<text x="790" y="693" font-size="11" fill="#7a7a85">扇出广播：遥测 / 多通道</text>
+<rect x="36" y="716" width="140" height="40" rx="4" fill="#a855f7" fill-opacity="0.04" stroke="#a855f7" stroke-width="0.8" opacity="0.8"/>
+<text x="106.0" y="741" text-anchor="middle" font-size="12" font-weight="700" fill="#a855f7" font-family="JetBrains Mono, monospace">serial</text>
+<rect x="176" y="716" width="140" height="40" rx="4" fill="#a855f7" fill-opacity="0.04" stroke="#a855f7" stroke-width="0.8" opacity="0.8"/>
+<text x="246.0" y="741" text-anchor="middle" font-size="11" fill="#7a7a85">是</text>
+<rect x="316" y="716" width="260" height="40" rx="4" fill="#a855f7" fill-opacity="0.04" stroke="#a855f7" stroke-width="0.8" opacity="0.8"/>
+<text x="446.0" y="741" text-anchor="middle" font-size="11" fill="#7a7a85">注册顺序串行执行</text>
+<rect x="576" y="716" width="200" height="40" rx="4" fill="#a855f7" fill-opacity="0.04" stroke="#a855f7" stroke-width="0.8" opacity="0.8"/>
+<text x="676.0" y="741" text-anchor="middle" font-size="11" fill="#7a7a85">有（顺序敏感）</text>
+<rect x="776" y="716" width="388" height="40" rx="4" fill="#a855f7" fill-opacity="0.04" stroke="#a855f7" stroke-width="0.8" opacity="0.8"/>
+<text x="790" y="741" font-size="11" fill="#7a7a85">强序决策：turn-stopping</text>
+<text x="600" y="796" text-anchor="middle" font-size="10" fill="#7a7a85" opacity="0.6">每个事件必须声明唯一分发模式并用对应方法派发——文档以 @mode 标注，目录自动校验声明与派发点一致</text>
+</svg>

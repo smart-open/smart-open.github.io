@@ -3,6 +3,22 @@
    ======================================== */
 const ARTICLES_DATA = [
   {
+    id: 'article-38',
+    title: 'DeepSeek把Agent内核拆成了插件',
+    excerpt: '深度拆解 DeepSeek Harness（dsh）的一切皆插件架构：Cordis 五大核心机制、waterfall 短路语义、Agent 生命周期 15 步事件流、会话日志不变量，工具插件与 Hook 插件的完整技术契约，附权限门禁、配置补丁、MCP 接入五大实战',
+    tags: ['DeepSeek Harness', 'Cordis', 'Agent 架构', '插件系统'],
+    date: '2026-08-23',
+    detailUrl: 'detail/article-38.html'
+  },
+  {
+    id: 'article-37',
+    title: 'Java GC三十年，停顿从秒到亚毫秒',
+    excerpt: '从 Serial、Parallel、CMS 到 G1、ZGC，全景拆解 Java GC 三十年演进：五大基础算法更替、堆模型从物理分代到 Region 化再到分代回归、停顿从秒级降到亚毫秒、PermGen 到 Metaspace 的内存区域变革，覆盖 JDK 8/11/17/21/25 各版本默认收集器与容器、微服务、低延迟、大内存四类环境的生产级 JVM 参数配置实战',
+    tags: ['Java GC', 'JVM 调优', 'ZGC', '性能优化'],
+    date: '2026-08-23',
+    detailUrl: 'detail/article-37.html'
+  },
+  {
     id: 'article-36',
     title: '主子Agent动态编排怎么实现？5阶段全链路实战',
     excerpt: '基于 AgentScope Java v2 的动态多级 Agent 编排实战：从子Agent元数据驱动、动态能力目录构建、LLM选择+代码校验、串行/并行调度到结果汇总容错，5大阶段全链路拆解，附完整Demo代码与架构示意图，覆盖安全防护三道防线',
