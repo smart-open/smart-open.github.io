@@ -13,23 +13,23 @@
 <rect x="36" y="96" width="210" height="450" rx="8" fill="#a855f7" fill-opacity="0.04" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="6,3"/>
 <text x="141" y="122" text-anchor="middle" font-size="13" font-weight="700" fill="#a855f7">线程私有区</text>
 <text x="141" y="140" text-anchor="middle" font-size="10" fill="#7a7a85">随线程创建销毁 · 不参与GC</text>
-<rect x="48" y="158" width="186" height="118" rx="8" fill="#12121a" stroke="#a855f7" stroke-width="1"/>
+<rect x="48" y="158" width="186" height="100" rx="8" fill="#12121a" stroke="#a855f7" stroke-width="1"/>
 <text x="141" y="184" text-anchor="middle" font-size="13" font-weight="600" fill="#e8e8ec">程序计数器</text>
-<text x="141" y="202" text-anchor="middle" font-size="9" fill="#a855f7" font-family="JetBrains Mono, monospace">PC Register</text>
+<text x="141" y="204" text-anchor="middle" font-size="9" fill="#a855f7" font-family="JetBrains Mono, monospace">PC Register</text>
 <text x="141" y="224" text-anchor="middle" font-size="10" fill="#7a7a85">当前字节码行号</text>
 <text x="141" y="242" text-anchor="middle" font-size="10" fill="#7a7a85">唯一无 OOM 区域</text>
-<rect x="48" y="288" width="186" height="118" rx="8" fill="#12121a" stroke="#a855f7" stroke-width="1"/>
-<text x="141" y="314" text-anchor="middle" font-size="13" font-weight="600" fill="#e8e8ec">虚拟机栈</text>
-<text x="141" y="332" text-anchor="middle" font-size="9" fill="#a855f7" font-family="JetBrains Mono, monospace">VM Stack</text>
-<text x="141" y="354" text-anchor="middle" font-size="10" fill="#7a7a85">栈帧: 局部变量表</text>
-<text x="141" y="372" text-anchor="middle" font-size="10" fill="#7a7a85">操作数栈/动态链接</text>
-<text x="141" y="390" text-anchor="middle" font-size="10" fill="#7a7a85">StackOverflowError</text>
-<text x="141" y="408" text-anchor="middle" font-size="10" fill="#7a7a85">-Xss 控制深度</text>
-<rect x="48" y="436" width="186" height="118" rx="8" fill="#12121a" stroke="#a855f7" stroke-width="1"/>
-<text x="141" y="462" text-anchor="middle" font-size="13" font-weight="600" fill="#e8e8ec">本地方法栈</text>
-<text x="141" y="480" text-anchor="middle" font-size="9" fill="#a855f7" font-family="JetBrains Mono, monospace">Native Stack</text>
-<text x="141" y="502" text-anchor="middle" font-size="10" fill="#7a7a85">native 方法服务</text>
-<text x="141" y="520" text-anchor="middle" font-size="10" fill="#7a7a85">HotSpot 与虚拟机栈合并</text>
+<rect x="48" y="282" width="186" height="132" rx="8" fill="#12121a" stroke="#a855f7" stroke-width="1"/>
+<text x="141" y="308" text-anchor="middle" font-size="13" font-weight="600" fill="#e8e8ec">虚拟机栈</text>
+<text x="141" y="328" text-anchor="middle" font-size="9" fill="#a855f7" font-family="JetBrains Mono, monospace">VM Stack</text>
+<text x="141" y="348" text-anchor="middle" font-size="10" fill="#7a7a85">栈帧: 局部变量表</text>
+<text x="141" y="366" text-anchor="middle" font-size="10" fill="#7a7a85">操作数栈/动态链接</text>
+<text x="141" y="384" text-anchor="middle" font-size="10" fill="#7a7a85">StackOverflowError</text>
+<text x="141" y="402" text-anchor="middle" font-size="10" fill="#7a7a85">-Xss 控制深度</text>
+<rect x="48" y="438" width="186" height="100" rx="8" fill="#12121a" stroke="#a855f7" stroke-width="1"/>
+<text x="141" y="464" text-anchor="middle" font-size="13" font-weight="600" fill="#e8e8ec">本地方法栈</text>
+<text x="141" y="484" text-anchor="middle" font-size="9" fill="#a855f7" font-family="JetBrains Mono, monospace">Native Stack</text>
+<text x="141" y="504" text-anchor="middle" font-size="10" fill="#7a7a85">native 方法服务</text>
+<text x="141" y="522" text-anchor="middle" font-size="10" fill="#7a7a85">HotSpot 与虚拟机栈合并</text>
 <rect x="286" y="96" width="560" height="450" rx="8" fill="#00f0ff" fill-opacity="0.04" stroke="#00f0ff" stroke-width="1.5"/>
 <rect x="286" y="96" width="560" height="4" rx="2" fill="#00f0ff"/>
 <text x="302" y="126" font-size="14" font-weight="700" fill="#00f0ff">Java 堆（GC 主战场）</text>
@@ -46,17 +46,14 @@
 <rect x="761.0" y="196" width="53" height="120" rx="6" fill="#ff8c00" fill-opacity="0.07" stroke="#ff8c00" stroke-width="1.2"/>
 <text x="787.5" y="252" text-anchor="middle" font-size="14" font-weight="700" fill="#ff8c00">S1</text>
 <text x="787.5" y="274" text-anchor="middle" font-size="10" fill="#7a7a85">1 份</text>
-<text x="816" y="338" text-anchor="end" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">SurvivorRatio=8 · 动态年龄判定晋升</text>
-<rect x="302" y="352" width="528" height="110" rx="8" fill="#ff8c00" fill-opacity="0.04" stroke="#ff8c00" stroke-width="1.2"/>
-<text x="316" y="380" font-size="12" font-weight="700" fill="#ff8c00">老年代 Old</text>
-<text x="316" y="400" font-size="10" fill="#7a7a85">长期存活对象 · 大对象直接分配（-XX:PretenureSizeThreshold）</text>
-<text x="316" y="420" font-size="10" fill="#7a7a85">NewRatio=2（Young:Old = 1:2）· MaxTenuringThreshold=15</text>
-<text x="316" y="440" font-size="10" fill="#7a7a85">标量替换/逃逸分析可让对象栈上分配，绕过堆</text>
-<line x1="406" y1="344" x2="406" y2="346" stroke="#00ff88" stroke-width="2" marker-end="url(#m-green)"/>
-<text x="418" y="350" font-size="10" fill="#00ff88">Minor GC 复制算法 · 年龄+1 晋升</text>
-<line x1="716" y1="344" x2="716" y2="346" stroke="#ff4466" stroke-width="2" marker-end="url(#m-red)"/>
-<text x="728" y="350" font-size="10" fill="#ff4466">Full GC · 全堆STW</text>
-<text x="566" y="530" text-anchor="middle" font-size="10" fill="#7a7a85">分代假说: 绝大多数对象朝生夕死，按存活时间分区回收可大幅降低单次回收成本</text>
+<text x="566" y="364" text-anchor="middle" font-size="9.5" fill="#7a7a85">Minor GC 复制晋升 · 年龄+1（Survivor 之间拷贝）</text>
+<rect x="302" y="390" width="528" height="122" rx="8" fill="#ff8c00" fill-opacity="0.04" stroke="#ff8c00" stroke-width="1.2"/>
+<text x="316" y="418" font-size="12" font-weight="700" fill="#ff8c00">老年代 Old · Full GC 全堆 STW</text>
+<text x="316" y="440" font-size="10" fill="#7a7a85">长期存活对象 · 大对象直接分配（-XX:PretenureSizeThreshold）</text>
+<text x="316" y="460" font-size="10" fill="#7a7a85">NewRatio=2（Young:Old = 1:2）· MaxTenuringThreshold=15</text>
+<text x="316" y="480" font-size="10" fill="#7a7a85">标量替换/逃逸分析可让对象栈上分配，绕过堆</text>
+<text x="316" y="500" font-size="10" fill="#7a7a85">SurvivorRatio=8 · 动态年龄判定晋升</text>
+<text x="566" y="540" text-anchor="middle" font-size="10" fill="#7a7a85">分代假说: 绝大多数对象朝生夕死，按存活时间分区回收可大幅降低单次回收成本</text>
 <rect x="886" y="96" width="278" height="450" rx="8" fill="#ff8c00" fill-opacity="0.04" stroke="#ff8c00" stroke-width="1.5" stroke-dasharray="6,3"/>
 <text x="1025" y="122" text-anchor="middle" font-size="13" font-weight="700" fill="#ff8c00">非堆区域（本地内存）</text>
 <rect x="898" y="142" width="254" height="118" rx="8" fill="#12121a" stroke="#00ff88" stroke-width="1"/>
