@@ -93,8 +93,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../css/main.css">
-  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/main.css?v=2">
+  <link rel="stylesheet" href="../../css/article.css?v=2">
   <link rel="stylesheet" href="../../css/preview-rail.css">
   <style>
     .evo-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
@@ -140,6 +140,63 @@
       .evo-table th, .evo-table td, .compare-table th, .compare-table td { padding: 8px 10px; }
     }
   </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://blog.sopenai.cn/articles/detail/article-31.html#faq",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Vibe Coding 在企业级系统里够用吗？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "不够。Vibe Coding 靠自然语言让 AI 快速产出，适合原型/小功能；企业级多依赖复杂领域模型、跨模块一致性、性能与安全约束，需要人主导架构与约束，再让 AI 大规模执行——即三级跳里的 Harness Engineer。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "AI 在企业级落地最大的门槛是什么？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "不是写代码，而是让人和 AI 共同理解并维护「领域模型与业务边界」：刷数据关系、微服务依赖、领域规则如何给 AI 结构化建模，决定了 AI 是助手还是破坏者。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "微服务拆分能让 AI 自动做吗？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "可以让 AI 辅助，但最终要人拍板：拆分依据是领域边界与依赖关系、团队规模、性能隔离等工程权衡，纯自动切会破坏依赖与可维护性；正确做法是 AI 建模与提议、人做工程决策。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "三高（高可用高并发高性能）架构怎么和 AI 协作？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "架构级决策（选型、容错、限流、缓存策略）原则上由人设计把关，AI 负责快速落地实现、生成配置、排查瓶颈与编写测试；核心与关键路径仍靠人验证，AI 放大产能而非替代架构判断。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "什么叫 Harness Engineer？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "指从「指挥 AI 写代码」升级为「搭建让 AI 稳定产出的工程化环境」的工程师：管好任务编排、规则约束、工具沙箱、门控与评测，让 AI 编码成为可观测、可回滚、可控的生产力。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "工程师会被 AI 编码取代吗？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "执行性编码会被 AI 分担，但「理解业务、定架构、做取舍、守质量与安全」的价值被放大；工程师正重塑为架构导航与质量把关者，会用 AI 并管得住 AI 的人更值钱。"
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -188,6 +245,17 @@
 
     <article class="article-content">
       <div class="markdown-body">
+    <div class="callout tldr geo-hidden">
+      <strong>太长不看</strong>
+      <ul>
+      <li>AI 编码三级跳：Vibe Coding（让 AI 写）→ Agent 编码（AI 主导实现）→ Harness Engineer（工程化管控 AI），企业级复杂系统的关键是第三级；</li>
+      <li>企业级系统真实门槛在领域模型与业务边界：先做领域模型协作建模，让 AI 理解业务抽象而不只是写代码；</li>
+      <li>微服务拆分要按领域与依赖做工程化决策，而非让 AI 随手切；高并发高可用（三高）架构仍需人主导设计、AI 加速落地；</li>
+      <li>安全重构支撑快速迭代：在 CI/门控下用 AI 做大规模安全重构，回归有保障、风险可控；</li>
+      <li>落地靠七原则与工具链：把 AI 编码纳入需求-设计-编码-测试-审查的工程流水线，工程师从「码农」重塑为「架构导航与质量把关者」。</li>
+      </ul>
+    </div>
+
 
         <figure class="article-inline-image">
           <img src="../../assets/img/article-ai-enterprise-transformation.jpg" alt="AI 编码驱动企业级系统转型">
@@ -654,7 +722,27 @@
         </ol>
 
       </div>
-      <nav class="article-nav" id="articleNav"></nav>
+      <h2 id="faq">常见问题</h2>
+
+<h3>Vibe Coding 在企业级系统里够用吗？</h3>
+<p>不够。Vibe Coding 靠自然语言让 AI 快速产出，适合原型/小功能；企业级多依赖复杂领域模型、跨模块一致性、性能与安全约束，需要人主导架构与约束，再让 AI 大规模执行——即三级跳里的 Harness Engineer。</p>
+
+<h3>AI 在企业级落地最大的门槛是什么？</h3>
+<p>不是写代码，而是让人和 AI 共同理解并维护「领域模型与业务边界」：刷数据关系、微服务依赖、领域规则如何给 AI 结构化建模，决定了 AI 是助手还是破坏者。</p>
+
+<h3>微服务拆分能让 AI 自动做吗？</h3>
+<p>可以让 AI 辅助，但最终要人拍板：拆分依据是领域边界与依赖关系、团队规模、性能隔离等工程权衡，纯自动切会破坏依赖与可维护性；正确做法是 AI 建模与提议、人做工程决策。</p>
+
+<h3>三高（高可用高并发高性能）架构怎么和 AI 协作？</h3>
+<p>架构级决策（选型、容错、限流、缓存策略）原则上由人设计把关，AI 负责快速落地实现、生成配置、排查瓶颈与编写测试；核心与关键路径仍靠人验证，AI 放大产能而非替代架构判断。</p>
+
+<h3>什么叫 Harness Engineer？</h3>
+<p>指从「指挥 AI 写代码」升级为「搭建让 AI 稳定产出的工程化环境」的工程师：管好任务编排、规则约束、工具沙箱、门控与评测，让 AI 编码成为可观测、可回滚、可控的生产力。</p>
+
+<h3>工程师会被 AI 编码取代吗？</h3>
+<p>执行性编码会被 AI 分担，但「理解业务、定架构、做取舍、守质量与安全」的价值被放大；工程师正重塑为架构导航与质量把关者，会用 AI 并管得住 AI 的人更值钱。</p>
+
+<nav class="article-nav" id="articleNav"></nav>
     </article>
   </div>
 

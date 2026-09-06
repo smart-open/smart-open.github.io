@@ -300,3 +300,17 @@ img {
     scroll-behavior: auto;
   }
 }
+
+/* GEO 视觉隐藏：仅向 AI 引擎/搜索引擎保留可抓取文本，对读者隐藏 */
+.geo-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

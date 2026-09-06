@@ -95,8 +95,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../css/main.css">
-  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/main.css?v=2">
+  <link rel="stylesheet" href="../../css/article.css?v=2">
   <link rel="stylesheet" href="../../css/preview-rail.css">
   <style>
     .gc-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
@@ -156,6 +156,63 @@
       .gc-table th, .gc-table td { padding: 8px 10px; }
     }
   </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://blog.sopenai.cn/articles/detail/article-37.html#faq",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Java 主要有哪些 GC 收集器、怎么演进？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "串行（Serial）→ 并行（Parallel）→ CMS → G1 → ZGC：从简单到吞吐优先，再到低停顿，再到亚毫秒级停顿；配合堆模型从物理分代到 Region 化、以及 ZGC 的染色指针与读屏障，停顿等级随之持续下行。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "CMS 为什么被 G1 取代？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "CMS 并行标记清扫虽低停顿，但存在内存碎片、浮动垃圾与无法避免的 Full GC，且其 Focus 于老年代面。G1 以 Region 化分代+可预测停顿目标，把吞吐与停顿平衡得更好，成为 JDK9+ 的默认收集器。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "ZGC 为什么能做到亚毫秒停顿？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "ZGC 用染色指针（把 GC 信息编码进指针）+ 读屏障 + 就地重定位，让回收大部分工作与应用并发执行、几乎不 STW，即使数十上百 GB 大堆也能维持亚毫秒暂停，主打超大堆低停顿场景。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "PermGen 和 Metaspace 有什么区别？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "PermGen 是固定的方法区实现，上限固定导致频繁类加载/代理生成时易 OOM；Metaspace 改用本地内存、默认动态扩容（可用 MaxMetaspaceSize 限制），大幅缓解类定义膨胀引发的内存问题。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "生产怎么根据场景选 GC？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "按堆大小与停顿敏感度：追求最大吞吐、对停顿不敏感选 Parallel；需要稳定可控低停顿常用 G1；超大堆且严格低停顿选 ZGC（及 Shenandoah）。启动前按业务目标benchmark 一轮再定。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "主流 JDK 版本默认 GC 是什么？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "JDK 8 默认 Parallel（ParallelOld），JDK 9-11 起默认 G1，JDK 稳定版本多沿用 G1，ZGC 作为可选低停顿方案持续增强。给不同版本项目配参时以各版本默认与生产实测为准。"
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
   <nav class="site-nav" id="nav">
@@ -203,6 +260,17 @@
 
     <article class="article-content">
       <div class="markdown-body">
+    <div class="callout tldr geo-hidden">
+      <strong>太长不看</strong>
+      <ul>
+      <li>Java GC 三十年是从 Serial/Parallel/CMS 到 G1、ZGC 的演进史：算法更替、堆模型从物理分代到 Region 化、停顿从秒级一路降到亚毫秒级；</li>
+      <li>五代收集器各为其战：Serial/Parallel 重吞吐、CMS 低停顿但碎片与 Full GC 之痛、G1 兼顾吞吐与停顿、ZGC 以亚毫秒停顿面向大堆；</li>
+      <li>堆模型从物理分代到 Region 化（G1）+ 染色指针/读屏障（ZGC）是停顿下降的关键设计创新；</li>
+      <li>元空间演进：PermGen（固定上限易 OOM）被 Metaspace（动态扩容）取代，是规避类加载/动态代理内存危机的关键改进；</li>
+      <li>主流 JDK 8/11/17/21/25 的默认 GC 与最佳配置持续演进，生产上要按堆大小与停顿敏感度选 GC 并给最优参数与监控。</li>
+      </ul>
+    </div>
+
         <figure class="article-inline-image">
           <img src="../../assets/img/article-37-diagram.svg" alt="Java GC 三十年演进全景图">
           <figcaption>Java GC 演进全景：五代收集器与算法、堆模型、停顿、设计目标四条演进主线</figcaption>
@@ -687,7 +755,27 @@ java -XX:+UseParallelGC -Xms40g -Xmx40g \
         </ol>
 
       </div>
-      <nav class="article-nav" id="articleNav"></nav>
+      <h2 id="faq">常见问题</h2>
+
+<h3>Java 主要有哪些 GC 收集器、怎么演进？</h3>
+<p>串行（Serial）→ 并行（Parallel）→ CMS → G1 → ZGC：从简单到吞吐优先，再到低停顿，再到亚毫秒级停顿；配合堆模型从物理分代到 Region 化、以及 ZGC 的染色指针与读屏障，停顿等级随之持续下行。</p>
+
+<h3>CMS 为什么被 G1 取代？</h3>
+<p>CMS 并行标记清扫虽低停顿，但存在内存碎片、浮动垃圾与无法避免的 Full GC，且其 Focus 于老年代面。G1 以 Region 化分代+可预测停顿目标，把吞吐与停顿平衡得更好，成为 JDK9+ 的默认收集器。</p>
+
+<h3>ZGC 为什么能做到亚毫秒停顿？</h3>
+<p>ZGC 用染色指针（把 GC 信息编码进指针）+ 读屏障 + 就地重定位，让回收大部分工作与应用并发执行、几乎不 STW，即使数十上百 GB 大堆也能维持亚毫秒暂停，主打超大堆低停顿场景。</p>
+
+<h3>PermGen 和 Metaspace 有什么区别？</h3>
+<p>PermGen 是固定的方法区实现，上限固定导致频繁类加载/代理生成时易 OOM；Metaspace 改用本地内存、默认动态扩容（可用 MaxMetaspaceSize 限制），大幅缓解类定义膨胀引发的内存问题。</p>
+
+<h3>生产怎么根据场景选 GC？</h3>
+<p>按堆大小与停顿敏感度：追求最大吞吐、对停顿不敏感选 Parallel；需要稳定可控低停顿常用 G1；超大堆且严格低停顿选 ZGC（及 Shenandoah）。启动前按业务目标benchmark 一轮再定。</p>
+
+<h3>主流 JDK 版本默认 GC 是什么？</h3>
+<p>JDK 8 默认 Parallel（ParallelOld），JDK 9-11 起默认 G1，JDK 稳定版本多沿用 G1，ZGC 作为可选低停顿方案持续增强。给不同版本项目配参时以各版本默认与生产实测为准。</p>
+
+<nav class="article-nav" id="articleNav"></nav>
     </article>
   </div>
 

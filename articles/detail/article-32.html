@@ -95,8 +95,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../css/main.css">
-  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/main.css?v=2">
+  <link rel="stylesheet" href="../../css/article.css?v=2">
   <link rel="stylesheet" href="../../css/preview-rail.css">
   <style>
     .evo-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
@@ -151,6 +151,63 @@
       .evo-table th, .evo-table td, .compare-table th, .compare-table td { padding: 8px 10px; }
     }
   </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://blog.sopenai.cn/articles/detail/article-32.html#faq",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "FDE 是做什么的、为什么 AI 落地需要它？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "FDE（前进部署工程师）长期驻在客户现场，负责把通用 AI 产品或模型按客户实际业务定制、集成、跑通并持续优化。因为 AI 从 Demo 到真实生产有很大 gap，需要既懂产品又懂客户的人在一线填平，这就是 FDE。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "FDE 需要具备哪些硬技能？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "工程/全栈基本功（会写能跑代码）、AI 集成能力（接模型/Agent/工具）、以及对目标行业的领域知识；能快速在客户环境里做集成、调试与优化，把「演示能跑」变成「业务真用」。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "FDE 的软实力重要吗？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "非常重要。现场会面临需求模糊、客户预期高、跨团队扯皮，需要优秀的沟通、抽象问题与推动落地能力，以及耐心——是否能和客户建立信任、把模糊需求提炼成可落地方案，往往决定 FDE 成败。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "FDE 和 SWE、Solution Engineer、ML Engineer 有什么区别？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "SWE 主要给产品写代码；FDE 在客户一线做定制与集成；Solution Engineer 侧重方案设计与售前对齐；ML Engineer 专注模型与算法。FDE 更像「现场即插即用的全栈交付+业务理解」，四者协作拆分职责。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "什么样的人适合做 FDE？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "既喜欢写代码又有较强沟通与现场交付意愿、能忍受脏活（数据乱、环境杂、客户要求多变）、对业务结果负责而不只对代码负责的人；通常做过全栈/交付/售前/售后类角色的人更容易上手。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "国内需要 FDE 吗？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "需要且在增长。当 AI 产品要批量卖给传统行业（制造、金融、政企）时，本地化部署与长期贴身服务的 FDE 需求升高；对想「更贴近业务价值」的工程师，FDE 是一条有成长空间的方向。"
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
   <nav class="site-nav" id="nav">
@@ -198,6 +255,17 @@
 
     <article class="article-content">
       <div class="markdown-body">
+    <div class="callout tldr geo-hidden">
+      <strong>太长不看</strong>
+      <ul>
+      <li>FDE（Forward Deployed Engineer，前沿部署工程师）的核心职责：深入客户现场，把 AI 能力转化为真实业务落地，是撕开 AI 落地「最后一公里」的关键角色；</li>
+      <li>硬技能栈：扎实的工程/全栈能力+AI 集成+领域知识，能快速在客户环境里把方案跑通；软实力：现场沟通、抽象问题、推动落地与耐心，是与客户建立信任的软杠杆；</li>
+      <li>FDE 的独特价值在「衔尾」：既懂产品/模型、又懂客户业务，负责把两者的 gap 填平，比单纯 SWE 更贴近业务、比售前更懂技术；</li>
+      <li>FDE 与 SWE/Solution Engineer/ML Engineer 边界：SWE 写产品、FDE 在一线定制落地、Solution Engineer 偏方案与商务、ML Engineer 偏模型，四者是协作而非替代；</li>
+      <li>国内对 FDE 的需求现实存在：尤其 AI 方案卖进传统企业时，本地化落地与长期陪伴的 FDE 越来越被需要。</li>
+      </ul>
+    </div>
+
 
         <figure class="article-inline-image">
           <img src="../../assets/img/article-fde-deployment.jpg" alt="FDE 在企业现场部署 AI 系统">
@@ -620,7 +688,27 @@
         </ol>
 
       </div>
-      <nav class="article-nav" id="articleNav"></nav>
+      <h2 id="faq">常见问题</h2>
+
+<h3>FDE 是做什么的、为什么 AI 落地需要它？</h3>
+<p>FDE（前进部署工程师）长期驻在客户现场，负责把通用 AI 产品或模型按客户实际业务定制、集成、跑通并持续优化。因为 AI 从 Demo 到真实生产有很大 gap，需要既懂产品又懂客户的人在一线填平，这就是 FDE。</p>
+
+<h3>FDE 需要具备哪些硬技能？</h3>
+<p>工程/全栈基本功（会写能跑代码）、AI 集成能力（接模型/Agent/工具）、以及对目标行业的领域知识；能快速在客户环境里做集成、调试与优化，把「演示能跑」变成「业务真用」。</p>
+
+<h3>FDE 的软实力重要吗？</h3>
+<p>非常重要。现场会面临需求模糊、客户预期高、跨团队扯皮，需要优秀的沟通、抽象问题与推动落地能力，以及耐心——是否能和客户建立信任、把模糊需求提炼成可落地方案，往往决定 FDE 成败。</p>
+
+<h3>FDE 和 SWE、Solution Engineer、ML Engineer 有什么区别？</h3>
+<p>SWE 主要给产品写代码；FDE 在客户一线做定制与集成；Solution Engineer 侧重方案设计与售前对齐；ML Engineer 专注模型与算法。FDE 更像「现场即插即用的全栈交付+业务理解」，四者协作拆分职责。</p>
+
+<h3>什么样的人适合做 FDE？</h3>
+<p>既喜欢写代码又有较强沟通与现场交付意愿、能忍受脏活（数据乱、环境杂、客户要求多变）、对业务结果负责而不只对代码负责的人；通常做过全栈/交付/售前/售后类角色的人更容易上手。</p>
+
+<h3>国内需要 FDE 吗？</h3>
+<p>需要且在增长。当 AI 产品要批量卖给传统行业（制造、金融、政企）时，本地化部署与长期贴身服务的 FDE 需求升高；对想「更贴近业务价值」的工程师，FDE 是一条有成长空间的方向。</p>
+
+<nav class="article-nav" id="articleNav"></nav>
     </article>
   </div>
 

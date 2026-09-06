@@ -95,8 +95,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="../../css/main.css">
-  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/main.css?v=2">
+  <link rel="stylesheet" href="../../css/article.css?v=2">
   <link rel="stylesheet" href="../../css/preview-rail.css">
   <style>
     /* ===== 对比表格 ===== */
@@ -478,6 +478,63 @@
       }
     }
   </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://blog.sopenai.cn/articles/detail/article-27.html#faq",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "实时对话数字人的技术链路是什么？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "标准链路：用户语音→ASR 转文本→LLM 生成回答→TTS 合成语音→唇形同步生成嘴型与面部动画→渲染与播放，全程流式拼接，端到端延迟控制到可自然对话的秒级。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "为什么实现「实时」比做「成品」难点高？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "成品可以等下完再出，实时要求每环节增量（流式）处理并尽量并行，LLM/TTS 都要流式输出，还要预取与节流；延迟、卡顿、嘴型漂移都会破坏对话感，工程难度集中在「低延迟稳定流式」。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "唇形同步怎么做？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "从语音特征驱动嘴型：经典用 Wav2Lip 等神经网络把生成的语音映射到口型，或用数字人模型自带的语音驱动动画；要嘴型准、自然且推理快，需在模型精度与实时性能间权衡。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "人格注入怎么让虚拟人「像某个人」？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "把目标人格的知识库、语气、情感倾向、习惯表达做成设定与上下文注入模型，让回答带人设；更精细可用角色数据把回答个性固定，形成自知力强、个体鲜明的数字人。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "开源项目怎么选？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "MetaHuman-Stream 偏高质量虚拟人、Linly-Talker 贴合中文、Duix 偏开源可用；选择看是否需要超低延迟、中文质量、以及你的 GPU 能否实时跑通。用自己人脸+语音实测一次再定。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "做实时数字人需要多强的 GPU？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "实时链路比离线更吃算力，尤其 TTS 与唇形/渲染。通常中高阶 NVIDIA GPU 起步，能否流畅取决于模型规模与是否启用流式/量化；先按「能实时跑通」的配置起步，再做优化而非一开始就堆顶配。"
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -526,6 +583,17 @@
 
     <article class="article-content">
       <div class="markdown-body">
+    <div class="callout tldr geo-hidden">
+      <strong>太长不看</strong>
+      <ul>
+      <li>「视频里的人活了」=做一个能跟人实时聊天的数字人：核心技术链路是 ASR（听懂）→ LLM（理解并思考回答）→ TTS（说话）→ 唇形同步（嘴型对上）→ 人格注入（像谁）→ 实时流式衔接；</li>
+      <li>六步链路最关键的是「低延迟驱动」：每环都要做流式（增量）处理，端到端延迟控制在可对话的秒级以内，否则不像「聊天」；</li>
+      <li>唇形同步让虚拟人「说人话」：用语音驱动嘴型/表情，开源项目在推理速度与细腻度间有取舍，实时应用要选轻量模型；</li>
+      <li>人格注入是「像谁」的精髓：把知识、情感、习惯数字化注入，决定虚拟人是否有个性、回答是否有人设；</li>
+      <li>开源横评（MetaHuman-Stream 等）各有狙击点，落地要走「选型→GPU→六步配对→校验」流程，并守住授权与识别边界。</li>
+      </ul>
+    </div>
+
         <figure class="article-inline-image">
           <img src="../../assets/img/article-virtual-human-realtime-chat-hero.jpg" alt="虚拟人实时对话主视觉：数字人面部分层渲染与声波交互">
           <figcaption>左边是视频素材，右边是实时对话的数字分身</figcaption>
@@ -1101,7 +1169,27 @@ python app.py \
           <li id="cite-8">Wav2Lip: Accurate Lip-sync for Arbitrary Talking Face, GitHub <a href="https://github.com/Rudrabha/Wav2Lip" target="_blank" rel="noopener">https://github.com/Rudrabha/Wav2Lip</a></li>
         </ol>
       </div>
-      <nav class="article-nav" id="articleNav"></nav>
+      <h2 id="faq">常见问题</h2>
+
+<h3>实时对话数字人的技术链路是什么？</h3>
+<p>标准链路：用户语音→ASR 转文本→LLM 生成回答→TTS 合成语音→唇形同步生成嘴型与面部动画→渲染与播放，全程流式拼接，端到端延迟控制到可自然对话的秒级。</p>
+
+<h3>为什么实现「实时」比做「成品」难点高？</h3>
+<p>成品可以等下完再出，实时要求每环节增量（流式）处理并尽量并行，LLM/TTS 都要流式输出，还要预取与节流；延迟、卡顿、嘴型漂移都会破坏对话感，工程难度集中在「低延迟稳定流式」。</p>
+
+<h3>唇形同步怎么做？</h3>
+<p>从语音特征驱动嘴型：经典用 Wav2Lip 等神经网络把生成的语音映射到口型，或用数字人模型自带的语音驱动动画；要嘴型准、自然且推理快，需在模型精度与实时性能间权衡。</p>
+
+<h3>人格注入怎么让虚拟人「像某个人」？</h3>
+<p>把目标人格的知识库、语气、情感倾向、习惯表达做成设定与上下文注入模型，让回答带人设；更精细可用角色数据把回答个性固定，形成自知力强、个体鲜明的数字人。</p>
+
+<h3>开源项目怎么选？</h3>
+<p>MetaHuman-Stream 偏高质量虚拟人、Linly-Talker 贴合中文、Duix 偏开源可用；选择看是否需要超低延迟、中文质量、以及你的 GPU 能否实时跑通。用自己人脸+语音实测一次再定。</p>
+
+<h3>做实时数字人需要多强的 GPU？</h3>
+<p>实时链路比离线更吃算力，尤其 TTS 与唇形/渲染。通常中高阶 NVIDIA GPU 起步，能否流畅取决于模型规模与是否启用流式/量化；先按「能实时跑通」的配置起步，再做优化而非一开始就堆顶配。</p>
+
+<nav class="article-nav" id="articleNav"></nav>
     </article>
   </div>
 

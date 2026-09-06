@@ -97,8 +97,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="../../css/main.css">
-  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/main.css?v=2">
+  <link rel="stylesheet" href="../../css/article.css?v=2">
   <link rel="stylesheet" href="../../css/preview-rail.css">
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>
@@ -115,6 +115,63 @@
       }
     });
   </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://blog.sopenai.cn/articles/detail/article-5.html#faq",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Elasticsearch 写入慢通常先从哪入手？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "先确认是否在用单个 ofts写（非 Bulk）。改为 Bulk 批量提交是第一优先，配合调整 refresh interval 与 translog 同步策略，通常能立刻看到吞吐提升。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "refresh_interval 设多大合适？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "默认 1s 会带来实时性但频繁刷新拖慢写入；对可容忍近实时（秒级~十几秒）可见的场景，可调到 5s~30s 或根据写入峰值动态调整，换取更高写吞吐。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "translog 的 async 和 request 模式怎么选？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "request 每次请求同步落盘、保证不丢数据但慢；async 定期刷盘更快但最坏可能丢一段数据。非强一致、能接受少量丢失的场景可用 async 提升写入性能。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "分片（shard）数量会影响写入吞吐吗？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "会。分片过多导致段合并与索引文件碎片放大，副本过多加大写入放大；应基于单分片容量和单节点承载合理规划主分片数，并权衡副本的可用性与写成本。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "怎么验证调优确实有效？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "用压测（如 esrally 或自建 Bulk 压测）在改动前后同条件对比写入吞吐与延迟，配合监控 refresh 时长、segment 数量、thread pool rejected 等指标，避免只凭感觉堆参数。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "线程池被拒绝（rejected）说明什么？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "说明写入超出现有处理能力，通常伴随 queue 打满。此时不应单纯加 queue（只是后延问题），要结合 Bulk 分批、扩节点、降 refresh 频率等做根本性减负。"
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -161,6 +218,17 @@
 
     <article class="article-content">
       <div class="markdown-body">
+    <div class="callout tldr geo-hidden">
+      <strong>太长不看</strong>
+      <ul>
+      <li>ES 写入优化的第一抓手是分批：用 Bulk API 把单条请求合并为批量，吞吐量可提升数量级；</li>
+      <li>刷新与同步映射是核心杠杆：适当拉长 refresh_interval、合理调 translog 同步策略（async/durability 权衡），在实时性与性能间取得平衡；</li>
+      <li>从源头减负：精简单个字段类型、谨慎使用 keyword/norms，减少段合并与倒排开销；</li>
+      <li>段合并与分片副本是幕后放大：控制段大小、合理分片数与副本数，避免写入放大拖垮吞吐；</li>
+      <li>硬件与线程池是被低估的杠杆：SSD、扩线程池队列、关闭不必要功能，往往比堆参数更见效，且必须用压测量化每个改动。</li>
+      </ul>
+    </div>
+
         <figure class="article-hero-image"><img src="../../assets/img/article-elasticsearch-optimization.jpg" alt="Elasticsearch性能优化"></figure>
 
 <p>在大数据时代，Elasticsearch（ES）早已不只是全文检索工具，它更是日志分析、监控指标存储、实时搜索的核心底座。然而，当数据洪流涌来时，很多企业都会遇到写入瓶颈：索引速率骤降、集群CPU飙高、甚至节点频繁掉线。本文将深入ES写入的底层机制，从API层到存储层，从软件参数到硬件选型，构建一套完整的写入性能优化体系。</p>
@@ -786,7 +854,27 @@ esrally race --track=nyc_taxis --target-hosts=es-node1:9200,es-node2:9200,es-nod
 <p>对于绝大多数写入密集型场景，核心优化组合是：<strong>Bulk批量5-20MB + 放宽Refresh间隔 + Async Translog + 预定义映射 + NVMe SSD</strong>。这套组合拳通常能带来2-3倍的吞吐提升，且实施成本极低。</p>
 
       </div>
-    <nav class="article-nav" id="articleNav"></nav>
+    <h2 id="faq">常见问题</h2>
+
+<h3>Elasticsearch 写入慢通常先从哪入手？</h3>
+<p>先确认是否在用单个 ofts写（非 Bulk）。改为 Bulk 批量提交是第一优先，配合调整 refresh interval 与 translog 同步策略，通常能立刻看到吞吐提升。</p>
+
+<h3>refresh_interval 设多大合适？</h3>
+<p>默认 1s 会带来实时性但频繁刷新拖慢写入；对可容忍近实时（秒级~十几秒）可见的场景，可调到 5s~30s 或根据写入峰值动态调整，换取更高写吞吐。</p>
+
+<h3>translog 的 async 和 request 模式怎么选？</h3>
+<p>request 每次请求同步落盘、保证不丢数据但慢；async 定期刷盘更快但最坏可能丢一段数据。非强一致、能接受少量丢失的场景可用 async 提升写入性能。</p>
+
+<h3>分片（shard）数量会影响写入吞吐吗？</h3>
+<p>会。分片过多导致段合并与索引文件碎片放大，副本过多加大写入放大；应基于单分片容量和单节点承载合理规划主分片数，并权衡副本的可用性与写成本。</p>
+
+<h3>怎么验证调优确实有效？</h3>
+<p>用压测（如 esrally 或自建 Bulk 压测）在改动前后同条件对比写入吞吐与延迟，配合监控 refresh 时长、segment 数量、thread pool rejected 等指标，避免只凭感觉堆参数。</p>
+
+<h3>线程池被拒绝（rejected）说明什么？</h3>
+<p>说明写入超出现有处理能力，通常伴随 queue 打满。此时不应单纯加 queue（只是后延问题），要结合 Bulk 分批、扩节点、降 refresh 频率等做根本性减负。</p>
+
+<nav class="article-nav" id="articleNav"></nav>
   </article>
   </div>
 

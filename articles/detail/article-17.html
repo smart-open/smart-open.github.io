@@ -95,9 +95,66 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="../../css/main.css">
-  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/main.css?v=2">
+  <link rel="stylesheet" href="../../css/article.css?v=2">
   <link rel="stylesheet" href="../../css/preview-rail.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://blog.sopenai.cn/articles/detail/article-17.html#faq",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "什么是物理世界模型（world model）？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "世界模型是对真实世界运行规律的内部表征：给定当前状态和动作，能预测下一时刻的物理状态与结果。它被视为让 AI 从「感官匹配」走向「因果推演」、进而实现物理 AGI 的核心。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "为什么说从 Next Token 到 Next Physical State 是范式跃迁？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "LLM 预测下一个 token 学到的是语言/表象分布，而物理 AGI 要预测世界的物理状态——需要理解重力、连续、因果与交互，涉及模态和推理层次的根本不同，因而是跃迁而非增量。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "物理 AGI 有哪几条技术路线？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "四大方向：视频生成式世界模型（用规模数据学先验）、具身强化学习（在交互中习得模型）、显式物理因果建模（可解释）、以及融合的混合路线；另有第五种全模态潜空间统一建模正在探索。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "物理 AI 和具身智能、机器人有什么关系？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "物理 AI 是更上层概念，含感知-推理-行动闭环，具身智能是其核心落地形态之一，机器人则是具身智能的主要载体；三者在最终目标一致但研究层次不同（见本文术语辨析）。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "物理 AI 现在最缺的是什么？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "三大瓶颈：海量高质量物理常识/交互数据稀缺、缺乏统一的评测标准（难以客观衡量是否学会物理规律）、以及概念被过度营销导致预期与真实进度错位。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "未来会先在哪些行业落地？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "「双金字塔」顶端是少数高价值任务。现实中先从数字孪生、仿真、工业控制、自动驾驶、机器人任务等相对结构化、可验证、风险可控的场景铺开，再走向更开放的真实环境。"
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -144,6 +201,17 @@
 
     <article class="article-content">
       <div class="markdown-body">
+    <div class="callout tldr geo-hidden">
+      <strong>太长不看</strong>
+      <ul>
+      <li>物理 AGI 的范式跃迁：从「预测下一个 Token」转向「预测下一个物理状态（Next Physical State）」，目标是让模型学会世界的因果规律而非文本统计；</li>
+      <li>四大探索方向：视频生成式世界模型（可作先验）、具身智能强化学习（交互习得）、明确物理因果模型、以及把它们融合的混合路线；</li>
+      <li>第五种可能是全模态潜空间建模：在统一语义/潜空间里把视频、语言、动作、物理量对齐，打破模态隔离；</li>
+      <li>产业落地呈「双金字塔」形态：底层海量简单结构化任务 + 顶层少数高价值复杂任务，先从低风险、可规模化的数字孪生/仿真切入；</li>
+      <li>2026 已进入物理 AI 元年，但概念、数据与评测三大挑战依旧：物理常识数据稀缺、评测没有统一定义、概念被滥用，需审慎看待落地进度。</li>
+      </ul>
+    </div>
+
         <figure class="article-hero-image"><img src="../../assets/img/article-world-model-physical-agi.jpg" alt="世界模型通往物理AGI"></figure>
 
 <p>站在从"预测下一个词"向"预测下一个物理状态"跃迁的关键节点，世界模型正成为通往物理AGI的核心桥梁。本文系统梳理世界模型的范式变革、四大技术路线与第五种可能、智源悟界系列最新成果、产业双金字塔体系，以及前路面临的挑战。</p>
@@ -470,7 +538,27 @@
 <p>AI，正在叩响触达实体世界的大门。</p>
 
       </div>
-    <nav class="article-nav" id="articleNav"></nav>
+    <h2 id="faq">常见问题</h2>
+
+<h3>什么是物理世界模型（world model）？</h3>
+<p>世界模型是对真实世界运行规律的内部表征：给定当前状态和动作，能预测下一时刻的物理状态与结果。它被视为让 AI 从「感官匹配」走向「因果推演」、进而实现物理 AGI 的核心。</p>
+
+<h3>为什么说从 Next Token 到 Next Physical State 是范式跃迁？</h3>
+<p>LLM 预测下一个 token 学到的是语言/表象分布，而物理 AGI 要预测世界的物理状态——需要理解重力、连续、因果与交互，涉及模态和推理层次的根本不同，因而是跃迁而非增量。</p>
+
+<h3>物理 AGI 有哪几条技术路线？</h3>
+<p>四大方向：视频生成式世界模型（用规模数据学先验）、具身强化学习（在交互中习得模型）、显式物理因果建模（可解释）、以及融合的混合路线；另有第五种全模态潜空间统一建模正在探索。</p>
+
+<h3>物理 AI 和具身智能、机器人有什么关系？</h3>
+<p>物理 AI 是更上层概念，含感知-推理-行动闭环，具身智能是其核心落地形态之一，机器人则是具身智能的主要载体；三者在最终目标一致但研究层次不同（见本文术语辨析）。</p>
+
+<h3>物理 AI 现在最缺的是什么？</h3>
+<p>三大瓶颈：海量高质量物理常识/交互数据稀缺、缺乏统一的评测标准（难以客观衡量是否学会物理规律）、以及概念被过度营销导致预期与真实进度错位。</p>
+
+<h3>未来会先在哪些行业落地？</h3>
+<p>「双金字塔」顶端是少数高价值任务。现实中先从数字孪生、仿真、工业控制、自动驾驶、机器人任务等相对结构化、可验证、风险可控的场景铺开，再走向更开放的真实环境。</p>
+
+<nav class="article-nav" id="articleNav"></nav>
   </article>
   </div>
 

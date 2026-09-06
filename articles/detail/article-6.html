@@ -97,8 +97,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="../../css/main.css">
-  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/main.css?v=2">
+  <link rel="stylesheet" href="../../css/article.css?v=2">
   <link rel="stylesheet" href="../../css/preview-rail.css">
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>
@@ -115,6 +115,63 @@
       }
     });
   </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://blog.sopenai.cn/articles/detail/article-6.html#faq",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Kafka、RocketMQ、RabbitMQ 核心差别是什么？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Kafka 是日志式存储，靠分区顺序写做到超高吞吐，适合流式管道；RocketMQ 是代理服务，兼顾吞吐与事务、顺序、延时等丰富能力；RabbitMQ 是协议交换机（AMQP），灵活路由但吞吐最低。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "需要消息不丢失时选哪个？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "三者都可做到不丢，但要配合配置：Kafka 用 acks=all+ISR、RocketMQ 同步刷盘+主从、RabbitMQ 用生产者确认+消费者手动 ack+持久化。可靠性和可用性需要业务结合高可用副本一起保障。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "消息顺序性怎么保证？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "算法只能保证单分区/单队列内的严格顺序：Kafka 按分区、RocketMQ 按 MessageQueue、RabbitMQ 按单队列。业务需把需要保序的数据按同一 key 路由到同一分区，才能获得顺序消费。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "吞吐量要求高该选谁？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "首选 Kafka，其顺序写+批量+零拷贝设计在海量日志、流式数据场景吞吐最高；RocketMQ 也能满足较高吞吐且能力更全；RabbitMQ 面向中小规模、低延迟路由。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "为什么要考虑运维复杂度？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "集群运维、分区再均衡、积压告警等都是隐形成本。选型时要算团队能长期维护的复杂度，Kafka 集群规模大时运维门槛高，必要时优先托管云版本。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "云原生时代 MQ 怎么演进？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Kafka 用 KRaft 去 Zookeeper、RocketMQ 5 强化云原生多端、RabbitMQ 3 提升集群稳定性；三种都在向更易运维、更云原生的方向收敛，选型时优先看托管与 Serverless 能力。"
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -161,6 +218,17 @@
 
     <article class="article-content">
       <div class="markdown-body">
+    <div class="callout tldr geo-hidden">
+      <strong>太长不看</strong>
+      <ul>
+      <li>三种 MQ 背后是三种架构哲学：Kafka=日志存储重顺序重吞吐，RocketMQ=代理服务多场景高可靠，RabbitMQ=协议交换机灵活但吞吐受限；</li>
+      <li>高可用各有招式：Kafka 靠副本（ISR）+Leader 选举，RocketMQ 靠主从+同步刷盘，RabbitMQ 靠镜像队列/仲裁队列；</li>
+      <li>顺序性：Kafka 分区内强顺序、RocketMQ 队列内顺序、RabbitMQ 单队列顺序，全局顺序三者都难保，需按业务限定键；</li>
+      <li>选型看关键矛盾：日志/流式管道优先 Kafka，交易保序与事务性强一致优先 RocketMQ，灵活路由和小规模任务优先 RabbitMQ；</li>
+      <li>运维成本与云原生演进是不可忽视的隐藏成本：三者都向云原生（KafkaKRaft、RocketMQ5、RabbitMQ3）收敛。</li>
+      </ul>
+    </div>
+
         <figure class="article-hero-image"><img src="../../assets/img/article-message-queue-comparison.jpg" alt="消息队列架构对比"></figure>
 
 <p>在现代分布式架构中，消息队列（MQ）扮演着系统解耦、流量削峰、异步通信的核心角色。然而，面对Kafka、RocketMQ、RabbitMQ这三款主流产品，技术团队往往陷入选择困境：Kafka吞吐量高但延迟大，RocketMQ功能丰富却生态较窄，RabbitMQ协议成熟却扩展性有限。本文将穿透表面特性，从架构设计哲学、存储模型、可靠性机制到运维复杂度，深度剖析三者背后的权衡逻辑，帮助你在具体场景下做出理性决策。</p>
@@ -832,7 +900,27 @@ graph TD
 <p>技术的本质是在约束条件下做最优权衡，理解每种MQ的设计哲学，才能在架构选型时心中有数。而当单一MQ无法满足全部需求时，混合架构并非不可接受——关键是明确每种MQ的职责边界，并建立统一的观测和告警体系。</p>
 
       </div>
-    <nav class="article-nav" id="articleNav"></nav>
+    <h2 id="faq">常见问题</h2>
+
+<h3>Kafka、RocketMQ、RabbitMQ 核心差别是什么？</h3>
+<p>Kafka 是日志式存储，靠分区顺序写做到超高吞吐，适合流式管道；RocketMQ 是代理服务，兼顾吞吐与事务、顺序、延时等丰富能力；RabbitMQ 是协议交换机（AMQP），灵活路由但吞吐最低。</p>
+
+<h3>需要消息不丢失时选哪个？</h3>
+<p>三者都可做到不丢，但要配合配置：Kafka 用 acks=all+ISR、RocketMQ 同步刷盘+主从、RabbitMQ 用生产者确认+消费者手动 ack+持久化。可靠性和可用性需要业务结合高可用副本一起保障。</p>
+
+<h3>消息顺序性怎么保证？</h3>
+<p>算法只能保证单分区/单队列内的严格顺序：Kafka 按分区、RocketMQ 按 MessageQueue、RabbitMQ 按单队列。业务需把需要保序的数据按同一 key 路由到同一分区，才能获得顺序消费。</p>
+
+<h3>吞吐量要求高该选谁？</h3>
+<p>首选 Kafka，其顺序写+批量+零拷贝设计在海量日志、流式数据场景吞吐最高；RocketMQ 也能满足较高吞吐且能力更全；RabbitMQ 面向中小规模、低延迟路由。</p>
+
+<h3>为什么要考虑运维复杂度？</h3>
+<p>集群运维、分区再均衡、积压告警等都是隐形成本。选型时要算团队能长期维护的复杂度，Kafka 集群规模大时运维门槛高，必要时优先托管云版本。</p>
+
+<h3>云原生时代 MQ 怎么演进？</h3>
+<p>Kafka 用 KRaft 去 Zookeeper、RocketMQ 5 强化云原生多端、RabbitMQ 3 提升集群稳定性；三种都在向更易运维、更云原生的方向收敛，选型时优先看托管与 Serverless 能力。</p>
+
+<nav class="article-nav" id="articleNav"></nav>
   </article>
   </div>
 

@@ -97,8 +97,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="../../css/main.css">
-  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/main.css?v=2">
+  <link rel="stylesheet" href="../../css/article.css?v=2">
   <link rel="stylesheet" href="../../css/preview-rail.css">
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>
@@ -115,6 +115,63 @@
       }
     });
   </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://blog.sopenai.cn/articles/detail/article-14.html#faq",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Agent 里的 Skill 到底是什么？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Skill 是封装成可调用单元的能力（工具/函数/动作），包含描述、入参 schema 与执行逻辑。它让 Agent 不止对话，而是能真正执行任务，是连接意图与行动的桥梁。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Skill 的 Manifest/Schema 起什么作用？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Manifest 描述 Skill 的元信息（名称、版本、能力、依赖），Schema 定义入参的结构与类型。它们让 Agent、开发者以及外部系统用统一格式理解并调用 Skill，是互操作与校验的基础。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Agent 怎么知道该调用哪个 Skill？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "通过意图解析与路由：先识别用户意图，再对齐到目标 Skill（可含上下文、相似度匹配或 LLM 判断），多候选时结合置信度与参数匹配决定，必要时让用户确认或组合多个 Skill。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "MCP 协议解决了什么问题？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "MCP（Model Context Protocol）统一了 Agent 与外部工具/资源的调用协议，让 Skill 可跨 Agent、跨平台被复用，避免每家 Agent 自造接口，是 Skill 互操作的基础设施。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "多 Skill 协同编排要注意什么？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "注意上下文污染、调用顺序与结果串接：每个 Skill 只接收必要上下文，输出要结构化、可被下游消费，并做失败回退与容错，避免一个 Skill 的异常拖垮整条链路。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Skill 执行的安全怎么保证？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "做参数与注入校验、白名单/权限隔离、危险操作二次确认与审计日志；对外部不可信数据严格脱敏，涉及敏感操作按权限分级执行，必要时放入沙箱隔离运行。"
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -161,6 +218,17 @@
 
     <article class="article-content">
       <div class="markdown-body">
+    <div class="callout tldr geo-hidden">
+      <strong>太长不看</strong>
+      <ul>
+      <li>Skill 是把 Agent 的行动能力封装成可被调用的单元：从用户自然语言到精确调用之间，需要「定义 → 发现 → 路由 → 执行 → 安全」五段链路；</li>
+      <li>标准化描述是互操作基础：用 Manifest/Schema 描述 Skill 的名称、参数、能力与依赖，让 Agent 和外部工具能互相理解；</li>
+      <li>意图解析与 Skill 路由是关键：通过 NLU/LLM 把用户意图映射到具体 Skill，需处理歧义、多 Skill 组合与置信度判定；</li>
+      <li>MCP 协议正成为 Skill 互操作的基础设施：统一工具调用协议，让 Agent 生态之间可插拔接入 MCP server；</li>
+      <li>安全与沙箱不可缺：Skill 执行需授权、参数校验、权限隔离与审计，多 Skill 编排时要管控上下文污染与调用边界。</li>
+      </ul>
+    </div>
+
         <figure class="article-hero-image"><img src="../../assets/img/article-agent-skill.jpg" alt="AI Agent Skill 架构图"></figure>
 
 <h2 id="agent">引言：从用户输入到Agent行动的鸿沟</h2>
@@ -595,7 +663,27 @@ graph TD
 <p>Skill 不仅是 AI Agent 执行任务的技术手段，更是连接 LLM 语义推理与真实世界操作的标准化接口层。随着 Agent 系统的复杂度持续提升，Skill 的设计、治理和编排能力将成为衡量一个 Agent 平台工程成熟度的核心指标。</p>
 
       </div>
-    <nav class="article-nav" id="articleNav"></nav>
+    <h2 id="faq">常见问题</h2>
+
+<h3>Agent 里的 Skill 到底是什么？</h3>
+<p>Skill 是封装成可调用单元的能力（工具/函数/动作），包含描述、入参 schema 与执行逻辑。它让 Agent 不止对话，而是能真正执行任务，是连接意图与行动的桥梁。</p>
+
+<h3>Skill 的 Manifest/Schema 起什么作用？</h3>
+<p>Manifest 描述 Skill 的元信息（名称、版本、能力、依赖），Schema 定义入参的结构与类型。它们让 Agent、开发者以及外部系统用统一格式理解并调用 Skill，是互操作与校验的基础。</p>
+
+<h3>Agent 怎么知道该调用哪个 Skill？</h3>
+<p>通过意图解析与路由：先识别用户意图，再对齐到目标 Skill（可含上下文、相似度匹配或 LLM 判断），多候选时结合置信度与参数匹配决定，必要时让用户确认或组合多个 Skill。</p>
+
+<h3>MCP 协议解决了什么问题？</h3>
+<p>MCP（Model Context Protocol）统一了 Agent 与外部工具/资源的调用协议，让 Skill 可跨 Agent、跨平台被复用，避免每家 Agent 自造接口，是 Skill 互操作的基础设施。</p>
+
+<h3>多 Skill 协同编排要注意什么？</h3>
+<p>注意上下文污染、调用顺序与结果串接：每个 Skill 只接收必要上下文，输出要结构化、可被下游消费，并做失败回退与容错，避免一个 Skill 的异常拖垮整条链路。</p>
+
+<h3>Skill 执行的安全怎么保证？</h3>
+<p>做参数与注入校验、白名单/权限隔离、危险操作二次确认与审计日志；对外部不可信数据严格脱敏，涉及敏感操作按权限分级执行，必要时放入沙箱隔离运行。</p>
+
+<nav class="article-nav" id="articleNav"></nav>
   </article>
   </div>
 

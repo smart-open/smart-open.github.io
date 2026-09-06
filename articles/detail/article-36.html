@@ -95,8 +95,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../css/main.css">
-  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/main.css?v=2">
+  <link rel="stylesheet" href="../../css/article.css?v=2">
   <link rel="stylesheet" href="../../css/preview-rail.css">
   <style>
     .param-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
@@ -149,6 +149,63 @@
       .param-table th, .param-table td, .compare-table th, .compare-table td { padding: 8px 10px; }
     }
   </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://blog.sopenai.cn/articles/detail/article-36.html#faq",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "主 Agent 怎么知道该把任务交给哪个子 Agent？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "靠「动态能力目录 + 元数据」：为每个子 Agent 建立能力描述与输入输出元数据，主 Agent 在规划时把任务需求与目录对齐，用语义匹配（LLM）捡候选、再用规则校验筛掉不合法的，最终确定调度目标。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "为什么选子 Agent 要「LLM + 代码校验」双把关？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "LLM 适合理解意图与语义、做柔性匹配，但它可能选错或给出不存在的 Agent；代码/规则校验保证只会落到真实、被授权、参数合法的能力上，两者互补——语义柔性 + 规则刚性，兼顾灵活与安全。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "多个子 Agent 如何调度？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "先判断任务能否并行（无依赖）还是必须串行（有依赖/顺序）；并行提升效率，串行保证先后与数据衔接；都要处理超时、熔断与失败重试，避免单个子 Agent 卡死拖垮整个流程。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "结果汇总与容错怎么做？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "汇总时把各子 Agent 的结构化输出做合并、去重与格式统一；子 Agent 失败时可重试或降级、对非关键失败可标记继续、最终由主 Agent 产出给用户的综合结果，并保留失败原因审计。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "主 Agent 的上下文会被子 Agent 撑爆吗？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "会。所以要做好上下文裁剪：主 Agent 只保留规划与决策所需的最小上下文，子 Agent 各自只接完成任务需要的输入，避免把整个会话内容灌给每个子 Agent 造成超限与混淆。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "多级 Agent 编排有哪三道安全防线？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "权限（子 Agent 只拿到有权的工具/数据）、校验（参数与调用合法性）、隔离（工具沙箱、超时与预算限制）：三者叠加让自主编排可控可信，是上生产前必查项。"
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
   <nav class="site-nav" id="nav">
@@ -196,6 +253,17 @@
 
     <article class="article-content">
       <div class="markdown-body">
+    <div class="callout tldr geo-hidden">
+      <strong>太长不看</strong>
+      <ul>
+      <li>主子（多级）Agent 编排的核心难题是「主 Agent 怎么知道子 Agent 擅长什么、怎么选对、怎么调度、怎么汇总」，用 5 阶段全链路解决；</li>
+      <li>阶段 1/2：为子 Agent 建元数据与「动态能力目录」（谁有什么能力、能做什么），主 Agent 据此做任务规划与分解，是「知人善任」的地基；</li>
+      <li>阶段 3：子 Agent 选择用「LLM 判断 + 代码/规则校验」双重把关——LLM 做语义匹配，规则做合法性约束，避免选到不该用的 Agent；</li>
+      <li>阶段 4/5：串行/并行调度执行 + 结果汇总与容错——调度要考虑依赖、超时与失败重试，汇总要合并去重并处理单 Agent 异常；</li>
+      <li>安全三道防线（权限、校验、隔离）与架构选型速查表、上生产检查清单贯穿始终，基于 AgentScope Java 全代码示例。</li>
+      </ul>
+    </div>
+
         <figure class="article-inline-image">
           <img src="../../assets/img/article-36-diagram.svg" alt="动态多级 Agent 编排架构全景示意图">
           <figcaption>动态多级 Agent 编排架构：5大阶段流水线 + 运行时架构 + 选择策略与安全防护</figcaption>
@@ -698,7 +766,27 @@ String codeResult = results.getT2().getTextContent();</div>
         </ol>
 
       </div>
-      <nav class="article-nav" id="articleNav"></nav>
+      <h2 id="faq">常见问题</h2>
+
+<h3>主 Agent 怎么知道该把任务交给哪个子 Agent？</h3>
+<p>靠「动态能力目录 + 元数据」：为每个子 Agent 建立能力描述与输入输出元数据，主 Agent 在规划时把任务需求与目录对齐，用语义匹配（LLM）捡候选、再用规则校验筛掉不合法的，最终确定调度目标。</p>
+
+<h3>为什么选子 Agent 要「LLM + 代码校验」双把关？</h3>
+<p>LLM 适合理解意图与语义、做柔性匹配，但它可能选错或给出不存在的 Agent；代码/规则校验保证只会落到真实、被授权、参数合法的能力上，两者互补——语义柔性 + 规则刚性，兼顾灵活与安全。</p>
+
+<h3>多个子 Agent 如何调度？</h3>
+<p>先判断任务能否并行（无依赖）还是必须串行（有依赖/顺序）；并行提升效率，串行保证先后与数据衔接；都要处理超时、熔断与失败重试，避免单个子 Agent 卡死拖垮整个流程。</p>
+
+<h3>结果汇总与容错怎么做？</h3>
+<p>汇总时把各子 Agent 的结构化输出做合并、去重与格式统一；子 Agent 失败时可重试或降级、对非关键失败可标记继续、最终由主 Agent 产出给用户的综合结果，并保留失败原因审计。</p>
+
+<h3>主 Agent 的上下文会被子 Agent 撑爆吗？</h3>
+<p>会。所以要做好上下文裁剪：主 Agent 只保留规划与决策所需的最小上下文，子 Agent 各自只接完成任务需要的输入，避免把整个会话内容灌给每个子 Agent 造成超限与混淆。</p>
+
+<h3>多级 Agent 编排有哪三道安全防线？</h3>
+<p>权限（子 Agent 只拿到有权的工具/数据）、校验（参数与调用合法性）、隔离（工具沙箱、超时与预算限制）：三者叠加让自主编排可控可信，是上生产前必查项。</p>
+
+<nav class="article-nav" id="articleNav"></nav>
     </article>
   </div>
 

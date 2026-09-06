@@ -95,8 +95,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="../../css/main.css">
-  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/main.css?v=2">
+  <link rel="stylesheet" href="../../css/article.css?v=2">
   <link rel="stylesheet" href="../../css/preview-rail.css">
   <style>
     /* ===== 架构层叠图 ===== */
@@ -297,6 +297,63 @@
       }
     }
   </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://blog.sopenai.cn/articles/detail/article-23.html#faq",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "什么是物理 AI？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "物理 AI 指能让 AI 在真实物理世界中感知、推理、决策并行动的智能系统，强调与环境的闭环交互，而不仅是在屏幕内生成内容；是 AI 从虚拟走向真实世界的升级方向。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "物理 AI 的「大脑」为什么被称为世界模型？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "世界模型是对世界运行规律的内部表征，能预测环境未来状态，让智能体「想清楚再动」。它承担物理 AI 的推理与规划，是区分感知层与真正智能的核心组件。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "物理 AI、具身智能、机器人有什么区别？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "物理 AI 是涵盖感知-推理-行动的总范畴；具身智能聚焦于需身体的智能任务形态；机器人是具身智能的重要载体。三者研究层次不同，物理 AI 最宏观，且未必要求物理形态。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "NVIDIA Cosmos 为什么被称为「物理 AI 的安卓时刻」？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Cosmos 试图把大规模、可训练的世界模型以标准化/开源的方式提供，如同安卓统一了移动生态——让大量开发者和行业不必各自从零训练，大幅降低物理 AI 的接入门槛，推动产业规模化。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "物理 AI 会在哪些行业先落地？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "目前商业落地集中在任务相对结构化、可验证、风险可控的领域：自动驾驶、工业与仓储机器人、数字孪生仿真、具身操作等；更开放的真实环境仍需持续攻克数据与评测难题。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "物理 AI 当前最大的瓶颈是什么？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "三大壁垒：高质量物理交互数据稀缺且昂贵、缺乏统一的物理智能评测标准、以及端到端系统在真实环境的可靠性与安全证明不足，这决定了真实量产节奏会比预期谨慎。"
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -345,6 +402,17 @@
 
     <article class="article-content">
     <div class="markdown-body">
+    <div class="callout tldr geo-hidden">
+      <strong>太长不看</strong>
+      <ul>
+      <li>物理 AI 让 AI 走出屏幕、在真实世界感知、推理与行动，是 2026 时代的关键主题，NVIDIA Cosmos 等模型标志着产业进入爆发期；</li>
+      <li>技术架构分四层：多模态感知、世界模型（大脑）、决策/控制、执行躯壳——世界模型是物理 AI 的核心大脑；</li>
+      <li>术语辨析：物理 AI ＞ 具身智能 ＞ 机器人，三者层次不同；物理 AI 强调感知-推理-行动闭环，不限于具身形态；</li>
+      <li>NVIDIA Cosmos 3 的意义在于「物理 AI 的安卓时刻」：把可规模化训练的世界模型标准化/开源，降低各行业接入门槛；</li>
+      <li>产业落地已在自动驾驶、工业、机器人、具身仿真等领域发生，但数据、成本、安全评测仍是三大瓶颈。</li>
+      </ul>
+    </div>
+
 
 <figure class="article-inline-image"><img src="../../assets/img/article-physical-ai-hero.jpg" alt="物理AI主视觉：机械手伸向神经网络光球，象征AI与物理世界的桥接"><figcaption>物理AI 的本质：让比特世界里的智能，学会在原子世界里动手</figcaption></figure>
 
@@ -645,7 +713,27 @@ policy = <span class="fn">RobotPolicy</span>.<span class="fn">from_gr00t</span>(
 </ol>
 
     </div>
-    <nav class="article-nav" id="articleNav"></nav>
+    <h2 id="faq">常见问题</h2>
+
+<h3>什么是物理 AI？</h3>
+<p>物理 AI 指能让 AI 在真实物理世界中感知、推理、决策并行动的智能系统，强调与环境的闭环交互，而不仅是在屏幕内生成内容；是 AI 从虚拟走向真实世界的升级方向。</p>
+
+<h3>物理 AI 的「大脑」为什么被称为世界模型？</h3>
+<p>世界模型是对世界运行规律的内部表征，能预测环境未来状态，让智能体「想清楚再动」。它承担物理 AI 的推理与规划，是区分感知层与真正智能的核心组件。</p>
+
+<h3>物理 AI、具身智能、机器人有什么区别？</h3>
+<p>物理 AI 是涵盖感知-推理-行动的总范畴；具身智能聚焦于需身体的智能任务形态；机器人是具身智能的重要载体。三者研究层次不同，物理 AI 最宏观，且未必要求物理形态。</p>
+
+<h3>NVIDIA Cosmos 为什么被称为「物理 AI 的安卓时刻」？</h3>
+<p>Cosmos 试图把大规模、可训练的世界模型以标准化/开源的方式提供，如同安卓统一了移动生态——让大量开发者和行业不必各自从零训练，大幅降低物理 AI 的接入门槛，推动产业规模化。</p>
+
+<h3>物理 AI 会在哪些行业先落地？</h3>
+<p>目前商业落地集中在任务相对结构化、可验证、风险可控的领域：自动驾驶、工业与仓储机器人、数字孪生仿真、具身操作等；更开放的真实环境仍需持续攻克数据与评测难题。</p>
+
+<h3>物理 AI 当前最大的瓶颈是什么？</h3>
+<p>三大壁垒：高质量物理交互数据稀缺且昂贵、缺乏统一的物理智能评测标准、以及端到端系统在真实环境的可靠性与安全证明不足，这决定了真实量产节奏会比预期谨慎。</p>
+
+<nav class="article-nav" id="articleNav"></nav>
   </article>
   </div>
 

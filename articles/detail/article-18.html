@@ -97,8 +97,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="../../css/main.css">
-  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/main.css?v=2">
+  <link rel="stylesheet" href="../../css/article.css?v=2">
   <link rel="stylesheet" href="../../css/preview-rail.css">
   <style>
     /* ===== 六层架构图 ===== */
@@ -450,6 +450,63 @@
       }
     }
   </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://blog.sopenai.cn/articles/detail/article-18.html#faq",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "什么是 AI 自主持续交付？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "从用户一句自然语言需求出发，AI 自动完成需求拆解、编码、测试、审查、部署的整个研发链路，并在关键节点有人工确认门控；本质是用「工程系统」承接研发，而非单个模型随手生成。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "要做这套系统核心先选什么？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "先定四大技术基石：任务编排引擎（怎么拆解调度）、通用/编码模型调用、编码执行内核（能操作文件/命令行/跑测试的 Agent CLI）、以及工具/MCP 生态。四者定了，架构和取舍随之清晰。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "怎么保证 AI 自主开发不会失控？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "用分层门控与 Check：在「需求确认→高风险命令→关键 PR 合并→正式上线」等节点插入 HITL（人类在环）确认；同时配权限隔离、镜像沙箱与可回滚，让自主度与可控性并存。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "小团队/小公司值得做吗？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "值得但要走轻量落地：不需要豪华基建，可用 IM 机器人卡片做交互入口、事件驱动串联流程、把认证与文档管理做好，先跑通少量重复性强的任务，再逐步扩大自主范围。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "事件驱动和可观测性为什么重要？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "这套系统链路长且常异步执行，事件驱动让各阶段松耦合、可重试；可观测性（日志、trace、指标、产物审计）让你能看清 AI「每一步干了什么、为何失败」，是可靠与追责的基石。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "「从一句话需求到上线」现实吗？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "现实但分层：简单、边界清晰的工程任务确实接近全自动；复杂多变的需求仍需人来定业务规则与验收。务实做法是把流水线做成「80% 自主 + 4 个 HITL 门控」，而非追求 100% 无监督。"
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -496,6 +553,17 @@
 
     <article class="article-content">
       <div class="markdown-body">
+    <div class="callout tldr geo-hidden">
+      <strong>太长不看</strong>
+      <ul>
+      <li>AI 自主持续交付=从一句话需求到全自动研发：核心是「工程系统」而非单模型，需要需求解析、任务分解、编码执行、测试审查、部署反馈的闭环流水线；</li>
+      <li>技术选型四大核心组件：编排引擎、模型网关、编码执行内核（如 Claude Code 这类 Agent CLI）、以及 MCP/工具生态，先定这四样再谈架构；</li>
+      <li>六层总体架构（接入层→编排层→执行层→工具层→数据/记忆层→可观测层）让 AI 管线像工程系统一样可运维、可回滚；</li>
+      <li>人机协同的关键是「80% 自主 + 4 个 HITL 门控」：在需求、高危操作、关键代码合并、上生产等节点设人工确认，既自主又可控；</li>
+      <li>中小公司落地不必豪华：用 IM 卡片做交互入口、事件驱动串联、配文档型部署，一场从「能用」到「好用」的路径更务实。</li>
+      </ul>
+    </div>
+
         <figure class="article-hero-image"><img src="../../assets/img/article-ai-cdp-platform.jpg" alt="AI自主持续交付研发平台架构"></figure>
 
 <h2 id="section-1">一、AI编程进入"工程系统"时代</h2>
@@ -1423,7 +1491,27 @@
 </ol>
 
       </div>
-    <nav class="article-nav" id="articleNav"></nav>
+    <h2 id="faq">常见问题</h2>
+
+<h3>什么是 AI 自主持续交付？</h3>
+<p>从用户一句自然语言需求出发，AI 自动完成需求拆解、编码、测试、审查、部署的整个研发链路，并在关键节点有人工确认门控；本质是用「工程系统」承接研发，而非单个模型随手生成。</p>
+
+<h3>要做这套系统核心先选什么？</h3>
+<p>先定四大技术基石：任务编排引擎（怎么拆解调度）、通用/编码模型调用、编码执行内核（能操作文件/命令行/跑测试的 Agent CLI）、以及工具/MCP 生态。四者定了，架构和取舍随之清晰。</p>
+
+<h3>怎么保证 AI 自主开发不会失控？</h3>
+<p>用分层门控与 Check：在「需求确认→高风险命令→关键 PR 合并→正式上线」等节点插入 HITL（人类在环）确认；同时配权限隔离、镜像沙箱与可回滚，让自主度与可控性并存。</p>
+
+<h3>小团队/小公司值得做吗？</h3>
+<p>值得但要走轻量落地：不需要豪华基建，可用 IM 机器人卡片做交互入口、事件驱动串联流程、把认证与文档管理做好，先跑通少量重复性强的任务，再逐步扩大自主范围。</p>
+
+<h3>事件驱动和可观测性为什么重要？</h3>
+<p>这套系统链路长且常异步执行，事件驱动让各阶段松耦合、可重试；可观测性（日志、trace、指标、产物审计）让你能看清 AI「每一步干了什么、为何失败」，是可靠与追责的基石。</p>
+
+<h3>「从一句话需求到上线」现实吗？</h3>
+<p>现实但分层：简单、边界清晰的工程任务确实接近全自动；复杂多变的需求仍需人来定业务规则与验收。务实做法是把流水线做成「80% 自主 + 4 个 HITL 门控」，而非追求 100% 无监督。</p>
+
+<nav class="article-nav" id="articleNav"></nav>
   </article>
   </div>
 

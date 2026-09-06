@@ -97,8 +97,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="../../css/main.css">
-  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/main.css?v=2">
+  <link rel="stylesheet" href="../../css/article.css?v=2">
   <link rel="stylesheet" href="../../css/preview-rail.css">
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>
@@ -115,6 +115,63 @@
       }
     });
   </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://blog.sopenai.cn/articles/detail/article-7.html#faq",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "TraceId 和 Span 是什么关系？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "一次分布式调用形成一条 Trace，内部由多个 Span 组成；Span 记录单个调用单元（如一个 RPC、一次 DB 操作），通过 GlobalTraceId 与 ParentSpanId 串成树状因果链。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "为什么异步容易丢失追踪上下文？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "因为 TraceId 常存于 ThreadLocal，而异步意味着代码跑到别的线程（线程池、CompletableFuture、MQ 消费线程），ThreadLocal 不会自动随之迁移，于是子段丢了父信息。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "@Async 方法怎么继续追踪？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "给 @Async 指定自定义 Executor，在提交任务前对每个任务包装并还原父线程上下文（或直接用 TransmittableThreadLocal），方法内即可继续漂 TraceId，最后清理避免泄漏。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "消息队列的链路如何打通？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "生产者在发送消息时把当前 TraceId 放进消息头，消费者在消费时读取该 TraceId 作为自己这段的父锚点重新打开 Span，并把下游调用串联其上，前后两段连成完整链路。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Zipkin 和 Jaeger 怎么选？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "两者都是成熟的 OpenTracing 兼容实现。Zipkin 轻量、Java 生态接入成熟；Jaeger 功能更全、支持更多存储与采样策略。长期推荐统一走高可观测标准 OpenTelemetry。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "有什么常见的生产追踪坑？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "线程池未启用上下文传递、异步写数据时序错乱、采样导致链断裂、跨语言/跨协议 header 名不一致等，建议用 TTL 传递、统一协议、合理采样并配好端到端校验。"
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -161,6 +218,17 @@
 
     <article class="article-content">
       <div class="markdown-body">
+    <div class="callout tldr geo-hidden">
+      <strong>太长不看</strong>
+      <ul>
+      <li>分布式追踪的基石是 TraceId 与 Span：一条 Trace 由多个 Span 串联，父 Span 与子 Span 通过 traceId/parentId 建立树状因果；</li>
+      <li>异步是追踪的最大敌人：ThreadLocal 在线程切换、线程池、@Async、消息队列消费中都可能丢失上下文，需用 TransmittableThreadLocal 等传递组件；</li>
+      <li>@Async 场景要打通需在方法进入时还原 TraceId、返回时清理，配自定义执行器传递上下文；</li>
+      <li>消息队列消费端要在发送方写入 TraceId、消费方读取并续传，才能跨服务串起整条链路；</li>
+      <li>落地推荐 OpenTelemetry 作为统一标准，替代各框架自有的 Sleuth+Zipkin/Jaeger 组合，并注意异步线程、异步写入等生产坑。</li>
+      </ul>
+    </div>
+
         <figure class="article-hero-image"><img src="../../assets/img/article-distributed-tracing.jpg" alt="分布式追踪架构"></figure>
 
 <p>在微服务架构中，一次用户请求可能跨越数十个服务节点，涉及同步调用、异步任务、消息消费等多种交互模式。当系统出现异常或性能瓶颈时，如果没有完整的调用链路追踪，排查问题无异于大海捞针。Spring Cloud Sleuth与Zipkin/Jaeger的组合为同步调用提供了优雅的解决方案，但异步场景下的Trace传递却成为许多团队的盲区。本文将从原理到实践，深入剖析异步任务链路追踪的核心挑战与完整解决方案。</p>
@@ -908,7 +976,27 @@ public void processWithOtel(String orderId) {
 <p>当TraceId像一条金色丝线贯穿所有异步边界时，微服务的调用迷雾便被彻底照亮，问题定位从数小时缩短为分钟级——这就是分布式追踪的真正价值。而实现这一目标的过程，也是对异步编程模型深刻理解的过程。</p>
 
       </div>
-    <nav class="article-nav" id="articleNav"></nav>
+    <h2 id="faq">常见问题</h2>
+
+<h3>TraceId 和 Span 是什么关系？</h3>
+<p>一次分布式调用形成一条 Trace，内部由多个 Span 组成；Span 记录单个调用单元（如一个 RPC、一次 DB 操作），通过 GlobalTraceId 与 ParentSpanId 串成树状因果链。</p>
+
+<h3>为什么异步容易丢失追踪上下文？</h3>
+<p>因为 TraceId 常存于 ThreadLocal，而异步意味着代码跑到别的线程（线程池、CompletableFuture、MQ 消费线程），ThreadLocal 不会自动随之迁移，于是子段丢了父信息。</p>
+
+<h3>@Async 方法怎么继续追踪？</h3>
+<p>给 @Async 指定自定义 Executor，在提交任务前对每个任务包装并还原父线程上下文（或直接用 TransmittableThreadLocal），方法内即可继续漂 TraceId，最后清理避免泄漏。</p>
+
+<h3>消息队列的链路如何打通？</h3>
+<p>生产者在发送消息时把当前 TraceId 放进消息头，消费者在消费时读取该 TraceId 作为自己这段的父锚点重新打开 Span，并把下游调用串联其上，前后两段连成完整链路。</p>
+
+<h3>Zipkin 和 Jaeger 怎么选？</h3>
+<p>两者都是成熟的 OpenTracing 兼容实现。Zipkin 轻量、Java 生态接入成熟；Jaeger 功能更全、支持更多存储与采样策略。长期推荐统一走高可观测标准 OpenTelemetry。</p>
+
+<h3>有什么常见的生产追踪坑？</h3>
+<p>线程池未启用上下文传递、异步写数据时序错乱、采样导致链断裂、跨语言/跨协议 header 名不一致等，建议用 TTL 传递、统一协议、合理采样并配好端到端校验。</p>
+
+<nav class="article-nav" id="articleNav"></nav>
   </article>
   </div>
 

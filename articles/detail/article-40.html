@@ -93,8 +93,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../css/main.css">
-  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/main.css?v=2">
+  <link rel="stylesheet" href="../../css/article.css?v=2">
   <link rel="stylesheet" href="../../css/preview-rail.css">
   <style>
     .codex-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
@@ -132,6 +132,63 @@
       .codex-table th, .codex-table td { padding: 8px 10px; }
     }
   </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://blog.sopenai.cn/articles/detail/article-40.html#faq",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Codex Harness 是什么？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "它是 OpenAI 开源的执行系统，把 Codex 的 Agent 运行能力（会话运行、工具调用、文件操作、审批）封装成可被其他应用复用的后端层，核心是通过 app-server JSON-RPC 协议驱动 Codex 完成任务。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Thread/Turn/Item 状态模型是什么？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Thread 是一次会话的容器；每次请求/迭代是一个 Turn；Turn 内部由多个 Item（用户消息、助手消息、工具结果等）组成。这套模型把 Agent 会话结构化，让协议可对其做明确的状态流转与响应。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "fork 与回滚是怎么实现的？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "设计把会话状态持久化（如 SQLite），据此支持 fork（从历史某点分支出一个新会话继续）与回滚（回到之前状态重跑），让 Agent 既能探索不同方案又能安全回溯，是避免状态不可逆事故的关键。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "它的安全模型怎么工作？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "双闸门：任何沙箱内的命令执行默认被隔离（锁死风险操作），需要执行真实命令或改动时触发人工审批通过才放行——让自主执行与高风险控制并存，是给自主 Agent 兜底的核心。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "怎么把 Codex 集成进已有系统？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "两条路：一是用 codex exec 把 Codex 作为命令/子进程塞进你自己的 CI 或流水线；二是让 Codex 反过来作为 MCP server 被其他应用/IDE 调用。选择合适的接入深浅即可复用这套执行能力。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "「界面、上下文、审批都归应用」怎么理解？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Codex Harness 只负责「执行」，而 UI、上下文注入、审批流程都由宿主应用自己决定。这意味着你可以拿它当底层执行引擎，按自己产品需求搭界面与门控，不必从零写 Agent 运行层。"
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
   <nav class="site-nav" id="nav">
@@ -179,6 +236,17 @@
 
     <article class="article-content">
       <div class="markdown-body">
+    <div class="callout tldr geo-hidden">
+      <strong>太长不看</strong>
+      <ul>
+      <li>OpenAI 开源 Codex Harness 把 Codex 的能力打回给所有人造 Agent 产品：核心在 app-server 的 JSON-RPC 协议与整个 serve 侧的执行生命周期；</li>
+      <li>Thread/Turn/Item 状态模型是它的骨架：一次会话拆成 Thread + 多个 Turn，每个 Turn 由若干 Item（用户/助手/工具消息）组成，状态机驱动整个执行；</li>
+      <li>会话状态落到 SQLite 并支持 fork 与回滚：让 Agent 可以分支尝试或回溯到历史状态，是可复现与安全的重要设计；</li>
+      <li>沙箱 × 审批双闸门安全模型：命令执行被沙箱隔离，关键操作要人工审批，兼顾自主执行与可控；</li>
+      <li>codex exec 把 Agent 塞进 CI/流水线、Codex 也可作为 MCP server 反向被其他应用集成，Relay 的启示是「界面、上下文、审批都归应用」——Harness 可被任意产品复用为后端的执行层。</li>
+      </ul>
+    </div>
+
         <figure class="article-inline-image">
           <img src="../../assets/img/article-40-arch.svg" alt="Codex Harness 整体架构图">
           <figcaption>Codex Harness 整体架构：产品形态层之下是四层集成面与 agent loop 核心，模型访问与托管服务在开源边界之外</figcaption>
@@ -468,7 +536,27 @@ codex exec resume --last <span class="str">"fix the race conditions you found"</
         </ol>
 
       </div>
-      <nav class="article-nav" id="articleNav"></nav>
+      <h2 id="faq">常见问题</h2>
+
+<h3>Codex Harness 是什么？</h3>
+<p>它是 OpenAI 开源的执行系统，把 Codex 的 Agent 运行能力（会话运行、工具调用、文件操作、审批）封装成可被其他应用复用的后端层，核心是通过 app-server JSON-RPC 协议驱动 Codex 完成任务。</p>
+
+<h3>Thread/Turn/Item 状态模型是什么？</h3>
+<p>Thread 是一次会话的容器；每次请求/迭代是一个 Turn；Turn 内部由多个 Item（用户消息、助手消息、工具结果等）组成。这套模型把 Agent 会话结构化，让协议可对其做明确的状态流转与响应。</p>
+
+<h3>fork 与回滚是怎么实现的？</h3>
+<p>设计把会话状态持久化（如 SQLite），据此支持 fork（从历史某点分支出一个新会话继续）与回滚（回到之前状态重跑），让 Agent 既能探索不同方案又能安全回溯，是避免状态不可逆事故的关键。</p>
+
+<h3>它的安全模型怎么工作？</h3>
+<p>双闸门：任何沙箱内的命令执行默认被隔离（锁死风险操作），需要执行真实命令或改动时触发人工审批通过才放行——让自主执行与高风险控制并存，是给自主 Agent 兜底的核心。</p>
+
+<h3>怎么把 Codex 集成进已有系统？</h3>
+<p>两条路：一是用 codex exec 把 Codex 作为命令/子进程塞进你自己的 CI 或流水线；二是让 Codex 反过来作为 MCP server 被其他应用/IDE 调用。选择合适的接入深浅即可复用这套执行能力。</p>
+
+<h3>「界面、上下文、审批都归应用」怎么理解？</h3>
+<p>Codex Harness 只负责「执行」，而 UI、上下文注入、审批流程都由宿主应用自己决定。这意味着你可以拿它当底层执行引擎，按自己产品需求搭界面与门控，不必从零写 Agent 运行层。</p>
+
+<nav class="article-nav" id="articleNav"></nav>
     </article>
   </div>
 

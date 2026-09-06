@@ -95,8 +95,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../css/main.css">
-  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/main.css?v=2">
+  <link rel="stylesheet" href="../../css/article.css?v=2">
   <link rel="stylesheet" href="../../css/preview-rail.css">
   <style>
     .evo-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
@@ -152,6 +152,63 @@
       .evo-table th, .evo-table td, .compare-table th, .compare-table td { padding: 8px 10px; }
     }
   </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://blog.sopenai.cn/articles/detail/article-34.html#faq",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "AgentScope Java v2 是什么？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "是阿里/开源企业级 Agent 框架的 Java 版本，提供 Agent 定义、编排、运行与平台集成能力；配合 Spring Boot/Spring Cloud Alibaba 生态，适合 Java 技术栈构建可生产的 Agent 平台。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "什么是 HarnessAgent 工程化底座？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "HarnessAgent 把模型之外的运行管控做成底座：任务流程、规则约束、工具调用、审计监控等，让 Agent 从「能跑」变成「业务可控可回滚」，是这台平台能否上生产的工程关键。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "企业 Agent 平台的「五座大山」指什么？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "身份与权限（尤其数据级）、工具生态与治理、上下文与记忆管理、安全沙箱与可控执行、以及高可用与性能。每座都不解决，平台就跑不到生产。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "怎么做到数据级权限？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "在功能级 RBAC 之上叠加数据级隔离：把每个 Agent 请求限定到其有权限的数据范围与租户/项目空间，工具调用与数据访问都做鉴权；实现可在网关/编排层统一拦截，避免越权。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "为什么要 MCP + Skill 双引擎？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "MCP 是统一外接第三方工具/服务的标准协议，Skill 是平台内部封装的能力单元；双引擎并存可让「外部生态可插拔、内部能力可治理」，并在路由与权限上统一管控，兼顾扩展性与可控。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Agent 平台「上生产检查清单」大概有什么？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "涵盖身份与数据权限、工具白名单与审计、上下文与记忆上限、安全沙箱与命令白名单、可观测性与日志、限流与熔断、高可用与备份、以及灰度与回滚等，文中列举 11 项便于逐条对照落地。"
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
   <nav class="site-nav" id="nav">
@@ -199,6 +256,17 @@
 
     <article class="article-content">
       <div class="markdown-body">
+    <div class="callout tldr geo-hidden">
+      <strong>太长不看</strong>
+      <ul>
+      <li>用 AgentScope Java v2 + Spring Boot + Spring Cloud Alibaba + HarnessAgent 搭企业级 Agent 平台，破解「五座大山」：身份权限、工具、上下文、安全、高可用；</li>
+      <li>AgentScope Java v2 的三大支柱提供 Agent 编排/运行基座，HarnessAgent 作为工程化底座补齐落地管控；</li>
+      <li>身份权限从「功能级」落到「数据级」：不只是谁能用，还要细分谁能看/操作哪些数据，RBAC+数据隔离并用；</li>
+      <li>工具生态走「MCP + Skill 双引擎」：MCP 统一外接工具、Skill 封装内部能力，多级扩展又避免口径混乱；</li>
+      <li>上下文与记忆管理、安全沙箱与可控执行、Spring Cloud Alibaba 集成、高可用与性能，构成上生产检查清单（11 项）的核心；附 3 个真实落地案例与清单便于照抄。</li>
+      </ul>
+    </div>
+
         <figure class="article-inline-image">
           <img src="../../assets/img/article-agent-platform-arch.jpg" alt="企业级 Agent 平台架构全景">
           <figcaption>AgentScope Java v2 + Spring Cloud Alibaba 构建的企业级 Agent 平台架构全景</figcaption>
@@ -793,7 +861,27 @@ agentscope:
         </ol>
 
       </div>
-      <nav class="article-nav" id="articleNav"></nav>
+      <h2 id="faq">常见问题</h2>
+
+<h3>AgentScope Java v2 是什么？</h3>
+<p>是阿里/开源企业级 Agent 框架的 Java 版本，提供 Agent 定义、编排、运行与平台集成能力；配合 Spring Boot/Spring Cloud Alibaba 生态，适合 Java 技术栈构建可生产的 Agent 平台。</p>
+
+<h3>什么是 HarnessAgent 工程化底座？</h3>
+<p>HarnessAgent 把模型之外的运行管控做成底座：任务流程、规则约束、工具调用、审计监控等，让 Agent 从「能跑」变成「业务可控可回滚」，是这台平台能否上生产的工程关键。</p>
+
+<h3>企业 Agent 平台的「五座大山」指什么？</h3>
+<p>身份与权限（尤其数据级）、工具生态与治理、上下文与记忆管理、安全沙箱与可控执行、以及高可用与性能。每座都不解决，平台就跑不到生产。</p>
+
+<h3>怎么做到数据级权限？</h3>
+<p>在功能级 RBAC 之上叠加数据级隔离：把每个 Agent 请求限定到其有权限的数据范围与租户/项目空间，工具调用与数据访问都做鉴权；实现可在网关/编排层统一拦截，避免越权。</p>
+
+<h3>为什么要 MCP + Skill 双引擎？</h3>
+<p>MCP 是统一外接第三方工具/服务的标准协议，Skill 是平台内部封装的能力单元；双引擎并存可让「外部生态可插拔、内部能力可治理」，并在路由与权限上统一管控，兼顾扩展性与可控。</p>
+
+<h3>Agent 平台「上生产检查清单」大概有什么？</h3>
+<p>涵盖身份与数据权限、工具白名单与审计、上下文与记忆上限、安全沙箱与命令白名单、可观测性与日志、限流与熔断、高可用与备份、以及灰度与回滚等，文中列举 11 项便于逐条对照落地。</p>
+
+<nav class="article-nav" id="articleNav"></nav>
     </article>
   </div>
 

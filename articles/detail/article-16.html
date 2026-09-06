@@ -97,8 +97,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="../../css/main.css">
-  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/main.css?v=2">
+  <link rel="stylesheet" href="../../css/article.css?v=2">
   <link rel="stylesheet" href="../../css/preview-rail.css">
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>
@@ -115,6 +115,63 @@
       }
     });
   </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://blog.sopenai.cn/articles/detail/article-16.html#faq",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "四大框架核心区别是什么？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "LangGraph 用图/状态机显式编排、控制细、适合可预测流程；AutoGen 以多智能体对话驱动协作；CrewAI 用角色+任务快速上手；AgentScope 侧重工程化与企业级集成（如 Java）。选型看你对任务可控性的需求。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "多智能体（multi-agent）框架适合什么场景？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "适合需要不同角色分工协作的任务（如规划+执行+审查）。但多智能体会带来对话发散、资源占用与调试难的问题，简单任务用单 Agent 更好，尽量避免为用而用。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "选出框架后如何做技术验证？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "先用最小的闭环用例走通一遍，检验框架能否覆盖你的任务编排、工具调用、状态持久化与人工介入点；再做规模与稳定性测试，观察是否会失控或资源膨胀，并验证可观测性与回滚。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "企业落地更看重框架的哪些能力？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "工程化能力：可观测性（日志/trace/评测）、版本与部署、权限与审计、多进程/分布式协作、以及对现有 Java/云技术栈的融合。这些往往比谁 demo 炫更重要。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Python 和 Java 框架怎么选？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "如果团队 Agent 逻辑要做重集成、走企业现有 Java 基建，优先支持 Java 的框架（如 AgentScope Java）；若以算法与实验为主、数据生态主要在 Python，可用 LangGraph/AutoGen/CrewAI。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "多智能体系统有哪些常见坑？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "智能体发散（无限对话）、上下文/令牌超限、单点 Agent 崩溃拖垮流程、资源成本失控、以及协议不清晰导致协作错乱；需配思路：明确终止条件、限流、日志跟踪与失败兜底。"
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -161,6 +218,17 @@
 
     <article class="article-content">
       <div class="markdown-body">
+    <div class="callout tldr geo-hidden">
+      <strong>太长不看</strong>
+      <ul>
+      <li>企业级 AI 开发框架四大主角——AgentScope、LangGraph、CrewAI、AutoGen——核心差异在编排范式：是图/状态机、还是 Actor、还是角色团队；</li>
+      <li>选型先定维度：任务复杂度、多智能体协作方式、工具/模型生态、可观测性、部署与语言（Python/Java）契合；</li>
+      <li>分梯队看：LangGraph 适合可预测、需精细控制状态流的场景；AutoGen 擅长多智能体对话协作；CrewAI 以角色扮演上手快；AgentScope 注重工程化与企业集成；</li>
+      <li>企业落地要按「决策路径」走：先画业务用例与边界 → 定编排范式 → 验证框架能力闭环 → 再做避坑评估，而非直接选工具；</li>
+      <li>避坑提醒：重功能小于重可维护性，多智能体的失控/资源占用/调试难度是常见量产陷阱，需配好日志、限制与评测。</li>
+      </ul>
+    </div>
+
         <figure class="article-hero-image"><img src="../../assets/img/article-ai-framework-compare.jpg" alt="AI Agent Skill 架构图"></figure>
 
 <p>针对<strong>企业级生产落地 + 标准化Skill能力 + 多智能体协作</strong>三个核心诉求，当前市场可分为两个梯队，其中第一梯队的两款框架是绝大多数企业的最优解，分别适配不同技术栈与业务背景。</p>
@@ -319,7 +387,27 @@ graph TD
 <p>选择框架时，技术栈匹配度往往比功能对比更重要。Java为主的企业强推Python框架，或者Python团队硬上Java生态，最终都会付出额外的适配和维护成本。AgentScope的多语言策略和LangGraph的Python生态优势，都是选型时需要重点考量的因素。</p>
 
       </div>
-    <nav class="article-nav" id="articleNav"></nav>
+    <h2 id="faq">常见问题</h2>
+
+<h3>四大框架核心区别是什么？</h3>
+<p>LangGraph 用图/状态机显式编排、控制细、适合可预测流程；AutoGen 以多智能体对话驱动协作；CrewAI 用角色+任务快速上手；AgentScope 侧重工程化与企业级集成（如 Java）。选型看你对任务可控性的需求。</p>
+
+<h3>多智能体（multi-agent）框架适合什么场景？</h3>
+<p>适合需要不同角色分工协作的任务（如规划+执行+审查）。但多智能体会带来对话发散、资源占用与调试难的问题，简单任务用单 Agent 更好，尽量避免为用而用。</p>
+
+<h3>选出框架后如何做技术验证？</h3>
+<p>先用最小的闭环用例走通一遍，检验框架能否覆盖你的任务编排、工具调用、状态持久化与人工介入点；再做规模与稳定性测试，观察是否会失控或资源膨胀，并验证可观测性与回滚。</p>
+
+<h3>企业落地更看重框架的哪些能力？</h3>
+<p>工程化能力：可观测性（日志/trace/评测）、版本与部署、权限与审计、多进程/分布式协作、以及对现有 Java/云技术栈的融合。这些往往比谁 demo 炫更重要。</p>
+
+<h3>Python 和 Java 框架怎么选？</h3>
+<p>如果团队 Agent 逻辑要做重集成、走企业现有 Java 基建，优先支持 Java 的框架（如 AgentScope Java）；若以算法与实验为主、数据生态主要在 Python，可用 LangGraph/AutoGen/CrewAI。</p>
+
+<h3>多智能体系统有哪些常见坑？</h3>
+<p>智能体发散（无限对话）、上下文/令牌超限、单点 Agent 崩溃拖垮流程、资源成本失控、以及协议不清晰导致协作错乱；需配思路：明确终止条件、限流、日志跟踪与失败兜底。</p>
+
+<nav class="article-nav" id="articleNav"></nav>
   </article>
   </div>
 

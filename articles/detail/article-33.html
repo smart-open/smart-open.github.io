@@ -95,8 +95,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../css/main.css">
-  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/main.css?v=2">
+  <link rel="stylesheet" href="../../css/article.css?v=2">
   <link rel="stylesheet" href="../../css/preview-rail.css">
   <style>
     .evo-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
@@ -142,6 +142,63 @@
       .evo-table th, .evo-table td, .compare-table th, .compare-table td { padding: 8px 10px; }
     }
   </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://blog.sopenai.cn/articles/detail/article-33.html#faq",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "为什么深度分页（OFFSET 大）会拖垮系统？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "因为 OFFSET 实现要扫描并丢弃前面所有行再取目标页，数据越深扫描越多，且排序也作用于整表。量级上从 O(页号) 恶性增长，直接拉高 CPU/IO 与响应时间，是模型性而非临时问题。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "MySQL 深度分页怎么优化？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "两个常用手段：延迟关联（先只查主键分页、再回表取所需列，减少回表行数）与游标分页（WHERE id > 上一页最大 id 而非 OFFSET，把性能从扫描变定位）。后者最彻底，前提是有可排序唯一列与稳定顺序。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "keyset pagination 是什么？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "也是游标分页的一种（PostgreSQL 常用）：用上次拿到的排序键（如 id、更新时间）作为下页的起点条件，原理与 `WHERE id > last` 一致，能稳定 O(log+页大小) 而不会随页码变慢。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Redis 里怎么做分页？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "有排序需求用 ZSET（ZRANGE/ZREVRANGE 按分数取页，天然适合排行榜等）；全量扫描用 SCAN 的游标机制分批迭代，避免 KEYS/一次性返回大数据；注意大数据集下别用大 offset 的 list 操作。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Elasticsearch 深分页怎么办？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "不要用大 from/size（会深扫描）。生产推荐 search_after（以上一页最后一个排序值作为继续点）配合 PIT（固定时间点快照）保证一致性，能满足稳定深分页且性能可控。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "这些分页优化怎么做取舍选择？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "按三要素：数据是否静态/顺序是否可排序、规模大小、以及需要页码跳转还是无线滚动。能接受「下一页跳到上次终点」就用游标类（keyset/search_after）性能最好；必须支持任意页码跳转才考虑带缓存的 offset 方案并做限流与索引优化。"
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
   <nav class="site-nav" id="nav">
@@ -189,6 +246,17 @@
 
     <article class="article-content">
       <div class="markdown-body">
+    <div class="callout tldr geo-hidden">
+      <strong>太长不看</strong>
+      <ul>
+      <li>深度分页是性能杀手：OFFSET 越大、数据库越慢（要扫描并丢前面所有行），分页「前几页快、后几页崩」是模型性问题；</li>
+      <li>三种常见优化：MySQL 用延迟关联（先查主键再回表）与游标分页（WHERE id&gt;last），PostgreSQL 用 keyset pagination，都可把 OFF SET 性能从 O(n) 拉回 O(cursor)；</li>
+      <li>Redis 分页用 ZSET 与 SCAN：ZSET 适合有排序的固定集分页，SCAN 用游标避免 KEYS/全表；</li>
+      <li>Elasticsearch 用 search_after 与 PIT（Point in Time）做稳定深分页，替代会造成性能问题的 from/size 大偏移；</li>
+      <li>缓存层分页与搜索场景各有取舍，通用原则：能用基于游标的「下一次从上次终点继续」就别用 OFFSET，按数据规模与排序需求选型，避免拖垮大表。</li>
+      </ul>
+    </div>
+
 
         <figure class="article-inline-image">
           <img src="../../assets/img/article-pagination-bottleneck.jpg" alt="深度分页性能瓶颈">
@@ -530,7 +598,27 @@ redis.setex(cache_key, <span class="str">300</span>, data)   <span class="cmt">#
         </ol>
 
       </div>
-      <nav class="article-nav" id="articleNav"></nav>
+      <h2 id="faq">常见问题</h2>
+
+<h3>为什么深度分页（OFFSET 大）会拖垮系统？</h3>
+<p>因为 OFFSET 实现要扫描并丢弃前面所有行再取目标页，数据越深扫描越多，且排序也作用于整表。量级上从 O(页号) 恶性增长，直接拉高 CPU/IO 与响应时间，是模型性而非临时问题。</p>
+
+<h3>MySQL 深度分页怎么优化？</h3>
+<p>两个常用手段：延迟关联（先只查主键分页、再回表取所需列，减少回表行数）与游标分页（WHERE id &gt; 上一页最大 id 而非 OFFSET，把性能从扫描变定位）。后者最彻底，前提是有可排序唯一列与稳定顺序。</p>
+
+<h3>keyset pagination 是什么？</h3>
+<p>也是游标分页的一种（PostgreSQL 常用）：用上次拿到的排序键（如 id、更新时间）作为下页的起点条件，原理与 `WHERE id &gt; last` 一致，能稳定 O(log+页大小) 而不会随页码变慢。</p>
+
+<h3>Redis 里怎么做分页？</h3>
+<p>有排序需求用 ZSET（ZRANGE/ZREVRANGE 按分数取页，天然适合排行榜等）；全量扫描用 SCAN 的游标机制分批迭代，避免 KEYS/一次性返回大数据；注意大数据集下别用大 offset 的 list 操作。</p>
+
+<h3>Elasticsearch 深分页怎么办？</h3>
+<p>不要用大 from/size（会深扫描）。生产推荐 search_after（以上一页最后一个排序值作为继续点）配合 PIT（固定时间点快照）保证一致性，能满足稳定深分页且性能可控。</p>
+
+<h3>这些分页优化怎么做取舍选择？</h3>
+<p>按三要素：数据是否静态/顺序是否可排序、规模大小、以及需要页码跳转还是无线滚动。能接受「下一页跳到上次终点」就用游标类（keyset/search_after）性能最好；必须支持任意页码跳转才考虑带缓存的 offset 方案并做限流与索引优化。</p>
+
+<nav class="article-nav" id="articleNav"></nav>
     </article>
   </div>
 
