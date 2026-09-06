@@ -5,6 +5,104 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>我把10年编码习惯，炼成了AI分身 - 馒头仔 | Smart Open</title>
   <meta name="description" content="完整复盘个人开发分身 dev-twin 的构建路径：五层对话先战略后建设、分层画像库提炼（三类标注+双重校准）、薄引擎六件事（决策分级 L1/L2/L3）、星枢案例实战验证、HITL 学习闭环（纠正→语料→复盘→入库→淘汰），附关键设计决策与复刻指南，含 dev-twin / dev-lifecycle / strategic-advisor 三个技能的开源地址。">
+  <link rel="canonical" href="https://blog.sopenai.cn/articles/detail/article-41.html">
+  <meta name="author" content="朱天伟">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <meta name="applicable-device" content="pc,mobile">
+  <meta name="keywords" content="AI分身,个人开发分身,dev-twin,Agent,AI编程,画像库,HITL,人机协作,决策分级,学习闭环,AI技能">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Smart Open">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:title" content="我把10年编码习惯，炼成了AI分身">
+  <meta property="og:description" content="把「我」提炼成可加载、可进化的画像库，配一个薄引擎按画像执行：决策分级 L1/L2/L3、纠正即语料的学习闭环、人定方向分身跑全程，附复刻七步。">
+  <meta property="og:url" content="https://blog.sopenai.cn/articles/detail/article-41.html">
+  <meta property="og:image" content="https://blog.sopenai.cn/assets/img/article-41-og.jpg">
+  <meta property="og:image:width" content="2688">
+  <meta property="og:image:height" content="1408">
+  <meta property="og:image:alt" content="开发者与其数字分身：十年编码习惯被提炼成 AI 画像库">
+  <meta property="article:published_time" content="2026-09-06">
+  <meta property="article:modified_time" content="2026-09-06">
+  <meta property="article:author" content="朱天伟">
+  <meta property="article:tag" content="AI 分身">
+  <meta property="article:tag" content="Skill 工程">
+  <meta property="article:tag" content="Agent">
+  <meta property="article:tag" content="HITL">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="我把10年编码习惯，炼成了AI分身">
+  <meta name="twitter:description" content="把「我」提炼成可加载、可进化的画像库，配一个薄引擎按画像执行：决策分级 L1/L2/L3、纠正即语料的学习闭环。">
+  <meta name="twitter:image" content="https://blog.sopenai.cn/assets/img/article-41-og.jpg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        "@id": "https://blog.sopenai.cn/articles/detail/article-41.html#article",
+        "mainEntityOfPage": { "@id": "https://blog.sopenai.cn/articles/detail/article-41.html" },
+        "headline": "我把10年编码习惯，炼成了AI分身",
+        "description": "完整复盘个人开发分身 dev-twin 的构建路径：五层对话先战略后建设、分层画像库提炼、薄引擎六件事（决策分级 L1/L2/L3）、星枢案例实战验证、HITL 学习闭环与人机协作分工，附关键设计决策与复刻指南。",
+        "image": ["https://blog.sopenai.cn/assets/img/article-41-og.jpg"],
+        "inLanguage": "zh-CN",
+        "datePublished": "2026-09-06",
+        "dateModified": "2026-09-06",
+        "author": {
+          "@type": "Person",
+          "name": "朱天伟",
+          "alternateName": "馒头仔",
+          "url": "https://blog.sopenai.cn/"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Smart Open",
+          "url": "https://blog.sopenai.cn/",
+          "logo": { "@type": "ImageObject", "url": "https://blog.sopenai.cn/favicon.png" }
+        },
+        "keywords": "AI分身,个人开发分身,dev-twin,Agent,AI编程,画像库,HITL,人机协作,决策分级,学习闭环",
+        "articleSection": "AI 工程"
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": "https://blog.sopenai.cn/articles/detail/article-41.html#breadcrumb",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "首页", "item": "https://blog.sopenai.cn/" },
+          { "@type": "ListItem", "position": 2, "name": "文章", "item": "https://blog.sopenai.cn/articles/index.html" },
+          { "@type": "ListItem", "position": 3, "name": "我把10年编码习惯，炼成了AI分身" }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://blog.sopenai.cn/articles/detail/article-41.html#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "没有大量历史项目素材，也能构建 AI 分身吗？",
+            "acceptedAnswer": { "@type": "Answer", "text": "能。画像提炼的核心不是素材量，而是「拷问式对齐」：用五层深度对话把决策原则显式化，再从少量真实代码中做三类标注与双重校准。缺的部分交给学习闭环，用日常使用中的纠正逐步补齐。" }
+          },
+          {
+            "@type": "Question",
+            "name": "全量画像塞进 prompt，会不会撑爆上下文？",
+            "acceptedAnswer": { "@type": "Answer", "text": "不会。画像分层存储，引擎按任务类型路由，单次任务最多加载三层；引擎本身只有约 115 行的薄设计，知识全部外挂在画像库，token 可控是验收铁律之一。" }
+          },
+          {
+            "@type": "Question",
+            "name": "为什么画像库做成外挂目录，而不是写死在引擎里？",
+            "acceptedAnswer": { "@type": "Answer", "text": "为了可替换与产品化：替换画像目录即可切换分身主体，引擎保持通用；后续用第二个人的素材验证提炼流程时，也天然实现数据隔离。" }
+          },
+          {
+            "@type": "Question",
+            "name": "一轮学习闭环要花多少时间？坚持不下来怎么办？",
+            "acceptedAnswer": { "@type": "Answer", "text": "约 10 分钟。AI 按画像层预生成候选总结并标注冲突，用户只做逐条确认（采纳、修改后采纳、放弃），每批不超过 4 条；语料攒满 10 项主动提醒，超过 20 项强制预警。" }
+          },
+          {
+            "@type": "Question",
+            "name": "哪些操作永远不能交给分身？",
+            "acceptedAnswer": { "@type": "Answer", "text": "三类：安全相关操作、不可逆操作（删数据、强推、重置历史）、以及「值不值得做」的价值判断。前两类是 L3 强制确认的硬红线，价值判断属于人的主体性，任何信任水平下都不下放。" }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
   <link rel="icon" type="image/png" href="../../favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,6 +125,9 @@
     .code-block .ann { color: #82aaff; }
     .callout { background: rgba(0,240,255,0.05); border: 1px solid var(--divider); border-left: 3px solid var(--accent); border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.6; }
     .callout strong { color: var(--accent); }
+    .tldr ul { margin: 10px 0 0; padding-left: 20px; }
+    .tldr li { margin: 6px 0; }
+    .tldr li::marker { color: var(--accent); }
     .callout-warn { background: rgba(255,68,102,0.05); border: 1px solid var(--divider); border-left: 3px solid #ff4466; border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.6; }
     .callout-warn strong { color: #ff4466; }
     .step-item { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 18px 20px; margin: 14px 0; border-left: 3px solid var(--accent); }
@@ -104,6 +205,16 @@
         <p>我之前的方案是一个叫 <code><a href="https://github.com/smart-open/skills/tree/main/dev-lifecycle" target="_blank" rel="noopener">dev-lifecycle</a></code> 的技能：把七阶段开发流程编排成提示词。它验证了可行性，也暴露了三个顽固问题——生成的代码冗余、token 消耗大、工程一大就跑偏。于是我做了一个更彻底的尝试：不教 AI「怎么开发」，而是把「我」本人提炼成一个可加载、可进化、可替换的<strong>画像库</strong>，再配一个按画像执行的薄引擎，让它成为我的开发分身。</p>
 
         <p>这篇文章完整复盘这个叫 <code><a href="https://github.com/smart-open/skills/blob/main/dev-twin" target="_blank" rel="noopener">dev-twin</a></code> 的项目：从战略分析到画像提炼，从引擎设计到实战验证，再到让它自我进化的学习闭环。全部过程两天天走完，当前版本 v1.1 已经在真实项目上跑通三大能力：像你一样思考决策、像你一样写代码、自我学习迭代。</p>
+
+        <div class="callout tldr">
+          <strong>太长不看</strong>
+          <ul>
+            <li>分身 = 外挂画像库（决策原则 / 编码习惯 / 架构偏好 / 工作方法）+ 约 115 行的薄引擎——知识全在画像，引擎只做路由、决策分级、留痕等六件事；</li>
+            <li>信任分级：L1 自主执行、L2 列选项请示、L3 强制确认；安全、不可逆、价值判断三类红线永不下放；</li>
+            <li>学习闭环：纠正即语料 → 攒 10 项复盘 → 确认才入库 → 3 个月未引用淘汰，一轮约 10 分钟；</li>
+            <li>复刻路径：五层对话定战略 → 画像提炼 → 薄引擎 → 三层验证 → 复盘闭环，三个技能均已开源。</li>
+          </ul>
+        </div>
 
         <h2 id="why">一、先想清楚：要解决什么问题</h2>
 
@@ -387,6 +498,23 @@ D7  代码精简为荣：最小代码量优雅完成同等功能，以堆砌重�
         <p>回到开头的问题：AI 时代，个人经验是最容易被低估的资产。模型人人都能用，但「你为什么这样决策」二十年积累下来的判断力，不会自动长到任何模型里——除非你亲手把它结构化。<strong>分身不是把工作丢给 AI，而是把「你」放大</strong>：你的决策原则变成可引用的条目，你的纠正变成它的进化，你的经验以 token 为单位开始复利。</p>
 
         <p>我的分身已经上岗了。你的呢？</p>
+
+        <h2 id="faq">常见问题</h2>
+
+        <h3>没有大量历史项目素材，也能构建 AI 分身吗？</h3>
+        <p>能。画像提炼的核心不是素材量，而是「拷问式对齐」：用五层深度对话把决策原则显式化，再从少量真实代码中做三类标注与双重校准。缺的部分交给学习闭环，用日常使用中的纠正逐步补齐。</p>
+
+        <h3>全量画像塞进 prompt，会不会撑爆上下文？</h3>
+        <p>不会。画像分层存储，引擎按任务类型路由，单次任务最多加载三层；引擎本身只有约 115 行的薄设计，知识全部外挂在画像库，token 可控是验收铁律之一。</p>
+
+        <h3>为什么画像库做成外挂目录，而不是写死在引擎里？</h3>
+        <p>为了可替换与产品化：替换画像目录即可切换分身主体，引擎保持通用；后续用第二个人的素材验证提炼流程时，也天然实现数据隔离。</p>
+
+        <h3>一轮学习闭环要花多少时间？坚持不下来怎么办？</h3>
+        <p>约 10 分钟。AI 按画像层预生成候选总结并标注冲突，用户只做逐条确认（采纳、修改后采纳、放弃），每批不超过 4 条；语料攒满 10 项主动提醒，超过 20 项强制预警。</p>
+
+        <h3>哪些操作永远不能交给分身？</h3>
+        <p>三类：安全相关操作、不可逆操作（删数据、强推、重置历史）、以及「值不值得做」的价值判断。前两类是 L3 强制确认的硬红线，价值判断属于人的主体性，任何信任水平下都不下放。</p>
 
         <h3>参考资料</h3>
         <ol>
