@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "同一连接上的并发请求多路复用",
+    "subtitle": "请求 ID 将多条逻辑请求映射到一条物理连接",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [1000, 760]
+  },
+  "participants": [
+    {
+      "id": "Caller",
+      "type": "frontend",
+      "label": "调用方",
+      "sublabel": "业务线程"
+    },
+    {
+      "id": "Pool",
+      "type": "backend",
+      "label": "连接池",
+      "sublabel": "选择可用 Channel"
+    },
+    {
+      "id": "Channel",
+      "type": "messagebus",
+      "label": "长连接",
+      "sublabel": "Netty Channel"
+    },
+    {
+      "id": "Server",
+      "type": "backend",
+      "label": "RPC 服务端",
+      "sublabel": "Netty Pipeline"
+    },
+    {
+      "id": "Worker",
+      "type": "database",
+      "label": "异步业务处理",
+      "sublabel": "线程池 / EventLoop"
+    }
+  ],
+  "messages": [
+    {
+      "id": "request100",
+      "from": "Caller",
+      "to": "Pool",
+      "y": 175,
+      "label": "发起请求 requestId=100"
+    },
+    {
+      "id": "request200",
+      "from": "Caller",
+      "to": "Pool",
+      "y": 220,
+      "label": "发起请求 requestId=200"
+    },
+    {
+      "id": "request300",
+      "from": "Caller",
+      "to": "Pool",
+      "y": 260,
+      "label": "发起请求 requestId=300"
+    },
+    {
+      "id": "lease",
+      "from": "Pool",
+      "to": "Caller",
+      "y": 300,
+      "label": "返回同一 Channel",
+      "variant": "return"
+    },
+    {
+      "id": "send100",
+      "from": "Caller",
+      "to": "Channel",
+      "y": 340,
+      "label": "写入 req=100"
+    },
+    {
+      "id": "send200",
+      "from": "Caller",
+      "to": "Channel",
+      "y": 380,
+      "label": "写入 req=200"
+    },
+    {
+      "id": "send300",
+      "from": "Caller",
+      "to": "Channel",
+      "y": 420,
+      "label": "写入 req=300"
+    },
+    {
+      "id": "channelBytes",
+      "from": "Channel",
+      "to": "Server",
+      "y": 460,
+      "label": "帧流：100 | 200 | 300"
+    },
+    {
+      "id": "decode",
+      "from": "Server",
+      "to": "Worker",
+      "y": 500,
+      "label": "解码后按 requestId 异步分发",
+      "variant": "emphasis"
+    },
+    {
+      "id": "complete300",
+      "from": "Worker",
+      "to": "Server",
+      "y": 540,
+      "label": "req=300 先完成"
+    },
+    {
+      "id": "complete100",
+      "from": "Worker",
+      "to": "Server",
+      "y": 580,
+      "label": "req=100 后完成"
+    },
+    {
+      "id": "responseStream",
+      "from": "Server",
+      "to": "Channel",
+      "y": 620,
+      "label": "响应流：300 | 100"
+    },
+    {
+      "id": "match",
+      "from": "Channel",
+      "to": "Caller",
+      "y": 660,
+      "label": "按 requestId 唤醒对应 Future",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "Pool",
+      "from": 175,
+      "to": 300
+    },
+    {
+      "participant": "Channel",
+      "from": 340,
+      "to": 660
+    },
+    {
+      "participant": "Server",
+      "from": 460,
+      "to": 620
+    },
+    {
+      "participant": "Worker",
+      "from": 500,
+      "to": 580
+    }
+  ]
+}
