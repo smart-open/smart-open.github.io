@@ -5,6 +5,92 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>版本控制的后悔药：Git reset、revert 与 reflog 的正确打开方式 - 朱天伟 | Smart Open</title>
   <meta name="description" content="版本控制的后悔药：Git reset、revert 与 reflog 的正确打开方式">
+    <link rel="canonical" href="https://blog.sopenai.cn/articles/detail/article-12.html">
+  <meta name="author" content="朱天伟">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <meta name="applicable-device" content="pc,mobile">
+  <meta name="keywords" content="Git,版本控制,代码管理,开发工具,团队协作">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Smart Open">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:title" content="版本控制的后悔药：Git reset、revert 与 reflog 的正确打开方式">
+  <meta property="og:description" content="版本控制系统是现代软件工程的基石，而 Git 之所以在分布式版本控制领域占据统治地位，很大程度上归功于其强大的历史操作能力。">
+  <meta property="og:url" content="https://blog.sopenai.cn/articles/detail/article-12.html">
+  <meta property="og:image" content="https://blog.sopenai.cn/assets/img/og-default.jpg">
+  <meta property="og:image:width" content="2688">
+  <meta property="og:image:height" content="1408">
+  <meta property="article:published_time" content="2026-06-28">
+  <meta property="article:modified_time" content="2026-06-28">
+  <meta property="article:author" content="朱天伟">
+  <meta property="article:tag" content="Git">
+  <meta property="article:tag" content="版本控制">
+  <meta property="article:tag" content="代码管理">
+  <meta property="article:tag" content="开发工具">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="版本控制的后悔药：Git reset、revert 与 reflog 的正确打开方式">
+  <meta name="twitter:description" content="版本控制系统是现代软件工程的基石，而 Git 之所以在分布式版本控制领域占据统治地位，很大程度上归功于其强大的历史操作能力。">
+  <meta name="twitter:image" content="https://blog.sopenai.cn/assets/img/og-default.jpg">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "@id": "https://blog.sopenai.cn/articles/detail/article-12.html#article",
+      "mainEntityOfPage": {
+        "@id": "https://blog.sopenai.cn/articles/detail/article-12.html"
+      },
+      "headline": "版本控制的后悔药：Git reset、revert 与 reflog 的正确打开方式",
+      "description": "版本控制系统是现代软件工程的基石，而 Git 之所以在分布式版本控制领域占据统治地位，很大程度上归功于其强大的历史操作能力。",
+      "image": [
+        "https://blog.sopenai.cn/assets/img/og-default.jpg"
+      ],
+      "inLanguage": "zh-CN",
+      "datePublished": "2026-06-28",
+      "dateModified": "2026-06-28",
+      "author": {
+        "@type": "Person",
+        "name": "朱天伟",
+        "url": "https://blog.sopenai.cn/"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Smart Open",
+        "url": "https://blog.sopenai.cn/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://blog.sopenai.cn/favicon.png"
+        }
+      },
+      "keywords": "Git,版本控制,代码管理,开发工具,团队协作",
+      "articleSection": "Git"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://blog.sopenai.cn/articles/detail/article-12.html#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://blog.sopenai.cn/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "文章",
+          "item": "https://blog.sopenai.cn/articles/index.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "版本控制的后悔药：Git reset、revert 与 reflog 的正确打开方式"
+        }
+      ]
+    }
+  ]
+}
+  </script>
   <link rel="icon" type="image/png" href="../../favicon.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">

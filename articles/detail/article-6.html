@@ -5,6 +5,92 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>消息队列选型指南：Kafka、RocketMQ、RabbitMQ 背后的设计权衡 - 朱天伟 | Smart Open</title>
   <meta name="description" content="消息队列选型指南：Kafka、RocketMQ、RabbitMQ 背后的设计权衡">
+    <link rel="canonical" href="https://blog.sopenai.cn/articles/detail/article-6.html">
+  <meta name="author" content="朱天伟">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <meta name="applicable-device" content="pc,mobile">
+  <meta name="keywords" content="消息队列,Kafka,RocketMQ,RabbitMQ,分布式系统,架构选型">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Smart Open">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:title" content="消息队列选型指南：Kafka、RocketMQ、RabbitMQ 背后的设计权衡">
+  <meta property="og:description" content="在现代分布式架构中，消息队列扮演着系统解耦、流量削峰、异步通信的核心角色。本文将穿透表面特性，深度剖析三者背后的权衡逻辑。">
+  <meta property="og:url" content="https://blog.sopenai.cn/articles/detail/article-6.html">
+  <meta property="og:image" content="https://blog.sopenai.cn/assets/img/og-default.jpg">
+  <meta property="og:image:width" content="2688">
+  <meta property="og:image:height" content="1408">
+  <meta property="article:published_time" content="2026-06-04">
+  <meta property="article:modified_time" content="2026-06-04">
+  <meta property="article:author" content="朱天伟">
+  <meta property="article:tag" content="消息队列">
+  <meta property="article:tag" content="Kafka">
+  <meta property="article:tag" content="RocketMQ">
+  <meta property="article:tag" content="RabbitMQ">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="消息队列选型指南：Kafka、RocketMQ、RabbitMQ 背后的设计权衡">
+  <meta name="twitter:description" content="在现代分布式架构中，消息队列扮演着系统解耦、流量削峰、异步通信的核心角色。本文将穿透表面特性，深度剖析三者背后的权衡逻辑。">
+  <meta name="twitter:image" content="https://blog.sopenai.cn/assets/img/og-default.jpg">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "@id": "https://blog.sopenai.cn/articles/detail/article-6.html#article",
+      "mainEntityOfPage": {
+        "@id": "https://blog.sopenai.cn/articles/detail/article-6.html"
+      },
+      "headline": "消息队列选型指南：Kafka、RocketMQ、RabbitMQ 背后的设计权衡",
+      "description": "在现代分布式架构中，消息队列扮演着系统解耦、流量削峰、异步通信的核心角色。本文将穿透表面特性，深度剖析三者背后的权衡逻辑。",
+      "image": [
+        "https://blog.sopenai.cn/assets/img/og-default.jpg"
+      ],
+      "inLanguage": "zh-CN",
+      "datePublished": "2026-06-04",
+      "dateModified": "2026-06-04",
+      "author": {
+        "@type": "Person",
+        "name": "朱天伟",
+        "url": "https://blog.sopenai.cn/"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Smart Open",
+        "url": "https://blog.sopenai.cn/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://blog.sopenai.cn/favicon.png"
+        }
+      },
+      "keywords": "消息队列,Kafka,RocketMQ,RabbitMQ,分布式系统,架构选型",
+      "articleSection": "消息队列"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://blog.sopenai.cn/articles/detail/article-6.html#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://blog.sopenai.cn/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "文章",
+          "item": "https://blog.sopenai.cn/articles/index.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "消息队列选型指南：Kafka、RocketMQ、RabbitMQ 背后的设计权衡"
+        }
+      ]
+    }
+  ]
+}
+  </script>
   <link rel="icon" type="image/png" href="../../favicon.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">

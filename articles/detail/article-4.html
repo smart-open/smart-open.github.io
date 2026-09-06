@@ -5,6 +5,92 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>从磁盘到内存：索引数据结构的选择哲学 - 朱天伟 | Smart Open</title>
   <meta name="description" content="从磁盘到内存：索引数据结构的选择哲学">
+    <link rel="canonical" href="https://blog.sopenai.cn/articles/detail/article-4.html">
+  <meta name="author" content="朱天伟">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <meta name="applicable-device" content="pc,mobile">
+  <meta name="keywords" content="数据结构,数据库索引,B树,红黑树,算法">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Smart Open">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:title" content="从磁盘到内存：索引数据结构的选择哲学">
+  <meta property="og:description" content="在计算机系统的存储层次中，磁盘与内存之间存在着数量级的速度鸿沟。这种差异深刻影响了数据密集型系统的设计哲学。">
+  <meta property="og:url" content="https://blog.sopenai.cn/articles/detail/article-4.html">
+  <meta property="og:image" content="https://blog.sopenai.cn/assets/img/og-default.jpg">
+  <meta property="og:image:width" content="2688">
+  <meta property="og:image:height" content="1408">
+  <meta property="article:published_time" content="2026-05-26">
+  <meta property="article:modified_time" content="2026-05-26">
+  <meta property="article:author" content="朱天伟">
+  <meta property="article:tag" content="数据结构">
+  <meta property="article:tag" content="数据库索引">
+  <meta property="article:tag" content="B树">
+  <meta property="article:tag" content="红黑树">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="从磁盘到内存：索引数据结构的选择哲学">
+  <meta name="twitter:description" content="在计算机系统的存储层次中，磁盘与内存之间存在着数量级的速度鸿沟。这种差异深刻影响了数据密集型系统的设计哲学。">
+  <meta name="twitter:image" content="https://blog.sopenai.cn/assets/img/og-default.jpg">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "@id": "https://blog.sopenai.cn/articles/detail/article-4.html#article",
+      "mainEntityOfPage": {
+        "@id": "https://blog.sopenai.cn/articles/detail/article-4.html"
+      },
+      "headline": "从磁盘到内存：索引数据结构的选择哲学",
+      "description": "在计算机系统的存储层次中，磁盘与内存之间存在着数量级的速度鸿沟。这种差异深刻影响了数据密集型系统的设计哲学。",
+      "image": [
+        "https://blog.sopenai.cn/assets/img/og-default.jpg"
+      ],
+      "inLanguage": "zh-CN",
+      "datePublished": "2026-05-26",
+      "dateModified": "2026-05-26",
+      "author": {
+        "@type": "Person",
+        "name": "朱天伟",
+        "url": "https://blog.sopenai.cn/"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Smart Open",
+        "url": "https://blog.sopenai.cn/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://blog.sopenai.cn/favicon.png"
+        }
+      },
+      "keywords": "数据结构,数据库索引,B树,红黑树,算法",
+      "articleSection": "数据结构"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://blog.sopenai.cn/articles/detail/article-4.html#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://blog.sopenai.cn/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "文章",
+          "item": "https://blog.sopenai.cn/articles/index.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "从磁盘到内存：索引数据结构的选择哲学"
+        }
+      ]
+    }
+  ]
+}
+  </script>
   <link rel="icon" type="image/png" href="../../favicon.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -5,6 +5,92 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>从技能堆砌到技能治理：解构 Skill 路由、Skill Map 与专家模式 - 朱天伟 | Smart Open</title>
   <meta name="description" content="当 Agent 安装的 Skill 越来越多，调用错乱、上下文污染、语义重叠等问题随之而来。本文从问题剖析出发，系统拆解 Skill Map、Skill Router、腾讯 WorkBuddy 专家模式三种解决方案，并给出构建可控 Skill 体系的最佳实践。">
+    <link rel="canonical" href="https://blog.sopenai.cn/articles/detail/article-20.html">
+  <meta name="author" content="朱天伟">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <meta name="applicable-device" content="pc,mobile">
+  <meta name="keywords" content="Skill Router,Agent工程,WorkBuddy,技能治理">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Smart Open">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:title" content="从技能堆砌到技能治理：解构 Skill 路由、Skill Map 与专家模式">
+  <meta property="og:description" content="当 Agent 安装的 Skill 越来越多，调用错乱、上下文污染、语义重叠等问题随之而来。本文从问题剖析出发，系统拆解 Skill Map、Skill Router、腾讯 Wo…">
+  <meta property="og:url" content="https://blog.sopenai.cn/articles/detail/article-20.html">
+  <meta property="og:image" content="https://blog.sopenai.cn/assets/img/og-default.jpg">
+  <meta property="og:image:width" content="2688">
+  <meta property="og:image:height" content="1408">
+  <meta property="article:published_time" content="2026-07-18">
+  <meta property="article:modified_time" content="2026-07-18">
+  <meta property="article:author" content="朱天伟">
+  <meta property="article:tag" content="Skill Router">
+  <meta property="article:tag" content="Agent工程">
+  <meta property="article:tag" content="WorkBuddy">
+  <meta property="article:tag" content="技能治理">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="从技能堆砌到技能治理：解构 Skill 路由、Skill Map 与专家模式">
+  <meta name="twitter:description" content="当 Agent 安装的 Skill 越来越多，调用错乱、上下文污染、语义重叠等问题随之而来。本文从问题剖析出发，系统拆解 Skill Map、Skill Router、腾讯 Wo…">
+  <meta name="twitter:image" content="https://blog.sopenai.cn/assets/img/og-default.jpg">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "@id": "https://blog.sopenai.cn/articles/detail/article-20.html#article",
+      "mainEntityOfPage": {
+        "@id": "https://blog.sopenai.cn/articles/detail/article-20.html"
+      },
+      "headline": "从技能堆砌到技能治理：解构 Skill 路由、Skill Map 与专家模式",
+      "description": "当 Agent 安装的 Skill 越来越多，调用错乱、上下文污染、语义重叠等问题随之而来。本文从问题剖析出发，系统拆解 Skill Map、Skill Router、腾讯 WorkBuddy 专家模式三种解决方案，并给出构建可控 Skill 体系的最佳实践。",
+      "image": [
+        "https://blog.sopenai.cn/assets/img/og-default.jpg"
+      ],
+      "inLanguage": "zh-CN",
+      "datePublished": "2026-07-18",
+      "dateModified": "2026-07-18",
+      "author": {
+        "@type": "Person",
+        "name": "朱天伟",
+        "url": "https://blog.sopenai.cn/"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Smart Open",
+        "url": "https://blog.sopenai.cn/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://blog.sopenai.cn/favicon.png"
+        }
+      },
+      "keywords": "Skill Router,Agent工程,WorkBuddy,技能治理",
+      "articleSection": "Skill Router"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://blog.sopenai.cn/articles/detail/article-20.html#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://blog.sopenai.cn/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "文章",
+          "item": "https://blog.sopenai.cn/articles/index.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "从技能堆砌到技能治理：解构 Skill 路由、Skill Map 与专家模式"
+        }
+      ]
+    }
+  ]
+}
+  </script>
   <link rel="icon" type="image/png" href="../../favicon.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">

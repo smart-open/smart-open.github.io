@@ -5,6 +5,92 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Java GC三十年，停顿从秒到亚毫秒 - 朱天伟 | Smart Open</title>
   <meta name="description" content="从 Serial、Parallel、CMS 到 G1、ZGC，全景拆解 Java GC 三十年演进：算法更替、堆模型从物理分代到 Region 化、停顿从秒级降到亚毫秒、PermGen 到 Metaspace 变革，覆盖 JDK 8/11/17/21/25 各版本默认收集器与容器、微服务、低延迟、大内存四类环境的生产级 JVM 配置实战">
+    <link rel="canonical" href="https://blog.sopenai.cn/articles/detail/article-37.html">
+  <meta name="author" content="朱天伟">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <meta name="applicable-device" content="pc,mobile">
+  <meta name="keywords" content="Java GC,JVM 调优,ZGC,性能优化">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Smart Open">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:title" content="Java GC三十年，停顿从秒到亚毫秒">
+  <meta property="og:description" content="从 Serial、Parallel、CMS 到 G1、ZGC，全景拆解 Java GC 三十年演进：五大基础算法更替、堆模型从物理分代到 Region 化再到分代回归、停顿从秒级…">
+  <meta property="og:url" content="https://blog.sopenai.cn/articles/detail/article-37.html">
+  <meta property="og:image" content="https://blog.sopenai.cn/assets/img/og-default.jpg">
+  <meta property="og:image:width" content="2688">
+  <meta property="og:image:height" content="1408">
+  <meta property="article:published_time" content="2026-08-23">
+  <meta property="article:modified_time" content="2026-08-23">
+  <meta property="article:author" content="朱天伟">
+  <meta property="article:tag" content="Java GC">
+  <meta property="article:tag" content="JVM 调优">
+  <meta property="article:tag" content="ZGC">
+  <meta property="article:tag" content="性能优化">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Java GC三十年，停顿从秒到亚毫秒">
+  <meta name="twitter:description" content="从 Serial、Parallel、CMS 到 G1、ZGC，全景拆解 Java GC 三十年演进：五大基础算法更替、堆模型从物理分代到 Region 化再到分代回归、停顿从秒级…">
+  <meta name="twitter:image" content="https://blog.sopenai.cn/assets/img/og-default.jpg">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "@id": "https://blog.sopenai.cn/articles/detail/article-37.html#article",
+      "mainEntityOfPage": {
+        "@id": "https://blog.sopenai.cn/articles/detail/article-37.html"
+      },
+      "headline": "Java GC三十年，停顿从秒到亚毫秒",
+      "description": "从 Serial、Parallel、CMS 到 G1、ZGC，全景拆解 Java GC 三十年演进：五大基础算法更替、堆模型从物理分代到 Region 化再到分代回归、停顿从秒级降到亚毫秒、PermGen 到 Metaspace 的内存区域变革，覆盖 JDK 8/11/17/21/25 各版本默认收集器与容器、微服务、低延迟、大内存四类环境的生产级 JVM 参数配置实战",
+      "image": [
+        "https://blog.sopenai.cn/assets/img/og-default.jpg"
+      ],
+      "inLanguage": "zh-CN",
+      "datePublished": "2026-08-23",
+      "dateModified": "2026-08-23",
+      "author": {
+        "@type": "Person",
+        "name": "朱天伟",
+        "url": "https://blog.sopenai.cn/"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Smart Open",
+        "url": "https://blog.sopenai.cn/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://blog.sopenai.cn/favicon.png"
+        }
+      },
+      "keywords": "Java GC,JVM 调优,ZGC,性能优化",
+      "articleSection": "Java GC"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://blog.sopenai.cn/articles/detail/article-37.html#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://blog.sopenai.cn/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "文章",
+          "item": "https://blog.sopenai.cn/articles/index.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Java GC三十年，停顿从秒到亚毫秒"
+        }
+      ]
+    }
+  ]
+}
+  </script>
   <link rel="icon" type="image/png" href="../../favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

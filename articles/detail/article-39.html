@@ -5,6 +5,92 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>一条连接跑满并发请求，RPC多路复用全链路 - 朱天伟 | Smart Open</title>
   <meta name="description" content="从长连接、请求 ID、连接池到 Netty 异步处理，系统拆解 RPC 多路复用在服务端的全链路落地，重点回答同一连接如何并发请求，以及是否需要 ConcurrentHashMap 管理连接与请求池。">
+    <link rel="canonical" href="https://blog.sopenai.cn/articles/detail/article-39.html">
+  <meta name="author" content="朱天伟">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <meta name="applicable-device" content="pc,mobile">
+  <meta name="keywords" content="RPC,Netty,多路复用,Java">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Smart Open">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:title" content="一条连接跑满并发请求，RPC多路复用全链路">
+  <meta property="og:description" content="从长连接、请求 ID、连接池到 Netty 异步处理，系统拆解 RPC 多路复用在服务端的全链路落地，重点回答同一连接如何并发请求，以及是否需要 ConcurrentHashMa…">
+  <meta property="og:url" content="https://blog.sopenai.cn/articles/detail/article-39.html">
+  <meta property="og:image" content="https://blog.sopenai.cn/assets/img/og-default.jpg">
+  <meta property="og:image:width" content="2688">
+  <meta property="og:image:height" content="1408">
+  <meta property="article:published_time" content="2026-09-03">
+  <meta property="article:modified_time" content="2026-09-03">
+  <meta property="article:author" content="朱天伟">
+  <meta property="article:tag" content="RPC">
+  <meta property="article:tag" content="Netty">
+  <meta property="article:tag" content="多路复用">
+  <meta property="article:tag" content="Java">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="一条连接跑满并发请求，RPC多路复用全链路">
+  <meta name="twitter:description" content="从长连接、请求 ID、连接池到 Netty 异步处理，系统拆解 RPC 多路复用在服务端的全链路落地，重点回答同一连接如何并发请求，以及是否需要 ConcurrentHashMa…">
+  <meta name="twitter:image" content="https://blog.sopenai.cn/assets/img/og-default.jpg">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "@id": "https://blog.sopenai.cn/articles/detail/article-39.html#article",
+      "mainEntityOfPage": {
+        "@id": "https://blog.sopenai.cn/articles/detail/article-39.html"
+      },
+      "headline": "一条连接跑满并发请求，RPC多路复用全链路",
+      "description": "从长连接、请求 ID、连接池到 Netty 异步处理，系统拆解 RPC 多路复用在服务端的全链路落地，重点回答同一连接如何并发请求，以及是否需要 ConcurrentHashMap 管理连接与请求池。",
+      "image": [
+        "https://blog.sopenai.cn/assets/img/og-default.jpg"
+      ],
+      "inLanguage": "zh-CN",
+      "datePublished": "2026-09-03",
+      "dateModified": "2026-09-03",
+      "author": {
+        "@type": "Person",
+        "name": "朱天伟",
+        "url": "https://blog.sopenai.cn/"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Smart Open",
+        "url": "https://blog.sopenai.cn/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://blog.sopenai.cn/favicon.png"
+        }
+      },
+      "keywords": "RPC,Netty,多路复用,Java",
+      "articleSection": "RPC"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://blog.sopenai.cn/articles/detail/article-39.html#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://blog.sopenai.cn/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "文章",
+          "item": "https://blog.sopenai.cn/articles/index.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "一条连接跑满并发请求，RPC多路复用全链路"
+        }
+      ]
+    }
+  ]
+}
+  </script>
   <link rel="icon" type="image/png" href="../../favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

@@ -5,6 +5,92 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>深度分页拖垮系统？三种存储分页优化全景拆解 - 朱天伟 | Smart Open</title>
   <meta name="description" content="全方位拆解深度分页性能问题：MySQL 延迟关联与游标分页、PostgreSQL keyset pagination、Redis ZSET 与 SCAN、Elasticsearch search_after 与 PIT，覆盖搜索场景分页、缓存层策略与选型决策">
+    <link rel="canonical" href="https://blog.sopenai.cn/articles/detail/article-33.html">
+  <meta name="author" content="朱天伟">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <meta name="applicable-device" content="pc,mobile">
+  <meta name="keywords" content="深度分页,MySQL,Redis,Elasticsearch">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Smart Open">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:title" content="深度分页拖垮系统？三种存储分页优化全景拆解">
+  <meta property="og:description" content="从 LIMIT 百万行丢弃99%的代价，到 ES search_after 游标分页，全方位拆解 MySQL/PostgreSQL、Redis、Elasticsearch 三类存…">
+  <meta property="og:url" content="https://blog.sopenai.cn/articles/detail/article-33.html">
+  <meta property="og:image" content="https://blog.sopenai.cn/assets/img/og-default.jpg">
+  <meta property="og:image:width" content="2688">
+  <meta property="og:image:height" content="1408">
+  <meta property="article:published_time" content="2026-08-03">
+  <meta property="article:modified_time" content="2026-08-03">
+  <meta property="article:author" content="朱天伟">
+  <meta property="article:tag" content="深度分页">
+  <meta property="article:tag" content="MySQL">
+  <meta property="article:tag" content="Redis">
+  <meta property="article:tag" content="Elasticsearch">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="深度分页拖垮系统？三种存储分页优化全景拆解">
+  <meta name="twitter:description" content="从 LIMIT 百万行丢弃99%的代价，到 ES search_after 游标分页，全方位拆解 MySQL/PostgreSQL、Redis、Elasticsearch 三类存…">
+  <meta name="twitter:image" content="https://blog.sopenai.cn/assets/img/og-default.jpg">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "@id": "https://blog.sopenai.cn/articles/detail/article-33.html#article",
+      "mainEntityOfPage": {
+        "@id": "https://blog.sopenai.cn/articles/detail/article-33.html"
+      },
+      "headline": "深度分页拖垮系统？三种存储分页优化全景拆解",
+      "description": "从 LIMIT 百万行丢弃99%的代价，到 ES search_after 游标分页，全方位拆解 MySQL/PostgreSQL、Redis、Elasticsearch 三类存储的深度分页问题与优化方案，覆盖搜索场景分页、缓存层策略与选型决策",
+      "image": [
+        "https://blog.sopenai.cn/assets/img/og-default.jpg"
+      ],
+      "inLanguage": "zh-CN",
+      "datePublished": "2026-08-03",
+      "dateModified": "2026-08-03",
+      "author": {
+        "@type": "Person",
+        "name": "朱天伟",
+        "url": "https://blog.sopenai.cn/"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Smart Open",
+        "url": "https://blog.sopenai.cn/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://blog.sopenai.cn/favicon.png"
+        }
+      },
+      "keywords": "深度分页,MySQL,Redis,Elasticsearch",
+      "articleSection": "深度分页"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://blog.sopenai.cn/articles/detail/article-33.html#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://blog.sopenai.cn/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "文章",
+          "item": "https://blog.sopenai.cn/articles/index.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "深度分页拖垮系统？三种存储分页优化全景拆解"
+        }
+      ]
+    }
+  ]
+}
+  </script>
   <link rel="icon" type="image/png" href="../../favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

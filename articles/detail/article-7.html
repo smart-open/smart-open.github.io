@@ -5,6 +5,92 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>微服务迷雾中的指南针：异步场景下的分布式追踪实战 - 朱天伟 | Smart Open</title>
   <meta name="description" content="微服务迷雾中的指南针：异步场景下的分布式追踪实战">
+    <link rel="canonical" href="https://blog.sopenai.cn/articles/detail/article-7.html">
+  <meta name="author" content="朱天伟">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <meta name="applicable-device" content="pc,mobile">
+  <meta name="keywords" content="SpringCloud,分布式追踪,Sleuth,Zipkin,Jaeger,异步编程,微服务,OpenTelemetry">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Smart Open">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:title" content="微服务迷雾中的指南针：异步场景下的分布式追踪实战">
+  <meta property="og:description" content="在微服务架构中，一次用户请求可能跨越数十个服务节点。当系统出现异常时，如果没有完整的调用链路追踪，排查问题无异于大海捞针。">
+  <meta property="og:url" content="https://blog.sopenai.cn/articles/detail/article-7.html">
+  <meta property="og:image" content="https://blog.sopenai.cn/assets/img/og-default.jpg">
+  <meta property="og:image:width" content="2688">
+  <meta property="og:image:height" content="1408">
+  <meta property="article:published_time" content="2026-06-08">
+  <meta property="article:modified_time" content="2026-06-08">
+  <meta property="article:author" content="朱天伟">
+  <meta property="article:tag" content="SpringCloud">
+  <meta property="article:tag" content="分布式追踪">
+  <meta property="article:tag" content="Sleuth">
+  <meta property="article:tag" content="Zipkin">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="微服务迷雾中的指南针：异步场景下的分布式追踪实战">
+  <meta name="twitter:description" content="在微服务架构中，一次用户请求可能跨越数十个服务节点。当系统出现异常时，如果没有完整的调用链路追踪，排查问题无异于大海捞针。">
+  <meta name="twitter:image" content="https://blog.sopenai.cn/assets/img/og-default.jpg">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "@id": "https://blog.sopenai.cn/articles/detail/article-7.html#article",
+      "mainEntityOfPage": {
+        "@id": "https://blog.sopenai.cn/articles/detail/article-7.html"
+      },
+      "headline": "微服务迷雾中的指南针：异步场景下的分布式追踪实战",
+      "description": "在微服务架构中，一次用户请求可能跨越数十个服务节点。当系统出现异常时，如果没有完整的调用链路追踪，排查问题无异于大海捞针。",
+      "image": [
+        "https://blog.sopenai.cn/assets/img/og-default.jpg"
+      ],
+      "inLanguage": "zh-CN",
+      "datePublished": "2026-06-08",
+      "dateModified": "2026-06-08",
+      "author": {
+        "@type": "Person",
+        "name": "朱天伟",
+        "url": "https://blog.sopenai.cn/"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Smart Open",
+        "url": "https://blog.sopenai.cn/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://blog.sopenai.cn/favicon.png"
+        }
+      },
+      "keywords": "SpringCloud,分布式追踪,Sleuth,Zipkin,Jaeger,异步编程,微服务,OpenTelemetry",
+      "articleSection": "SpringCloud"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://blog.sopenai.cn/articles/detail/article-7.html#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://blog.sopenai.cn/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "文章",
+          "item": "https://blog.sopenai.cn/articles/index.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "微服务迷雾中的指南针：异步场景下的分布式追踪实战"
+        }
+      ]
+    }
+  ]
+}
+  </script>
   <link rel="icon" type="image/png" href="../../favicon.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
