@@ -5,96 +5,100 @@
 <marker id="l-orange" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff8c00"/></marker>
 <marker id="l-purple" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#a855f7"/></marker>
 <marker id="l-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff4466"/></marker>
+<marker id="l-gray" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#7a7a85"/></marker>
 </defs>
 <rect width="1200" height="720" fill="#0a0a0f"/>
 <text x="600" y="42" text-anchor="middle" font-size="22" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">HITL 学习闭环：分身如何越用越像你</text>
 <text x="600" y="66" text-anchor="middle" font-size="13" fill="#7a7a85" font-family="Inter, sans-serif">纠正即语料 · 攒 10 项复盘 · 确认才入库 · 3 个月未引用淘汰</text>
 
-<rect x="36" y="92" width="540" height="230" rx="12" fill="#12121a" fill-opacity="0.5" stroke="#2a2a35" stroke-width="1.2"/>
+<rect x="36" y="92" width="1128" height="136" rx="12" fill="#12121a" fill-opacity="0.5" stroke="#2a2a35" stroke-width="1.2"/>
 <text x="56" y="120" text-anchor="start" font-size="14" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">日常使用（分身侧）</text>
-<text x="556" y="120" text-anchor="end" font-size="11" fill="#7a7a85" font-family="Inter, sans-serif">每次任务</text>
+<text x="1144" y="120" text-anchor="end" font-size="11" fill="#7a7a85" font-family="Inter, sans-serif">每次任务 · 用户只做 review</text>
 
-<rect x="56" y="136" width="500" height="52" rx="8" fill="#00f0ff" fill-opacity="0.04" stroke="#2a2a35" stroke-width="1.2"/>
-<text x="70" y="158" text-anchor="start" font-size="12" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">画像定位 + 按需路由</text>
-<text x="70" y="176" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">5 级定位找到画像库 → 任务类型决定加载哪几层（≤3 层）</text>
+<rect x="56" y="134" width="344" height="70" rx="8" fill="#00f0ff" fill-opacity="0.04" stroke="#2a2a35" stroke-width="1.2"/>
+<text x="72" y="160" text-anchor="start" font-size="12.5" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">画像定位 + 按需路由</text>
+<text x="72" y="182" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">5 级定位找到画像库 → 任务类型决定加载哪几层（≤3 层）</text>
 
-<rect x="56" y="196" width="500" height="52" rx="8" fill="#00f0ff" fill-opacity="0.04" stroke="#2a2a35" stroke-width="1.2"/>
-<text x="70" y="218" text-anchor="start" font-size="12" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">分级决策 + 留痕产出</text>
-<text x="70" y="236" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">L1 自主执行留痕 / L2 列选项请示 / L3 强制确认后执行</text>
+<line x1="404" y1="169" x2="424" y2="169" stroke="#7a7a85" stroke-width="1.6" marker-end="url(#l-gray)"/>
 
-<rect x="56" y="256" width="500" height="48" rx="8" fill="#00ff88" fill-opacity="0.05" stroke="#00ff88" stroke-width="1.2"/>
-<text x="70" y="277" text-anchor="start" font-size="12" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">用户简单 review</text>
-<text x="70" y="294" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">把控大方向；发现不对直接说——「纠正」就是学习信号</text>
+<rect x="428" y="134" width="344" height="70" rx="8" fill="#00f0ff" fill-opacity="0.04" stroke="#2a2a35" stroke-width="1.2"/>
+<text x="444" y="160" text-anchor="start" font-size="12.5" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">分级决策 + 留痕产出</text>
+<text x="444" y="182" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">L1 自主执行留痕 / L2 列选项请示 / L3 强制确认后执行</text>
 
-<line x1="576" y1="180" x2="636" y2="180" stroke="#00f0ff" stroke-width="2" marker-end="url(#l-cyan)"/>
-<text x="606" y="170" text-anchor="middle" font-size="9.5" fill="#00f0ff" font-family="JetBrains Mono, monospace">纠正</text>
+<line x1="776" y1="169" x2="796" y2="169" stroke="#7a7a85" stroke-width="1.6" marker-end="url(#l-gray)"/>
 
-<rect x="36" y="342" width="1128" height="270" rx="12" fill="#12121a" fill-opacity="0.5" stroke="#2a2a35" stroke-width="1.2" stroke-dasharray="6,4"/>
-<text x="56" y="370" text-anchor="start" font-size="14" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">进化闭环（每攒 10 项语料走一轮）</text>
-<text x="1144" y="370" text-anchor="end" font-size="11" fill="#7a7a85" font-family="Inter, sans-serif">全流程约 10 分钟</text>
+<rect x="800" y="134" width="344" height="70" rx="8" fill="#00ff88" fill-opacity="0.05" stroke="#00ff88" stroke-width="1.2"/>
+<text x="816" y="160" text-anchor="start" font-size="12.5" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">用户简单 review</text>
+<text x="816" y="182" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">把控大方向；发现不对直接说——「纠正」就是学习信号</text>
 
-<rect x="66" y="396" width="196" height="132" rx="8" fill="#00f0ff" fill-opacity="0.05" stroke="#00f0ff" stroke-width="1.5"/>
-<text x="164" y="422" text-anchor="middle" font-size="13" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">识别纠正类型</text>
-<text x="164" y="446" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">编码习惯 / 架构偏好</text>
-<text x="164" y="464" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">工作方法 / 决策原则 / 新知识</text>
-<text x="164" y="488" text-anchor="middle" font-size="9.5" fill="#00f0ff" font-family="JetBrains Mono, monospace">任务上下文补充不算纠正</text>
-<text x="164" y="510" text-anchor="middle" font-size="9.5" fill="#7a7a85" font-family="Inter, sans-serif">分身自动执行，用户零操作</text>
+<line x1="600" y1="234" x2="600" y2="290" stroke="#00f0ff" stroke-width="2.4" marker-end="url(#l-cyan)"/>
+<text x="614" y="258" text-anchor="start" font-size="10.5" fill="#00f0ff" font-family="JetBrains Mono, monospace" font-weight="700">纠正</text>
+<text x="614" y="275" text-anchor="start" font-size="9.5" fill="#7a7a85" font-family="Inter, sans-serif">说清哪里错、应该怎样，当前任务同步修正</text>
 
-<line x1="262" y1="462" x2="296" y2="462" stroke="#00f0ff" stroke-width="2" marker-end="url(#l-cyan)"/>
+<rect x="36" y="296" width="1128" height="248" rx="12" fill="#12121a" fill-opacity="0.5" stroke="#2a2a35" stroke-width="1.2" stroke-dasharray="6,4"/>
+<text x="56" y="324" text-anchor="start" font-size="14" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">进化闭环（每攒 10 项语料走一轮）</text>
+<text x="1144" y="324" text-anchor="end" font-size="11" fill="#7a7a85" font-family="Inter, sans-serif">全流程约 10 分钟 · 用户只参与确认</text>
 
-<rect x="304" y="396" width="196" height="132" rx="8" fill="#00ff88" fill-opacity="0.05" stroke="#00ff88" stroke-width="1.2"/>
-<text x="402" y="422" text-anchor="middle" font-size="13" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">语料追加</text>
-<text x="402" y="446" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">写入 corpus/raw-corpus.md</text>
-<text x="402" y="464" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">待复盘区累积</text>
-<text x="402" y="488" text-anchor="middle" font-size="9.5" fill="#00ff88" font-family="JetBrains Mono, monospace">≥10 项主动提醒</text>
-<text x="402" y="510" text-anchor="middle" font-size="9.5" fill="#7a7a85" font-family="Inter, sans-serif">&gt;20 项强制预警</text>
+<rect x="56" y="340" width="194" height="132" rx="8" fill="#00f0ff" fill-opacity="0.05" stroke="#00f0ff" stroke-width="1.5"/>
+<text x="153" y="366" text-anchor="middle" font-size="13" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">识别纠正类型</text>
+<text x="153" y="390" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">编码习惯 / 架构偏好</text>
+<text x="153" y="408" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">工作方法 / 决策原则 / 新知识</text>
+<text x="153" y="432" text-anchor="middle" font-size="9.5" fill="#00f0ff" font-family="JetBrains Mono, monospace">任务上下文补充不算纠正</text>
+<text x="153" y="454" text-anchor="middle" font-size="9.5" fill="#7a7a85" font-family="Inter, sans-serif">分身自动执行，用户零操作</text>
 
-<line x1="500" y1="462" x2="534" y2="462" stroke="#00ff88" stroke-width="2" marker-end="url(#l-green)"/>
+<line x1="254" y1="406" x2="280" y2="406" stroke="#00f0ff" stroke-width="2" marker-end="url(#l-cyan)"/>
 
-<rect x="542" y="396" width="196" height="132" rx="8" fill="#a855f7" fill-opacity="0.05" stroke="#a855f7" stroke-width="1.2"/>
-<text x="640" y="422" text-anchor="middle" font-size="13" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">AI 预生成总结</text>
-<text x="640" y="446" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">按画像层分组</text>
-<text x="640" y="464" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">候选条目可执行化</text>
-<text x="640" y="488" text-anchor="middle" font-size="9.5" fill="#a855f7" font-family="JetBrains Mono, monospace">冲突标注合并建议</text>
-<text x="640" y="510" text-anchor="middle" font-size="9.5" fill="#7a7a85" font-family="Inter, sans-serif">用户不用自己整理</text>
+<rect x="284" y="340" width="194" height="132" rx="8" fill="#00ff88" fill-opacity="0.05" stroke="#00ff88" stroke-width="1.2"/>
+<text x="381" y="366" text-anchor="middle" font-size="13" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">语料追加</text>
+<text x="381" y="390" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">写入 corpus/raw-corpus.md</text>
+<text x="381" y="408" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">待复盘区累积</text>
+<text x="381" y="432" text-anchor="middle" font-size="9.5" fill="#00ff88" font-family="JetBrains Mono, monospace">≥10 项主动提醒</text>
+<text x="381" y="454" text-anchor="middle" font-size="9.5" fill="#7a7a85" font-family="Inter, sans-serif">&gt;20 项强制预警</text>
 
-<line x1="738" y1="462" x2="772" y2="462" stroke="#a855f7" stroke-width="2" marker-end="url(#l-purple)"/>
+<line x1="482" y1="406" x2="508" y2="406" stroke="#00ff88" stroke-width="2" marker-end="url(#l-green)"/>
 
-<rect x="780" y="396" width="196" height="132" rx="8" fill="#ff4466" fill-opacity="0.05" stroke="#ff4466" stroke-width="1.5"/>
-<text x="878" y="422" text-anchor="middle" font-size="13" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">用户逐条确认</text>
-<text x="878" y="446" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">采纳 / 修改后采纳 / 放弃</text>
-<text x="878" y="464" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">分批勾选，每批 ≤4 条</text>
-<text x="878" y="488" text-anchor="middle" font-size="9.5" fill="#ff4466" font-family="JetBrains Mono, monospace">HITL 确认门</text>
-<text x="878" y="510" text-anchor="middle" font-size="9.5" fill="#7a7a85" font-family="Inter, sans-serif">用户始终掌控进化</text>
+<rect x="512" y="340" width="194" height="132" rx="8" fill="#a855f7" fill-opacity="0.05" stroke="#a855f7" stroke-width="1.2"/>
+<text x="609" y="366" text-anchor="middle" font-size="13" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">AI 预生成总结</text>
+<text x="609" y="390" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">按画像层分组</text>
+<text x="609" y="408" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">候选条目可执行化</text>
+<text x="609" y="432" text-anchor="middle" font-size="9.5" fill="#a855f7" font-family="JetBrains Mono, monospace">冲突标注合并建议</text>
+<text x="609" y="454" text-anchor="middle" font-size="9.5" fill="#7a7a85" font-family="Inter, sans-serif">用户不用自己整理</text>
 
-<line x1="976" y1="462" x2="1010" y2="462" stroke="#ff4466" stroke-width="2" marker-end="url(#l-red)"/>
+<line x1="710" y1="406" x2="736" y2="406" stroke="#a855f7" stroke-width="2" marker-end="url(#l-purple)"/>
 
-<rect x="1018" y="396" width="146" height="132" rx="8" fill="#ff8c00" fill-opacity="0.05" stroke="#ff8c00" stroke-width="1.2"/>
-<text x="1091" y="422" text-anchor="middle" font-size="13" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">入库归档</text>
-<text x="1091" y="446" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">写入对应画像层</text>
-<text x="1091" y="464" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">版本号 +0.1</text>
-<text x="1091" y="488" text-anchor="middle" font-size="9.5" fill="#ff8c00" font-family="JetBrains Mono, monospace">语料移入归档区</text>
-<text x="1091" y="510" text-anchor="middle" font-size="9.5" fill="#7a7a85" font-family="Inter, sans-serif">下次任务即生效</text>
+<rect x="740" y="340" width="194" height="132" rx="8" fill="#ff4466" fill-opacity="0.05" stroke="#ff4466" stroke-width="1.5"/>
+<text x="837" y="366" text-anchor="middle" font-size="13" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">用户逐条确认</text>
+<text x="837" y="390" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">采纳 / 修改后采纳 / 放弃</text>
+<text x="837" y="408" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">分批勾选，每批 ≤4 条</text>
+<text x="837" y="432" text-anchor="middle" font-size="9.5" fill="#ff4466" font-family="JetBrains Mono, monospace">HITL 确认门</text>
+<text x="837" y="454" text-anchor="middle" font-size="9.5" fill="#7a7a85" font-family="Inter, sans-serif">用户始终掌控进化</text>
 
-<path d="M 1091 528 L 1091 566 L 164 566 L 164 534" fill="none" stroke="#7a7a85" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#l-orange)"/>
-<text x="627" y="560" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">循环：入库新规则在下一轮任务被引用（学习效果可观察），语料与画像版本持续演进</text>
+<line x1="938" y1="406" x2="964" y2="406" stroke="#ff4466" stroke-width="2" marker-end="url(#l-red)"/>
 
-<rect x="66" y="588" width="1098" height="0" fill="none"/>
+<rect x="968" y="340" width="176" height="132" rx="8" fill="#ff8c00" fill-opacity="0.05" stroke="#ff8c00" stroke-width="1.2"/>
+<text x="1056" y="366" text-anchor="middle" font-size="13" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">入库归档</text>
+<text x="1056" y="390" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">写入对应画像层</text>
+<text x="1056" y="408" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">版本号 +0.1</text>
+<text x="1056" y="432" text-anchor="middle" font-size="9.5" fill="#ff8c00" font-family="JetBrains Mono, monospace">语料移入归档区</text>
+<text x="1056" y="454" text-anchor="middle" font-size="9.5" fill="#7a7a85" font-family="Inter, sans-serif">下次任务即生效</text>
 
-<rect x="66" y="592" width="340" height="96" rx="8" fill="#12121a" fill-opacity="0.8" stroke="#2a2a35" stroke-width="1.2"/>
-<text x="82" y="618" text-anchor="start" font-size="12" fill="#00f0ff" font-family="JetBrains Mono, monospace" font-weight="700">铁律 1 · 未确认不入库</text>
-<text x="82" y="640" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">任何内容未经用户确认不得写入画像层</text>
-<text x="82" y="658" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">防止错误经验污染、记忆投毒</text>
+<path d="M 1056 472 L 1056 512 L 153 512 L 153 478" fill="none" stroke="#7a7a85" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#l-orange)"/>
+<text x="600" y="506" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">循环：入库新规则在下一轮任务被引用（学习效果可观察），语料与画像版本持续演进</text>
 
-<rect x="430" y="592" width="340" height="96" rx="8" fill="#12121a" fill-opacity="0.8" stroke="#2a2a35" stroke-width="1.2"/>
-<text x="446" y="618" text-anchor="start" font-size="12" fill="#00f0ff" font-family="JetBrains Mono, monospace" font-weight="700">铁律 2 · 语料永不删除</text>
-<text x="446" y="640" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">原始语料完整保留在归档区</text>
-<text x="446" y="658" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">画像可随时从语料重建</text>
+<rect x="36" y="568" width="368" height="96" rx="8" fill="#12121a" fill-opacity="0.8" stroke="#2a2a35" stroke-width="1.2"/>
+<text x="52" y="594" text-anchor="start" font-size="12" fill="#00f0ff" font-family="JetBrains Mono, monospace" font-weight="700">铁律 1 · 未确认不入库</text>
+<text x="52" y="616" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">任何内容未经用户确认不得写入画像层</text>
+<text x="52" y="634" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">防止错误经验污染、记忆投毒</text>
 
-<rect x="794" y="592" width="340" height="96" rx="8" fill="#12121a" fill-opacity="0.8" stroke="#2a2a35" stroke-width="1.2"/>
-<text x="810" y="618" text-anchor="start" font-size="12" fill="#00f0ff" font-family="JetBrains Mono, monospace" font-weight="700">铁律 3 · 淘汰防膨胀</text>
-<text x="810" y="640" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">条目连续 3 个月未被引用 → 归档候选</text>
-<text x="810" y="658" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">先归档后删除，保留恢复能力</text>
+<rect x="416" y="568" width="368" height="96" rx="8" fill="#12121a" fill-opacity="0.8" stroke="#2a2a35" stroke-width="1.2"/>
+<text x="432" y="594" text-anchor="start" font-size="12" fill="#00f0ff" font-family="JetBrains Mono, monospace" font-weight="700">铁律 2 · 语料永不删除</text>
+<text x="432" y="616" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">原始语料完整保留在归档区</text>
+<text x="432" y="634" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">画像可随时从语料重建</text>
 
-<text x="600" y="708" text-anchor="middle" font-size="11" fill="#7a7a85" font-family="Inter, sans-serif">复盘 R1 实测：星枢案例反向校准，正例确认 13 条规则有效 + 偏差定位 4 项全部闭环入库</text>
+<rect x="796" y="568" width="368" height="96" rx="8" fill="#12121a" fill-opacity="0.8" stroke="#2a2a35" stroke-width="1.2"/>
+<text x="812" y="594" text-anchor="start" font-size="12" fill="#00f0ff" font-family="JetBrains Mono, monospace" font-weight="700">铁律 3 · 淘汰防膨胀</text>
+<text x="812" y="616" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">条目连续 3 个月未被引用 → 归档候选</text>
+<text x="812" y="634" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">先归档后删除，保留恢复能力</text>
+
+<text x="600" y="698" text-anchor="middle" font-size="11" fill="#7a7a85" font-family="Inter, sans-serif">复盘 R1 实测：星枢案例反向校准，正例确认 13 条规则有效 + 偏差定位 4 项全部闭环入库</text>
 </svg>
