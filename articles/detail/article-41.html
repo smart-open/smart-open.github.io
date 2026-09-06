@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>我把10年编码习惯，炼成了AI分身 - 馒头仔 | Smart Open</title>
-  <meta name="description" content="完整复盘个人开发分身 dev-twin 的构建路径：五层对话先战略后建设、三层画像库提炼（三类标注+双重校准）、薄引擎六件事（决策分级 L1/L2/L3）、星枢案例实战验证、HITL 学习闭环（纠正→语料→复盘→入库→淘汰），附关键设计决策与复刻指南。">
+  <meta name="description" content="完整复盘个人开发分身 dev-twin 的构建路径：五层对话先战略后建设、分层画像库提炼（三类标注+双重校准）、薄引擎六件事（决策分级 L1/L2/L3）、星枢案例实战验证、HITL 学习闭环（纠正→语料→复盘→入库→淘汰），附关键设计决策与复刻指南，含 dev-twin / dev-lifecycle / strategic-advisor 三个技能的开源地址。">
   <link rel="icon" type="image/png" href="../../favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -101,9 +101,9 @@
 
         <p>过去一年，我把越来越多的开发工作交给了 AI。模型能力早就不是瓶颈——真正让我别扭的是另一件事：AI 写的代码能用，但<strong>不是「我」的代码</strong>。命名不是我的习惯，异常处理不是我的路数，架构决策更不会替我想「这个中间件到底要不要加」。</p>
 
-        <p>我之前的方案是一个叫 <code>dev-lifecycle</code> 的技能：把七阶段开发流程编排成提示词。它验证了可行性，也暴露了三个顽固问题——生成的代码冗余、token 消耗大、工程一大就跑偏。于是我做了一个更彻底的尝试：不教 AI「怎么开发」，而是把「我」本人提炼成一个可加载、可进化、可替换的<strong>画像库</strong>，再配一个按画像执行的薄引擎，让它成为我的开发分身。</p>
+        <p>我之前的方案是一个叫 <code><a href="https://github.com/smart-open/skills/tree/main/dev-lifecycle" target="_blank" rel="noopener">dev-lifecycle</a></code> 的技能：把七阶段开发流程编排成提示词。它验证了可行性，也暴露了三个顽固问题——生成的代码冗余、token 消耗大、工程一大就跑偏。于是我做了一个更彻底的尝试：不教 AI「怎么开发」，而是把「我」本人提炼成一个可加载、可进化、可替换的<strong>画像库</strong>，再配一个按画像执行的薄引擎，让它成为我的开发分身。</p>
 
-        <p>这篇文章完整复盘这个叫 <code>dev-twin</code> 的项目：从战略分析到画像提炼，从引擎设计到实战验证，再到让它自我进化的学习闭环。全部过程两天天走完，当前版本 v1.1 已经在真实项目上跑通三大能力：像你一样思考决策、像你一样写代码、自我学习迭代。</p>
+        <p>这篇文章完整复盘这个叫 <code><a href="https://github.com/smart-open/skills/blob/main/dev-twin" target="_blank" rel="noopener">dev-twin</a></code> 的项目：从战略分析到画像提炼，从引擎设计到实战验证，再到让它自我进化的学习闭环。全部过程两天天走完，当前版本 v1.1 已经在真实项目上跑通三大能力：像你一样思考决策、像你一样写代码、自我学习迭代。</p>
 
         <h2 id="why">一、先想清楚：要解决什么问题</h2>
 
@@ -125,11 +125,11 @@
 
         <h2 id="strategy">二、先战略后建设：一场五层对话</h2>
 
-        <p>面对「我想要个分身」这种模糊诉求，最危险的动作是直接开写。我用战略顾问技能做了一场五层深度对话——现状、本质、目标、路径、风险，一层层往下剥：</p>
+        <p>面对「我想要个分身」这种模糊诉求，最危险的动作是直接开写。我用<a href="https://github.com/smart-open/skills/blob/main/strategic-advisor" target="_blank" rel="noopener">战略顾问技能</a>做了一场五层深度对话——现状、本质、目标、路径、风险，一层层往下剥：</p>
 
         <div class="step-item">
           <div class="step-item-title"><span class="num">01</span>现状</div>
-          <div class="step-item-body">已有 dev-lifecycle 实践，暴露冗余、费 token、跑偏三类问题；手头素材：10W+ 行工程代码、简历、个人经验文档、开发流程。</div>
+          <div class="step-item-body">已有 <a href="https://github.com/smart-open/skills/tree/main/dev-lifecycle" target="_blank" rel="noopener">dev-lifecycle</a> 实践，暴露冗余、费 token、跑偏三类问题；手头素材：10W+ 行工程代码、简历、个人经验文档、开发流程。</div>
         </div>
         <div class="step-item">
           <div class="step-item-title"><span class="num">02</span>本质</div>
@@ -298,11 +298,11 @@ D7  代码精简为荣：最小代码量优雅完成同等功能，以堆砌重�
           </tbody>
         </table>
 
-        <p>同样重要的是<strong>不引入清单</strong>：两轮外部蒸馏时明确拒绝了 TDD 红绿循环（与精简哲学互斥）、wayfinder 重型机制、多技能生态模式——最后这个正是 dev-lifecycle 走过的弯路。知道不做什么，和知道做什么一样重要。</p>
+        <p>同样重要的是<strong>不引入清单</strong>：两轮外部蒸馏时明确拒绝了 TDD 红绿循环（与精简哲学互斥）、wayfinder 重型机制、多技能生态模式——最后这个正是 <a href="https://github.com/smart-open/skills/tree/main/dev-lifecycle" target="_blank" rel="noopener">dev-lifecycle</a> 走过的弯路。知道不做什么，和知道做什么一样重要。</p>
 
         <h2 id="replicate">八、你也想造一个：复刻七步</h2>
 
-        <p>整个 dev-twin 是自包含的，画像目录可整体替换。如果你也想给自己造一个分身，路径已经验证过：</p>
+        <p>整个 <a href="https://github.com/smart-open/skills/blob/main/dev-twin" target="_blank" rel="noopener">dev-twin</a> 是自包含的，画像目录可整体替换。如果你也想给自己造一个分身，路径已经验证过：</p>
 
         <div class="step-item">
           <div class="step-item-title"><span class="num">STEP 1</span>拿模板</div>
