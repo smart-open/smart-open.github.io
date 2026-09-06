@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 830" font-family="Inter, sans-serif">
+<defs>
+<marker id="m-cyan" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#00f0ff"/></marker>
+<marker id="m-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#00ff88"/></marker>
+<marker id="m-orange" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff8c00"/></marker>
+<marker id="m-purple" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#a855f7"/></marker>
+<marker id="m-gray" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#7a7a85"/></marker>
+</defs>
+<rect width="1200" height="830" fill="#0a0a0f"/>
+<text x="600" y="42" text-anchor="middle" font-size="20" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">同一连接上的并发请求：交错发送，乱序返回</text>
+<text x="600" y="64" text-anchor="middle" font-size="12" fill="#7a7a85" font-family="Inter, sans-serif">调用线程 A / B 共享一条 TCP 连接，requestId 贯穿两端</text>
+<rect x="80" y="78" width="140" height="44" rx="8" fill="#12121a" stroke="#7a7a85" stroke-width="1.4"/>
+<text x="150" y="96" text-anchor="middle" font-size="12.5" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">调用线程 A</text>
+<text x="150" y="113" text-anchor="middle" font-size="9.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">getUser()</text>
+<rect x="310" y="78" width="140" height="44" rx="8" fill="#12121a" stroke="#7a7a85" stroke-width="1.4"/>
+<text x="380" y="96" text-anchor="middle" font-size="12.5" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">调用线程 B</text>
+<text x="380" y="113" text-anchor="middle" font-size="9.5" fill="#7a7a85" font-family="JetBrains Mono, monospace">getOrders()</text>
+<rect x="545" y="78" width="170" height="44" rx="8" fill="#12121a" stroke="#00f0ff" stroke-width="1.4"/>
+<text x="630" y="96" text-anchor="middle" font-size="12.5" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">客户端 EventLoop</text>
+<text x="630" y="113" text-anchor="middle" font-size="9.5" fill="#00f0ff" font-family="JetBrains Mono, monospace">I/O 线程</text>
+<rect x="785" y="78" width="170" height="44" rx="8" fill="#12121a" stroke="#00f0ff" stroke-width="1.4"/>
+<text x="870" y="96" text-anchor="middle" font-size="12.5" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">服务端 EventLoop</text>
+<text x="870" y="113" text-anchor="middle" font-size="9.5" fill="#00f0ff" font-family="JetBrains Mono, monospace">Netty I/O</text>
+<rect x="1000" y="78" width="160" height="44" rx="8" fill="#12121a" stroke="#ff8c00" stroke-width="1.4"/>
+<text x="1080" y="96" text-anchor="middle" font-size="12.5" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">业务线程池</text>
+<text x="1080" y="113" text-anchor="middle" font-size="9.5" fill="#ff8c00" font-family="JetBrains Mono, monospace">execute ×N</text>
+<line x1="150" y1="122" x2="150" y2="772" stroke="#2a2a35" stroke-width="1" stroke-dasharray="4,4"/>
+<line x1="380" y1="122" x2="380" y2="772" stroke="#2a2a35" stroke-width="1" stroke-dasharray="4,4"/>
+<line x1="630" y1="122" x2="630" y2="772" stroke="#2a2a35" stroke-width="1" stroke-dasharray="4,4"/>
+<line x1="870" y1="122" x2="870" y2="772" stroke="#2a2a35" stroke-width="1" stroke-dasharray="4,4"/>
+<line x1="1080" y1="122" x2="1080" y2="772" stroke="#2a2a35" stroke-width="1" stroke-dasharray="4,4"/>
+<rect x="144" y="140" width="12" height="26" rx="2" fill="#e8e8ec" fill-opacity="0.15"/>
+<rect x="144" y="740" width="12" height="26" rx="2" fill="#e8e8ec" fill-opacity="0.15"/>
+<rect x="374" y="190" width="12" height="26" rx="2" fill="#e8e8ec" fill-opacity="0.15"/>
+<rect x="374" y="590" width="12" height="26" rx="2" fill="#e8e8ec" fill-opacity="0.15"/>
+<rect x="624" y="148" width="12" height="616" rx="2" fill="#00f0ff" fill-opacity="0.22"/>
+<rect x="864" y="246" width="12" height="476" rx="2" fill="#00f0ff" fill-opacity="0.22"/>
+<rect x="1074" y="346" width="12" height="356" rx="2" fill="#ff8c00" fill-opacity="0.22"/>
+<line x1="150" y1="155" x2="630" y2="155" stroke="#00f0ff" stroke-width="2" marker-end="url(#m-cyan)"/>
+<text x="390" y="147" text-anchor="middle" font-size="11" fill="#00f0ff" font-family="JetBrains Mono, monospace">① writeAndFlush(req#1)</text>
+<line x1="380" y1="205" x2="630" y2="205" stroke="#00f0ff" stroke-width="2" marker-end="url(#m-cyan)"/>
+<text x="505" y="197" text-anchor="middle" font-size="11" fill="#00f0ff" font-family="JetBrains Mono, monospace">② writeAndFlush(req#2)</text>
+<line x1="630" y1="255" x2="870" y2="255" stroke="#00f0ff" stroke-width="2" marker-end="url(#m-cyan)"/>
+<text x="750" y="247" text-anchor="middle" font-size="11" fill="#00f0ff" font-family="JetBrains Mono, monospace">③ req#1 帧上连接</text>
+<line x1="630" y1="305" x2="870" y2="305" stroke="#00f0ff" stroke-width="2" marker-end="url(#m-cyan)"/>
+<text x="750" y="297" text-anchor="middle" font-size="11" fill="#00f0ff" font-family="JetBrains Mono, monospace">④ req#2 帧交错紧随</text>
+<line x1="870" y1="355" x2="1080" y2="355" stroke="#ff8c00" stroke-width="1.5" marker-end="url(#m-orange)"/>
+<text x="975" y="347" text-anchor="middle" font-size="11" fill="#ff8c00" font-family="JetBrains Mono, monospace">⑤ 提交 req#1（异步）</text>
+<line x1="870" y1="405" x2="1080" y2="405" stroke="#ff8c00" stroke-width="1.5" marker-end="url(#m-orange)"/>
+<text x="975" y="397" text-anchor="middle" font-size="11" fill="#ff8c00" font-family="JetBrains Mono, monospace">⑥ 提交 req#2（异步）</text>
+<line x1="1080" y1="510" x2="870" y2="510" stroke="#00ff88" stroke-width="1.5" marker-end="url(#m-green)"/>
+<text x="975" y="502" text-anchor="middle" font-size="11" fill="#00ff88" font-family="JetBrains Mono, monospace">⑦ result#2 先完成</text>
+<line x1="870" y1="560" x2="630" y2="560" stroke="#a855f7" stroke-width="2" marker-end="url(#m-purple)"/>
+<text x="750" y="552" text-anchor="middle" font-size="11" fill="#a855f7" font-family="JetBrains Mono, monospace">⑧ resp#2 先回（乱序）</text>
+<line x1="630" y1="610" x2="380" y2="610" stroke="#7a7a85" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#m-gray)"/>
+<text x="505" y="602" text-anchor="middle" font-size="11" fill="#7a7a85" font-family="JetBrains Mono, monospace">⑨ complete(future#2) 唤醒 B</text>
+<line x1="1080" y1="660" x2="870" y2="660" stroke="#00ff88" stroke-width="1.5" marker-end="url(#m-green)"/>
+<text x="975" y="652" text-anchor="middle" font-size="11" fill="#00ff88" font-family="JetBrains Mono, monospace">⑩ result#1 完成</text>
+<line x1="870" y1="710" x2="630" y2="710" stroke="#a855f7" stroke-width="2" marker-end="url(#m-purple)"/>
+<text x="750" y="702" text-anchor="middle" font-size="11" fill="#a855f7" font-family="JetBrains Mono, monospace">⑪ resp#1 回写</text>
+<line x1="630" y1="755" x2="150" y2="755" stroke="#7a7a85" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#m-gray)"/>
+<text x="390" y="747" text-anchor="middle" font-size="11" fill="#7a7a85" font-family="JetBrains Mono, monospace">⑫ complete(future#1) 唤醒 A</text>
+<rect x="1000" y="424" width="172" height="54" rx="6" fill="#12121a" stroke="#2a2a35" stroke-width="1"/>
+<text x="1086" y="446" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">req#2 执行快</text>
+<text x="1086" y="464" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">req#1 慢（查库）</text>
+<text x="750" y="578" text-anchor="middle" font-size="10.5" fill="#ff4466" font-family="Inter, sans-serif">乱序到达：客户端按 requestId 匹配 Future</text>
+<line x1="80" y1="800" x2="120" y2="800" stroke="#00f0ff" stroke-width="2"/>
+<text x="128" y="804" text-anchor="start" font-size="11" fill="#7a7a85" font-family="Inter, sans-serif">请求上行</text>
+<line x1="220" y1="800" x2="260" y2="800" stroke="#ff8c00" stroke-width="1.5"/>
+<text x="268" y="804" text-anchor="start" font-size="11" fill="#7a7a85" font-family="Inter, sans-serif">异步提交</text>
+<line x1="370" y1="800" x2="410" y2="800" stroke="#00ff88" stroke-width="1.5"/>
+<text x="418" y="804" text-anchor="start" font-size="11" fill="#7a7a85" font-family="Inter, sans-serif">业务完成</text>
+<line x1="520" y1="800" x2="560" y2="800" stroke="#a855f7" stroke-width="2"/>
+<text x="568" y="804" text-anchor="start" font-size="11" fill="#7a7a85" font-family="Inter, sans-serif">响应下行</text>
+<line x1="670" y1="800" x2="710" y2="800" stroke="#7a7a85" stroke-width="1.5" stroke-dasharray="5,3"/>
+<text x="718" y="804" text-anchor="start" font-size="11" fill="#7a7a85" font-family="Inter, sans-serif">Future 唤醒</text>
+<text x="1164" y="804" text-anchor="end" font-size="11" fill="#7a7a85" font-family="Inter, sans-serif">同一连接 · requestId 匹配 · 乱序安全</text>
+</svg>

@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 880" font-family="Inter, sans-serif">
+<defs>
+<marker id="m-cyan" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#00f0ff"/></marker>
+<marker id="m-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#00ff88"/></marker>
+<marker id="m-orange" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff8c00"/></marker>
+<marker id="m-purple" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#a855f7"/></marker>
+<marker id="m-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff4466"/></marker>
+<marker id="m-gray" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#7a7a85"/></marker>
+</defs>
+<rect width="1200" height="880" fill="#0a0a0f"/>
+<text x="600" y="42" text-anchor="middle" font-size="22" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">个人开发分身 dev-twin 总体架构</text>
+<text x="600" y="66" text-anchor="middle" font-size="13" fill="#7a7a85" font-family="Inter, sans-serif">画像库与引擎解耦 · 任务按需加载 ≤3 层 · 决策分级留痕 · HITL 学习闭环</text>
+
+<rect x="440" y="88" width="320" height="66" rx="10" fill="#00f0ff" fill-opacity="0.05" stroke="#00f0ff" stroke-width="1.5"/>
+<rect x="444" y="88" width="312" height="3" rx="1.5" fill="#00f0ff"/>
+<text x="600" y="116" text-anchor="middle" font-size="14" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">画像主体（用户）</text>
+<text x="600" y="138" text-anchor="middle" font-size="10.5" fill="#7a7a85" font-family="Inter, sans-serif">简单 review 把控大方向 · 纠正即语料</text>
+
+<line x1="440" y1="154" x2="320" y2="192" stroke="#00f0ff" stroke-width="2" marker-end="url(#m-cyan)"/>
+<line x1="760" y1="154" x2="880" y2="192" stroke="#00f0ff" stroke-width="2" marker-end="url(#m-cyan)"/>
+<text x="330" y="180" text-anchor="end" font-size="10" fill="#00f0ff" font-family="JetBrains Mono, monospace">提供素材 · 决议拍板</text>
+<text x="870" y="180" text-anchor="start" font-size="10" fill="#00f0ff" font-family="JetBrains Mono, monospace">L1 留痕 / L2 请示 / L3 确认</text>
+
+<rect x="36" y="196" width="556" height="424" rx="12" fill="#12121a" fill-opacity="0.5" stroke="#2a2a35" stroke-width="1.2"/>
+<text x="56" y="224" text-anchor="start" font-size="14" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">画像库 persona-zhutianwei（v0.10 · 约 210 条）</text>
+<text x="572" y="224" text-anchor="end" font-size="11" fill="#7a7a85" font-family="Inter, sans-serif">可整体替换 = 换分身</text>
+
+<rect x="56" y="240" width="516" height="50" rx="8" fill="#00f0ff" fill-opacity="0.06" stroke="#00f0ff" stroke-width="1.5"/>
+<rect x="60" y="240" width="508" height="3" rx="1.5" fill="#00f0ff"/>
+<text x="70" y="262" text-anchor="start" font-size="12.5" fill="#00f0ff" font-family="JetBrains Mono, monospace" font-weight="700">profile-core.md</text>
+<text x="70" y="280" text-anchor="start" font-size="10" fill="#e8e8ec" font-family="Inter, sans-serif">必需：基础画像 + 8 条决策原则 + 决议表</text>
+<text x="562" y="271" text-anchor="end" font-size="9.5" fill="#00f0ff" font-family="Inter, sans-serif">所有任务必读</text>
+
+<rect x="56" y="298" width="516" height="50" rx="8" fill="#00ff88" fill-opacity="0.05" stroke="#00ff88" stroke-width="1.2"/>
+<rect x="60" y="298" width="508" height="3" rx="1.5" fill="#00ff88"/>
+<text x="70" y="320" text-anchor="start" font-size="12.5" fill="#00ff88" font-family="JetBrains Mono, monospace" font-weight="700">profile-coding.md</text>
+<text x="70" y="338" text-anchor="start" font-size="10" fill="#e8e8ec" font-family="Inter, sans-serif">Java 编码习惯 + 测试规范 + 包袱红线</text>
+<text x="562" y="329" text-anchor="end" font-size="9.5" fill="#7a7a85" font-family="Inter, sans-serif">编码任务</text>
+
+<rect x="56" y="356" width="516" height="50" rx="8" fill="#ff8c00" fill-opacity="0.05" stroke="#ff8c00" stroke-width="1.2"/>
+<rect x="60" y="356" width="508" height="3" rx="1.5" fill="#ff8c00"/>
+<text x="70" y="378" text-anchor="start" font-size="12.5" fill="#ff8c00" font-family="JetBrains Mono, monospace" font-weight="700">profile-architecture.md</text>
+<text x="70" y="396" text-anchor="start" font-size="10" fill="#e8e8ec" font-family="Inter, sans-serif">架构偏好 + ADR 门槛 + 深模块 + 契约先行（49 条）</text>
+<text x="562" y="387" text-anchor="end" font-size="9.5" fill="#7a7a85" font-family="Inter, sans-serif">设计任务</text>
+
+<rect x="56" y="414" width="516" height="50" rx="8" fill="#a855f7" fill-opacity="0.05" stroke="#a855f7" stroke-width="1.2"/>
+<rect x="60" y="414" width="508" height="3" rx="1.5" fill="#a855f7"/>
+<text x="70" y="436" text-anchor="start" font-size="12.5" fill="#a855f7" font-family="JetBrains Mono, monospace" font-weight="700">profile-workflow.md</text>
+<text x="70" y="454" text-anchor="start" font-size="10" fill="#e8e8ec" font-family="Inter, sans-serif">九步流程 + 七维拷问 + 九大类审查 + 调试六纪律</text>
+<text x="562" y="445" text-anchor="end" font-size="9.5" fill="#7a7a85" font-family="Inter, sans-serif">需求 / 推进任务</text>
+
+<rect x="56" y="472" width="516" height="50" rx="8" fill="#00f0ff" fill-opacity="0.04" stroke="#2a2a35" stroke-width="1.2"/>
+<rect x="60" y="472" width="508" height="3" rx="1.5" fill="#7a7a85"/>
+<text x="70" y="494" text-anchor="start" font-size="12.5" fill="#e8e8ec" font-family="JetBrains Mono, monospace" font-weight="700">profile-tools.md</text>
+<text x="70" y="512" text-anchor="start" font-size="10" fill="#e8e8ec" font-family="Inter, sans-serif">技术栈清单 + 选型模式 + AI 方法论 + 安全基线</text>
+<text x="562" y="503" text-anchor="end" font-size="9.5" fill="#7a7a85" font-family="Inter, sans-serif">选型任务</text>
+
+<rect x="56" y="530" width="516" height="50" rx="8" fill="#ff4466" fill-opacity="0.05" stroke="#ff4466" stroke-width="1.2"/>
+<rect x="60" y="530" width="508" height="3" rx="1.5" fill="#ff4466"/>
+<text x="70" y="552" text-anchor="start" font-size="12.5" fill="#ff4466" font-family="JetBrains Mono, monospace" font-weight="700">profile-polyglot.md</text>
+<text x="70" y="570" text-anchor="start" font-size="10" fill="#e8e8ec" font-family="Inter, sans-serif">Go / Python / Node / Rust / 前端 · 业界最佳实践起步</text>
+<text x="562" y="561" text-anchor="end" font-size="9.5" fill="#7a7a85" font-family="Inter, sans-serif">非 Java 任务</text>
+
+<rect x="56" y="588" width="516" height="22" rx="6" fill="none" stroke="#7a7a85" stroke-width="1" stroke-dasharray="5,4"/>
+<text x="70" y="603" text-anchor="start" font-size="10" fill="#7a7a85" font-family="JetBrains Mono, monospace">corpus/raw-corpus.md（学习语料，仅复盘时加载）</text>
+
+<rect x="628" y="196" width="536" height="424" rx="12" fill="#12121a" fill-opacity="0.5" stroke="#2a2a35" stroke-width="1.2"/>
+<text x="648" y="224" text-anchor="start" font-size="14" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">引擎 SKILL.md（约 115 行，保持薄）</text>
+<text x="1144" y="224" text-anchor="end" font-size="11" fill="#7a7a85" font-family="Inter, sans-serif">知识全在画像</text>
+
+<rect x="648" y="240" width="496" height="52" rx="8" fill="#00f0ff" fill-opacity="0.04" stroke="#2a2a35" stroke-width="1.2"/>
+<text x="662" y="262" text-anchor="start" font-size="12" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700"><tspan fill="#00f0ff" font-family="JetBrains Mono, monospace">1</tspan>  画像定位</text>
+<text x="662" y="280" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">5 级优先级：用户指定 &gt; PERSONA_DIR &gt; cwd &gt; skill 同级 &gt; 内置</text>
+
+<rect x="648" y="300" width="496" height="52" rx="8" fill="#00f0ff" fill-opacity="0.04" stroke="#2a2a35" stroke-width="1.2"/>
+<text x="662" y="322" text-anchor="start" font-size="12" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700"><tspan fill="#00f0ff" font-family="JetBrains Mono, monospace">2</tspan>  任务路由</text>
+<text x="662" y="340" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">按任务类型加载画像层，同时激活 ≤3 层，禁止全量加载</text>
+
+<rect x="648" y="360" width="496" height="52" rx="8" fill="#00f0ff" fill-opacity="0.04" stroke="#2a2a35" stroke-width="1.2"/>
+<text x="662" y="382" text-anchor="start" font-size="12" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700"><tspan fill="#00f0ff" font-family="JetBrains Mono, monospace">3</tspan>  决策分级</text>
+<text x="662" y="400" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">L1 自主执行 / L2 请示用户 / L3 强制确认（红线 / 安全 / 不可逆）</text>
+
+<rect x="648" y="420" width="496" height="52" rx="8" fill="#00f0ff" fill-opacity="0.04" stroke="#2a2a35" stroke-width="1.2"/>
+<text x="662" y="442" text-anchor="start" font-size="12" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700"><tspan fill="#00f0ff" font-family="JetBrains Mono, monospace">4</tspan>  执行纪律</text>
+<text x="662" y="460" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">决策留痕 · token 纪律 · 风格对齐 · 任务边界 · 原子 commit（十条）</text>
+
+<rect x="648" y="480" width="496" height="52" rx="8" fill="#00f0ff" fill-opacity="0.04" stroke="#2a2a35" stroke-width="1.2"/>
+<text x="662" y="502" text-anchor="start" font-size="12" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700"><tspan fill="#00f0ff" font-family="JetBrains Mono, monospace">5</tspan>  学习闭环</text>
+<text x="662" y="520" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">纠正 → 语料 → 攒 10 项 → 复盘确认 → 入画像（绝不直改画像层）</text>
+
+<rect x="648" y="540" width="496" height="52" rx="8" fill="#00f0ff" fill-opacity="0.04" stroke="#2a2a35" stroke-width="1.2"/>
+<text x="662" y="562" text-anchor="start" font-size="12" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700"><tspan fill="#00f0ff" font-family="JetBrains Mono, monospace">6</tspan>  产出规范</text>
+<text x="662" y="580" text-anchor="start" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">留痕格式统一：coding#N / core#D编号 / 决议YYYY-MM-DD</text>
+
+<line x1="592" y1="408" x2="628" y2="408" stroke="#7a7a85" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#m-gray)"/>
+<text x="610" y="398" text-anchor="middle" font-size="9" fill="#7a7a85" font-family="Inter, sans-serif">按需读取</text>
+
+<rect x="36" y="646" width="1128" height="194" rx="12" fill="#12121a" fill-opacity="0.5" stroke="#2a2a35" stroke-width="1.2" stroke-dasharray="6,4"/>
+<text x="56" y="674" text-anchor="start" font-size="14" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">学习闭环（HITL：人在回路，进化不失控）</text>
+<text x="1144" y="674" text-anchor="end" font-size="11" fill="#7a7a85" font-family="Inter, sans-serif">一次复盘约 10 分钟</text>
+
+<rect x="56" y="690" width="180" height="110" rx="8" fill="#00f0ff" fill-opacity="0.05" stroke="#00f0ff" stroke-width="1.5"/>
+<text x="146" y="716" text-anchor="middle" font-size="13" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">用户纠正</text>
+<text x="146" y="738" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">说清哪里错、应该怎样</text>
+<text x="146" y="756" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">当前任务同步修正</text>
+<text x="146" y="780" text-anchor="middle" font-size="9" fill="#00f0ff" font-family="JetBrains Mono, monospace">日常唯一动作</text>
+
+<line x1="236" y1="745" x2="274" y2="745" stroke="#00f0ff" stroke-width="2" marker-end="url(#m-cyan)"/>
+
+<rect x="282" y="690" width="180" height="110" rx="8" fill="#00ff88" fill-opacity="0.05" stroke="#00ff88" stroke-width="1.2"/>
+<text x="372" y="716" text-anchor="middle" font-size="13" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">语料积累</text>
+<text x="372" y="738" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">追加写入 raw-corpus.md</text>
+<text x="372" y="756" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">绝不直接改画像层</text>
+<text x="372" y="780" text-anchor="middle" font-size="9" fill="#00ff88" font-family="JetBrains Mono, monospace">≥10 项触发复盘</text>
+
+<line x1="462" y1="745" x2="500" y2="745" stroke="#00ff88" stroke-width="2" marker-end="url(#m-green)"/>
+
+<rect x="508" y="690" width="180" height="110" rx="8" fill="#a855f7" fill-opacity="0.05" stroke="#a855f7" stroke-width="1.2"/>
+<text x="598" y="716" text-anchor="middle" font-size="13" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">复盘确认</text>
+<text x="598" y="738" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">AI 预生成结构化总结</text>
+<text x="598" y="756" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">用户逐条：采纳/修改/放弃</text>
+<text x="598" y="780" text-anchor="middle" font-size="9" fill="#a855f7" font-family="JetBrains Mono, monospace">用户拍板，AI 不代劳</text>
+
+<line x1="688" y1="745" x2="726" y2="745" stroke="#a855f7" stroke-width="2" marker-end="url(#m-purple)"/>
+
+<rect x="734" y="690" width="180" height="110" rx="8" fill="#ff8c00" fill-opacity="0.05" stroke="#ff8c00" stroke-width="1.2"/>
+<text x="824" y="716" text-anchor="middle" font-size="13" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">入画像层</text>
+<text x="824" y="738" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">写入对应分层，版本 +0.1</text>
+<text x="824" y="756" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">语料移入归档区</text>
+<text x="824" y="780" text-anchor="middle" font-size="9" fill="#ff8c00" font-family="JetBrains Mono, monospace">永不物理删除</text>
+
+<line x1="914" y1="745" x2="952" y2="745" stroke="#ff8c00" stroke-width="2" marker-end="url(#m-orange)"/>
+
+<rect x="960" y="690" width="168" height="110" rx="8" fill="#ff4466" fill-opacity="0.05" stroke="#ff4466" stroke-width="1.2"/>
+<text x="1044" y="716" text-anchor="middle" font-size="13" fill="#e8e8ec" font-family="Inter, sans-serif" font-weight="700">淘汰归档</text>
+<text x="1044" y="738" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">连续 3 个月未引用</text>
+<text x="1044" y="756" text-anchor="middle" font-size="10" fill="#7a7a85" font-family="Inter, sans-serif">复盘时提议，用户确认</text>
+<text x="1044" y="780" text-anchor="middle" font-size="9" fill="#ff4466" font-family="JetBrains Mono, monospace">防膨胀生命线</text>
+
+<text x="600" y="866" text-anchor="middle" font-size="11" fill="#7a7a85" font-family="Inter, sans-serif">v1.1 暂定可用版本（2026-09-06）· 三大能力经真实案例验证：像你一样思考决策 / 写代码 / 自我学习迭代</text>
+</svg>

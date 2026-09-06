@@ -3,6 +3,30 @@
    ======================================== */
 const ARTICLES_DATA = [
   {
+    id: 'article-41',
+    title: '我把10年编码习惯，炼成了AI分身',
+    excerpt: '完整复盘个人开发分身 dev-twin 的构建路径：五层对话先战略后建设、分层画像库提炼（三类标注+双重校准）、薄引擎六件事（决策分级 L1/L2/L3）、星枢案例实战验证、HITL 学习闭环（纠正→语料→复盘→入库→淘汰），附关键设计决策与复刻指南。',
+    tags: ['AI 分身', 'Skill 工程', 'Agent', 'HITL'],
+    date: '2026-09-06',
+    detailUrl: 'detail/article-41.html'
+  },
+  {
+    id: 'article-40',
+    title: 'OpenAI开源Codex引擎，Agent产品随便造',
+    excerpt: '深度拆解 OpenAI 开源的 Codex Harness：app-server JSON-RPC 协议生命周期、Thread/Turn/Item 状态模型、沙箱×审批双闸门矩阵、codex exec 事件流与结构化输出、MCP server 反向集成，以及 Relay 示例背后的产品化思路。',
+    tags: ['Codex', 'Agent Harness', 'OpenAI', 'Agent 架构'],
+    date: '2026-09-03',
+    detailUrl: 'detail/article-40.html'
+  },
+  {
+    id: 'article-39',
+    title: '一条连接跑满并发请求，RPC多路复用全链路',
+    excerpt: '从长连接、请求 ID、连接池到 Netty 异步处理，系统拆解 RPC 多路复用在服务端的全链路落地，重点回答同一连接如何并发请求，以及是否需要 ConcurrentHashMap 管理连接与请求池。',
+    tags: ['RPC', 'Netty', '多路复用', 'Java'],
+    date: '2026-09-03',
+    detailUrl: 'detail/article-39.html'
+  },
+  {
     id: 'article-38',
     title: 'DeepSeek把Agent内核拆成了插件',
     excerpt: '深度拆解 DeepSeek Harness（dsh）的一切皆插件架构：Cordis 五大核心机制、waterfall 短路语义、Agent 生命周期 15 步事件流、会话日志不变量，工具插件与 Hook 插件的完整技术契约，附权限门禁、配置补丁、MCP 接入五大实战',

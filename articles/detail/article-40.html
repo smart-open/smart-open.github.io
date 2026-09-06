@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenAI开源Codex引擎，Agent产品随便造 - 馒头仔 | Smart Open</title>
+  <meta name="description" content="深度拆解 OpenAI 开源的 Codex Harness：app-server JSON-RPC 协议生命周期、Thread/Turn/Item 状态模型、沙箱×审批双闸门矩阵、codex exec 事件流与结构化输出、MCP server 反向集成，以及 Relay 示例背后的产品化思路。">
+  <link rel="icon" type="image/png" href="../../favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/preview-rail.css">
+  <style>
+    .codex-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
+    .codex-table th { background: var(--bg-secondary); color: var(--accent); padding: 12px 14px; text-align: left; border-bottom: 2px solid var(--divider); font-family: var(--font-mono); font-size: 0.8rem; }
+    .codex-table td { padding: 10px 14px; border-bottom: 1px solid var(--divider); color: var(--text-primary); vertical-align: top; }
+    .codex-table tr:hover td { background: var(--bg-secondary); }
+    .codex-table .mono { font-family: var(--font-mono); color: var(--accent); font-size: 0.78rem; }
+    .codex-table .reason { color: var(--text-secondary); }
+    .code-block { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 8px; padding: 16px 20px; margin: 16px 0; overflow-x: auto; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.65; color: var(--text-primary); white-space: pre; }
+    .code-block .cmt { color: var(--text-secondary); font-style: italic; }
+    .code-block .kw { color: #c792ea; }
+    .code-block .str { color: #c3e88d; }
+    .code-block .num { color: #f78c6c; }
+    .code-block .ann { color: #82aaff; }
+    .code-block .fn { color: #82aaff; }
+    .callout { background: rgba(0,240,255,0.05); border: 1px solid var(--divider); border-left: 3px solid var(--accent); border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.6; }
+    .callout strong { color: var(--accent); }
+    .callout-warn { background: rgba(255,68,102,0.05); border: 1px solid var(--divider); border-left: 3px solid #ff4466; border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.6; }
+    .callout-warn strong { color: #ff4466; }
+    .contract-item { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 18px 20px; margin: 14px 0; border-left: 3px solid var(--accent); }
+    .contract-item-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; }
+    .contract-item-title .num { color: var(--accent); font-family: var(--font-mono); margin-right: 8px; }
+    .contract-item-body { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; }
+    .contract-item-body strong { color: var(--text-primary); }
+    .contract-item-body code, .markdown-body code { font-family: var(--font-mono); font-size: 0.8em; background: rgba(0,240,255,0.08); color: var(--accent); padding: 1px 6px; border-radius: 4px; }
+    .checklist { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 20px 24px; margin: 20px 0; }
+    .checklist-title { font-weight: 600; font-size: 0.92rem; color: var(--accent); margin-bottom: 12px; font-family: var(--font-mono); }
+    .checklist ul { list-style: none; padding: 0; margin: 0; }
+    .checklist li { font-size: 0.84rem; color: var(--text-primary); line-height: 1.8; padding-left: 24px; position: relative; }
+    .checklist li::before { content: '[ ]'; position: absolute; left: 0; color: var(--accent); font-family: var(--font-mono); font-size: 0.8rem; }
+    .checklist li strong { color: var(--accent); }
+    .markdown-body table { display: block; overflow-x: auto; }
+    @media (max-width: 768px) {
+      .codex-table { font-size: 0.78rem; }
+      .codex-table th, .codex-table td { padding: 8px 10px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav" id="nav">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-brand"><img src="../../assets/img/logo.png" alt="Smart Open" class="nav-logo"><span>Smart Open</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="切换导航">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#about">关于</a></li>
+        <li><a href="../../index.html#projects">项目</a></li>
+        <li><a href="../../index.html#skills">技能</a></li>
+        <li><a href="../../index.html#experience">经历</a></li>
+        <li><a href="../index.html">文章</a></li>
+        <li><a href="../../trending/index.html">趋势</a></li>
+        <li><a href="../../index.html#contact">联系</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="article-hero">
+    <div class="article-hero-content">
+      <h1 class="article-title">OpenAI开源Codex引擎，Agent产品随便造</h1>
+      <div class="article-meta">
+        <span class="article-date">2026-09-03</span>
+        <div class="article-tags">
+          <span class="tag">Codex</span>
+          <span class="tag">Agent Harness</span>
+          <span class="tag">OpenAI</span>
+          <span class="tag">Agent 架构</span>
+        </div>
+      </div>
+    </div>
+    <div class="article-hero-bg" style="background-image: url('../../assets/img/article-40-arch.svg')"></div>
+    <div class="article-hero-overlay"></div>
+  </section>
+
+  <div class="article-container">
+    <aside class="article-sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">目录</h3>
+        <nav class="article-toc" id="articleToc"></nav>
+      </div>
+    </aside>
+
+    <article class="article-content">
+      <div class="markdown-body">
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-40-arch.svg" alt="Codex Harness 整体架构图">
+          <figcaption>Codex Harness 整体架构：产品形态层之下是四层集成面与 agent loop 核心，模型访问与托管服务在开源边界之外</figcaption>
+        </figure>
+
+        <p>2026 年 8 月 19 日，OpenAI 发布博客《Codex as a platform: build on the open agent harness》，把驱动 Codex App、CLI、IDE 插件的底层执行框架正式平台化——app-server 协议文档、官方 SDK、完整的集成指南一并放出，全部落在 <code>openai/codex</code> 仓库里，Apache-2.0 协议。这个仓库 96.6% 是 Rust，核心逻辑集中在 <code>codex-rs</code> 单仓库工作区，一万多次提交、六百多位贡献者，不是玩具项目。</p>
+
+        <p>这件事值得每个做 Agent 产品的团队认真读一遍，因为它开源的不是又一个聊天客户端，而是 Agent 运行时本身：对话状态管理、工具调用、沙箱执行、流式输出、人工审批——一个生产级 Agent 需要而模型不会给你的全部基础设施。本文沿着「harness 是什么 → 怎么接入 → 协议与状态 → 安全模型 → 自动化与反向集成 → 产品化」的路径，把这套框架的设计与实现拆开看。</p>
+
+        <div class="callout">
+          <strong>一句话主线</strong>：harness = <strong>agent loop</strong>（会话状态 + 工具系统 + 审批策略 + 流式事件）+ <strong>四层集成面</strong>（exec / SDK / app-server / MCP server）+ <strong>平台原生沙箱</strong>。模型访问不在开源边界内——开源的是引擎，不是燃料。
+        </div>
+
+        <h2 id="what">Harness 是什么：模型外的那层执行系统</h2>
+
+        <p>一个能干活的 Agent，远不止「提示词 + 模型响应」。它要理解任务、随时间维护上下文、检索相关信息、调用工具、暴露进度、处理失败、在必要的时候请求人工审批、最后交付有用的结果。OpenAI 在博客里把包裹模型的这整套执行系统称为 harness，它的官方定义是：帮助模型<strong>收集上下文、推理任务、使用工具、在配置好的边界内运作、请求审批、把工作向前推进</strong>。</p>
+
+        <p>harness 不是可有可无的胶水层，它的设计能直接改变结果。博客里给了一组硬数据：</p>
+
+        <div class="callout">
+          <strong>ARC-AGI-3 上的量化收益</strong>：保留推理（retained reasoning）加上下文压缩（context compaction）两项 harness 机制，把 GPT-5.6 Sol 的得分从 <strong>13.3% 拉到 38.3%</strong>，同时输出 token <strong>减少到原来的六分之一</strong>。同一个模型，换一层执行系统，成绩差出近三倍——这就是 harness 作为独立工程资产的价值。
+        </div>
+
+        <p>再看开源边界。openai/codex 仓库里开源的是 harness 与集成面：Codex CLI、app-server、官方 SDK 都有源码；而<strong>模型访问与托管服务在边界之外</strong>，走 Responses API 的托管通道。换句话说，你可以白拿一个工业级 Agent 引擎（含全部内部机制），模型调用仍然按量付费。对自研团队来说，这基本消除了「从零造 Agent 运行时」的理由。</p>
+
+        <p>最后是产品形态的分工。App、CLI、IDE 插件只是同一套 harness 的三张皮；博客明确说，应用侧应该拥有<strong>界面、上下文、工具、审批流</strong>，而 harness 负责剩下的执行细节。第四张皮留给了你——这也是「平台」二字的真正含义。</p>
+
+        <h2 id="layers">四层集成面：按接入深度选</h2>
+
+        <p>接入 Codex 不需要所有场景都上最深的那层。官方给了四种深度，从「五分钟跑起来」到「完全掌控生命周期」：</p>
+
+        <table class="codex-table">
+          <thead>
+            <tr><th>集成面</th><th>形态</th><th>适合</th><th>关键能力</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="mono">codex exec</td><td>子进程，一次性任务</td><td>脚本 / CI / 定时任务</td><td class="reason">默认只读沙箱；--json 事件流；--output-schema 结构化输出</td></tr>
+            <tr><td class="mono">Codex SDK</td><td>进程内库调用</td><td>应用代码里的编程式任务</td><td class="reason">TypeScript / Python 双语言；startThread / run / resumeThread</td></tr>
+            <tr><td class="mono">app-server</td><td>常驻本地进程，JSON-RPC</td><td>Agent 是产品的一部分</td><td class="reason">持久会话、流式事件、审批处理、暴露应用自有工具</td></tr>
+            <tr><td class="mono">mcp-server</td><td>MCP 工具服务</td><td>上层 agent 调用 Codex</td><td class="reason">codex / codex-reply 两个 MCP 工具，多智能体编排</td></tr>
+          </tbody>
+        </table>
+
+        <p>SDK 是性价比最高的一层。TypeScript 侧装 <code>@openai/codex-sdk</code>，三行代码起一个线程并跑完一轮任务；<code>run()</code> 可以反复调用来延续同一线程，历史会话用 <code>resumeThread()</code> 恢复：</p>
+
+        <div class="code-block"><span class="kw">import</span> { Codex } <span class="kw">from</span> <span class="str">"@openai/codex-sdk"</span>;
+
+<span class="kw">const</span> codex = <span class="kw">new</span> Codex();
+<span class="kw">const</span> thread = codex.<span class="fn">startThread</span>();
+
+<span class="kw">const</span> plan = <span class="kw">await</span> thread.<span class="fn">run</span>(<span class="str">"Make a plan to diagnose and fix the CI failures"</span>);
+<span class="kw">const</span> impl  = <span class="kw">await</span> thread.<span class="fn">run</span>(<span class="str">"Implement the plan"</span>);  <span class="cmt">// 同一线程继续</span>
+
+<span class="kw">const</span> resumed = codex.<span class="fn">resumeThread</span>(threadId);          <span class="cmt">// 恢复历史会话</span>
+<span class="kw">await</span> resumed.<span class="fn">run</span>(<span class="str">"Pick up where you left off"</span>);</div>
+
+        <p>Python 侧是 <code>openai-codex</code>（beta），底层控制本地 app-server 的 JSON-RPC 通道，发布包里钉死了配套的 CLI 运行时版本。值得注意的是沙箱可以按轮次覆盖——干活那轮放开写权限，审查那轮收回只读：</p>
+
+        <div class="code-block"><span class="kw">from</span> openai_codex <span class="kw">import</span> Codex, Sandbox
+
+<span class="kw">with</span> Codex() <span class="kw">as</span> codex:
+    thread = codex.<span class="fn">thread_start</span>(
+        model=<span class="str">"gpt-5.4"</span>,
+        sandbox=Sandbox.workspace_write,
+    )
+    thread.<span class="fn">run</span>(<span class="str">"Make the requested change."</span>)
+    <span class="cmt"># 单独收紧这一轮：只读审查</span>
+    thread.<span class="fn">run</span>(<span class="str">"Review the diff only."</span>, sandbox=Sandbox.read_only)</div>
+
+        <p>三种沙箱预设 <code>read_only</code> / <code>workspace_write</code> / <code>full_access</code> 与后文的沙箱模型一一对应。如果 SDK 的抽象不够用——比如你要自己画审批界面、自己管理线程生命周期——就下沉到 app-server 协议层，这是下一章的主角。</p>
+
+        <h2 id="protocol">app-server 协议：一次 Turn 的完整生命周期</h2>
+
+        <p>app-server 是 Codex 驱动富客户端（比如 VS Code 插件）的内部协议，也是把 Codex 嵌进产品的正门。协议基于 JSON-RPC 2.0，但线上的消息省略了 <code>"jsonrpc":"2.0"</code> 头，更紧凑。传输层支持四种：</p>
+
+        <ul>
+          <li><strong>stdio</strong>（默认）：换行分隔的 JSONL，一行一条消息，本地集成的最省事选择；</li>
+          <li><strong>websocket</strong>（实验性）：一条文本帧一条消息，配 capability-token / signed-bearer-token 鉴权，请求过载时返回 <code>-32001 Server overloaded</code>；</li>
+          <li><strong>unix socket</strong>：基于默认控制套接字或自定义路径，走 HTTP Upgrade 握手；</li>
+          <li><strong>off</strong>：只留协议不留监听，纯测试用。</li>
+        </ul>
+
+        <p>协议里有三个核心原语，理解了它们，整个 API 面就顺了：</p>
+
+        <table class="codex-table">
+          <thead>
+            <tr><th>原语</th><th>语义</th><th>关键操作</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="mono">Thread</td><td>用户与 Agent 的一段对话，包含多轮 Turn</td><td class="reason">thread/start · resume · fork · rollback · compact · archive · delete</td></tr>
+            <tr><td class="mono">Turn</td><td>一次用户请求及其触发的全部 Agent 工作</td><td class="reason">turn/start · steer · interrupt，收尾发 turn/completed</td></tr>
+            <tr><td class="mono">Item</td><td>输入输出的最小单元：消息、命令执行、文件变更、工具调用</td><td class="reason">item/started → item/agentMessage/delta → item/completed</td></tr>
+          </tbody>
+        </table>
+
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-40-sequence.svg" alt="app-server 协议生命周期时序图">
+          <figcaption>app-server 协议生命周期：从 initialize 握手到 turn/completed，一次 Turn 里的推理、沙箱执行、越界审批与流式增量</figcaption>
+        </figure>
+
+        <p>对照时序图走一遍完整流程。连接建立后必须先发 <code>initialize</code>（带 <code>clientInfo</code> 标识你的应用）并等 <code>initialized</code> 通知确认，此前发任何请求都会被拒——握手只允许一次，重复 initialize 报 Already initialized。之后 <code>thread/start</code> 建会话拿 threadId，<code>turn/start</code> 投喂用户输入，Agent 开始干活。干活的每一个动作都变成通知流回来：命令执行是 <code>item/started</code> 到 <code>item/completed</code>，消息是 <code>item/agentMessage/delta</code> 的增量流，直到 <code>turn/completed</code> 携带 token 用量收尾。</p>
+
+        <p>动手写一个最小客户端只需要几十行：</p>
+
+        <div class="code-block"><span class="kw">import</span> { spawn } <span class="kw">from</span> <span class="str">"node:child_process"</span>;
+<span class="kw">import</span> readline <span class="kw">from</span> <span class="str">"node:readline"</span>;
+
+<span class="kw">const</span> proc = <span class="fn">spawn</span>(<span class="str">"codex"</span>, [<span class="str">"app-server"</span>], { stdio: [<span class="str">"pipe"</span>, <span class="str">"pipe"</span>, <span class="str">"inherit"</span>] });
+<span class="kw">const</span> rl = readline.<span class="fn">createInterface</span>({ input: proc.stdout });
+<span class="kw">const</span> send = (msg) =&gt; proc.stdin.<span class="fn">write</span>(JSON.<span class="fn">stringify</span>(msg) + <span class="str">"\n"</span>);
+
+rl.<span class="fn">on</span>(<span class="str">"line"</span>, (line) =&gt; {
+  <span class="kw">const</span> msg = JSON.<span class="fn">parse</span>(line);
+  <span class="cmt">// thread/start 的响应里带 threadId，用它发起第一轮 Turn</span>
+  <span class="kw">if</span> (msg.id === <span class="num">1</span> &amp;&amp; msg.result?.thread?.id) {
+    <span class="fn">send</span>({ method: <span class="str">"turn/start"</span>, id: <span class="num">2</span>, params: {
+      threadId: msg.result.thread.id,
+      input: [{ type: <span class="str">"text"</span>, text: <span class="str">"Summarize this repo."</span> }],
+    }});
+  }
+});
+
+<span class="fn">send</span>({ method: <span class="str">"initialize"</span>, id: <span class="num">0</span>, params: {
+  clientInfo: { name: <span class="str">"my_product"</span>, title: <span class="str">"My Product"</span>, version: <span class="str">"0.1.0"</span> },
+}});
+<span class="fn">send</span>({ method: <span class="str">"initialized"</span>, params: {} });
+<span class="fn">send</span>({ method: <span class="str">"thread/start"</span>, id: <span class="num">1</span>, params: { model: <span class="str">"gpt-5.4"</span> } });</div>
+
+        <p>协议的几个工程细节值得注意。其一，schema 与版本强绑定：<code>codex app-server generate-ts</code> 和 <code>generate-json-schema</code> 可以从当前 CLI 版本导出 TypeScript 类型或 JSON Schema，客户端类型检查不再靠拍脑袋。其二，实验性方法藏在 <code>capabilities.experimentalApi</code> 开关后面，不开就不给你用——API 面的演进有明确的稳定边界。其三，通知可以按连接退订（<code>optOutNotificationMethods</code>），比如消费不起 delta 流的客户端可以只收完成事件，省掉一地碎流量。</p>
+
+        <h2 id="state">会话状态：SQLite、fork 与回滚</h2>
+
+        <p>harness 对会话状态的处理，决定了它能不能支撑真实产品。Codex 的答案是三层设计：<strong>内存里的活跃线程、SQLite 里的持久化记录、加上一套历史治理操作</strong>。</p>
+
+        <p>持久化层直接落在 SQLite。thread 的元数据（包括 git 信息）patch 进 SQLite 存储，<code>thread/list</code> 支持游标分页和按模型、来源、归档状态、工作目录、关键词过滤，<code>thread/read</code> 可以不恢复线程就带出完整历史。对你的产品来说，这意味着用户的历史会话天然可检索、可运营，不用自己再攒一套会话库。</p>
+
+        <p>历史治理是这一层最有意思的部分。除了常规的 <code>thread/resume</code>，还有两个「时间旅行」操作：</p>
+
+        <div class="contract-item">
+          <div class="contract-item-title"><span class="num">01</span>thread/fork —— 分叉</div>
+          <div class="contract-item-body">把已有历史复制到一个新 threadId 下继续走，返回值里带 <code>forkedFromId</code> 溯源。适合「同一份调研，三个方向各自展开」的场景：不用复制粘贴上下文，也不用污染原始会话。</div>
+        </div>
+
+        <div class="contract-item">
+          <div class="contract-item-title"><span class="num">02</span>thread/rollback —— 回滚</div>
+          <div class="contract-item-body">丢弃末尾 N 轮对话并落一个回滚标记，内存上下文和持久化记录同步收缩。Agent 跑偏了不是删会话重来，而是精确退回到跑偏之前的那一轮。</div>
+        </div>
+
+        <p>再配上 <code>thread/compact/start</code> 触发历史压缩（立即返回，进度走 <code>turn/*</code> 和 <code>item/*</code> 通知流），长会话的上下文膨胀有了系统级的解法——这正是 ARC-AGI-3 那组数据背后「context compaction」的产品化落地。</p>
+
+        <p>还有一组容易混淆但边界清晰的命令接口：<code>command/exec</code> 在<strong>服务端沙箱内</strong>跑单条命令，不占用线程和轮次，配 PTY 的写入、resize、terminate 和流式输出；<code>thread/shellCommand</code> 则是<strong>用户主动发起</strong>的命令，跑在沙箱外、不继承线程的沙箱策略；实验性的 <code>process/spawn</code> 同样在沙箱外。设计取向很明确：Agent 的动作受沙箱约束，人的动作走全权限。</p>
+
+        <h2 id="sandbox">沙箱 × 审批：双闸门安全模型</h2>
+
+        <p>安全是 Agent 产品落地的第一道坎，Codex 的方案是把「能做什么」和「要不要问」拆成两个正交的闸门：<strong>沙箱定义技术边界，审批策略决定越过边界前要不要停下来问人</strong>。两个闸门各三档，组合出九种形态：</p>
+
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-40-sandbox.svg" alt="沙箱与审批双闸门矩阵图">
+          <figcaption>沙箱 × 审批双闸门矩阵：九种组合的适用场景与风险分级，右栏是审批人、平台原生实现与精细豁免三个补充闸门</figcaption>
+        </figure>
+
+        <p>沙箱三档： <code>read-only</code> 只能读不能写；<code>workspace-write</code> 工作区内可写、可跑常规本地命令，是本地工作的默认低摩擦档；<code>danger-full-access</code> 解除全部文件系统与网络边界。审批三档： <code>untrusted</code> 对不在信任集里的命令逐条问；<code>on-request</code> 默认在沙箱内自主干、越界才问；<code>never</code> 从不询问。官方推荐默认组合是 <code>workspace-write + on-request</code>，Codex App 和 IDE 的「Default permissions」就是这个档位。</p>
+
+        <div class="callout-warn">
+          <strong>完全放开 = danger-full-access + never</strong>。这个组合只在隔离环境（容器、专用 CI runner）里使用。官方文档的原话是：只应在「你希望 Codex 以完全权限行动」的场景下选择它。
+        </div>
+
+        <p>沙箱的实现没有自研隔离层，全部走平台原生机制：<strong>macOS 用系统内置的 Seatbelt，开箱即用；Linux 和 WSL2 用 bubblewrap（bwrap），装不上时退回需要非特权 user namespace 的捆绑助手；Windows 原生跑系统沙箱，WSL2 下走 Linux 实现</strong>。关键细节是沙箱作用于<strong>派生出来的命令</strong>，而不只是内置文件操作——Agent 调用的 <code>git</code>、包管理器、测试命令统统继承同一边界，子进程没有逃逸口。</p>
+
+        <p>双闸门之外还有三个补充闸门。第一，审批人 <code>approvals_reviewer</code>：<code>user</code> 弹给人（默认），<code>auto_review</code> 交给一个 reviewer agent 预审——但自动预审<strong>不改变沙箱边界本身</strong>，沙箱内已允许的动作不会额外审查，它只是给「边界上的审批请求」换了个处理人。第二，精细豁免：<code>writable_roots</code> 追加可写目录而不用拆掉沙箱，rules 按命令前缀 allow / prompt / forbid，比整体放开权限安全得多。第三，配置固化：<code>config.toml</code> 里写死默认组合，会话内再用 <code>/permissions</code> 热切换。</p>
+
+        <p>这套设计换来的信任模型值得抄进任何 Agent 产品：你信任的不是 Agent 的意图，而是<strong>它运行在被强制执行的边界内</strong>。沙箱把低风险动作的审批疲劳消掉，审批流只留给真正越界的少数动作——自主性与可控性不是对抗关系，而是分层治理。</p>
+
+        <h2 id="exec">codex exec：把 Agent 塞进流水线</h2>
+
+        <p>非交互模式 <code>codex exec</code> 是四层集成面里最轻的一层，也是自动化场景的主力。它的 I/O 约定为管道而生：<strong>过程进度走 stderr，最终消息独占 stdout</strong>，直接重定向就能用：</p>
+
+        <div class="code-block"><span class="cmt"># 生成发布说明：最终消息直接落盘</span>
+codex exec <span class="str">"generate release notes for the last 10 commits"</span> | tee release-notes.md
+
+<span class="cmt"># 事件流全量落盘：--json 把 stdout 变成 JSONL</span>
+codex exec --json <span class="str">"summarize the repo structure"</span> &gt; events.jsonl
+
+<span class="cmt"># 结构化输出：按 JSON Schema 收尾，下游直接解析</span>
+codex exec <span class="str">"Extract project metadata"</span> \
+  --output-schema ./schema.json \
+  -o ./project-metadata.json
+
+<span class="cmt"># 两段式流水线：先审查，再修复</span>
+codex exec <span class="str">"review the change for race conditions"</span>
+codex exec resume --last <span class="str">"fix the race conditions you found"</span></div>
+
+        <p><code>--json</code> 打开后，stdout 变成一行一个事件的 JSONL 流，事件类型覆盖 <code>thread.started</code>、<code>turn.started</code>、<code>turn.completed</code>、<code>turn.failed</code>、<code>item.*</code> 和 <code>error</code>；item 里有消息、推理、命令执行、文件变更、MCP 工具调用、网络搜索、计划更新。turn 收尾时还会带 token 用量：</p>
+
+        <div class="code-block">{"type":"thread.started","thread_id":"0199a213-81c0-7800-8aa1-bbab2a035a53"}
+{"type":"item.started","item":{"id":"item_1","type":"command_execution","command":"bash -lc ls","status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_3","type":"agent_message","text":"Repo contains docs, sdk, and examples directories."}}
+{"type":"turn.completed","usage":{"input_tokens":24763,"cached_input_tokens":24448,"output_tokens":122}}</div>
+
+        <p>结构化输出是流水线场景的点睛之笔：传一个 JSON Schema，最终响应就按 schema 收口，字段稳定可解析，Agent 的输出直接变成下游程序的输入，中间不需要再套一层「请输出 JSON」的祈祷式提示词。输入侧同样贴心——既支持「提示词为指令、管道内容为上下文」的 prompt+stdin 模式，也支持 <code>codex exec -</code> 把整个 stdin 当提示词。</p>
+
+        <p>安全默认值都往紧里收：exec 默认跑只读沙箱，放开用显式的 <code>--sandbox workspace-write</code>（老的 <code>--full-auto</code> 已废弃并告警）；要求命令必须跑在 Git 仓库里，防止破坏性变更无据可查；CI 里鉴权用 <code>CODEX_API_KEY</code> 且只注入单次调用，避免密钥被同进程的不可信代码读走。</p>
+
+        <p>官方还给了 GitHub Action 的完整范式（<code>openai/codex-action</code>），权限分离做得干净利落：Action 内部起一个 Responses API 代理托管密钥，Codex 那个 job 只拿 <code>contents: read</code>，跑完把改动序列化成 patch 制品；开 PR 的是另一个 job，拿写权限但拿不到 API key。CI 失败自动修复这类高危自动化，密钥与权限的爆炸半径被压到了最小。</p>
+
+        <h2 id="mcp">反向集成：Codex 作为 MCP server</h2>
+
+        <p>前面四层都是「你调 Codex」，还有一层反着来：<code>codex mcp-server</code> 把 Codex 本身变成一个 MCP 工具服务，供上层 agent 调用。tools/list 只有两个工具，小而完整：</p>
+
+        <table class="codex-table">
+          <thead>
+            <tr><th>工具</th><th>必填</th><th>可选参数</th><th>语义</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="mono">codex</td><td class="mono">prompt</td><td class="reason">approval-policy · sandbox · model · cwd · config · base-instructions · profile</td><td class="reason">起一个新 Codex 会话，参数与 Config 结构一一对应</td></tr>
+            <tr><td class="mono">codex-reply</td><td class="mono">prompt + threadId</td><td class="reason">conversationId（已废弃的别名）</td><td class="reason">带着新输入继续既有会话</td></tr>
+          </tbody>
+        </table>
+
+        <p>第一次调用的响应里带 <code>structuredContent.threadId</code>，后续轮次全部靠它续接；审批请求的参数里同样带 threadId，上层 agent 能把审批对话路由回正确的会话。用 OpenAI Agents SDK 编排时，几行代码就能让一个上层 agent 把「写代码」整个外包给 Codex：</p>
+
+        <div class="code-block"><span class="kw">from</span> agents <span class="kw">import</span> Agent, Runner
+<span class="kw">from</span> agents.mcp <span class="kw">import</span> MCPServerStdio
+
+<span class="kw">async with</span> MCPServerStdio(
+    name=<span class="str">"Codex CLI"</span>,
+    params={<span class="str">"command"</span>: <span class="str">"codex"</span>, <span class="str">"args"</span>: [<span class="str">"mcp-server"</span>]},
+) <span class="kw">as</span> codex_mcp:
+    developer = <span class="fn">Agent</span>(
+        name=<span class="str">"Game Developer"</span>,
+        instructions=(
+            <span class="str">"You are an expert in building simple html+css+js games. "</span>
+            <span class="str">'Always call codex with "approval-policy": "never" '</span>
+            <span class="str">'and "sandbox": "workspace-write".'</span>
+        ),
+        mcp_servers=[codex_mcp],
+    )
+    <span class="kw">await</span> Runner.<span class="fn">run</span>(developer, <span class="str">"Implement a fun new game!"</span>)</div>
+
+        <p>官方 Cookbook 把这个模式放大成了完整的多智能体团队：项目经理 agent 写需求文档并按「必需文件是否就绪」门控所有交接，设计师、前端、后端、测试各自带着 scoped 指令和输出目录，把 Codex MCP 当共享的执行引擎，全程 trace 可回放。注意指令里的细节——上层 agent 显式指定 <code>approval-policy</code> 和 <code>sandbox</code>，安全边界不是继承来的，是每次调用显式声明的。</p>
+
+        <h2 id="product">Relay 的启示：界面、上下文、审批都归应用</h2>
+
+        <p>拆完机制，回到产品问题：在自己的产品里内嵌一个 Codex 级的 Agent，到底长什么样？OpenAI 自己写了个示范应用 Relay——一个虚构的货运运营看板，Agent 蹲在看板旁边。</p>
+
+        <p>使用方式很能说明问题：用户<strong>不从写提示词开始</strong>，而是选中一笔货运，点一个动作按钮（比如 Compare recovery）。应用注入相关上下文，Codex 通过应用自有的 MCP 工具取最新运营数据，Agent 解释可选方案；任何有后果的写操作（比如改签）之前，强制走人工审批。工具改了底层数据，应用刷新自己的业务视图。分工边界清晰：<strong>harness 负责 agent loop、会话状态、流式活动、工具交互；产品继续拥有自己的看板、记录和控件</strong>。</p>
+
+        <p>这里有一条容易被忽略的设计洞察：界面本身就是上下文。博客的原话是——界面告诉 Agent 用户正在看什么，给它正确的工具，也给用户一个地方审视接下来会发生什么。通用聊天框做不到这三件事，这也是「把 Agent 嵌进现有产品」与「再造一个聊天 App」的本质区别。</p>
+
+        <p>这条路上已经有真实玩家：GitHub 和 JetBrains 把 Codex 作为 agent provider 接进 JetBrains 系 IDE 的工作流；Cisco 在 Cloud Control 的 App Builder 里用 Codex SDK；Thrive Holdings 和 Crete 把它用进报税工作流，试点处理了 7,000 份申报，准备时间缩短约三分之一。模式高度一致：<strong>应用提供上下文、工具和审批，Codex 提供底下的 agent loop</strong>。</p>
+
+        <p>如果你的团队在评估接入，按这份清单走：</p>
+
+        <div class="checklist">
+          <div class="checklist-title">接入决策 checklist：六问 Codex harness</div>
+          <ul>
+            <li><strong>场景定位</strong>：是「一次性任务」（选 exec）、「应用内嵌任务」（选 SDK）还是「Agent 即产品」（选 app-server）？</li>
+            <li><strong>会话归属</strong>：历史会话要不要进你的产品体系？SQLite 持久化 + thread/list 过滤是否够用？</li>
+            <li><strong>安全边界</strong>：默认组合建议 workspace-write + on-request；需要豁免时优先 writable_roots 和 rules，而不是整体放开</li>
+            <li><strong>审批体验</strong>：审批界面是产品的一部分，app-server 的审批请求要接进你自己的 UI，而不是弹终端</li>
+            <li><strong>工具暴露</strong>：业务系统能力通过应用自有 MCP 服务暴露给 Agent，工具改数后由应用刷新业务视图</li>
+            <li><strong>成本核算</strong>：harness 开源、模型按量付费，turn/completed 的 usage 字段是成本监控的现成数据源</li>
+          </ul>
+        </div>
+
+        <h2 id="summary">总结</h2>
+
+        <p>把整套设计压成三个可迁移的判断：</p>
+
+        <ul>
+          <li><strong>harness 是独立于模型的工程资产</strong>。ARC-AGI-3 上 13.3% 到 38.3% 的差距说明，执行系统的设计收益可以大到和换模型同量级——值得被单独开源、单独评估、单独投入。</li>
+          <li><strong>分层集成面比单一 API 尊重现实</strong>。exec、SDK、app-server、MCP server 四层覆盖了从 CI 脚本到深度产品内嵌的全部深度，接入成本与控制权成正比，不必一步到位也不至于无路可退。</li>
+          <li><strong>安全模型是强制边界，不是意图信任</strong>。沙箱与审批双闸门正交组合，平台原生机制保证子进程无逃逸，自动预审不越权改边界——这套分层治理值得每个 Agent 产品照抄。</li>
+        </ul>
+
+        <p>回到开头那句「Agent 产品随便造」：OpenAI 把引擎、传动、刹车都开源了，你只需要决定车长什么样、开去哪里。模型能力还在快速迭代，但运行时的工程问题——状态、工具、沙箱、审批、流式——已经被这套 harness 用生产级方案回答了一遍。与其在这些问题上重新发明轮子，不如把省下的力气花在真正构成产品差异的地方：工作流本身。</p>
+
+        <h3>参考资料</h3>
+        <ol>
+          <li>OpenAI · Codex as a platform: build on the open agent harness（2026-08-19 博客原文） <a href="https://developers.openai.com/blog/codex-as-a-platform" target="_blank" rel="noopener">developers.openai.com/blog/codex-as-a-platform</a></li>
+          <li>GitHub · openai/codex（Apache-2.0 仓库，codex-rs 单仓库工作区） <a href="https://github.com/openai/codex" target="_blank" rel="noopener">github.com/openai/codex</a></li>
+          <li>Codex · App Server（JSON-RPC 协议、Thread/Turn/Item、生命周期与 API 总览） <a href="https://developers.openai.com/codex/app-server" target="_blank" rel="noopener">developers.openai.com/codex/app-server</a></li>
+          <li>Codex · Non-interactive mode（codex exec 事件流、结构化输出与 CI 模式） <a href="https://developers.openai.com/codex/noninteractive" target="_blank" rel="noopener">developers.openai.com/codex/noninteractive</a></li>
+          <li>Codex · Codex SDK（TypeScript / Python 库与沙箱预设） <a href="https://developers.openai.com/codex/sdk" target="_blank" rel="noopener">developers.openai.com/codex/sdk</a></li>
+          <li>Codex · Use Codex with the Agents SDK（mcp-server 双工具与多智能体编排） <a href="https://developers.openai.com/codex/guides/agents-sdk" target="_blank" rel="noopener">developers.openai.com/codex/guides/agents-sdk</a></li>
+          <li>Codex · Sandboxing（双闸门语义、平台原生实现与配置键） <a href="https://developers.openai.com/codex/concepts/sandboxing" target="_blank" rel="noopener">developers.openai.com/codex/concepts/sandboxing</a></li>
+        </ol>
+
+      </div>
+      <nav class="article-nav" id="articleNav"></nav>
+    </article>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; 2024-2026 馒头仔 | Smart Open. Built with care.</p>
+    </div>
+  </footer>
+
+  <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
+  <script src="../../js/article.js"></script>
+  <script src="../../js/preview-rail.js"></script>
+</body>
+</html>

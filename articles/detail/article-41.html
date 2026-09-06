@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我把10年编码习惯，炼成了AI分身 - 馒头仔 | Smart Open</title>
+  <meta name="description" content="完整复盘个人开发分身 dev-twin 的构建路径：五层对话先战略后建设、三层画像库提炼（三类标注+双重校准）、薄引擎六件事（决策分级 L1/L2/L3）、星枢案例实战验证、HITL 学习闭环（纠正→语料→复盘→入库→淘汰），附关键设计决策与复刻指南。">
+  <link rel="icon" type="image/png" href="../../favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="stylesheet" href="../../css/preview-rail.css">
+  <style>
+    .twin-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
+    .twin-table th { background: var(--bg-secondary); color: var(--accent); padding: 12px 14px; text-align: left; border-bottom: 2px solid var(--divider); font-family: var(--font-mono); font-size: 0.8rem; }
+    .twin-table td { padding: 10px 14px; border-bottom: 1px solid var(--divider); color: var(--text-primary); vertical-align: top; }
+    .twin-table tr:hover td { background: var(--bg-secondary); }
+    .twin-table .mono { font-family: var(--font-mono); color: var(--accent); font-size: 0.78rem; }
+    .twin-table .dim { color: var(--text-secondary); }
+    .code-block { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 8px; padding: 16px 20px; margin: 16px 0; overflow-x: auto; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.65; color: var(--text-primary); white-space: pre; }
+    .code-block .cmt { color: var(--text-secondary); font-style: italic; }
+    .code-block .kw { color: #c792ea; }
+    .code-block .str { color: #c3e88d; }
+    .code-block .num { color: #f78c6c; }
+    .code-block .ann { color: #82aaff; }
+    .callout { background: rgba(0,240,255,0.05); border: 1px solid var(--divider); border-left: 3px solid var(--accent); border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.6; }
+    .callout strong { color: var(--accent); }
+    .callout-warn { background: rgba(255,68,102,0.05); border: 1px solid var(--divider); border-left: 3px solid #ff4466; border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.6; }
+    .callout-warn strong { color: #ff4466; }
+    .step-item { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 18px 20px; margin: 14px 0; border-left: 3px solid var(--accent); }
+    .step-item-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; }
+    .step-item-title .num { color: var(--accent); font-family: var(--font-mono); margin-right: 8px; }
+    .step-item-body { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; }
+    .step-item-body strong { color: var(--text-primary); }
+    .step-item-body code, .markdown-body code { font-family: var(--font-mono); font-size: 0.8em; background: rgba(0,240,255,0.08); color: var(--accent); padding: 1px 6px; border-radius: 4px; }
+    .checklist { background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; padding: 20px 24px; margin: 20px 0; }
+    .checklist-title { font-weight: 600; font-size: 0.92rem; color: var(--accent); margin-bottom: 12px; font-family: var(--font-mono); }
+    .checklist ul { list-style: none; padding: 0; margin: 0; }
+    .checklist li { font-size: 0.84rem; color: var(--text-primary); line-height: 1.8; padding-left: 24px; position: relative; }
+    .checklist li::before { content: '[ ]'; position: absolute; left: 0; color: var(--accent); font-family: var(--font-mono); font-size: 0.8rem; }
+    .checklist li strong { color: var(--accent); }
+    .markdown-body table { display: block; overflow-x: auto; }
+    @media (max-width: 768px) {
+      .twin-table { font-size: 0.78rem; }
+      .twin-table th, .twin-table td { padding: 8px 10px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav" id="nav">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-brand"><img src="../../assets/img/logo.png" alt="Smart Open" class="nav-logo"><span>Smart Open</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="切换导航">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#about">关于</a></li>
+        <li><a href="../../index.html#projects">项目</a></li>
+        <li><a href="../../index.html#skills">技能</a></li>
+        <li><a href="../../index.html#experience">经历</a></li>
+        <li><a href="../index.html">文章</a></li>
+        <li><a href="../../trending/index.html">趋势</a></li>
+        <li><a href="../../index.html#contact">联系</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="article-hero">
+    <div class="article-hero-content">
+      <h1 class="article-title">我把10年编码习惯，炼成了AI分身</h1>
+      <div class="article-meta">
+        <span class="article-date">2026-09-06</span>
+        <div class="article-tags">
+          <span class="tag">AI 分身</span>
+          <span class="tag">Skill 工程</span>
+          <span class="tag">Agent</span>
+          <span class="tag">HITL</span>
+        </div>
+      </div>
+    </div>
+    <div class="article-hero-bg" style="background-image: url('../../assets/img/article-41-arch.svg')"></div>
+    <div class="article-hero-overlay"></div>
+  </section>
+
+  <div class="article-container">
+    <aside class="article-sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">目录</h3>
+        <nav class="article-toc" id="articleToc"></nav>
+      </div>
+    </aside>
+
+    <article class="article-content">
+      <div class="markdown-body">
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-41-arch.svg" alt="dev-twin 个人开发分身总体架构图">
+          <figcaption>dev-twin 总体架构：画像库（可替换）× 薄引擎（约 115 行）× HITL 学习闭环，三层缺一不可</figcaption>
+        </figure>
+
+        <p>过去一年，我把越来越多的开发工作交给了 AI。模型能力早就不是瓶颈——真正让我别扭的是另一件事：AI 写的代码能用，但<strong>不是「我」的代码</strong>。命名不是我的习惯，异常处理不是我的路数，架构决策更不会替我想「这个中间件到底要不要加」。</p>
+
+        <p>我之前的方案是一个叫 <code>dev-lifecycle</code> 的技能：把七阶段开发流程编排成提示词。它验证了可行性，也暴露了三个顽固问题——生成的代码冗余、token 消耗大、工程一大就跑偏。于是我做了一个更彻底的尝试：不教 AI「怎么开发」，而是把「我」本人提炼成一个可加载、可进化、可替换的<strong>画像库</strong>，再配一个按画像执行的薄引擎，让它成为我的开发分身。</p>
+
+        <p>这篇文章完整复盘这个叫 <code>dev-twin</code> 的项目：从战略分析到画像提炼，从引擎设计到实战验证，再到让它自我进化的学习闭环。全部过程两天天走完，当前版本 v1.1 已经在真实项目上跑通三大能力：像你一样思考决策、像你一样写代码、自我学习迭代。</p>
+
+        <h2 id="why">一、先想清楚：要解决什么问题</h2>
+
+        <p>动手前先回答「为什么」。当时把痛点逐一拆开，每一条都指向明确的根因：</p>
+
+        <table class="twin-table">
+          <thead>
+            <tr><th>痛点</th><th>根因</th><th>解法</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>AI 写的代码冗余、读不懂、难维护</td><td class="dim">AI 按通用习惯工作，不按「我」的习惯</td><td class="dim">画像库 + 分身引擎，风格对齐</td></tr>
+            <tr><td>老技能费 token、工程大了跑偏</td><td class="dim">全量画像塞 prompt，无按需加载机制</td><td class="dim">分层画像 + 任务路由按需加载（≤3 层）</td></tr>
+            <tr><td>AI 无法按我的思维方式做需求和架构决策</td><td class="dim">决策原则从未被显式结构化</td><td class="dim">决策原则画像层 + 决策分级（L1/L2/L3）</td></tr>
+            <tr><td>经验无法沉淀，每次纠正都白白流失</td><td class="dim">无学习机制</td><td class="dim">HITL 学习闭环：纠正→语料→复盘→入画像</td></tr>
+          </tbody>
+        </table>
+
+        <p>同时定下不可妥协的验收铁律：<strong>可读可维护、性能可扩展鲁棒、决策 100% 可追溯、自我学习迭代、token 可控</strong>——缺一不可。最终目标是达到 80% 画像覆盖度，产出我只需简单 review 即为生产级。</p>
+
+        <h2 id="strategy">二、先战略后建设：一场五层对话</h2>
+
+        <p>面对「我想要个分身」这种模糊诉求，最危险的动作是直接开写。我用战略顾问技能做了一场五层深度对话——现状、本质、目标、路径、风险，一层层往下剥：</p>
+
+        <div class="step-item">
+          <div class="step-item-title"><span class="num">01</span>现状</div>
+          <div class="step-item-body">已有 dev-lifecycle 实践，暴露冗余、费 token、跑偏三类问题；手头素材：10W+ 行工程代码、简历、个人经验文档、开发流程。</div>
+        </div>
+        <div class="step-item">
+          <div class="step-item-title"><span class="num">02</span>本质</div>
+          <div class="step-item-body">要的不是又一个开发工具，是<strong>数字分身系统</strong>——画像引擎 + 决策引擎 + 学习引擎的三层架构，就在这场对话里第一次成形。</div>
+        </div>
+        <div class="step-item">
+          <div class="step-item-title"><span class="num">03</span>目标</div>
+          <div class="step-item-body">3 个月内达到 80% 画像覆盖；思考决策、写代码、自我迭代三大能力缺一不可，但有先后。</div>
+        </div>
+        <div class="step-item">
+          <div class="step-item-title"><span class="num">04</span>路径</div>
+          <div class="step-item-body">画像 v0.1 从简历和个人经验起步（最易结构化、最代表思考方式）；学习闭环定为「纠正→语料→攒 10 项→复盘→确认入库」。</div>
+        </div>
+        <div class="step-item">
+          <div class="step-item-title"><span class="num">05</span>风险</div>
+          <div class="step-item-body">画像膨胀（→分层 + 按需加载 + 淘汰机制）、提炼失真（→双重校准）、需求理解最易失望（→决策留痕反推）。</div>
+        </div>
+
+        <p>这场对话产出两份文档：一份战略调研报告、一份四阶段十周的行动计划（9 项行动，每项带验证标准）。后续建设的每一步都能回溯到这两份文档——这是整个项目最重要的方法论。</p>
+
+        <div class="callout">
+          <strong>方法论提炼</strong>：先战略后建设。五层对话强迫把「我想要个分身」这种模糊诉求，逼成可验收、可分期、有风险预案的工程计划。直接开写的项目，一半死在返工上。
+        </div>
+
+        <h2 id="persona">三、画像提炼：把「我」拆成可加载的结构</h2>
+
+        <p>画像的质量决定分身的一切。素材按代表性排序：<strong>个人开发经验 &gt; 简历 &gt; 工程代码（git author 过滤本人提交）&gt; 开发流程文档</strong>。提炼流程四步：</p>
+
+        <ol>
+          <li>AI 通读全部素材，逐条提炼候选画像条目；</li>
+          <li>每条标注三类：<code>✅ 个人风格</code> / <code>🏆 最佳实践</code> / <code>⚠️ 疑似历史包袱</code>；</li>
+          <li>疑似项与我逐条讨论定夺——是包袱红线还是个人特色；</li>
+          <li>我的决议直接写入 core 决议表：「理想中的我」覆盖历史惯性。</li>
+        </ol>
+
+        <p>第二步的三类标注是防「提炼失真」的关键：AI 从 10 万行代码里提炼习惯，最容易犯的错是把项目的<strong>历史包袱</strong>当成<strong>个人最佳实践</strong>学进去。让人来当最后一道过滤器，是最准的方案。</p>
+
+        <div class="callout">
+          <strong>双重校准</strong>：技术实践向业界最佳实践看齐，编码风格保留个人特色（比如 Hutool 工具库习惯、双网关模式、事务后置事件）。既不做「代码考古复原」，也不做「业界复读机」。
+        </div>
+
+        <p>更大的结构性决策是<strong>分层</strong>——这是根治「费 token、跑偏」的根基。画像不塞进提示词全量加载，而是按角色切层，任务触发哪类才加载哪层：</p>
+
+        <table class="twin-table">
+          <thead>
+            <tr><th>层</th><th>内容</th><th>加载时机</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="mono">core</td><td>基础画像 + 8 条决策原则 + 决议表</td><td class="dim">所有任务必读</td></tr>
+            <tr><td class="mono">coding</td><td>Java 编码习惯 + 包袱红线</td><td class="dim">编码任务</td></tr>
+            <tr><td class="mono">architecture</td><td>架构偏好 + ADR 门槛 + 深模块原则 + 原型思维</td><td class="dim">设计任务</td></tr>
+            <tr><td class="mono">workflow</td><td>九步流程 + 九大类审查 + 调试纪律</td><td class="dim">推进 / 审查任务</td></tr>
+            <tr><td class="mono">tools</td><td>技术栈 + 选型模式 + AI 方法论 + 安全基线</td><td class="dim">选型任务</td></tr>
+            <tr><td class="mono">polyglot</td><td>非 Java 语言业界最佳实践</td><td class="dim">多语言任务</td></tr>
+            <tr><td class="mono">corpus</td><td>原始语料库</td><td class="dim">仅复盘时</td></tr>
+          </tbody>
+        </table>
+
+        <p>举一个 core 层决策原则的例子，这是整个分身的「判断标准」，优先级从上到下：</p>
+
+        <div class="code-block"><span class="cmt">// core 层：8 条决策原则（节选 5 条）</span>
+D1  审查优先级：业务正确性 &gt; 安全漏洞 &gt; 异常健壮性 &gt; 性能 &gt; 可读性 &gt; 架构可维护性
+D2  不过度设计：稳定前提下尽可能减少中间件依赖，<span class="kw">用低成本优雅方式解决分布式问题</span>
+D3  共用功能超过 <span class="num">3</span> 处，必须抽取公共逻辑
+D5  技术选型必须考虑维护成本、运维成本
+D7  代码精简为荣：最小代码量优雅完成同等功能，以堆砌重复实现为耻</div>
+
+        <p>每条都能在后续产出里被引用、被检验。分身执行时决策留痕会标注「依据 D2」——决策可追溯，画像才有进化的事实基础。</p>
+
+        <h2 id="engine">四、薄引擎：只做六件事，知识全在画像</h2>
+
+        <p>引擎刻意保持薄——整个 SKILL.md 约 115 行，只做六件事：</p>
+
+        <ol>
+          <li><strong>画像定位</strong>（5 级优先级）：用户指定 &gt; 环境变量 &gt; 当前目录 &gt; skill 同级 &gt; 内置默认。外部覆盖内置，换画像目录就换分身。</li>
+          <li><strong>任务路由</strong>：按任务类型加载画像层，同时激活 ≤3 层，禁止全量加载。</li>
+          <li><strong>决策分级</strong>：画像覆盖到的自主执行，覆盖不到的请示，碰红线的强制确认。</li>
+          <li><strong>执行纪律</strong>：决策留痕、token 纪律、风格对齐、任务边界、原子 commit 等十条。</li>
+          <li><strong>学习闭环</strong>：纠正识别 → 写语料 → 攒 10 项 → 复盘确认 → 入画像。</li>
+          <li><strong>产出规范</strong>：留痕格式统一（<code>coding#N / core#D编号 / 决议YYYY-MM-DD</code>）。</li>
+        </ol>
+
+        <p>其中<strong>决策分级</strong>是分身的核心行为，也是「自主」与「失控」之间的护栏：</p>
+
+        <table class="twin-table">
+          <thead>
+            <tr><th>级别</th><th>条件</th><th>行为</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="mono">L1 自主执行</td><td>画像明确覆盖（决议 / 原则 / 条目）</td><td class="dim">直接执行，产出物留痕</td></tr>
+            <tr><td class="mono">L2 请示决策</td><td>画像未覆盖、原则冲突、影响面不明</td><td class="dim">列选项 + 给推荐 + 说明理由，用户定夺后执行</td></tr>
+            <tr><td class="mono">L3 强制确认</td><td>架构红线、安全相关、不可逆操作</td><td class="dim">明确警示风险，必须确认后才执行</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <strong>留痕长什么样</strong>：产出物里的关键决策都标注画像依据，比如「选用 PostgreSQL（依据: 决议 2026-09-06）」「非 Java 语言按业界实践执行（依据: core#D9）」。出问题时能立刻定位——是<strong>画像错了</strong>（修画像）还是<strong>执行错了</strong>（修流程）。
+        </div>
+
+        <div class="callout-warn">
+          <strong>为什么引擎必须薄</strong>：引擎与知识分离是产品化的根基。画像可替换，意味着别人拿走一个文件夹、换上自己的画像，就得到自己的分身；引擎内置一堆规范的话，这条路第一天就断了。
+        </div>
+
+        <h2 id="verify">五、实战验证：从冒烟到星枢</h2>
+
+        <p>分身不能自证可用，必须拿真实任务说话。验证分三波：</p>
+
+        <p><strong>第一波：冒烟验证。</strong>选了银行流水 CSV 汇总这类真实小工具跑端到端：画像定位、路由、风格对齐、九步流程全部通过，单任务产出 12 项 L1 决策留痕。更重要的是第一次纠正当场触发学习闭环——我发现 CSV 不能全量加载，要求从实现上流式读取而不是靠提示规避，分身随即写入语料 #1 并同步修复代码。第二个纠正（error 级日志必须带异常堆栈）我没有让它立即入画像，而是留在语料等复盘——<strong>闭环纪律优先于效率</strong>，已确认的习惯也走批量入库，保持流程一致性。</p>
+
+        <p><strong>第二波：思维分身。</strong>这是最难的一关——需求分析和架构设计。用一个中等偏上高并发的物联网平台设计任务做全流程试跑，产出《技术设计说明书》从 V0.1 迭代到 V1.0：</p>
+
+        <ul>
+          <li>拷问式对齐 4 项前沿决策：遥测 1.7 万条/秒的设计点、K8s 部署底线、行级租户隔离、工期口径；</li>
+          <li>架构设计 D-01~D-13 结论前置，含容量估算链（峰值 ×5、70% 水位红线）与 E0-E15 曳光弹拆分；</li>
+          <li>三轮用户驱动演进：LangGraph 选型（human-in-the-loop 中断是硬需求的原生实现）、Go 接入内核详设（单连接内存 ≤1.5KB 预算、三层背压）、三语言跨度归并评估；</li>
+          <li>最有说服力的一幕：上一轮试跑写入 core 的决议「新项目默认 PostgreSQL」，这次直接命中 D-10——<strong>决议被复用，而不是重新问一遍</strong>。</li>
+        </ul>
+
+        <p><strong>第三波：案例反向校准。</strong>任务结束后主动复盘，用案例的实际行为反向核对画像规则：13 条规则确认有效兑现，同时暴露 4 项偏差（假设主动确认时机、文档机械自查、ADR 备选空间广度、Go 窄内核纪律），全部定位根因、经我确认后入库。画像库从 v0.6 升到 v0.10。</p>
+
+        <div class="callout">
+          <strong>方法论提炼</strong>：验证要「引擎 + 画像 + 闭环」三位一体地测，只看产出代码不算验证通过。案例是最好的校准器——画像规则的缺口，只有真实案例才能暴露。
+        </div>
+
+        <h2 id="loop">六、学习闭环：让分身越用越像你</h2>
+
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-41-loop.svg" alt="HITL 学习闭环流程图">
+          <figcaption>HITL 学习闭环：纠正即语料，攒 10 项复盘，确认才入库，3 个月未引用淘汰归档</figcaption>
+        </figure>
+
+        <p>自我进化是这个项目里最容易被做坏的部分——直接让纠正自动写入画像，等于给记忆投毒开了门。我的设计是<strong>人在回路（HITL）</strong>：分身进化与否、进化成什么样，决定权始终在我手里。</p>
+
+        <p>完整闭环五步：<strong>用户纠正</strong>（说清哪里错、应该怎样，当前任务同步修正）→ <strong>语料积累</strong>（追加写入 raw-corpus.md，绝不直接改画像层，攒满 10 项主动提醒复盘）→ <strong>复盘确认</strong>（AI 预生成结构化总结，我逐条「采纳 / 修改后采纳 / 放弃」）→ <strong>入画像层</strong>（版本号 +0.1，语料移入归档区）→ <strong>淘汰归档</strong>（条目连续 3 个月未被引用，复盘时提议归档）。</p>
+
+        <p>复盘的判断标准也很严格——用户明确否定分身做法、给出不同做法、补充画像未覆盖的新知识，才算纠正；<strong>补充任务上下文（需求细节、环境信息）不算纠正</strong>，不记录。否则语料库很快会被噪声淹没。</p>
+
+        <div class="checklist">
+          <div class="checklist-title">进化铁律（三条，不可妥协）</div>
+          <ul>
+            <li><strong>未经确认，任何内容不写入画像层</strong>——防错误经验污染、防记忆投毒</li>
+            <li><strong>原始语料永不删除</strong>——画像可以随时从语料重建</li>
+            <li><strong>决策 100% 留痕</strong>——出问题可定位是画像错还是执行错</li>
+          </ul>
+        </div>
+
+        <p>目前语料库 2/10 待复盘，复盘 R1 已经完整走通一轮（13 条正例确认 + 4 项偏差入库 + 归档）。一次复盘的实际成本约 10 分钟——因为 AI 预生成总结，我只做勾选，这个纪律才能坚持下去。</p>
+
+        <h2 id="decisions">七、八个关键设计决策</h2>
+
+        <p>回头看，这些决策决定了项目走向，每一条都有明确的「为什么」：</p>
+
+        <table class="twin-table">
+          <thead>
+            <tr><th>决策</th><th>备选方案</th><th>选择理由</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>画像分层 + 按需加载（≤3 层）</td><td class="dim">全量画像塞 prompt</td><td class="dim">根治费 token + 跑偏</td></tr>
+            <tr><td>HITL 确认门（语料攒 10 项 → 复盘 → 入库）</td><td class="dim">纠正自动写入画像</td><td class="dim">防画像污染，用户始终掌控进化</td></tr>
+            <tr><td>决议表 &gt; 决策原则 &gt; 分层条目</td><td class="dim">无优先级</td><td class="dim">「理想中的我」覆盖历史包袱，冲突有仲裁</td></tr>
+            <tr><td>引擎薄、知识全在画像</td><td class="dim">引擎内置规范</td><td class="dim">画像可替换 = 产品化根基</td></tr>
+            <tr><td>非 Java 走业界最佳实践</td><td class="dim">等各语言代码样本校准</td><td class="dim">立即可用，学习闭环负责逐步个人化</td></tr>
+            <tr><td>决策留痕三种引用格式</td><td class="dim">自由描述</td><td class="dim">出问题可定位画像错还是执行错</td></tr>
+            <tr><td>疑似历史包袱与用户逐条定夺</td><td class="dim">AI 自行判断</td><td class="dim">提炼失真是最高风险，人是最准的过滤器</td></tr>
+            <tr><td>内置默认 + 5 级外部覆盖</td><td class="dim">纯外挂 / 纯内置</td><td class="dim">自包含分发与解耦可替换兼得</td></tr>
+          </tbody>
+        </table>
+
+        <p>同样重要的是<strong>不引入清单</strong>：两轮外部蒸馏时明确拒绝了 TDD 红绿循环（与精简哲学互斥）、wayfinder 重型机制、多技能生态模式——最后这个正是 dev-lifecycle 走过的弯路。知道不做什么，和知道做什么一样重要。</p>
+
+        <h2 id="replicate">八、你也想造一个：复刻七步</h2>
+
+        <p>整个 dev-twin 是自包含的，画像目录可整体替换。如果你也想给自己造一个分身，路径已经验证过：</p>
+
+        <div class="step-item">
+          <div class="step-item-title"><span class="num">STEP 1</span>拿模板</div>
+          <div class="step-item-body">复制画像库目录结构，清空内容保留骨架（core 必需，其余可选层按需）。</div>
+        </div>
+        <div class="step-item">
+          <div class="step-item-title"><span class="num">STEP 2</span>备素材</div>
+          <div class="step-item-body">简历 + 个人经验文档（口语化、碎片化都行，AI 负责结构化）+ 本人提交的代表性代码（用 git author 过滤）+ 开发流程。</div>
+        </div>
+        <div class="step-item">
+          <div class="step-item-title"><span class="num">STEP 3</span>提炼</div>
+          <div class="step-item-body">AI 逐条提炼并标注三类（个人风格 / 最佳实践 / 疑似包袱），疑似项逐条定夺；决议写入 core 决议表。</div>
+        </div>
+        <div class="step-item">
+          <div class="step-item-title"><span class="num">STEP 4</span>双重校准</div>
+          <div class="step-item-body">技术实践向业界看齐，风格保留个人特色。</div>
+        </div>
+        <div class="step-item">
+          <div class="step-item-title"><span class="num">STEP 5</span>放置</div>
+          <div class="step-item-body">替换内置目录，或外置 <code>persona-你的名字/</code>（多级定位自动覆盖，引擎零改动）。</div>
+        </div>
+        <div class="step-item">
+          <div class="step-item-title"><span class="num">STEP 6</span>验证</div>
+          <div class="step-item-body">选一个真实小需求跑端到端，review 产出并纠正——第一次纠正就是学习闭环的首轮语料。</div>
+        </div>
+        <div class="step-item">
+          <div class="step-item-title"><span class="num">STEP 7</span>进化</div>
+          <div class="step-item-body">日常使用攒语料，满 10 项复盘一次，确认入库；坚持淘汰纪律（连续 3 个月未引用 → 提议归档）。</div>
+        </div>
+
+        <div class="callout">
+          <strong>成本参考</strong>：首建画像约一次深度会话 + 素材准备；此后每次复盘约 10 分钟。分身不是一次性工程，是一个「用得越多、像你越多」的复利资产。
+        </div>
+
+        <h2 id="lessons">九、踩过的坑</h2>
+
+        <p>整个建设过程最大的收获，反而是这些踩坑记录：</p>
+
+        <ol>
+          <li><strong>先战略后建设</strong>——五层对话把模糊想法逼成可验收计划，避免直接开写导致返工；</li>
+          <li><strong>引擎与知识分离是产品化根基</strong>——画像可替换的设计从第一天就定下，后面自包含分发水到渠成；</li>
+          <li><strong>三层验证缺一不可</strong>——产出代码、决策留痕、学习闭环要同时验证，只测产出不算过；</li>
+          <li><strong>用户纠正是最珍贵的信号</strong>——第一次纠正就是学习闭环的首跑素材，连引擎自己也被纠正过（目录定位从 Glob 改成 shell）；</li>
+          <li><strong>闭环纪律优先于效率</strong>——已确认的习惯仍留语料等复盘批量入库，保持流程一致性；</li>
+          <li><strong>案例是最好的校准器</strong>——画像的缺口只有真实案例才暴露，一次复盘同时拿到 13 条正例确认和 4 项偏差入库。</li>
+        </ol>
+
+        <p>至于下一步：画像覆盖度朝 80% 爬坡、Go 窄内核纪律等待二次验证、语料持续积累触发复盘 R2；再往后是产品化验证——用第二个人的素材跑一遍提炼流程，验证画像可替换和数据隔离。</p>
+
+        <p>回到开头的问题：AI 时代，个人经验是最容易被低估的资产。模型人人都能用，但「你为什么这样决策」二十年积累下来的判断力，不会自动长到任何模型里——除非你亲手把它结构化。<strong>分身不是把工作丢给 AI，而是把「你」放大</strong>：你的决策原则变成可引用的条目，你的纠正变成它的进化，你的经验以 token 为单位开始复利。</p>
+
+        <p>我的分身已经上岗了。你的呢？</p>
+
+        <h3>参考资料</h3>
+        <ol>
+          <li>Anthropic · Agent Skills（Skill 机制的官方说明） <a href="https://docs.anthropic.com/en/docs/agents-and-tools/agent-skills" target="_blank" rel="noopener">docs.anthropic.com/en/docs/agents-and-tools/agent-skills</a></li>
+          <li>GitHub · anthropics/skills（官方技能仓库，工程范式参考） <a href="https://github.com/anthropics/skills" target="_blank" rel="noopener">github.com/anthropics/skills</a></li>
+          <li>GitHub · mattpocock/skills（外部蒸馏来源，拷问式对齐等实践出处） <a href="https://github.com/mattpocock/skills" target="_blank" rel="noopener">github.com/mattpocock/skills</a></li>
+          <li>GitHub · affaan-m/ECC（外部蒸馏来源，Agent 安全基线出处） <a href="https://github.com/affaan-m/ECC" target="_blank" rel="noopener">github.com/affaan-m/ECC</a></li>
+        </ol>
+
+      </div>
+      <nav class="article-nav" id="articleNav"></nav>
+    </article>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; 2024-2026 馒头仔 | Smart Open. Built with care.</p>
+    </div>
+  </footer>
+
+  <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
+  <script src="../../js/article.js"></script>
+  <script src="../../js/preview-rail.js"></script>
+</body>
+</html>
