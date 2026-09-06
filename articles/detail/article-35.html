@@ -148,63 +148,7 @@
       .synergy-step::after { display: none; }
     }
   </style>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "@id": "https://blog.sopenai.cn/articles/detail/article-35.html#faq",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "temperature 高和低分别意味着什么？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "temperature 控制采样随机性：越低越确定、可复现、保守，适合要求准确与稳定的事实/代码任务；越高越多样、新奇、发散，适合创意写作；Agent 里偏任务执行通常接近 0 更稳。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "top_p 和 temperature 是什么关系？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "top_p（核采样）只从累计概率达到 p 的最小 token 集里采样，与 temperature 相互影响：实践中二选一主调即可，避免同时乱调导致意外。它们都影响「如何采」，不影响模型知识。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "max_tokens 设太小会怎样？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "会截断输出导致答案不完整；设太大可能浪费为填空。应根据任务预判最长理性回答设定上限，长文/代码要设大一些，并留意 token 成本与上下文预算。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "penalty（如 frequency/重复惩罚）起什么作用？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "惩罚重复 token，降低复读与循环，常用于长文本与对话避免重复；但过大会抑制必要词汇，需按场景微调，与温度配合控制输出的「啰嗦度」。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "为什么说参数不能弥补 Prompt 质量？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "参数只改采样方式，知识来自模型权重由上下文与 prompt 触发：若模型本就不懂、或 prompt 没说清要求，调参无济于事。正确做法是用 prompt 定方向、用参数调风格与稳定性，两者协同。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Agent 上生产有哪些参数铁律？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "如：任务类压低温保稳定、设合理 max_tokens 防截断、给格式约束并配 JSON schema、做限流与重试、加输出校验与兜底、把参数做成可配置便于灰度。文中给出完整 6 条铁律与检查清单。"
-      }
-    }
-  ]
-}
-</script>
+
 </head>
 <body>
   <nav class="site-nav" id="nav">
@@ -251,19 +195,7 @@
     </aside>
 
     <article class="article-content">
-      <div class="markdown-body">
-    <div class="callout tldr geo-hidden">
-      <strong>太长不看</strong>
-      <ul>
-      <li>大模型 7 大核心参数（temperature、top_p、max_tokens、penalty 等）控制「随机性与长度」，并不同控制「知识」，别指望调参数让模型变聪明；</li>
-      <li>关键认知：参数决定「采样方式」，prompt 决定「回答方向和约束」——两者协同而非替代，明白控制什么不控制什么才不会瞎调；</li>
-      <li>7 参数逐一拆解并给出影响示意图：temperature 影响多样性与确定性、top_p 核采样、max_tokens 长度、penalty 控重复等；</li>
-      <li>Agent 开发中参数要与 Prompt 工程协同：任务型（求稳/求准）压低 temperature，创意型适度放宽，结合系统提示约束输出格式；</li>
-      <li>文末给出 5 套可直接复制的生产配置模板 + 6 条生产铁律 + 上生产检查清单，避免「复制就炸」、兼顾稳定性与效果。</li>
-      </ul>
-    </div>
-
-        <figure class="article-inline-image">
+      <div class="markdown-body"><figure class="article-inline-image">
           <img src="../../assets/img/article-35-hero.svg" alt="大模型 API 核心参数与输出影响示意图">
           <figcaption>参数控制的是「随机性 / 创造性」，不是正确性 - 参数决定天花板，Prompt 决定地板</figcaption>
         </figure>
@@ -673,27 +605,7 @@
         </ol>
 
       </div>
-      <h2 id="faq">常见问题</h2>
-
-<h3>temperature 高和低分别意味着什么？</h3>
-<p>temperature 控制采样随机性：越低越确定、可复现、保守，适合要求准确与稳定的事实/代码任务；越高越多样、新奇、发散，适合创意写作；Agent 里偏任务执行通常接近 0 更稳。</p>
-
-<h3>top_p 和 temperature 是什么关系？</h3>
-<p>top_p（核采样）只从累计概率达到 p 的最小 token 集里采样，与 temperature 相互影响：实践中二选一主调即可，避免同时乱调导致意外。它们都影响「如何采」，不影响模型知识。</p>
-
-<h3>max_tokens 设太小会怎样？</h3>
-<p>会截断输出导致答案不完整；设太大可能浪费为填空。应根据任务预判最长理性回答设定上限，长文/代码要设大一些，并留意 token 成本与上下文预算。</p>
-
-<h3>penalty（如 frequency/重复惩罚）起什么作用？</h3>
-<p>惩罚重复 token，降低复读与循环，常用于长文本与对话避免重复；但过大会抑制必要词汇，需按场景微调，与温度配合控制输出的「啰嗦度」。</p>
-
-<h3>为什么说参数不能弥补 Prompt 质量？</h3>
-<p>参数只改采样方式，知识来自模型权重由上下文与 prompt 触发：若模型本就不懂、或 prompt 没说清要求，调参无济于事。正确做法是用 prompt 定方向、用参数调风格与稳定性，两者协同。</p>
-
-<h3>Agent 上生产有哪些参数铁律？</h3>
-<p>如：任务类压低温保稳定、设合理 max_tokens 防截断、给格式约束并配 JSON schema、做限流与重试、加输出校验与兜底、把参数做成可配置便于灰度。文中给出完整 6 条铁律与检查清单。</p>
-
-<nav class="article-nav" id="articleNav"></nav>
+      <nav class="article-nav" id="articleNav"></nav>
     </article>
   </div>
 

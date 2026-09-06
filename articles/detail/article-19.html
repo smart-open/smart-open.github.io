@@ -457,63 +457,7 @@
       }
     }
   </style>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "@id": "https://blog.sopenai.cn/articles/detail/article-19.html#faq",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "什么是 AI Harness？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "AI Harness 是包裹在大模型外的整套运行管控体系，负责给模型输出加约束、流程、工具与监控，让 AI 能稳定、可控地完成工程任务，而非每个回答都不可预测。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "AI Harness 和大模型是什么关系？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "模型提供智能与生成能力，Harness 提供工程化护栏：它规划任务、约束规则、调度工具、自动纠错、全程记录，把模型的「能说」转成系统的「能交付」。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "六大支柱指什么？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "任务流程（编排）、规则约束（提示词与强约束）、工具调用（操作外部系统）、自动纠错（失败自修复/重试）、全程监控（trace+日志）、复盘迭代（沉淀经验）。六者循环运转。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "护栏系统承担什么职责？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "四大护栏负责把风险挡在交付前：编排器控制任务流向、工具沙箱隔离危险操作、校验/门控检查结果是否符合要求、可观测/审计记录全过程以便回溯与改进。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "手工实现最小可用 AI Harness 难吗？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "不难。不必一开始就上全套六柱：先加「任务编排+规则约束+日志监控」三维，跑通一条最高频业务线；验证价值后，再逐步引入工具沙箱、门控与复盘迭代，循序渐进。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "AI Harness 的价值怎么量化？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "看稳定交付率、错误率下降、可重复性与可追溯性：原本每次都要人盯着改的流程，变得能自主跑完并有审计留痕；结合 SRE 指标（成功率/时延/失败原因分布）追踪改进即可见价值。"
-      }
-    }
-  ]
-}
-</script>
+
 </head>
 <body>
 
@@ -559,19 +503,7 @@
     </aside>
 
     <article class="article-content">
-      <div class="markdown-body">
-    <div class="callout tldr geo-hidden">
-      <strong>太长不看</strong>
-      <ul>
-      <li>AI Harness（马具）=包裹在大模型外的一套运行时管控体系，让 AI 从「脱缰野马」变成「稳定交付的工程工具」，与裸 API 调用是两个时代；</li>
-      <li>六大支柱：任务流程、规则约束、工具调用、自动纠错、全程监控、复盘迭代——六者循环形成可工程化的 AI 运行环境；</li>
-      <li>四大护栏组件：规划/编排器、工具沙箱、校验/门控、可观测/审计，共同把不确定的模型输出约束进可控管道；</li>
-      <li>典型工作流：一句话需求 → 拆解 → 链式执行（工具+纠错）→ 门控审查 → 交付，中间靠沙箱与审计兜住风险；</li>
-      <li>落地先做「最小可用 Harness」：只先加编排+规则+监控三维，跑通一条高频任务再逐步补齐六柱，避免一次铺开失控。</li>
-      </ul>
-    </div>
-
-        <figure class="article-hero-image"><img src="../../assets/img/article-ai-harness.jpg" alt="AI Harness六柱驾驭体系"></figure>
+      <div class="markdown-body"><figure class="article-hero-image"><img src="../../assets/img/article-ai-harness.jpg" alt="AI Harness六柱驾驭体系"></figure>
 
 <h2 id="section-1">一、引言：当大模型遇见「马具」</h2>
 
@@ -1138,27 +1070,7 @@
 </ol>
 
       </div>
-    <h2 id="faq">常见问题</h2>
-
-<h3>什么是 AI Harness？</h3>
-<p>AI Harness 是包裹在大模型外的整套运行管控体系，负责给模型输出加约束、流程、工具与监控，让 AI 能稳定、可控地完成工程任务，而非每个回答都不可预测。</p>
-
-<h3>AI Harness 和大模型是什么关系？</h3>
-<p>模型提供智能与生成能力，Harness 提供工程化护栏：它规划任务、约束规则、调度工具、自动纠错、全程记录，把模型的「能说」转成系统的「能交付」。</p>
-
-<h3>六大支柱指什么？</h3>
-<p>任务流程（编排）、规则约束（提示词与强约束）、工具调用（操作外部系统）、自动纠错（失败自修复/重试）、全程监控（trace+日志）、复盘迭代（沉淀经验）。六者循环运转。</p>
-
-<h3>护栏系统承担什么职责？</h3>
-<p>四大护栏负责把风险挡在交付前：编排器控制任务流向、工具沙箱隔离危险操作、校验/门控检查结果是否符合要求、可观测/审计记录全过程以便回溯与改进。</p>
-
-<h3>手工实现最小可用 AI Harness 难吗？</h3>
-<p>不难。不必一开始就上全套六柱：先加「任务编排+规则约束+日志监控」三维，跑通一条最高频业务线；验证价值后，再逐步引入工具沙箱、门控与复盘迭代，循序渐进。</p>
-
-<h3>AI Harness 的价值怎么量化？</h3>
-<p>看稳定交付率、错误率下降、可重复性与可追溯性：原本每次都要人盯着改的流程，变得能自主跑完并有审计留痕；结合 SRE 指标（成功率/时延/失败原因分布）追踪改进即可见价值。</p>
-
-<nav class="article-nav" id="articleNav"></nav>
+    <nav class="article-nav" id="articleNav"></nav>
   </article>
   </div>
 

@@ -115,63 +115,7 @@
       }
     });
   </script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "@id": "https://blog.sopenai.cn/articles/detail/article-8.html#faq",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "load average 高就一定是高负载吗？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "不一定。load 统计运行中+不可中断（含 I/O 等待）任务数，CPU 密集高也可能是 I/O 阻塞导致。要结合 CPU 使用率、上下文切换与 iostat 判断是 CPU 瓶颈还是 I/O 瓶颈。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "高负载最先查什么？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "用 top 确认是 CPU 打满还是等待 I/O，用 vmstat/iostat 看 cs 与 wa；再定位占用最高的进程，判断是应用自身、GC 还是外部依赖拖累，四维（CPU/内存/磁盘/网络）逐一排除。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "怎么定位是 GC 问题？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "用 jstat -gcutil 观察 GC 频率与耗时，结合内存使用趋势判断是否有对象泄漏或 Metaspace 膨胀；若频繁 Full GC 且老年代上涨，往往需要 jmap heap dump 分析强引用链。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Arthas 能做什么？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "免重启在线诊断：thread 查线程栈、trace/watch 看方法调用链与耗时、dashboard 看 JVM 实时状态、sc/mc 查看与改造类，适合生产定位慢接口与死锁。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "拿到线程栈怎么判断问题？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "看线程状态：RUNNABLE 且多线程耗时可能是 CPU 计算密集；BLOCKED/WAITING 表示锁竞争或等待；结合堆栈方法名定位到业务代码，再决定是优化算法还是加缓存/扩容。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "如何从应急排查升级为可预防？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "建立资源使用基线并配预警阈值（CPU/内存/磁盘/网络），形成标准排查记录表把每次问题沉淀为可复用 SOP，配合压测与容量规划，把被动救火变成主动防御。"
-      }
-    }
-  ]
-}
-</script>
+
 </head>
 <body>
 
@@ -217,19 +161,7 @@
     </aside>
 
     <article class="article-content">
-      <div class="markdown-body">
-    <div class="callout tldr geo-hidden">
-      <strong>太长不看</strong>
-      <ul>
-      <li>load average 反映的是可运行+不可中断任务数，需结合 CPU 核数与 I/O 等待综合判断，不能孤立看数值；</li>
-      <li>高负载排查用四维定位法：CPU、内存、磁盘 I/O、网络 四大系统资源先定位到瓶颈维度，再逐层下钻到 JVM 与应用；</li>
-      <li>从系统层穿透到应用层：用 top/java 定位进程 → jstat 卡 GC、jstack 抓线程栈看锁与阻塞 → heap dump 分析内存，形成分层排查路径；</li>
-      <li>Arthas 是在线诊断的瑞士军刀：免重启即可看线程态、方法耗时、类加载、GC 等，适合生产环境应急；</li>
-      <li>真正提升排查力的是预警阈值与复盘工具化：先定基线+告警，再用排查记录模板沉淀 SOP，把「应急」转成「预防」。</li>
-      </ul>
-    </div>
-
-        <figure class="article-hero-image"><img src="../../assets/img/article-system-troubleshooting.jpg" alt="系统故障排查"></figure>
+      <div class="markdown-body"><figure class="article-hero-image"><img src="../../assets/img/article-system-troubleshooting.jpg" alt="系统故障排查"></figure>
 
 <p>凌晨两点，监控大屏突然亮起刺眼的红色。手机推送的告警短信接连不断："服务A负载持续飙高"、"服务B响应延迟超过阈值"。值班工程师揉揉眼睛，手忙脚乱地登录服务器，却不知道该敲下哪一条命令。这是每一个运维和开发人员都可能遭遇的场景。负载问题从来不是单一维度的故障，它像一张错综复杂的网，牵一发而动全身。本文将从系统级指标出发，建立一套完整的四维排查体系，帮助你在告警响起的瞬间，快速厘清思路，精准定位根因。</p>
 <h2 id="load-average">一、理解负载：load average 到底在说什么</h2>
@@ -729,27 +661,7 @@ java -jar arthas-boot.jar
 <p>负载排查要求你对操作系统、JVM、网络协议、业务架构都有足够的理解，才能在纷繁表象中抽丝剥茧。希望本文的四维定位法和工具链，能成为你面对红色告警时的有力武器。</p>
 
       </div>
-    <h2 id="faq">常见问题</h2>
-
-<h3>load average 高就一定是高负载吗？</h3>
-<p>不一定。load 统计运行中+不可中断（含 I/O 等待）任务数，CPU 密集高也可能是 I/O 阻塞导致。要结合 CPU 使用率、上下文切换与 iostat 判断是 CPU 瓶颈还是 I/O 瓶颈。</p>
-
-<h3>高负载最先查什么？</h3>
-<p>用 top 确认是 CPU 打满还是等待 I/O，用 vmstat/iostat 看 cs 与 wa；再定位占用最高的进程，判断是应用自身、GC 还是外部依赖拖累，四维（CPU/内存/磁盘/网络）逐一排除。</p>
-
-<h3>怎么定位是 GC 问题？</h3>
-<p>用 jstat -gcutil 观察 GC 频率与耗时，结合内存使用趋势判断是否有对象泄漏或 Metaspace 膨胀；若频繁 Full GC 且老年代上涨，往往需要 jmap heap dump 分析强引用链。</p>
-
-<h3>Arthas 能做什么？</h3>
-<p>免重启在线诊断：thread 查线程栈、trace/watch 看方法调用链与耗时、dashboard 看 JVM 实时状态、sc/mc 查看与改造类，适合生产定位慢接口与死锁。</p>
-
-<h3>拿到线程栈怎么判断问题？</h3>
-<p>看线程状态：RUNNABLE 且多线程耗时可能是 CPU 计算密集；BLOCKED/WAITING 表示锁竞争或等待；结合堆栈方法名定位到业务代码，再决定是优化算法还是加缓存/扩容。</p>
-
-<h3>如何从应急排查升级为可预防？</h3>
-<p>建立资源使用基线并配预警阈值（CPU/内存/磁盘/网络），形成标准排查记录表把每次问题沉淀为可复用 SOP，配合压测与容量规划，把被动救火变成主动防御。</p>
-
-<nav class="article-nav" id="articleNav"></nav>
+    <nav class="article-nav" id="articleNav"></nav>
   </article>
   </div>
 

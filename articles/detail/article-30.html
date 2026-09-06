@@ -186,63 +186,7 @@
       .platform-table th, .platform-table td { padding: 8px 10px; }
     }
   </style>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "@id": "https://blog.sopenai.cn/articles/detail/article-30.html#faq",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "小智语音助手的整体架构是什么？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "大体是：智能设备/App 客户端 → 通过 WebSocket 与小智云平台通信 → 平台上运行 AI 大脑（对话+工具调用），两侧用 Opus 编码传输语音，并用 MCP 协议让 AI 调用外部工具完成任务。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "什么是「两步激活」、为什么需要？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "两步激活指设备先完成身份注册/授权（拿到合法凭证），再进入能收发语音与调用工具的激活态。它把「能连」和「能干活」两步分开，保证只有合法、已授权的设备才能使用 AI 语音服务。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "为什么要用 WebSocket 传输？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "语音对话需要在手机/设备与服务端之间双向、低延迟、持续地传音频与事件，WebSocket 提供全双工长连接，比轮询/HTTP 轮询更适合实时音频场景，并支持心跳与断线重连。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "MCP 在语音助手里起什么作用？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "MCP（Model Context Protocol）统一了 AI 调用外部工具的协议，让小智能从「说得好听」变成「能真做事」：通过 MCP 调待办、查资料、控设备等工具，是语音助手能力边界的关键。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "为什么用 Opus 编码音频？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Opus 在低比特率下仍能保持较高语音清晰度、且编解码延迟低，适合实时语音；能为弱网与低功耗设备省带宽与电量，是语音助手的优选音频编解码。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "怎么保证连接稳定、方便排障？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "设计心跳保活、指数退避重连、消息序号去重与超时兜底；客户端做连接状态可视化诊断页，把不通时的链路阶段（网络/鉴权/WS/音频流/工具调用）暴露出来，快速定位是网络还是平台问题。"
-      }
-    }
-  ]
-}
-</script>
+
 </head>
 <body>
 
@@ -290,20 +234,7 @@
     </aside>
 
     <article class="article-content">
-      <div class="markdown-body">
-    <div class="callout tldr geo-hidden">
-      <strong>太长不看</strong>
-      <ul>
-      <li>App 接入小智 AI 语音助手是一套完整链路：从设备模拟（电磁 ESP32）到两步激活、WebSocket 传输、MCP 工具调用、Opus 音频编解码，直到连接韧性设计；</li>
-      <li>两步激活是关键握手：设备先注册/认到平台获得合法身份，再进入可收发语音与工具调用的激活态，未激活则不可用；</li>
-      <li>WebSocket 是双向语音/事件的传输主干：管理音频流、事件与工具调用往返，需设计心跳、重连协议与消息排序；</li>
-      <li>MCP 工具调用让小智不止「对话」：通过标准协议让 AI 调外部工具执行任务，是语音助手的「动手能力」；</li>
-      <li>Opus 低延迟编解码保证语音实时性，连接韧性与故障排查（重连、超时、诊断页）决定长稳体验，代码以伪代码说明、适用于 Web/Android/iOS/鸿蒙等全平台。</li>
-      </ul>
-    </div>
-
-
-        <figure class="article-inline-image">
+      <div class="markdown-body"><figure class="article-inline-image">
           <img src="../../assets/img/article-tickclear-xiaozhi.jpg" alt="App 连接小智 AI 平台">
           <figcaption>任意平台 App 通过 WebSocket 接入小智 AI 语音助手平台</figcaption>
         </figure>
@@ -729,27 +660,7 @@ reply = {
         </ol>
 
       </div>
-      <h2 id="faq">常见问题</h2>
-
-<h3>小智语音助手的整体架构是什么？</h3>
-<p>大体是：智能设备/App 客户端 → 通过 WebSocket 与小智云平台通信 → 平台上运行 AI 大脑（对话+工具调用），两侧用 Opus 编码传输语音，并用 MCP 协议让 AI 调用外部工具完成任务。</p>
-
-<h3>什么是「两步激活」、为什么需要？</h3>
-<p>两步激活指设备先完成身份注册/授权（拿到合法凭证），再进入能收发语音与调用工具的激活态。它把「能连」和「能干活」两步分开，保证只有合法、已授权的设备才能使用 AI 语音服务。</p>
-
-<h3>为什么要用 WebSocket 传输？</h3>
-<p>语音对话需要在手机/设备与服务端之间双向、低延迟、持续地传音频与事件，WebSocket 提供全双工长连接，比轮询/HTTP 轮询更适合实时音频场景，并支持心跳与断线重连。</p>
-
-<h3>MCP 在语音助手里起什么作用？</h3>
-<p>MCP（Model Context Protocol）统一了 AI 调用外部工具的协议，让小智能从「说得好听」变成「能真做事」：通过 MCP 调待办、查资料、控设备等工具，是语音助手能力边界的关键。</p>
-
-<h3>为什么用 Opus 编码音频？</h3>
-<p>Opus 在低比特率下仍能保持较高语音清晰度、且编解码延迟低，适合实时语音；能为弱网与低功耗设备省带宽与电量，是语音助手的优选音频编解码。</p>
-
-<h3>怎么保证连接稳定、方便排障？</h3>
-<p>设计心跳保活、指数退避重连、消息序号去重与超时兜底；客户端做连接状态可视化诊断页，把不通时的链路阶段（网络/鉴权/WS/音频流/工具调用）暴露出来，快速定位是网络还是平台问题。</p>
-
-<nav class="article-nav" id="articleNav"></nav>
+      <nav class="article-nav" id="articleNav"></nav>
     </article>
   </div>
 

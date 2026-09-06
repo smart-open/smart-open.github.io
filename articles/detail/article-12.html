@@ -115,63 +115,7 @@
       }
     });
   </script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "@id": "https://blog.sopenai.cn/articles/detail/article-12.html#faq",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "git reset 和 git revert 有什么区别？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "reset 是把当前分支指针向后移动，直接改写/丢弃历史，适合私有分支；revert 是生成一个新的反向提交来抵消旧的改动，保留原历史，适合已推送共享的分支，风险更低。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "git reset 的 soft/mixed/hard 分别什么意思？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "soft 只移动 HEAD 不动暂存区与工作区（改动保留待提交）；mixed（默认）重置暂存区但保留工作区改动；hard 连工作区改动一起丢弃。hard 是破坏性的，用前要确认或者先备份。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "不小心 commit 错了或 reset 错了怎么办？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "用 `git reflog` 查看 HEAD 历史记录，找到误操作之前的那条，用 `git reset --hard <sha>`（或 --soft）回到它；reflog 记录所有本地指针变，是找回误删提交的关键。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "rebase 和 merge 有什么区别？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "merge 保留历史并产生合并节点，能看到真实分支汇合点；rebase 把当前分支的提交按顺序重放到目标分支顶端，得到线性整洁历史，但会改写提交，适合私有分支整理再推。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "interactive rebase 能做什么？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "`git rebase -i` 可对一段提交进行：重排顺序、squash 合并、reword 改信息、drop 删除、edit 拆分等，用于把零散提交整理成清晰可读的历史。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "什么时候绝不能硬 reset？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "当目标分支已推送并被他人基于拉取/协作时，重写历史会破坏他人的基于；此时应用 revert 生成抵消提交。安全原则：未推送私有用 reset，已共享用 revert，拿不准先备份。"
-      }
-    }
-  ]
-}
-</script>
+
 </head>
 <body>
 
@@ -217,19 +161,7 @@
     </aside>
 
     <article class="article-content">
-      <div class="markdown-body">
-    <div class="callout tldr geo-hidden">
-      <strong>太长不看</strong>
-      <ul>
-      <li>先用「三棵树」理解 Git：工作区、暂存区（Index）、提交库（HEAD Commit），多数 reset/revert 困惑都源于对这三者移动关系的误解；</li>
-      <li>git reset 移动指针改写历史，分 --soft/--mixed/--hard 三档，注意 hard 会丢弃工作区改动；git revert 创建抵消提交保留历史，适合协作分支；</li>
-      <li>git reflog 是「时光机黑匣子」：所有曾指向过的 HEAD 记录都在这里，误删/误 reset 后可据此找回，是挽救操作的最后保险；</li>
-      <li>交互式 rebase（rebase -i）用于重排/合并/改写提交，cherry-pick 用于精选单条提交到当前分支，都是有精确把控的工具；</li>
-      <li>用「决策矩阵」选工具：私有未推送分支可 reset 重写，已推送协作分支必须 revert，一切不确定先用 reflog/备份兜底，安全第一。</li>
-      </ul>
-    </div>
-
-        <figure class="article-hero-image"><img src="../../assets/img/article-git-version-control.jpg" alt="Git版本控制"></figure>
+      <div class="markdown-body"><figure class="article-hero-image"><img src="../../assets/img/article-git-version-control.jpg" alt="Git版本控制"></figure>
 
 <p>版本控制系统是现代软件工程的基石，而 Git 之所以在分布式版本控制领域占据统治地位，很大程度上归功于其强大的历史操作能力。与其他 VCS 将提交历史视为不可触碰的线性记录不同，Git 将每一次提交看作一个可以通过引用直接访问的对象，这使得重写历史、修正错误、调整提交顺序成为可能。然而，强大的能力总是伴随着误用的风险。本文将系统梳理 Git 中几种核心历史操作工具——reset、revert、reflog、rebase 与 cherry-pick——的工作原理、行为差异与实战应用，帮助开发者建立清晰的决策框架，在需要"撤销"或"修正"时选择正确的工具。</p>
 <h2 id="git">一、理解 Git 的三棵树模型</h2>
@@ -545,27 +477,7 @@ graph LR
 <p>版本控制系统的终极目的不是保存代码的每一刻状态，而是帮助开发者讲述代码演进的故事。reset、revert、reflog、rebase 和 cherry-pick，是这个故事的编辑工具。掌握它们，意味着你不仅可以编写代码，还可以精心编排代码的历史叙事——在需要时重写过去，在必要时保留痕迹，在出错时挽回一切。这便是 Git 赋予开发者的真正力量。</p>
 
       </div>
-    <h2 id="faq">常见问题</h2>
-
-<h3>git reset 和 git revert 有什么区别？</h3>
-<p>reset 是把当前分支指针向后移动，直接改写/丢弃历史，适合私有分支；revert 是生成一个新的反向提交来抵消旧的改动，保留原历史，适合已推送共享的分支，风险更低。</p>
-
-<h3>git reset 的 soft/mixed/hard 分别什么意思？</h3>
-<p>soft 只移动 HEAD 不动暂存区与工作区（改动保留待提交）；mixed（默认）重置暂存区但保留工作区改动；hard 连工作区改动一起丢弃。hard 是破坏性的，用前要确认或者先备份。</p>
-
-<h3>不小心 commit 错了或 reset 错了怎么办？</h3>
-<p>用 `git reflog` 查看 HEAD 历史记录，找到误操作之前的那条，用 `git reset --hard &lt;sha&gt;`（或 --soft）回到它；reflog 记录所有本地指针变，是找回误删提交的关键。</p>
-
-<h3>rebase 和 merge 有什么区别？</h3>
-<p>merge 保留历史并产生合并节点，能看到真实分支汇合点；rebase 把当前分支的提交按顺序重放到目标分支顶端，得到线性整洁历史，但会改写提交，适合私有分支整理再推。</p>
-
-<h3>interactive rebase 能做什么？</h3>
-<p>`git rebase -i` 可对一段提交进行：重排顺序、squash 合并、reword 改信息、drop 删除、edit 拆分等，用于把零散提交整理成清晰可读的历史。</p>
-
-<h3>什么时候绝不能硬 reset？</h3>
-<p>当目标分支已推送并被他人基于拉取/协作时，重写历史会破坏他人的基于；此时应用 revert 生成抵消提交。安全原则：未推送私有用 reset，已共享用 revert，拿不准先备份。</p>
-
-<nav class="article-nav" id="articleNav"></nav>
+    <nav class="article-nav" id="articleNav"></nav>
   </article>
   </div>
 

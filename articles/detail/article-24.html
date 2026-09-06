@@ -367,63 +367,7 @@
       }
     }
   </style>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "@id": "https://blog.sopenai.cn/articles/detail/article-24.html#faq",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "AI 项目为什么容易卡在「最后一公里」？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "多数不是模型能力不足，而是生产落地六道坎：真实数据与演示数据落差、上线前缺乏评估门控、缺少 Agent 工程化（Harness）、人机如何分工、安全边界不清、以及上线后没有运维闭环。本文逐条给出解法。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "怎么避免「演示很惊艳、上线就翻车」？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "根因是数据质量落差。做法：早用真实生产数据做训练与评测，而非精选演示集；把数据治理前置；用「数据门/能力门/业务门」三道门控在上线前就把不达标的版本拦截。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "评估门控具体怎么做？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "设置可量化红线：如准确率/召回率、拒绝率、延迟、以及业务侧指标；分三条闸门——数据门（数据质量与分布达标）、能力门（模型在真实测试集达标）、业务门（AB 或小流量验证业务结果）逐步放行。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Agent Harness 是什么、为什么需要？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "它是包在模型外的运行时管控（任务、约束、工具、纠错、监控、审计）。生产 Agent 不能裸跑，需要这套工程护栏来保证稳定、可控、可回溯，是 POC 走向生产的关键支撑。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "HITL（人机协同）要点是什么？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "在高风险决策点设人工确认：如改数据、付钱、发消息、动生产。原则是「常规任务放权、高风险把关」，配上清晰的确认时机与回退，让人既放心又不必事事盯着。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "上线后怎么做生产运维闭环？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "遵循「观察-行动-演进」：采集线上样本与失败案例→分析根因（数据漂移/模型退化）→针对性优化与重训→再评估再上线；配合监控告警，让系统随生产持续变好用而非躺平。"
-      }
-    }
-  ]
-}
-</script>
+
 </head>
 <body>
 
@@ -471,20 +415,7 @@
     </aside>
 
     <article class="article-content">
-    <div class="markdown-body">
-    <div class="callout tldr geo-hidden">
-      <strong>太长不看</strong>
-      <ul>
-      <li>93% 的 AI 项目卡在最后一公里——瓶颈集中在数据质量、评估门控、工程化（Agent Harness）、人机协同、安全边界与生产运维，而非模型本身；</li>
-      <li>数据质量落差是头号杀手：把「精选演示数据」替换成「真实生产数据」后效果断崖式下滑，必须前置数据治理与真实样本评估；</li>
-      <li>评估门控部署：上线前设三道质量门（数据门→能力门→业务门），用客观基准和红线指标把不合格版本挡在门外；</li>
-      <li>工程化用 Agent Harness 六柱体系，人机协同在关键决策点设 HYITL（人机）把关，安全边界让 Agent 既自主又可控；</li>
-      <li>最后靠「观察-行动-演进」的生产运维闭环持续优化，从「能用」走向「好用」，本质是长期工程而非一锤子。</li>
-      </ul>
-    </div>
-
-
-<figure class="article-inline-image"><img src="../../assets/img/article-ai-last-mile-hero.jpg" alt="AI最后一公里主视觉：发光的神经网络桥梁横跨深渊，最后一段尚未完成"><figcaption>「最后一公里」不是一段路，而是一道鸿沟——93% 的企业 Agent 项目倒在这里</figcaption></figure>
+    <div class="markdown-body"><figure class="article-inline-image"><img src="../../assets/img/article-ai-last-mile-hero.jpg" alt="AI最后一公里主视觉：发光的神经网络桥梁横跨深渊，最后一段尚未完成"><figcaption>「最后一公里」不是一段路，而是一道鸿沟——93% 的企业 Agent 项目倒在这里</figcaption></figure>
 
 <p>构建一个 AI 智能体原型可能只需几分钟，甚至几秒钟。但把这个惊艳的演示版本转化为企业可以信赖的生产级系统，真正的挑战才刚刚开始<sup><a href="#cite-1">[1]</a></sup>。</p>
 
@@ -768,27 +699,7 @@
 </ol>
 
     </div>
-    <h2 id="faq">常见问题</h2>
-
-<h3>AI 项目为什么容易卡在「最后一公里」？</h3>
-<p>多数不是模型能力不足，而是生产落地六道坎：真实数据与演示数据落差、上线前缺乏评估门控、缺少 Agent 工程化（Harness）、人机如何分工、安全边界不清、以及上线后没有运维闭环。本文逐条给出解法。</p>
-
-<h3>怎么避免「演示很惊艳、上线就翻车」？</h3>
-<p>根因是数据质量落差。做法：早用真实生产数据做训练与评测，而非精选演示集；把数据治理前置；用「数据门/能力门/业务门」三道门控在上线前就把不达标的版本拦截。</p>
-
-<h3>评估门控具体怎么做？</h3>
-<p>设置可量化红线：如准确率/召回率、拒绝率、延迟、以及业务侧指标；分三条闸门——数据门（数据质量与分布达标）、能力门（模型在真实测试集达标）、业务门（AB 或小流量验证业务结果）逐步放行。</p>
-
-<h3>Agent Harness 是什么、为什么需要？</h3>
-<p>它是包在模型外的运行时管控（任务、约束、工具、纠错、监控、审计）。生产 Agent 不能裸跑，需要这套工程护栏来保证稳定、可控、可回溯，是 POC 走向生产的关键支撑。</p>
-
-<h3>HITL（人机协同）要点是什么？</h3>
-<p>在高风险决策点设人工确认：如改数据、付钱、发消息、动生产。原则是「常规任务放权、高风险把关」，配上清晰的确认时机与回退，让人既放心又不必事事盯着。</p>
-
-<h3>上线后怎么做生产运维闭环？</h3>
-<p>遵循「观察-行动-演进」：采集线上样本与失败案例→分析根因（数据漂移/模型退化）→针对性优化与重训→再评估再上线；配合监控告警，让系统随生产持续变好用而非躺平。</p>
-
-<nav class="article-nav" id="articleNav"></nav>
+    <nav class="article-nav" id="articleNav"></nav>
   </article>
   </div>
 

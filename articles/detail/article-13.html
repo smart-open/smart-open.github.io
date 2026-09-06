@@ -115,63 +115,7 @@
       }
     });
   </script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "@id": "https://blog.sopenai.cn/articles/detail/article-13.html#faq",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "线程、协程、事件驱动怎么选？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "看负载类型：计算密集且阻塞少用线程池；I/O 密集高并发用协程（虚拟线程/用户态协程）或事件驱动；追求极致连接数用 Reactor 非阻塞；需要状态隔离与并发安全用 Actor 模型，生产通常是组合使用。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "协程比线程好在哪里？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "协程是用户态调度，创建成本极低、可轻松支撑数十万甚至上百万并发而不过度占用系统线程；缺点是若用非虚拟线程模型，阻塞操作会占调度器，需要适配异步或靠虚拟线程自动挂起。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Reactor 模式为什么能高并发？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "它只用少量线程（常 1 个 event loop）通过非阻塞 IO 与事件回调处理成千上万连接，避免为每个连接建线程，单机并发连接数可远超线程模型，代价是编程模型复杂、易回调地狱，需用框架（Netty/Reactor）管理。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Actor 模型解决什么问题？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "它用消息传递+邮箱让 Actor 之间不共享可变状态，天然避免锁竞争与数据竞争，适合并发安全要求高、要状态隔离的系统（如游戏服务、聊天、分布式状态），代表性如 Akka/Erlang。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "虚拟线程（Virtual Threads）能一统吗？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "虚拟线程让 Java 实现数十万用户态线程且保留阻塞式编程模型，对 I/O 密集是重大改善；但 CPU 密集与同步代码仍需合理设计，它不是银弹，和事件驱动/协程各适用其场景。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "生产高并发架构一般是什么样？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "常是融合：外层 Netty/Reactor 事件驱动承接连接，处理层用线程池或虚拟线程执行业务与 I/O，状态隔离处用 Actor/无锁，按请求类型分流，最后靠监控与压测验证瓶颈。"
-      }
-    }
-  ]
-}
-</script>
+
 </head>
 <body>
 
@@ -217,19 +161,7 @@
     </aside>
 
     <article class="article-content">
-      <div class="markdown-body">
-    <div class="callout tldr geo-hidden">
-      <strong>太长不看</strong>
-      <ul>
-      <li>高并发的核心矛盾在「资源有限 vs 并发请求多」：线程池、协程、事件驱动（Reactor）是三种不同哲学，各有适用边界而非谁替代谁；</li>
-      <li>线程池=操作系统原生并发：模型直观但线程昂贵，受 OS 线程数、上下文切换与栈内存限制，适合计算密集与阻塞可控场景；</li>
-      <li>协程=用户态轻量并发：子百万级可低开销，适合 I/O 密集但业务代码需适配异步（如 Kotlin/Virtual Thread 的阻塞友好）；</li>
-      <li>Actor=消息传递并发哲学：以不可变消息与邮箱隔离状态，避免锁竞争，适合并发安全与状态隔离要求高的系统；</li>
-      <li>Reactor=事件驱动异步架构：单线程/少量线程处理大量连接，配合非阻塞 IO 极高并发，但回调复杂度高；生产常做融合（如线程池+异步+虚拟线程）。</li>
-      </ul>
-    </div>
-
-        <figure class="article-hero-image"><img src="../../assets/img/article-concurrency-system.jpg" alt="高并发系统设计"></figure>
+      <div class="markdown-body"><figure class="article-hero-image"><img src="../../assets/img/article-concurrency-system.jpg" alt="高并发系统设计"></figure>
 
 <p>在高并发系统的架构演进过程中，一个永恒的核心矛盾始终摆在工程师面前：如何以有限的硬件资源支撑海量的并发连接与计算请求。操作系统提供的原生线程模型、语言层面的协程抽象、以及基于事件循环的异步架构，各自代表了截然不同的设计哲学。它们并非简单的替代关系，而是在不同约束条件下针对特定问题的最优解。深入理解这三种模型的本质差异、性能边界与适用语境，是构建高吞吐量、低延迟系统的必要前提。</p>
 <h2 id="_2">一、线程池模型：操作系统原生的并发基石</h2>
@@ -517,27 +449,7 @@ graph TD
 <p>高并发系统设计没有标准答案，只有对问题域的深刻理解和对技术工具的恰当运用。当一条连接建立、一个请求到达、一段计算启动时，其背后究竟是操作系统线程、用户态协程、Actor 邮箱还是事件回调在承载这份负载，或许已经不那么重要——重要的是整个系统能否在满足业务需求的同时，保持可维护、可扩展和可演进的活力。</p>
 
       </div>
-    <h2 id="faq">常见问题</h2>
-
-<h3>线程、协程、事件驱动怎么选？</h3>
-<p>看负载类型：计算密集且阻塞少用线程池；I/O 密集高并发用协程（虚拟线程/用户态协程）或事件驱动；追求极致连接数用 Reactor 非阻塞；需要状态隔离与并发安全用 Actor 模型，生产通常是组合使用。</p>
-
-<h3>协程比线程好在哪里？</h3>
-<p>协程是用户态调度，创建成本极低、可轻松支撑数十万甚至上百万并发而不过度占用系统线程；缺点是若用非虚拟线程模型，阻塞操作会占调度器，需要适配异步或靠虚拟线程自动挂起。</p>
-
-<h3>Reactor 模式为什么能高并发？</h3>
-<p>它只用少量线程（常 1 个 event loop）通过非阻塞 IO 与事件回调处理成千上万连接，避免为每个连接建线程，单机并发连接数可远超线程模型，代价是编程模型复杂、易回调地狱，需用框架（Netty/Reactor）管理。</p>
-
-<h3>Actor 模型解决什么问题？</h3>
-<p>它用消息传递+邮箱让 Actor 之间不共享可变状态，天然避免锁竞争与数据竞争，适合并发安全要求高、要状态隔离的系统（如游戏服务、聊天、分布式状态），代表性如 Akka/Erlang。</p>
-
-<h3>虚拟线程（Virtual Threads）能一统吗？</h3>
-<p>虚拟线程让 Java 实现数十万用户态线程且保留阻塞式编程模型，对 I/O 密集是重大改善；但 CPU 密集与同步代码仍需合理设计，它不是银弹，和事件驱动/协程各适用其场景。</p>
-
-<h3>生产高并发架构一般是什么样？</h3>
-<p>常是融合：外层 Netty/Reactor 事件驱动承接连接，处理层用线程池或虚拟线程执行业务与 I/O，状态隔离处用 Actor/无锁，按请求类型分流，最后靠监控与压测验证瓶颈。</p>
-
-<nav class="article-nav" id="articleNav"></nav>
+    <nav class="article-nav" id="articleNav"></nav>
   </article>
   </div>
 

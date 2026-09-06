@@ -403,63 +403,7 @@
       }
     }
   </style>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "@id": "https://blog.sopenai.cn/articles/detail/article-28.html#faq",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "组装个人 AIGC 主机最看重的硬件是什么？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "GPU 与显存。跑本地大模型、出图、训练都对显存需求大，显存大小基本决定可运行模型规模与并发；CPU/内存够用即可，别把预算错投到非瓶颈部件。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "GLM-5.2 这类大模型本地跑要多大显存？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "取决于模型参数量与量化：更小的量化（4bit/8bit）能显著降低显存要求，但精度与效果有损；实际看目标任务的显存需求反推，先试小参数或量化版本，别一上来就顶旗舰。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "四档配置分别适合谁？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "入门：聊天/轻量出图，显存较小成本低；中端：日常出图+小模型，性价比；高端：大批量出图/视频+更大模型；旗舰：重度训练与最大模型。按你最高频任务的显存峰值定档即可。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "组装时经常踩哪些坑？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "电源瓦数与接口不足导致带不动 GPU、风道/散热压不住满载、机箱塞不下长卡、以及内存/CPU 与选卡不匹。建议先定 GPU+功耗，再倒推电源功率、散热与机箱预留。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "长期跑 AIGC 电费高吗？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "较可观：高显存显卡满载功耗可从几百瓦到近两千瓦，按使用时长与当地电价累积。选购时把「日常电费」计入总拥有成本，必要时选功耗/性能比更优的卡或优化满载时长。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "给我一个最佳推荐配置？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "文末给出一套平衡方案：通常 24G 显存级的中高端卡可覆盖大多数本地 AIGC 场景（对话+出图+小视频），配适度 CPU、充足电源与像样散热，性价比与扩展性兼顾；具体型号以当时预算与需求反推。"
-      }
-    }
-  ]
-}
-</script>
+
 </head>
 <body>
 
@@ -507,19 +451,7 @@
     </aside>
 
     <article class="article-content">
-      <div class="markdown-body">
-    <div class="callout tldr geo-hidden">
-      <strong>太长不看</strong>
-      <ul>
-      <li>个人 AIGC 主机的残酷现实：跑大模型、出图、做视频的硬门槛是显存——显存才是第一瓶颈，GPU 型号与显存决定「什么能跑、多快」；</li>
-      <li>GLM-5.2 本地部署很吃资源，需先明确自己要跑什么任务（对话/出图/视频）再按需选显存档位，避免盲目堆配置；</li>
-      <li>四档配置方案（入门/中端/高端/旗舰）覆盖不同场景，按「最大目标任务」反推显存与功耗预算选择；</li>
-      <li>组装避坑：主板/电源/散热/机箱要与 GPU 功耗匹配，跑 AIGC 高负载时散热与稳定供电是关键；</li>
-      <li>日常运营费用（电费）不可忽视——高显存显卡满载功耗不低，长期电费要算进「总拥有成本」，并给出最推荐的主流平衡方案。</li>
-      </ul>
-    </div>
-
-        <figure class="article-inline-image">
+      <div class="markdown-body"><figure class="article-inline-image">
           <img src="../../assets/img/article-personal-aigc-workstation-hero.jpg" alt="个人AIGC工作站主视觉：暗色环境中发光的RGB主机与环绕的AI生成图标">
           <figcaption>一台机器，跑通大模型对话、图片生成、视频制作的全流程</figcaption>
         </figure>
@@ -1175,27 +1107,7 @@
           <li id="cite-6">ComfyUI 图片生成工作流框架 <a href="https://github.com/comfyanonymous/ComfyUI" target="_blank" rel="noopener">https://github.com/comfyanonymous/ComfyUI</a></li>
         </ol>
       </div>
-      <h2 id="faq">常见问题</h2>
-
-<h3>组装个人 AIGC 主机最看重的硬件是什么？</h3>
-<p>GPU 与显存。跑本地大模型、出图、训练都对显存需求大，显存大小基本决定可运行模型规模与并发；CPU/内存够用即可，别把预算错投到非瓶颈部件。</p>
-
-<h3>GLM-5.2 这类大模型本地跑要多大显存？</h3>
-<p>取决于模型参数量与量化：更小的量化（4bit/8bit）能显著降低显存要求，但精度与效果有损；实际看目标任务的显存需求反推，先试小参数或量化版本，别一上来就顶旗舰。</p>
-
-<h3>四档配置分别适合谁？</h3>
-<p>入门：聊天/轻量出图，显存较小成本低；中端：日常出图+小模型，性价比；高端：大批量出图/视频+更大模型；旗舰：重度训练与最大模型。按你最高频任务的显存峰值定档即可。</p>
-
-<h3>组装时经常踩哪些坑？</h3>
-<p>电源瓦数与接口不足导致带不动 GPU、风道/散热压不住满载、机箱塞不下长卡、以及内存/CPU 与选卡不匹。建议先定 GPU+功耗，再倒推电源功率、散热与机箱预留。</p>
-
-<h3>长期跑 AIGC 电费高吗？</h3>
-<p>较可观：高显存显卡满载功耗可从几百瓦到近两千瓦，按使用时长与当地电价累积。选购时把「日常电费」计入总拥有成本，必要时选功耗/性能比更优的卡或优化满载时长。</p>
-
-<h3>给我一个最佳推荐配置？</h3>
-<p>文末给出一套平衡方案：通常 24G 显存级的中高端卡可覆盖大多数本地 AIGC 场景（对话+出图+小视频），配适度 CPU、充足电源与像样散热，性价比与扩展性兼顾；具体型号以当时预算与需求反推。</p>
-
-<nav class="article-nav" id="articleNav"></nav>
+      <nav class="article-nav" id="articleNav"></nav>
     </article>
   </div>
 

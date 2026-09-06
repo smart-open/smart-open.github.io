@@ -361,63 +361,7 @@
       }
     }
   </style>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "@id": "https://blog.sopenai.cn/articles/detail/article-25.html#faq",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "只改歌词不改旋律，技术上难点在哪？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "差异不只是唱歌文本：要保证新歌词与旋律的音高/节奏/时值对位，还要尽量保持原曲风格。因此核心是「分离人声→提取旋律→用合成器注入新词」的音频工程链路，而非简单拼接。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Demucs 在流水线里起什么作用？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Demucs 是端到端音乐源分离模型，把一首歌拆成纯人声和伴奏（甚至鼓点/bass 等）。人声分离得越干净，后续提取旋律和合成的质量越高，是整个流水线的地基。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "basic-pitch 是做什么的？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "basic-pitch 能把音频（纯人声）转换为 MIDI 格式的旋律表示，提取出音高与节拍，让旋律变成程序可编辑、可再输入的乐谱数据，供下一步注入中文歌词使用。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "中文歌词注入遇到什么坑？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "常见坑在 mido 等 MIDI 库对中文编码的处理：中文字符若没正确编码传送给歌声合成器，会出现乱码或音符丢失。需在写入音符时确保 UTF-8/对应编码正确、并处理多音字与音节划分。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Synthesizer V 与真人声有什么区别？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Synthesizer V 是通过声库合成，音质可商用但表达力与自然瑕疵逊于真人原唱；想尽量贴近原声线需选相配的声库并微调参数，但「拟真得像原唱」很难，应接受它作为一种新风格的局限。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "跑通了就够了吗，还要注意什么？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "「能用」到「好用」还有距离：音色是否自然、节拍与换气是否尴尬、混音响度均衡；建议把每一步的产物都唤醒验证，用听众视角判断，并注意版权（改编/翻唱）合规红线。"
-      }
-    }
-  ]
-}
-</script>
+
 </head>
 <body>
 
@@ -465,19 +409,7 @@
     </aside>
 
     <article class="article-content">
-      <div class="markdown-body">
-    <div class="callout tldr geo-hidden">
-      <strong>太长不看</strong>
-      <ul>
-      <li>「只换歌词不换旋律」的本质是分离出原曲后人声与伴奏，再在人声之间做旋律保持的歌词替换，属于音频工程而非简单改文案；</li>
-      <li>5 步全自动流水线：人声分离（Demucs）→ 人声转 MIDI 提取旋律（basic-pitch）→ 中文歌词注入（mido 编码）→ 歌声合成（Synthesizer V）→ 音频合并；</li>
-      <li>第一步 Demucs 用模型分离出纯人声与伴奏，是决定后续质量的地基；</li>
-      <li>第二步 basic-pitch 把纯人声转成可编辑的 MIDI 旋律，中文歌词注入的「生死突围」在于把中文字符正确传给歌声合成器（mido 中文编码坑）；</li>
-      <li>实战反思：从「跑通」到「好用」差距在音色自然度与节奏对齐，虚拟歌姬合成与原声线有本质差异，需接受其风格边界再决定使用面。</li>
-      </ul>
-    </div>
-
-        <figure class="article-inline-image">
+      <div class="markdown-body"><figure class="article-inline-image">
           <img src="../../assets/img/article-song-lyric-rewrite-hero.jpg" alt="歌曲改词流水线主视觉：声波转化为音符再重组为新歌声">
           <figcaption>从原曲到新歌，中间隔着一条五步流水线</figcaption>
         </figure>
@@ -844,27 +776,7 @@ ffmpeg -i new_vocals.wav -i no_vocals.wav \
           <li id="cite-6">FFmpeg Filters Documentation <a href="https://ffmpeg.org/ffmpeg-filters.html" target="_blank" rel="noopener">https://ffmpeg.org/ffmpeg-filters.html</a></li>
         </ol>
       </div>
-      <h2 id="faq">常见问题</h2>
-
-<h3>只改歌词不改旋律，技术上难点在哪？</h3>
-<p>差异不只是唱歌文本：要保证新歌词与旋律的音高/节奏/时值对位，还要尽量保持原曲风格。因此核心是「分离人声→提取旋律→用合成器注入新词」的音频工程链路，而非简单拼接。</p>
-
-<h3>Demucs 在流水线里起什么作用？</h3>
-<p>Demucs 是端到端音乐源分离模型，把一首歌拆成纯人声和伴奏（甚至鼓点/bass 等）。人声分离得越干净，后续提取旋律和合成的质量越高，是整个流水线的地基。</p>
-
-<h3>basic-pitch 是做什么的？</h3>
-<p>basic-pitch 能把音频（纯人声）转换为 MIDI 格式的旋律表示，提取出音高与节拍，让旋律变成程序可编辑、可再输入的乐谱数据，供下一步注入中文歌词使用。</p>
-
-<h3>中文歌词注入遇到什么坑？</h3>
-<p>常见坑在 mido 等 MIDI 库对中文编码的处理：中文字符若没正确编码传送给歌声合成器，会出现乱码或音符丢失。需在写入音符时确保 UTF-8/对应编码正确、并处理多音字与音节划分。</p>
-
-<h3>Synthesizer V 与真人声有什么区别？</h3>
-<p>Synthesizer V 是通过声库合成，音质可商用但表达力与自然瑕疵逊于真人原唱；想尽量贴近原声线需选相配的声库并微调参数，但「拟真得像原唱」很难，应接受它作为一种新风格的局限。</p>
-
-<h3>跑通了就够了吗，还要注意什么？</h3>
-<p>「能用」到「好用」还有距离：音色是否自然、节拍与换气是否尴尬、混音响度均衡；建议把每一步的产物都唤醒验证，用听众视角判断，并注意版权（改编/翻唱）合规红线。</p>
-
-<nav class="article-nav" id="articleNav"></nav>
+      <nav class="article-nav" id="articleNav"></nav>
     </article>
   </div>
 

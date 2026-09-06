@@ -115,63 +115,7 @@
       }
     });
   </script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "@id": "https://blog.sopenai.cn/articles/detail/article-15.html#faq",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "桌面 AI 智能体和普通聊天 AI 有什么区别？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "普通聊天 AI 只给答案，桌面智能体能调用本地文件、应用与工具去真正执行任务（写文档、处理数据、操作界面），是从「建议终端」变成「执行助手」的跃迁。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "横评办公场景主要比哪些能力？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "四个核心维度：文件与内容处理（读/写文档）、数据与分析（Excel/报表）、任务规划与编排（多步工作流）、工具调用与生态扩展（接入的应用与插件数量）。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Codex、Trae Work、WorkBuddy 各适合什么人？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "通常编程能力强的偏向 Codex 这类重执行引擎，办公场景和本土化优先考虑 WorkBuddy，想要轻量集成看 Trae Work 类型；最终建议用自己最高频场景去实测，而非只看参数。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "为什么任务编排能力很重要？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "因为它决定智能体能处理的是单步问答还是端到端业务：能自动拆解、调度、重入、加人工确认的编排，才支持「把一件事办完」而非「给个建议」，是执行价值的分水岭。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "国内用户选型还要注意什么？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "注意本土化：中文语义与国内主流应用的接入、网络可用性；成本与隐私：数据是否上云、敏感文件是否安全隔离、订阅价格是否合理；这些都直接影响日常是否真的愿意用。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "怎么最终拍板选哪一款？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "不用看全参数，挑你工作里最高频的 2-3 个真实任务（如写周报、整理表格、做一份分析）分别在候选工具上跑一遍，比较完成度、准确性、效率与本地化体验，数据会给出答案。"
-      }
-    }
-  ]
-}
-</script>
+
 </head>
 <body>
 
@@ -217,19 +161,7 @@
     </aside>
 
     <article class="article-content">
-      <div class="markdown-body">
-    <div class="callout tldr geo-hidden">
-      <strong>太长不看</strong>
-      <ul>
-      <li>2026 桌面 AI 智能体已从聊天工具进化成执行助手，横评 Compare 办公场景时要从文件处理、内容生成、数据分析、任务编排四个能力维度看；</li>
-      <li>核心差异不仅在模型，而在任务规划与编排：谁能把单步问答变成可拆解、可调度、可复用的复杂工作流，谁就更接近「执行助手」；</li>
-      <li>工具调用与生态扩展决定上限：接入的文件/应用/插件越广，越能落地真实办公操作，而非停留在建议层面；</li>
-      <li>对国内用户，易用性、本土化（中文/国内应用/网络）、成本与隐私是关键取舍项，需按实际使用频率与数据敏感度权衡；</li>
-      <li>选型按场景匹配：写文案/做表格/分析数据用不同工具各有侧重，最好用自己最高频的 2-3 个场景实测再定。</li>
-      </ul>
-    </div>
-
-        <figure class="article-hero-image"><img src="../../assets/img/article-ai-tools-compare.jpg" alt="AI Agent Skill 架构图"></figure>
+      <div class="markdown-body"><figure class="article-hero-image"><img src="../../assets/img/article-ai-tools-compare.jpg" alt="AI Agent Skill 架构图"></figure>
 
 <h2 id="2026ai">引言：2026年桌面AI智能体爆发，从「聊天工具」到「执行助手」</h2>
 <p>2025年下半年以来，桌面端AI Agent经历了从概念验证到规模化落地的关键转折。OpenAI将Codex从命令行工具升级为桌面级智能体，Anthropic持续迭代Claude Code的终端能力，国内字节跳动推出Trae Work（前身为Trae Solo），腾讯CodeBuddy团队也在2026年初启动WorkBuddy内测。这些产品的共同特征是：它们不再满足于「回答问题」，而是直接接管键盘鼠标、操作文件系统、调用浏览器、编排复杂任务流——AI从聊天框走进了用户的日常工作流。</p>
@@ -495,27 +427,7 @@ graph TD
 <p>桌面AI Agent的竞争才刚刚开始。随着模型能力的持续提升、多Agent协作架构的成熟、以及本土生态的深度整合，我们可以期待在不久的将来，每个人的电脑里都有一位真正懂你的工作助手——它不仅能听懂你说的话，还能帮你把事做完。</p>
 
       </div>
-    <h2 id="faq">常见问题</h2>
-
-<h3>桌面 AI 智能体和普通聊天 AI 有什么区别？</h3>
-<p>普通聊天 AI 只给答案，桌面智能体能调用本地文件、应用与工具去真正执行任务（写文档、处理数据、操作界面），是从「建议终端」变成「执行助手」的跃迁。</p>
-
-<h3>横评办公场景主要比哪些能力？</h3>
-<p>四个核心维度：文件与内容处理（读/写文档）、数据与分析（Excel/报表）、任务规划与编排（多步工作流）、工具调用与生态扩展（接入的应用与插件数量）。</p>
-
-<h3>Codex、Trae Work、WorkBuddy 各适合什么人？</h3>
-<p>通常编程能力强的偏向 Codex 这类重执行引擎，办公场景和本土化优先考虑 WorkBuddy，想要轻量集成看 Trae Work 类型；最终建议用自己最高频场景去实测，而非只看参数。</p>
-
-<h3>为什么任务编排能力很重要？</h3>
-<p>因为它决定智能体能处理的是单步问答还是端到端业务：能自动拆解、调度、重入、加人工确认的编排，才支持「把一件事办完」而非「给个建议」，是执行价值的分水岭。</p>
-
-<h3>国内用户选型还要注意什么？</h3>
-<p>注意本土化：中文语义与国内主流应用的接入、网络可用性；成本与隐私：数据是否上云、敏感文件是否安全隔离、订阅价格是否合理；这些都直接影响日常是否真的愿意用。</p>
-
-<h3>怎么最终拍板选哪一款？</h3>
-<p>不用看全参数，挑你工作里最高频的 2-3 个真实任务（如写周报、整理表格、做一份分析）分别在候选工具上跑一遍，比较完成度、准确性、效率与本地化体验，数据会给出答案。</p>
-
-<nav class="article-nav" id="articleNav"></nav>
+    <nav class="article-nav" id="articleNav"></nav>
   </article>
   </div>
 

@@ -369,63 +369,7 @@
       }
     }
   </style>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "@id": "https://blog.sopenai.cn/articles/detail/article-20.html#faq",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "为什么 Skill 装得越多反而不准？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "因为数量增多带来三个问题：调用错乱（路由选错）、上下文污染（无关 Skill 占上下文/互相干扰）、语义重叠（多个 Skill 抢同一任务）。核心要解决的是「治理」而非一味堆。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Skill Map 有什么用？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Skill Map 给技能仓库建立像目录索引一样的组织：按领域/功能分层并统一描述与命名，让 Agent 能快速检索、发现正确的 Skill，减少大海捞针式的错调与重复扫描。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Skill Router 如何工作？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Router 根据用户意图、上下文与各 Skill 的能力描述做粒度路由：先候选召回，再打分/校验选定最合适的 Skill，处理歧义与冲突、过滤低相关项，必要时做显式确认或组合。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "什么是 WorkBuddy 专家模式？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "专家模式把 Skill 按任务场景组织成一个个「专家」容器，并在专家内部加载相关 Skill、隔离上下文，从而减少全局 Skill 混杂带来的污染，是「按场景隔离」的治理思路。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "三套方案能一起用吗？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "能且推荐。Map 负责「可发现」，Router 负责「选得准」，专家模式负责「隔离上下文」；落地时叠加使用，并先做 Skill 精简与语义去重，再给调用配优先级、置信度阈值与失败降级，才真正可控。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "构建可控 Skill 体系的最佳实践？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "简而精：定期清理重叠/废弃 Skill、统一描述规范；分层路由：Map 索引+Router 调度+场景隔离；带反馈：记录调用命中与出错，持续迭代描述与优先级；并设权限与审计，避免 Skill 被随意增加。"
-      }
-    }
-  ]
-}
-</script>
+
 </head>
 <body>
 
@@ -473,20 +417,7 @@
     </aside>
 
     <article class="article-content">
-    <div class="markdown-body">
-    <div class="callout tldr geo-hidden">
-      <strong>太长不看</strong>
-      <ul>
-      <li>Skill 越多 Agent 越傻，根因是调用错乱、上下文污染与语义重叠——问题不在数量而在「治理」，因此需要从「技能堆砌」走向「技能治理」；</li>
-      <li>Skill Map 给技能库建「目录索引」：按领域/功能组织并带描述，让 Agent 可检索、可发现，避免大海捞针式错调；</li>
-      <li>Skill Router 是智能路由调度中心：根据意图与上下文把请求精确路由到最合适的 Skill，解决歧义与冲突、过滤不相关项；</li>
-      <li>腾讯 WorkBuddy 的「专家模式」是第三种解法：按任务场景组织「专家」，用专家级隔离收敛上下文、降低污染；</li>
-      <li>三种方案可组合：Map 保证可发现、Router 保证选对、专家模式保证隔离，落地时先做精简与去重，再配优先级与降级策略。</li>
-      </ul>
-    </div>
-
-
-<figure class="article-inline-image"><img src="../../assets/img/article-skill-routing.jpg" alt="Skill 路由治理体系"><figcaption>Skill 治理体系：从技能堆砌到精准路由，让 Agent 在毫秒级找到最合适的技能</figcaption></figure>
+    <div class="markdown-body"><figure class="article-inline-image"><img src="../../assets/img/article-skill-routing.jpg" alt="Skill 路由治理体系"><figcaption>Skill 治理体系：从技能堆砌到精准路由，让 Agent 在毫秒级找到最合适的技能</figcaption></figure>
 
 <h2 id="section-1">一、引言：Skill 越多，Agent 越傻？</h2>
 
@@ -1018,27 +949,7 @@ input_schema:
 </ol>
 
     </div>
-    <h2 id="faq">常见问题</h2>
-
-<h3>为什么 Skill 装得越多反而不准？</h3>
-<p>因为数量增多带来三个问题：调用错乱（路由选错）、上下文污染（无关 Skill 占上下文/互相干扰）、语义重叠（多个 Skill 抢同一任务）。核心要解决的是「治理」而非一味堆。</p>
-
-<h3>Skill Map 有什么用？</h3>
-<p>Skill Map 给技能仓库建立像目录索引一样的组织：按领域/功能分层并统一描述与命名，让 Agent 能快速检索、发现正确的 Skill，减少大海捞针式的错调与重复扫描。</p>
-
-<h3>Skill Router 如何工作？</h3>
-<p>Router 根据用户意图、上下文与各 Skill 的能力描述做粒度路由：先候选召回，再打分/校验选定最合适的 Skill，处理歧义与冲突、过滤低相关项，必要时做显式确认或组合。</p>
-
-<h3>什么是 WorkBuddy 专家模式？</h3>
-<p>专家模式把 Skill 按任务场景组织成一个个「专家」容器，并在专家内部加载相关 Skill、隔离上下文，从而减少全局 Skill 混杂带来的污染，是「按场景隔离」的治理思路。</p>
-
-<h3>三套方案能一起用吗？</h3>
-<p>能且推荐。Map 负责「可发现」，Router 负责「选得准」，专家模式负责「隔离上下文」；落地时叠加使用，并先做 Skill 精简与语义去重，再给调用配优先级、置信度阈值与失败降级，才真正可控。</p>
-
-<h3>构建可控 Skill 体系的最佳实践？</h3>
-<p>简而精：定期清理重叠/废弃 Skill、统一描述规范；分层路由：Map 索引+Router 调度+场景隔离；带反馈：记录调用命中与出错，持续迭代描述与优先级；并设权限与审计，避免 Skill 被随意增加。</p>
-
-<nav class="article-nav" id="articleNav"></nav>
+    <nav class="article-nav" id="articleNav"></nav>
   </article>
   </div>
 

@@ -115,63 +115,7 @@
       }
     });
   </script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "@id": "https://blog.sopenai.cn/articles/detail/article-4.html#faq",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "为什么数据库索引默认用 B+ 树而不是 B 树？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "因为 B+ 树把所有数据放在叶子节点、非叶子只作索引，叶子之间用指针串联，顺序扫描和范围查询友好，且非叶子节点可容纳更多键、树高更低，磁盘 IO 更少。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "红黑树和跳表在内存索引里怎么选？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "两者都保证有序操作 O(log n)。红黑树树高更稳定、无额外指针开销，更省内存；跳表实现更简单、插入删除更好写并发代码，很多并发容器（如 Redis 的 Skiplist）选跳表。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "LSM-Tree 为什么写入快但读取慢？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "LSM-Tree 把随机写先打入内存 memtable 再顺序落盘成有序 SSTable，避免随机写，因此写快；但读需在多层 SSTable 中查找，老实有读放大，靠布隆过滤器和合并（compaction）缓解。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "什么是写放大和读放大？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "写放大指底层实际写入磁盘的数据量远超逻辑数据量（LSM 合并触发）；读放大指一次逻辑读需要检查多层数据；两者体现了数据和存储折中的核心代价指标。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "生产系统会只用一种索引结构吗？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "一般不会。真实系统做混合分层：如 MySQL 用 B+ 树做主结构，配合内存缓存；NoSQL/日志存储用 LSM；内存侧用红黑树或跳表，按数据冷热和使用模式分工。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "怎么判断该选哪种索引？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "看工作负载：读多写少偏 B+ 树；写多读少偏 LSM-Tree；纯内存并发读高偏跳表；要求稳定平衡有序集偏红黑树。没有万能结构，要按实际访问模式组合。"
-      }
-    }
-  ]
-}
-</script>
+
 </head>
 <body>
 
@@ -217,18 +161,7 @@
     </aside>
 
     <article class="article-content">
-      <div class="markdown-body">
-    <div class="callout tldr geo-hidden">
-      <strong>太长不看</strong>
-      <ul>
-      <li>磁盘索引的核心是 B 树/B+ 树：通过高扇出节点把磁盘寻道次数降到树高量级，B+ 树因顺序访问友好成为数据库默认选择；</li>
-      <li>内存索引追求缓存友好与低常数：红黑树适合稳定平衡的有序集，跳表以概率平衡换取简单实现与良好并发；</li>
-      <li>写多读少、日志型负载利于 LSM-Tree：把随机写变成顺序写，但带来读放大的代价，需合理合并策略；</li>
-      <li>选型看访问模式：读频繁选 B+ 树/红黑树，写密集选 LSM，并发读高选跳表；真实系统（如 MySQL/LevelDB）常采用多种结构混合分层。</li>
-      </ul>
-    </div>
-
-        <figure class="article-hero-image"><img src="../../assets/img/article-index-data-structures.jpg" alt="索引数据结构"></figure>
+      <div class="markdown-body"><figure class="article-hero-image"><img src="../../assets/img/article-index-data-structures.jpg" alt="索引数据结构"></figure>
 
 <p>在计算机系统的存储层次中，磁盘与内存之间存在着数量级的速度鸿沟。一次内存访问耗时约 100 纳秒，而一次磁盘随机寻道则需要 10 毫秒——相差十万倍。这种差异深刻影响了数据密集型系统的设计哲学：任何需要在持久化存储上查找数据的系统，都必须精心选择其索引数据结构，以最小化昂贵的磁盘 I/O 操作。与此同时，纯内存场景下的数据结构选择又遵循另一套逻辑，因为内存的随机访问成本相对低廉，但空间效率和缓存友好性成为关键考量。本文将从数据库索引的磁盘优化出发，逐步深入到内存数据结构的设计权衡，探讨 B 树、B+ 树、红黑树、LSM-Tree 和跳表在不同场景下的选择依据。</p>
 <h2 id="b-b">一、磁盘索引的基石：B 树与 B+ 树</h2>
@@ -524,27 +457,7 @@ typedef struct zskiplistNode {
 <p>理解这些结构的设计哲学和权衡取舍，不仅是掌握几棵树的技术细节，更是培养面对系统约束时做出合理工程判断的能力。当下一次站在技术选型十字路口时，这些知识将成为你最可靠的罗盘。</p>
 
       </div>
-    <h2 id="faq">常见问题</h2>
-
-<h3>为什么数据库索引默认用 B+ 树而不是 B 树？</h3>
-<p>因为 B+ 树把所有数据放在叶子节点、非叶子只作索引，叶子之间用指针串联，顺序扫描和范围查询友好，且非叶子节点可容纳更多键、树高更低，磁盘 IO 更少。</p>
-
-<h3>红黑树和跳表在内存索引里怎么选？</h3>
-<p>两者都保证有序操作 O(log n)。红黑树树高更稳定、无额外指针开销，更省内存；跳表实现更简单、插入删除更好写并发代码，很多并发容器（如 Redis 的 Skiplist）选跳表。</p>
-
-<h3>LSM-Tree 为什么写入快但读取慢？</h3>
-<p>LSM-Tree 把随机写先打入内存 memtable 再顺序落盘成有序 SSTable，避免随机写，因此写快；但读需在多层 SSTable 中查找，老实有读放大，靠布隆过滤器和合并（compaction）缓解。</p>
-
-<h3>什么是写放大和读放大？</h3>
-<p>写放大指底层实际写入磁盘的数据量远超逻辑数据量（LSM 合并触发）；读放大指一次逻辑读需要检查多层数据；两者体现了数据和存储折中的核心代价指标。</p>
-
-<h3>生产系统会只用一种索引结构吗？</h3>
-<p>一般不会。真实系统做混合分层：如 MySQL 用 B+ 树做主结构，配合内存缓存；NoSQL/日志存储用 LSM；内存侧用红黑树或跳表，按数据冷热和使用模式分工。</p>
-
-<h3>怎么判断该选哪种索引？</h3>
-<p>看工作负载：读多写少偏 B+ 树；写多读少偏 LSM-Tree；纯内存并发读高偏跳表；要求稳定平衡有序集偏红黑树。没有万能结构，要按实际访问模式组合。</p>
-
-<nav class="article-nav" id="articleNav"></nav>
+    <nav class="article-nav" id="articleNav"></nav>
   </article>
   </div>
 

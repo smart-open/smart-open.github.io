@@ -153,63 +153,7 @@
       .dsh-table th, .dsh-table td { padding: 8px 10px; }
     }
   </style>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "@id": "https://blog.sopenai.cn/articles/detail/article-38.html#faq",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "DeepSeek dsh 的「一切皆插件」指什么？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "指把 Agent 内核的每块能力（工具调用、策略、事件处理、记忆等）抽象成可插拔的插件，核心逻辑由插件系统（Cordis）统一装载、编排与替换——改一处插件就全局生效，而不必改动内核。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Cordis 插件系统的核心机制有哪些？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "五大能力：插件能力/服务注册、依赖注入与管理、生命周期管理（装载/启用/销毁）、事件总线（订阅与分发）、以及作用域/隔离管理。它们共同保证大量插件能和谐协作、可独立热插拔。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "四种事件分发模式怎么理解？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "当一个事件发生时，多个插件都需要响应：可顺序执行、可并发执行、可挑一个最合适者处理、或 waterfall 逐级短路（任一级消化后即止）。模式选择决定了处理链的并发度与长短语义，是编排关键。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "一次 Turn（对话）里有哪些可拦截的生命周期点？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "dsh 把一次 Turn 拆成更细的 turn 级与 step 级事件流：从接收意图、规划、一步步执行工具、到汇总输出，每个阶段都有事件可挂接，让插件能精确介入或拦截任意环节，从而扩展或改造行为。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "工具插件和 Hook 插件有什么区别？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "工具插件提供可被 Agent 调用的具体能力（如读写文件、搜网、执行命令），是可调用对象；Hook 插件用于在策略层对流程做拦截与调整（如审计、限流、改写请求），两者职责分离、都可插拔。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "什么时候该认真看 dsh？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "当你要造自己的 Agent/工具链、又希望它高度自定义与可控、不想被单一内核锁死时，dsh 的插件架构提供了可复用的范式；理解它的契约、CLI 与事件流后再动手，能少走定制化的弯路。"
-      }
-    }
-  ]
-}
-</script>
+
 </head>
 <body>
   <nav class="site-nav" id="nav">
@@ -256,19 +200,7 @@
     </aside>
 
     <article class="article-content">
-      <div class="markdown-body">
-    <div class="callout tldr geo-hidden">
-      <strong>太长不看</strong>
-      <ul>
-      <li>DeepSeek Harness（dsh）的「一切皆插件」架构，把 Agent 内核按能力拆成可插拔插件，核心底座是 Cordis 插件系统；</li>
-      <li>Cordis 五大核心机制支撑插件化：能力注册、依赖、生命周期、事件总线与作用域管理，让插件可独立装载替换；</li>
-      <li>四种事件分发模式（顺序/并发/挑一支流水/短路语义）决定多插件如何响应同一事件，waterfall 短路让处理链何时终止清晰可控；</li>
-      <li>Agent 生命周期一次 Turn 拆成 turn/step 两级全链路事件流，插件可精确挂载或拦截任意环节；</li>
-      <li>工具插件与 Hook 插件分门别类：工具插件提供可调用能力、Hook 插件重排策略层，一次换动全局生效，实现里写清契约与序列化会话日志不变量。</li>
-      </ul>
-    </div>
-
-        <figure class="article-inline-image">
+      <div class="markdown-body"><figure class="article-inline-image">
           <img src="../../assets/img/article-38-arch.svg" alt="DeepSeek Harness 整体架构图">
           <figcaption>DeepSeek Harness 整体架构：Profile/Bundle 分层组装，Cordis 插件树没有特权内核，能力接缝与运行形态全部可替换</figcaption>
         </figure>
@@ -723,27 +655,7 @@ $ dsh --profile web --dump-config  <span class="cmt"># 打印实际装配的整�
         </ol>
 
       </div>
-      <h2 id="faq">常见问题</h2>
-
-<h3>DeepSeek dsh 的「一切皆插件」指什么？</h3>
-<p>指把 Agent 内核的每块能力（工具调用、策略、事件处理、记忆等）抽象成可插拔的插件，核心逻辑由插件系统（Cordis）统一装载、编排与替换——改一处插件就全局生效，而不必改动内核。</p>
-
-<h3>Cordis 插件系统的核心机制有哪些？</h3>
-<p>五大能力：插件能力/服务注册、依赖注入与管理、生命周期管理（装载/启用/销毁）、事件总线（订阅与分发）、以及作用域/隔离管理。它们共同保证大量插件能和谐协作、可独立热插拔。</p>
-
-<h3>四种事件分发模式怎么理解？</h3>
-<p>当一个事件发生时，多个插件都需要响应：可顺序执行、可并发执行、可挑一个最合适者处理、或 waterfall 逐级短路（任一级消化后即止）。模式选择决定了处理链的并发度与长短语义，是编排关键。</p>
-
-<h3>一次 Turn（对话）里有哪些可拦截的生命周期点？</h3>
-<p>dsh 把一次 Turn 拆成更细的 turn 级与 step 级事件流：从接收意图、规划、一步步执行工具、到汇总输出，每个阶段都有事件可挂接，让插件能精确介入或拦截任意环节，从而扩展或改造行为。</p>
-
-<h3>工具插件和 Hook 插件有什么区别？</h3>
-<p>工具插件提供可被 Agent 调用的具体能力（如读写文件、搜网、执行命令），是可调用对象；Hook 插件用于在策略层对流程做拦截与调整（如审计、限流、改写请求），两者职责分离、都可插拔。</p>
-
-<h3>什么时候该认真看 dsh？</h3>
-<p>当你要造自己的 Agent/工具链、又希望它高度自定义与可控、不想被单一内核锁死时，dsh 的插件架构提供了可复用的范式；理解它的契约、CLI 与事件流后再动手，能少走定制化的弯路。</p>
-
-<nav class="article-nav" id="articleNav"></nav>
+      <nav class="article-nav" id="articleNav"></nav>
     </article>
   </div>
 

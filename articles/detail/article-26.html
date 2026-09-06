@@ -379,63 +379,7 @@
       }
     }
   </style>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "@id": "https://blog.sopenai.cn/articles/detail/article-26.html#faq",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "换脸和语音克隆分别基于什么原理？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "换脸靠人脸关键点检测+对齐+图像融合，把目标面部映射到源影像；语音克隆靠从参考音频提取声纹/音色，再用语音模型合成与该音色一致的语音。两者本质是「属性迁移」技术。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "换脸工具怎么选？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "开源主流有 FaceFusion（易用、实时）、DeepFaceLab（效果天花板、为主）、SimSwap 等；看重实时与易用选 FaceFusion，追求质量与原片贴合选 DeepFaceLab。都要配够显存的 GPU。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "语音克隆工具怎么选？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "GPT-SoVITS 双语与可控性好、few-shot 克隆强；CosyVoice 由其全链路与多音色；还有 IndexTTS 等。选择看需要的音色复刻度、是否要中英、以及推理速度与显存，按自己场景跑一遍对比最稳。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "做数字人短片大概需要什么硬件？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "取决于任务：换脸实时推理一般需中高端 NVIDIA GPU（显存 8-24G）；语音克隆与推理也吃显存。首次可先按「能跑实验」的低配起步，真要量产再上更高显存，避免过度堆硬件。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "有哪些法律红线必须注意？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "未经授权对他人肖像/声音做换脸与克隆可能构成肖像权、声音权或名誉权侵害；涉政涉舆、造谣、诈骗是绝对禁区。实操守则：只用有授权素材、如实标注生成内容、不用于非法目的与冒充他人。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "怎么优雅做一个数字人短片？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "流程：定题材与素材（拿到授权）→ 选型与准备 GPU → 换脸/生成口型 → 语音克隆配音 → 合成剪辑与字幕 → 最终校验真实性与合规，再发布。每一步都有产物验收会更有条理。"
-      }
-    }
-  ]
-}
-</script>
+
 </head>
 <body>
 
@@ -483,19 +427,7 @@
     </aside>
 
     <article class="article-content">
-      <div class="markdown-body">
-    <div class="callout tldr geo-hidden">
-      <strong>太长不看</strong>
-      <ul>
-      <li>AI 换脸+语音克隆让「一个人就是一个剧组」，核心是三项技术栈：人脸检测/对齐/融合（换脸）与声纹/音色建模合成（克隆），再组合成数字人短片流水线；</li>
-      <li>换脸原理：先检测并对齐人脸关键点，再把目标人脸无缝融合到源影像，实现者快稳逼真取决于模型与对齐精度；</li>
-      <li>声音克隆原理：从参考语音学习说话人声纹/音色，合成与参考一致音色的可控制语音（如 GPT-SoVITS、CosyVoice）；</li>
-      <li>工具横评：换脸看 FaceFusion、DeepFaceLab 等，语音克隆看 GPT-SoVITS、CosyVoice 等，各有串场与可控性差异；选型要匹配 GPU（显存）与实时性需求；</li>
-      <li>实战做数字人短片要走「选型→素材→合成→校验」流程，务必守住法律红线：未经授权的肖像与声音克隆可能侵权，需授权+告知+合规使用。</li>
-      </ul>
-    </div>
-
-        <figure class="article-inline-image">
+      <div class="markdown-body"><figure class="article-inline-image">
           <img src="../../assets/img/article-ai-face-swap-voice-clone-hero.jpg" alt="AI换脸与声音克隆主视觉：人脸数字化解构与声波身份迁移">
           <figcaption>左边换脸，右边换声，中间是GPU在烧</figcaption>
         </figure>
@@ -953,27 +885,7 @@ ffmpeg -i face_swapped.mp4 -i cloned_voice.wav \
           <li id="cite-7">InsightFace: 2D&3D Face Analysis Project, GitHub <a href="https://github.com/deepinsight/insightface" target="_blank" rel="noopener">https://github.com/deepinsight/insightface</a></li>
         </ol>
       </div>
-      <h2 id="faq">常见问题</h2>
-
-<h3>换脸和语音克隆分别基于什么原理？</h3>
-<p>换脸靠人脸关键点检测+对齐+图像融合，把目标面部映射到源影像；语音克隆靠从参考音频提取声纹/音色，再用语音模型合成与该音色一致的语音。两者本质是「属性迁移」技术。</p>
-
-<h3>换脸工具怎么选？</h3>
-<p>开源主流有 FaceFusion（易用、实时）、DeepFaceLab（效果天花板、为主）、SimSwap 等；看重实时与易用选 FaceFusion，追求质量与原片贴合选 DeepFaceLab。都要配够显存的 GPU。</p>
-
-<h3>语音克隆工具怎么选？</h3>
-<p>GPT-SoVITS 双语与可控性好、few-shot 克隆强；CosyVoice 由其全链路与多音色；还有 IndexTTS 等。选择看需要的音色复刻度、是否要中英、以及推理速度与显存，按自己场景跑一遍对比最稳。</p>
-
-<h3>做数字人短片大概需要什么硬件？</h3>
-<p>取决于任务：换脸实时推理一般需中高端 NVIDIA GPU（显存 8-24G）；语音克隆与推理也吃显存。首次可先按「能跑实验」的低配起步，真要量产再上更高显存，避免过度堆硬件。</p>
-
-<h3>有哪些法律红线必须注意？</h3>
-<p>未经授权对他人肖像/声音做换脸与克隆可能构成肖像权、声音权或名誉权侵害；涉政涉舆、造谣、诈骗是绝对禁区。实操守则：只用有授权素材、如实标注生成内容、不用于非法目的与冒充他人。</p>
-
-<h3>怎么优雅做一个数字人短片？</h3>
-<p>流程：定题材与素材（拿到授权）→ 选型与准备 GPU → 换脸/生成口型 → 语音克隆配音 → 合成剪辑与字幕 → 最终校验真实性与合规，再发布。每一步都有产物验收会更有条理。</p>
-
-<nav class="article-nav" id="articleNav"></nav>
+      <nav class="article-nav" id="articleNav"></nav>
     </article>
   </div>
 

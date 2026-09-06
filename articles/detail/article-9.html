@@ -115,63 +115,7 @@
       }
     });
   </script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "@id": "https://blog.sopenai.cn/articles/detail/article-9.html#faq",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "top 看到进程 CPU 高，怎么找到是哪个线程？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "用 `top -H -p 进程id` 找到高 CPU 的线程 id，转成 16 进制（printf '%x'），再 `jstack 进程id | grep -A 方法名` 定位对应线程栈，就能看到代码位置。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Java 线程 CPU 高通常是什么原因？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "多为循环死循环/高频计算、锁自旋或等待、频繁 GC、以及业务热点代码被大量并发调用；多数是算法或并发设计问题，而非单纯的机器性能。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "看到大量线程 BLOCKED 说明什么？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "说明存在锁竞争或死锁：多个线程争同一把锁，可能导致某线程持有锁不释放。用 `jstack` 看 BLOCKED 线程在等哪把锁、谁持锁，必要时用 JVisualVM/Arthas thread 排查。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "怎么区分是 GC 导致还是业务代码导致 CPU 高？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "用 `jstat -gcutil` 看 GC 频率与时间：若 GC 时间占比高、CPU 高，多为内存问题（对象压力/泄漏）；若 GC 正常而 CPU 高，则是业务线程计算密集，往线程栈看方法实现。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "生产打满时第一时间应该做什么？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "先止血：对用户影响大的话限流、必要时回滚或隔离扩容，保证可用；然后抓现场（jstack/heap dump/top 快照）再定位根因，切勿在没转储前随便重启丢失证据。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "如何避免再次打满？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "把热点接口做压测和瓶颈分析（Arthas trace、火焰图），建立 CPU 使用率告警与自动扩容，代码层避免死循环、规约并发数与锁粒度，把应急经验固化成重预控的防御机制。"
-      }
-    }
-  ]
-}
-</script>
+
 </head>
 <body>
 
@@ -217,19 +161,7 @@
     </aside>
 
     <article class="article-content">
-      <div class="markdown-body">
-    <div class="callout tldr geo-hidden">
-      <strong>太长不看</strong>
-      <ul>
-      <li>CPU 打满用四步定位法：top 找高 CPU 进程 → 找高 CPU 线程 → 用 jstack 转线程栈到 16 进制线程 id 定位 → 落到具体代码行；</li>
-      <li>线程状态决定排查方向：RUNNABLE 且多数线程堆在业务方法多是纯计算/坏循环，大量 BLOCKED/WAITING 则是锁竞争或死锁；</li>
-      <li>五大典型根因：死循环/高并发热点、锁竞争与死锁、频繁 GC、业务可通过 CPU 的计算、线程池无限任务堆积；</li>
-      <li>Arthas thread 是快速捷径：`thread -n` 按 CPU 倒序看、`thread 线程id` 看栈，比手动转 id 更省事；</li>
-      <li>应急先止血（限流/扩容/回滚），再用 jstack/heap dump 分析根因，最后沉淀为压测与告警的预防机制。</li>
-      </ul>
-    </div>
-
-        <figure class="article-hero-image"><img src="../../assets/img/article-java-cpu-troubleshoot.jpg" alt="Java CPU性能分析"></figure>
+      <div class="markdown-body"><figure class="article-hero-image"><img src="../../assets/img/article-java-cpu-troubleshoot.jpg" alt="Java CPU性能分析"></figure>
 
 <p>生产环境的CPU告警是所有运维和开发工程师的噩梦。与负载高不同，CPU打满意味着计算资源已经被彻底榨干，应用响应延迟会急剧上升，超时和错误如雪崩般涌来。更棘手的是，CPU问题的根因千差万别：可能是一个死循环在疯狂消耗算力，可能是Full GC在反复折腾堆内存，也可能是锁竞争导致大量线程空转。本文将从一线实战经验出发，建立一套可复现、可落地的CPU紧急排查流程，帮助你在最短时间内定位元凶并实施止血。</p>
 <h2 id="_1">一、四步定位法：从进程到线程再到代码行</h2>
@@ -510,27 +442,7 @@ thread --state BLOCKED
 <p>生产环境的CPU问题永远会再来，但每一次扎实的排查和复盘，都会让下一次的应对更加从容。掌握四步定位法，理解线程状态的深层含义，熟练运用Arthas等在线工具，配合规范的应急止血流程，你就能在CPU告警响起的时刻，从慌乱走向有序，从被动走向主动。</p>
 
       </div>
-    <h2 id="faq">常见问题</h2>
-
-<h3>top 看到进程 CPU 高，怎么找到是哪个线程？</h3>
-<p>用 `top -H -p 进程id` 找到高 CPU 的线程 id，转成 16 进制（printf '%x'），再 `jstack 进程id | grep -A 方法名` 定位对应线程栈，就能看到代码位置。</p>
-
-<h3>Java 线程 CPU 高通常是什么原因？</h3>
-<p>多为循环死循环/高频计算、锁自旋或等待、频繁 GC、以及业务热点代码被大量并发调用；多数是算法或并发设计问题，而非单纯的机器性能。</p>
-
-<h3>看到大量线程 BLOCKED 说明什么？</h3>
-<p>说明存在锁竞争或死锁：多个线程争同一把锁，可能导致某线程持有锁不释放。用 `jstack` 看 BLOCKED 线程在等哪把锁、谁持锁，必要时用 JVisualVM/Arthas thread 排查。</p>
-
-<h3>怎么区分是 GC 导致还是业务代码导致 CPU 高？</h3>
-<p>用 `jstat -gcutil` 看 GC 频率与时间：若 GC 时间占比高、CPU 高，多为内存问题（对象压力/泄漏）；若 GC 正常而 CPU 高，则是业务线程计算密集，往线程栈看方法实现。</p>
-
-<h3>生产打满时第一时间应该做什么？</h3>
-<p>先止血：对用户影响大的话限流、必要时回滚或隔离扩容，保证可用；然后抓现场（jstack/heap dump/top 快照）再定位根因，切勿在没转储前随便重启丢失证据。</p>
-
-<h3>如何避免再次打满？</h3>
-<p>把热点接口做压测和瓶颈分析（Arthas trace、火焰图），建立 CPU 使用率告警与自动扩容，代码层避免死循环、规约并发数与锁粒度，把应急经验固化成重预控的防御机制。</p>
-
-<nav class="article-nav" id="articleNav"></nav>
+    <nav class="article-nav" id="articleNav"></nav>
   </article>
   </div>
 
