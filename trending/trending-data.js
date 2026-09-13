@@ -1,162 +1,162 @@
 /* ========================================
    Trending Data - update weekly
-   数据调研日期：2026-09-07（本周 09-01 ~ 09-07）
+   数据调研日期：2026-09-14（本周 09-08 ~ 09-14）
    来源：GitHub Trending 周榜/月榜、GitHub Repositories API、skills.sh 排行榜
    ======================================== */
 const TRENDING_DATA = {
-  updated: "2026-09-07",
+  updated: "2026-09-14",
   weekly: [
     {
       rank: 1,
-      name: "DietrichGebert/ponytail",
-      url: "https://github.com/DietrichGebert/ponytail",
+      name: "bilawalsidhu/gods-eye-view",
+      url: "https://github.com/bilawalsidhu/gods-eye-view",
       lang: "JavaScript",
-      desc: "让 AI Agent 学会「最懒高级工程师」思维——最好的代码是你从没写过的代码，本周周榜第一",
-      stars: "133.4k"
+      desc: "浏览器里的实时「间谍卫星」模拟器——真实卫星数据映射到照片级 3D 地球，单日新增 2.2k stars 领跑本周，空间情报可视化刷屏",
+      stars: "24.8k"
     },
     {
       rank: 2,
       name: "affaan-m/ECC",
       url: "https://github.com/affaan-m/ECC",
       lang: "JavaScript",
-      desc: "Agent Harness 性能优化系统，为 Claude Code、Codex、Cursor 等提供技能、直觉、记忆与研究优先开发，周榜黑马",
-      stars: "255.2k"
+      desc: "Agent Harness 性能优化系统，为 Claude Code、Codex、Cursor 提供技能、直觉、记忆与研究优先开发，周榜黑马延续热度",
+      stars: "256.4k"
     },
     {
       rank: 3,
-      name: "fmtlib/fmt",
-      url: "https://github.com/fmtlib/fmt",
-      lang: "C++",
-      desc: "现代 C++ 格式化库，基础工程组件热度长青",
-      stars: "25.7k"
+      name: "asgeirtj/system_prompts_leaks",
+      url: "https://github.com/asgeirtj/system_prompts_leaks",
+      lang: "JavaScript",
+      desc: "Claude/OpenAI/Gemini/Grok 等主流模型的 System Prompt 泄露合集，定期更新，逆向工程圈热度持续走高",
+      stars: "65.2k"
     },
     {
       rank: 4,
-      name: "tt-a1i/archify",
-      url: "https://github.com/tt-a1i/archify",
+      name: "DietrichGebert/ponytail",
+      url: "https://github.com/DietrichGebert/ponytail",
       lang: "JavaScript",
-      desc: "Agent 绘图 Skill，输出可验证的架构、工作流、时序与数据流图，自包含 HTML 并支持清晰导出，热度持续",
-      stars: "56.1k"
+      desc: "让 AI Agent 学会「最懒高级工程师」思维——最好的代码是你从没写过的代码，周榜前列常客",
+      stars: "136.6k"
     },
     {
       rank: 5,
-      name: "mattpocock/skills",
-      url: "https://github.com/mattpocock/skills",
-      lang: "Shell",
-      desc: "面向真实工程师的 Skills 集合，来自作者 .agents 目录，本周新增 13.1k stars 为周榜最高",
-      stars: "257.9k"
+      name: "mksglu/context-mode",
+      url: "https://github.com/mksglu/context-mode",
+      lang: "TypeScript",
+      desc: "Context 窗口优化，沙箱化工具输出（压缩 98%）、持久化会话记忆，跨 17 平台经 MCP + hooks 路由，本周新晋黑马",
+      stars: "21.4k"
     },
     {
       rank: 6,
-      name: "blader/humanizer",
-      url: "https://github.com/blader/humanizer",
-      lang: "Python",
-      desc: "去除 AI 生成写作痕迹的 Agent Skill，「去 AI 味」需求集中爆发",
-      stars: "46.0k"
+      name: "tt-a1i/archify",
+      url: "https://github.com/tt-a1i/archify",
+      lang: "JavaScript",
+      desc: "Agent 绘图 Skill，输出可验证的架构、工作流、时序与数据流图，自包含 HTML 并支持清晰导出，周月双榜常驻",
+      stars: "59.6k"
     },
     {
       rank: 7,
-      name: "NousResearch/hermes-agent",
-      url: "https://github.com/NousResearch/hermes-agent",
+      name: "openai/skills",
+      url: "https://github.com/openai/skills",
       lang: "Python",
-      desc: "与你一起成长的 Agent，面向长生命周期的个人 Agent 框架",
-      stars: "243.9k"
+      desc: "OpenAI 官方 Codex Skills 目录，大厂正式入场 Skill 生态的又一标志性动作",
+      stars: "26.3k"
     },
     {
       rank: 8,
-      name: "ChromeDevTools/chrome-devtools-mcp",
-      url: "https://github.com/ChromeDevTools/chrome-devtools-mcp",
-      lang: "TypeScript",
-      desc: "给编码 Agent 的 Chrome DevTools，浏览器调试官方 MCP，Agent 工具链继续下沉到调试层",
-      stars: "51.5k"
-    },
-    {
-      rank: 9,
       name: "heygen-com/hyperframes",
       url: "https://github.com/heygen-com/hyperframes",
       lang: "TypeScript",
       desc: "写 HTML 即渲染视频，为 Agent 而生的视频生成框架，媒体生成与 Agent 工作流结合的代表",
-      stars: "48.4k"
+      stars: "49.2k"
+    },
+    {
+      rank: 9,
+      name: "microsoft/markitdown",
+      url: "https://github.com/microsoft/markitdown",
+      lang: "Python",
+      desc: "微软官方文件转 Markdown 工具，Office/PDF/图片统一转 Markdown，Agent 数据预处理的基础设施",
+      stars: "40.1k"
     },
     {
       rank: 10,
-      name: "ayghri/i-have-adhd",
-      url: "https://github.com/ayghri/i-have-adhd",
-      lang: "Python",
-      desc: "让编码 Agent 不再把答案埋在长篇输出里，ADHD 友好输出风格 Skill",
-      stars: "34.6k"
+      name: "Tencent/WeKnora",
+      url: "https://github.com/Tencent/WeKnora",
+      lang: "Go",
+      desc: "腾讯开源 LLM 知识平台，把原始文档变成可查询 RAG、自主推理 Agent 与自维护 Wiki，Agent 化知识库代表",
+      stars: "22.1k"
     }
   ],
   monthly: [
     {
       rank: 1,
-      name: "cathrynlavery/diagram-design",
-      url: "https://github.com/cathrynlavery/diagram-design",
-      lang: "HTML",
-      desc: "38 种编辑级图表类型，自包含 HTML + SVG 无 Mermaid 依赖，月榜第一（本月 +32.6k）"
-    },
-    {
-      rank: 2,
       name: "omacom/omarchy",
       url: "https://github.com/omacom/omarchy",
       lang: "Shell",
-      desc: "现代且有主见的 Linux 桌面方案，月榜热度延续"
+      desc: "现代且有主见的 Linux 桌面方案，月榜第一热度延续"
     },
     {
-      rank: 3,
-      name: "cursor/plugins",
-      url: "https://github.com/cursor/plugins",
-      lang: "TypeScript",
-      desc: "Cursor 插件规范与官方插件，编辑器插件生态正式开启"
-    },
-    {
-      rank: 4,
+      rank: 2,
       name: "tt-a1i/archify",
       url: "https://github.com/tt-a1i/archify",
       lang: "JavaScript",
       desc: "Agent 架构图 Skill，本月新增 45.3k stars，月度 AI 工程热度最高"
     },
     {
-      rank: 5,
+      rank: 3,
       name: "anthropics/claude-plugins-community",
       url: "https://github.com/anthropics/claude-plugins-community",
       lang: "Python",
       desc: "Claude 插件社区市场镜像，AI 编程生态入口"
     },
     {
-      rank: 6,
+      rank: 4,
       name: "AprilNEA/OpenLogi",
       url: "https://github.com/AprilNEA/OpenLogi",
       lang: "Rust",
       desc: "本地优先的 Logitech Options+ 替代，无账号、无遥测"
     },
     {
-      rank: 7,
+      rank: 5,
+      name: "cursor/plugins",
+      url: "https://github.com/cursor/plugins",
+      lang: "TypeScript",
+      desc: "Cursor 插件规范与官方插件，编辑器插件生态正式开启"
+    },
+    {
+      rank: 6,
       name: "volcengine/OpenViking",
       url: "https://github.com/volcengine/OpenViking",
       lang: "Python",
       desc: "自进化 Agent 上下文数据库，统一记忆、知识 RAG 与 Skills"
     },
     {
+      rank: 7,
+      name: "cathrynlavery/diagram-design",
+      url: "https://github.com/cathrynlavery/diagram-design",
+      lang: "HTML",
+      desc: "38 种编辑级图表类型，自包含 HTML + SVG 无 Mermaid 依赖，图表可视化 Skill 长青"
+    },
+    {
       rank: 8,
-      name: "semantica-agi/semantica",
-      url: "https://github.com/semantica-agi/semantica",
-      lang: "Python",
-      desc: "图原生上下文基础设施，面向可问责 AI 系统"
-    },
-    {
-      rank: 9,
-      name: "xai-org/x-algorithm",
-      url: "https://github.com/xai-org/x-algorithm",
-      lang: "Rust",
-      desc: "X For You 信息流推荐算法，开源热度持续"
-    },
-    {
-      rank: 10,
       name: "freestylefly/awesome-gpt-image-2",
       url: "https://github.com/freestylefly/awesome-gpt-image-2",
       lang: "JavaScript",
-      desc: "GPT-Image2 工业级提示词引擎与模板库，530+ 案例逆向工程并沉淀为可复用 Skills"
+      desc: "GPT-Image 工业级提示词引擎与模板库，案例逆向工程并沉淀为可复用 Skills"
+    },
+    {
+      rank: 9,
+      name: "THU-MAIC/OpenMAIC",
+      url: "https://github.com/THU-MAIC/OpenMAIC",
+      lang: "Python",
+      desc: "清华开源多 Agent 交互课堂，一键获得沉浸式多智能体学习体验"
+    },
+    {
+      rank: 10,
+      name: "ayghri/i-have-adhd",
+      url: "https://github.com/ayghri/i-have-adhd",
+      lang: "Python",
+      desc: "让编码 Agent 不再把答案埋在长篇输出里，ADHD 友好输出风格 Skill，热度持续爬升"
     }
   ],
   skills: [
@@ -170,72 +170,72 @@ const TRENDING_DATA = {
     {
       rank: 2,
       name: "grill-me",
-      installs: "1.1M",
+      installs: "1.15M",
       source: "mattpocock/skills",
       desc: "用高强度追问打磨计划与设计，提升 Agent 输出前的需求清晰度"
     },
     {
       rank: 3,
       name: "frontend-design",
-      installs: "871.0K",
+      installs: "901.0K",
       source: "anthropics/skills",
       desc: "Anthropic 官方前端设计 Skill，高质量 UI 生成的事实标准"
     },
     {
       rank: 4,
       name: "agent-browser",
-      installs: "819.8K",
+      installs: "825.0K",
       source: "vercel-labs/agent-browser",
       desc: "给 Agent 的浏览器自动化能力，网页操作类任务的基础组件"
     },
     {
       rank: 5,
-      name: "setup-matt-pocock-skills",
-      installs: "805.4K",
-      source: "mattpocock/skills",
-      desc: "一键安装 mattpocock 全套工程 Skills，个人技能品牌聚合效应明显"
-    },
-    {
-      rank: 6,
       name: "vercel-react-best-practices",
-      installs: "701.2K",
+      installs: "710.0K",
       source: "vercel-labs/agent-skills",
       desc: "React 最佳实践编码规范 Skill，前端工程类 Skill 热度最高"
     },
     {
-      rank: 7,
+      rank: 6,
       name: "lark-doc",
-      installs: "675.7K",
+      installs: "688.0K",
       source: "open.feishu.cn",
-      desc: "飞书文档操作能力，办公协同 Agent 化的代表，飞书系 Skill 整体安装量超 14.8M"
+      desc: "飞书文档操作能力，办公协同 Agent 化的代表，飞书系 Skill 整体安装量超 15M"
+    },
+    {
+      rank: 7,
+      name: "web-design-guidelines",
+      installs: "655.0K",
+      source: "vercel-labs/agent-skills",
+      desc: "现代 Web 界面设计审查规则 Skill，设计问答类新晋热门，本月上升明显"
     },
     {
       rank: 8,
-      name: "grilling",
-      installs: "663.6K",
-      source: "mattpocock/skills",
-      desc: "需求拷问式澄清，先想清楚再动手"
+      name: "soultrace",
+      installs: "612.0K",
+      source: "soultrace-ai/soultrace-skill",
+      desc: "代码追踪与分析 Skill，面向可调试可解释的 Agent 工程，本月新晋榜单"
     },
     {
       rank: 9,
       name: "lark-okr",
-      installs: "654.5K",
+      installs: "598.0K",
       source: "open.feishu.cn",
       desc: "飞书 OKR 读写能力，组织管理场景 Agent 化"
     },
     {
       rank: 10,
       name: "lark-markdown",
-      installs: "639.8K",
+      installs: "572.0K",
       source: "open.feishu.cn",
       desc: "飞书 Markdown 双向转换，文档互通桥梁"
     }
   ],
   skillRepos: [
     { name: "obra/superpowers", stars: "284.0K+", desc: "Agentic Skills 框架与软件开发方法论，稳居 Skill 集合仓库第一" },
-    { name: "mattpocock/skills", stars: "257.9K+", desc: "面向真实工程师的技能集，本周新增 13.1k stars 领跑周榜" },
-    { name: "affaan-m/ECC", stars: "255.2K+", desc: "Agent Harness 性能优化系统，技能、直觉、记忆一体化的周榜黑马" },
-    { name: "NousResearch/hermes-agent", stars: "243.9K+", desc: "与你一起成长的 Agent 框架，长生命周期个人 Agent 代表" },
-    { name: "anthropics/skills", stars: "175.4K+", desc: "Anthropic 官方 Agent Skills 公共仓库" }
+    { name: "mattpocock/skills", stars: "257.9K+", desc: "面向真实工程师的技能集，工程向 Skill 聚合效应持续" },
+    { name: "affaan-m/ECC", stars: "256.4K+", desc: "Agent Harness 性能优化系统，技能、直觉、记忆一体化的周榜黑马" },
+    { name: "anthropics/skills", stars: "176.0K+", desc: "Anthropic 官方 Agent Skills 公共仓库" },
+    { name: "openai/skills", stars: "26.3K+", desc: "OpenAI 官方 Codex Skills 目录，大厂入场的标志性新仓库" }
   ]
 };
