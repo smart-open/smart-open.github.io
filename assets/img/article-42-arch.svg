@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" font-family="Inter, sans-serif">
+  <rect width="1200" height="420" fill="#0a0a0f"/>
+  <circle cx="1050" cy="60" r="180" fill="#00f0ff" opacity="0.04"/>
+  <circle cx="120" cy="380" r="150" fill="#00f0ff" opacity="0.05"/>
+  <text x="60" y="80" fill="#00f0ff" font-size="15" font-family="JetBrains Mono, monospace" letter-spacing="4">AI AGENT ARCHITECTURES</text>
+  <text x="60" y="130" fill="#e8e8ec" font-size="34" font-weight="700">8 大主流架构 · 从 ReAct 到自主智能体</text>
+  <text x="60" y="164" fill="#7a7a85" font-size="15">单智能体内部范式 × 多智能体协作拓扑 · 2026 知识图解</text>
+  <g font-size="13">
+    <g>
+      <rect x="60" y="200" width="160" height="54" rx="9" fill="#12121a" stroke="#2a2a35"/>
+      <text x="76" y="223" fill="#00f0ff" font-family="JetBrains Mono, monospace" font-size="12">01</text>
+      <text x="76" y="242" fill="#e8e8ec">ReAct</text>
+    </g>
+    <g>
+      <rect x="240" y="200" width="160" height="54" rx="9" fill="#12121a" stroke="#2a2a35"/>
+      <text x="256" y="223" fill="#00f0ff" font-family="JetBrains Mono, monospace" font-size="12">02</text>
+      <text x="256" y="242" fill="#e8e8ec">Plan-and-Execute</text>
+    </g>
+    <g>
+      <rect x="420" y="200" width="160" height="54" rx="9" fill="#12121a" stroke="#00f0ff"/>
+      <text x="436" y="223" fill="#00f0ff" font-family="JetBrains Mono, monospace" font-size="12">03</text>
+      <text x="436" y="242" fill="#e8e8ec">Multi-Agent</text>
+    </g>
+    <g>
+      <rect x="600" y="200" width="160" height="54" rx="9" fill="#12121a" stroke="#2a2a35"/>
+      <text x="616" y="223" fill="#00f0ff" font-family="JetBrains Mono, monospace" font-size="12">04</text>
+      <text x="616" y="242" fill="#e8e8ec">Reflective</text>
+    </g>
+    <g>
+      <rect x="780" y="200" width="160" height="54" rx="9" fill="#12121a" stroke="#2a2a35"/>
+      <text x="796" y="223" fill="#00f0ff" font-family="JetBrains Mono, monospace" font-size="12">05</text>
+      <text x="796" y="242" fill="#e8e8ec">Tool-Augmented</text>
+    </g>
+    <g>
+      <rect x="960" y="200" width="160" height="54" rx="9" fill="#12121a" stroke="#2a2a35"/>
+      <text x="976" y="223" fill="#00f0ff" font-family="JetBrains Mono, monospace" font-size="12">06</text>
+      <text x="976" y="242" fill="#e8e8ec">Memory-Augmented</text>
+    </g>
+    <g>
+      <rect x="240" y="290" width="160" height="54" rx="9" fill="#12121a" stroke="#2a2a35"/>
+      <text x="256" y="313" fill="#00f0ff" font-family="JetBrains Mono, monospace" font-size="12">07</text>
+      <text x="256" y="332" fill="#e8e8ec">RAG Agent</text>
+    </g>
+    <g>
+      <rect x="420" y="290" width="160" height="54" rx="9" fill="#12121a" stroke="#2a2a35"/>
+      <text x="436" y="313" fill="#00f0ff" font-family="JetBrains Mono, monospace" font-size="12">08</text>
+      <text x="436" y="332" fill="#e8e8ec">Autonomous Loop</text>
+    </g>
+    <path d="M220 227 H240" stroke="#2a2a35"/>
+    <path d="M400 227 H420" stroke="#2a2a35"/>
+    <path d="M580 227 H600" stroke="#2a2a35"/>
+    <path d="M760 227 H780" stroke="#2a2a35"/>
+    <path d="M940 227 H960" stroke="#2a2a35"/>
+    <path d="M500 254 V290" stroke="#2a2a35"/>
+    <path d="M400 317 H420" stroke="#2a2a35"/>
+  </g>
+  <text x="60" y="388" fill="#7a7a85" font-size="13" font-family="JetBrains Mono, monospace">think → act → observe → loop</text>
+</svg>

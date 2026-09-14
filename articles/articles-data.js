@@ -3,6 +3,14 @@
    ======================================== */
 const ARTICLES_DATA = [
   {
+    id: 'article-42',
+    title: 'AI凭什么自己干活，8大架构一次讲透',
+    excerpt: '从 ReAct 到自主智能体，全景拆解 AI Agent 的 8 大主流架构：ReAct、Plan-and-Execute、Multi-Agent、Reflective、Tool-Augmented、Memory-Augmented、RAG、Autonomous Loop 的运转方式、优缺点与适用场景，附 2 张可交互架构图、6 张流程图解，以及单智能体范式 × 多智能体协作拓扑（主管、流水线、辩论、路由、网状等 9 种）的双维度选型框架。',
+    tags: ['AI Agent', 'Agent 架构', 'ReAct', 'Multi-Agent'],
+    date: '2026-09-14',
+    detailUrl: 'detail/article-42.html'
+  },
+  {
     id: 'article-41',
     title: '我把10年编码习惯，炼成了AI分身',
     excerpt: '完整复盘个人开发分身 dev-twin 的构建路径：五层对话先战略后建设、分层画像库提炼（三类标注+双重校准）、薄引擎六件事（决策分级 L1/L2/L3）、星枢案例实战验证、HITL 学习闭环（纠正→语料→复盘→入库→淘汰）、人机协作分工（人定方向、分身跑全程），附关键设计决策与复刻指南。',
