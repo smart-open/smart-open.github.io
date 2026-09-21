@@ -3,6 +3,14 @@
    ======================================== */
 const ARTICLES_DATA = [
   {
+    id: 'article-43',
+    title: '从Prompt到Loop：AI工程师的四级进化与落地实践',
+    excerpt: '大模型能力平权后，工程重心从「模型内」移到「模型外」。全景拆解 Prompt → Context → Harness → Loop 四个核心角色的演进逻辑、责任分工与应用场景，叠加 LLM Evaluation、Tool、Observability、Cost 四个生产配套方向，给出按规模分级的落地路线，以及生产落地最常见的 8 类问题与最佳解题法。',
+    tags: ['Agent 工程', 'Prompt Engineering', 'Context Engineering', 'AI Engineering'],
+    date: '2026-09-21',
+    detailUrl: 'detail/article-43.html'
+  },
+  {
     id: 'article-42',
     title: 'AI凭什么自己干活，8大架构一次讲透',
     excerpt: '从 ReAct 到自主智能体，全景拆解 AI Agent 的 8 大主流架构：ReAct、Plan-and-Execute、Multi-Agent、Reflective、Tool-Augmented、Memory-Augmented、RAG、Autonomous Loop 的运转方式、优缺点与适用场景，附 2 张可交互架构图、6 张流程图解，以及单智能体范式 × 多智能体协作拓扑（主管、流水线、辩论、路由、网状等 9 种）的双维度选型框架。',

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>从Prompt到Loop：AI工程师的四级进化与落地实践 - 朱天伟 | Smart Open</title>
+  <meta name="description" content="当会写提示词不再值钱，AI 工程师的重心正从「模型内」移到「模型外」。全景拆解 Prompt → Context → Harness → Loop 四个核心角色的演进逻辑、应用场景与分层落地路线，叠加 LLM Evaluation、Tool、Observability、Cost 等周边配套角色，以及生产落地最常见的 8 类问题与最佳解法。">
+  <link rel="canonical" href="https://blog.sopenai.cn/articles/detail/article-43.html">
+  <meta name="author" content="朱天伟">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <meta name="applicable-device" content="pc,mobile">
+  <meta name="keywords" content="Prompt Engineer,Context Engineer,Harness Engineer,Loop Engineer,Agent 工程,LLM Evaluation,可观测性,Token 成本">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Smart Open">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:title" content="从Prompt到Loop：AI工程师的四级进化与落地实践">
+  <meta property="og:description" content="Prompt → Context → Loop → Harness 四个角色演进全拆解：发展背景、应用场景、落地路线，叠加 Eval / Tool / 观测 / 成本 周边配套与生产踩坑最佳解法。">
+  <meta property="og:url" content="https://blog.sopenai.cn/articles/detail/article-43.html">
+  <meta property="og:image" content="https://blog.sopenai.cn/assets/img/article-43-og.jpg">
+  <meta property="article:published_time" content="2026-09-21">
+  <meta property="article:modified_time" content="2026-09-21">
+  <meta property="article:author" content="朱天伟">
+  <meta property="article:tag" content="Agent 工程">
+  <meta property="article:tag" content="Prompt Engineering">
+  <meta property="article:tag" content="Context Engineering">
+  <meta property="article:tag" content="AI Engineering">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="从Prompt到Loop：AI工程师的四级进化与落地实践">
+  <meta name="twitter:description" content="Prompt → Context → Loop → Harness 四个角色演进全拆解，附落地路线与生产踩坑最佳解法。">
+
+  <link rel="icon" type="image/png" href="../../favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css?v=2">
+  <link rel="stylesheet" href="../../css/article.css?v=2">
+  <link rel="stylesheet" href="../../css/preview-rail.css">
+  <style>
+    .arch-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
+    .arch-table th { background: var(--bg-secondary); color: var(--accent); padding: 12px 14px; text-align: left; border-bottom: 2px solid var(--divider); font-family: var(--font-mono); font-size: 0.8rem; }
+    .arch-table td { padding: 10px 14px; border-bottom: 1px solid var(--divider); color: var(--text-primary); vertical-align: top; }
+    .arch-table tr:hover td { background: var(--bg-secondary); }
+    .arch-table .mono { font-family: var(--font-mono); color: var(--accent); font-size: 0.78rem; white-space: nowrap; }
+    .arch-table .dim { color: var(--text-secondary); }
+    .arch-table .accent2 { color: #2ee6a8; }
+    .arch-table .warn { color: #ff4466; }
+    .callout { background: rgba(0,240,255,0.05); border: 1px solid var(--divider); border-left: 3px solid var(--accent); border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.6; }
+    .callout strong { color: var(--accent); }
+    .callout-warn { background: rgba(255,68,102,0.05); border: 1px solid var(--divider); border-left: 3px solid #ff4466; border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.6; }
+    .callout-warn strong { color: #ff4466; }
+    .tldr ul { margin: 10px 0 0; padding-left: 20px; }
+    .tldr li { margin: 6px 0; }
+    .tldr li::marker { color: var(--accent); }
+    .arch-figure { width: 100%; margin: 24px 0; }
+    .arch-figure svg { width: 100%; height: auto; display: block; background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 10px; }
+    .arch-figure figcaption { font-size: 0.8rem; color: var(--text-secondary); text-align: center; margin-top: 10px; line-height: 1.6; }
+    .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+    .pros-cons .pc { border: 1px solid var(--divider); border-radius: 10px; padding: 14px 18px; font-size: 0.85rem; line-height: 1.7; background: var(--bg-secondary); }
+    .pros-cons .good { border-left: 3px solid #2ee6a8; }
+    .pros-cons .bad { border-left: 3px solid #ff4466; }
+    .pros-cons .pc-title { font-family: var(--font-mono); font-size: 0.75rem; margin-bottom: 6px; }
+    .pros-cons .good .pc-title { color: #2ee6a8; }
+    .pros-cons .bad .pc-title { color: #ff4466; }
+    .role-step { display: flex; gap: 16px; margin: 18px 0; }
+    .role-step .num { flex: 0 0 52px; height: 52px; border-radius: 12px; background: var(--bg-secondary); border: 1px solid var(--accent); color: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 1.05rem; font-weight: 600; }
+    .role-step .body { flex: 1; padding-top: 2px; }
+    .role-step h3 { margin: 0 0 6px; font-size: 1.08rem; color: var(--text-primary); }
+    .role-step p { margin: 0; color: var(--text-secondary); font-size: 0.88rem; line-height: 1.7; }
+    .markdown-body table { display: block; overflow-x: auto; }
+    .codeblock { background: #0b0e14; border: 1px solid var(--divider); border-radius: 10px; padding: 16px 18px; margin: 16px 0; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.7; color: var(--text-primary); overflow-x: auto; white-space: pre; }
+    .codeblock .cm { color: #7a7a85; }
+    @media (max-width: 768px) {
+      .arch-table { font-size: 0.78rem; }
+      .arch-table th, .arch-table td { padding: 8px 10px; }
+      .pros-cons { grid-template-columns: 1fr; }
+      .role-step { gap: 12px; }
+      .role-step .num { flex-basis: 44px; height: 44px; font-size: 0.95rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav" id="nav">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-brand"><img src="../../assets/img/logo.png" alt="Smart Open" class="nav-logo"><span>Smart Open</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="切换导航">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#about">关于</a></li>
+        <li><a href="../../index.html#projects">项目</a></li>
+        <li><a href="../../index.html#skills">技能</a></li>
+        <li><a href="../../index.html#experience">经历</a></li>
+        <li><a href="../index.html">文章</a></li>
+        <li><a href="../../trending/index.html">趋势</a></li>
+        <li><a href="../../index.html#contact">联系</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="article-hero">
+    <div class="article-hero-content">
+      <h1 class="article-title">从Prompt到Loop：AI工程师的四级进化与落地实践</h1>
+      <div class="article-meta">
+        <span class="article-date">2026-09-21</span>
+        <div class="article-tags">
+          <span class="tag">Agent 工程</span>
+          <span class="tag">Prompt Engineering</span>
+          <span class="tag">Context Engineering</span>
+          <span class="tag">AI Engineering</span>
+        </div>
+      </div>
+    </div>
+    <div class="article-hero-bg" style="background-image: url('../../assets/img/article-43-og.jpg')"></div>
+    <div class="article-hero-overlay"></div>
+  </section>
+
+  <div class="article-container">
+    <aside class="article-sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">目录</h3>
+        <nav class="article-toc" id="articleToc"></nav>
+      </div>
+    </aside>
+
+    <article class="article-content">
+      <div class="markdown-body">
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-43-og.jpg" alt="AI 工程师四类角色围绕大模型核心的进化全景图">
+          <figcaption>工程重心从「模型内」移向「模型外」：Prompt → Context → Loop → Harness，加上 Eval / Tool / 观测 / 成本这些配套角色</figcaption>
+        </figure>
+
+        <div class="callout tldr">
+          <strong>TL;DR</strong>
+          <ul>
+            <li><strong>确定性在衰减，工程量在外移</strong>：模型能力越强，单一 Prompt 红利越薄，真正的价值从「问得好」转移到「把不确定性管回来」</li>
+            <li><strong>4 级核心角色</strong>：Prompt（指令）+ Context（材料与记忆）+ Loop（任务编排与自我纠错）+ Harness（权限、沙箱与安全闸门），逐级离模型更远、自主性与风险更高</li>
+            <li><strong>周边配套</strong>：Eval（质检）、Tool（工具）、Observability/Trace（全链路可观测）、Cost（成本优化）是生产 Agent 的必选项，不是可选项</li>
+            <li><strong>落地看规模</strong>：小项目 Prompt+Context 两人兼任；生产级再补 Loop+Tool；可写真实数据再加 Harness+Trace+Eval；团队规模决定角色是否并岗</li>
+          </ul>
+        </div>
+
+        <p>2025 年你还在炫耀「我把 Prompt 调得多好」。2026 年，会写提示词已经不算技能了——<strong>大模型能力平权之后，优势从「模型内部」转移到了「模型外部」</strong>，也就是围绕模型搭起来的那套系统：喂多少材料、怎么编排、怎么兜底、怎么审计。</p>
+
+        <p>这篇文章综合一份把 AI Agent 工程拆成四个核心角色的框架（Prompt / Context / Harness / Loop），并接上周边最常被问到的 Eval、Tool、Observability、Cost 四个配套方向，系统讲清楚：<strong>它们为什么演化出来、各自解决什么问题、怎么落地、能带来什么价值，以及生产中最常踩的坑和对应解法</strong>。文中的角色分层可以直接当团队配置与自检清单用。</p>
+
+        <h2 id="bg">一、发展背景：为什么角色在「从内往外」迁移</h2>
+
+        <p>理解这四个角色，关键是先看一条主线：<strong>大模型能力越强，工程重心就越往外移</strong>。可以拆成四步演进：</p>
+
+        <p><strong>第一步：能力平权，Prompt 红利衰减。</strong>早期大家同用差不多的模型，谁能把问题「问得好」谁就有优势，Prompt Engineer 应运而生。但提示词是很薄的技能——模式固定、易被复制，模型一升级，原来费劲调出来的技巧常常失效。当每个人都懂「你是专家、请一步步思考」时，靠提问已经赢不了。</p>
+
+        <p><strong>第二步：单轮到多轮，信息喂不进去了。</strong>真实任务不是一次问答。一次对话、一次数据处理、一个业务闭环，需要把背景知识、历史记录、检索片段塞进模型，一多就爆上下文窗口。管理「给模型喂什么」变得比「怎么问」更重要——Context Engineer 出现了。</p>
+
+        <p><strong>第三步：模型开始「做事」，需要编排循环。</strong>模型从「回答问题」进化到「执行任务」——调工具、读文件、写代码、改数据。多步任务怎么拆、怎么决定下一步、失败了怎么重试、什么时候停——这是 Loop Engineer 的领地。</p>
+
+        <p><strong>第四步：自主行动带来风险，必须上围栏。</strong>一旦 Agent 能真正改数据、发消息、调外部 API，越权和事故就是概率问题。权限、沙箱、审计、操作约束、安全闸门——Harness Engineer 负责把「能自由发挥」变成「在框里自由发挥」。</p>
+
+        <figure class="arch-figure">
+          <svg viewBox="0 0 760 386" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif" font-size="12">
+            <defs>
+              <marker id="ev01" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#00f0ff"/></marker>
+              <marker id="ev02" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2ee6a8"/></marker>
+            </defs>
+            <text x="380" y="26" fill="#7a7a85" font-size="11" text-anchor="middle">工程重心从模型内部向模型外部逐级迁移</text>
+
+            <!-- Core -->
+            <rect x="268" y="44" width="224" height="52" rx="10" fill="#12121a" stroke="#ff4466" stroke-width="1.4"/>
+            <text x="380" y="68" fill="#e8e8ec" text-anchor="middle" font-weight="600">LLM / Base Model</text>
+            <text x="380" y="85" fill="#7a7a85" font-size="10" text-anchor="middle">模型核心 · 不断进化</text>
+
+            <!-- Layer 1 Prompt -->
+            <rect x="90" y="120" width="580" height="56" rx="10" fill="#12121a" stroke="#00f0ff"/>
+            <circle cx="118" cy="148" r="15" fill="#00f0ff" opacity="0.15"/>
+            <text x="118" y="152" fill="#00f0ff" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11">01</text>
+            <text x="148" y="143" fill="#e8e8ec" font-weight="600">Prompt 提示词工程</text>
+            <text x="148" y="160" fill="#7a7a85" font-size="10">指令 · 输出规范 · 角色设定 · few-shot 示例</text>
+
+            <!-- Layer 2 Context -->
+            <rect x="90" y="188" width="580" height="56" rx="10" fill="#12121a" stroke="#00f0ff"/>
+            <circle cx="118" cy="216" r="15" fill="#00f0ff" opacity="0.15"/>
+            <text x="118" y="220" fill="#00f0ff" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11">02</text>
+            <text x="148" y="211" fill="#e8e8ec" font-weight="600">Context 上下文工程</text>
+            <text x="148" y="228" fill="#7a7a85" font-size="10">RAG 检索 · 记忆分层 · 上下文窗口压缩</text>
+
+            <!-- Layer 3 Loop -->
+            <rect x="90" y="256" width="580" height="56" rx="10" fill="#12121a" stroke="#2ee6a8" stroke-width="1.4"/>
+            <circle cx="118" cy="284" r="15" fill="#2ee6a8" opacity="0.15"/>
+            <text x="118" y="288" fill="#2ee6a8" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11">03</text>
+            <text x="148" y="279" fill="#e8e8ec" font-weight="600">Loop 循环工程</text>
+            <text x="148" y="296" fill="#7a7a85" font-size="10">任务编排 · 多轮迭代 · 自检重试 · 终止条件</text>
+
+            <!-- Layer 4 Harness -->
+            <rect x="90" y="324" width="580" height="56" rx="10" fill="#12121a" stroke="#2ee6a8" stroke-width="1.4"/>
+            <circle cx="118" cy="352" r="15" fill="#2ee6a8" opacity="0.15"/>
+            <text x="118" y="356" fill="#2ee6a8" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11">04</text>
+            <text x="148" y="347" fill="#e8e8ec" font-weight="600">Harness 围栏工程</text>
+            <text x="148" y="364" fill="#7a7a85" font-size="10">权限 · 沙箱 · 审计日志 · 操作约束 · 安全闸门</text>
+
+            <!-- right axis labels -->
+            <text x="700" y="148" fill="#2ee6a8" font-size="10" text-anchor="end">离模型越来越远</text>
+            <text x="700" y="216" fill="#7a7a85" font-size="10" text-anchor="end">工程量</text>
+            <text x="700" y="284" fill="#ff4466" font-size="10" text-anchor="end">自主性与风险</text>
+            <text x="700" y="352" fill="#7a7a85" font-size="10" text-anchor="end">越来越高</text>
+          </svg>
+          <figcaption>四个核心角色的演进：Prompt 最贴近模型，Harness 最外圈、离模型最远但承担最多的自主风险</figcaption>
+        </figure>
+
+        <div class="callout">
+          <strong>一句话本质</strong>：这个演进不是角色更替，而是<strong>层次叠加</strong>——每一级都在解决上一级「放权」产生的新问题，最后形成一个「模型负责聪明、工程负责可靠」的分工体系。所以叫「4 级进化」，而不是「Prompt 被淘汰」。
+        </div>
+
+        <h2 id="core">二、四个核心角色：分工、演进因果与应用场景</h2>
+
+        <div class="role-step">
+          <div class="num">P</div>
+          <div class="body">
+            <h3>Prompt Engineer · 提示词工程师（基础输入层）</h3>
+            <p>角色定位最内层：写指令、定输出规范、配角色与示例。它解决的是「让模型听懂一句话」。典型产出是结构化的 System Prompt、Few-shot 示例、JSON/工具调用输出契约。它不是被淘汰，而是变成了其他三层的<strong>地基</strong>——所有后续层的最终指令仍由 Prompt 承载。</p>
+          </div>
+        </div>
+
+        <div class="role-step">
+          <div class="num">C</div>
+          <div class="body">
+            <h3>Context Engineer · 上下文工程师（基础输入层）</h3>
+            <p>角色定位：管理「送入模型的所有信息」。要解决的核心矛盾是<strong>信息无限、窗口有限</strong>。手段包括 RAG 检索（只取最相关的片段）、记忆分层（会话 / 短期 / 长期 / 向量库）、上下文窗口压缩（丢弃、摘要、替换）。它是知识密集类应用的胜负手。</p>
+          </div>
+        </div>
+
+        <div class="role-step">
+          <div class="num">L</div>
+          <div class="body">
+            <h3>Loop Engineer · 循环工程师（任务编排层）</h3>
+            <p>角色定位：让 Agent 完成「多步、会失败、需迭代」的自主任务。要解决的核心矛盾是<strong>目标明确、路径不确定</strong>。手段包括任务拆解与编排（串行 / 流水线 / 并行 / 分层）、多轮迭代（反思 / 评审 / 自我纠错）、自检重试、以及<strong>终止条件</strong>（轮数上限、预算上限、收敛判定）。它是把模型从「问答工具」变成「执行者」的关键。</p>
+          </div>
+        </div>
+
+        <div class="role-step">
+          <div class="num">H</div>
+          <div class="body">
+            <h3>Harness Engineer · 围栏工程师（操作约束层）</h3>
+            <p>角色定位：给自主执行划定边界。要解决的核心矛盾是<strong>能力更大、越界风险更高</strong>。手段包括权限模型（最小权限 / 角色 / 审批）、沙箱与资源隔离、可操作范围白名单、审计日志、以及高风险动作（改数据、发消息、删除）的<strong>人工审批闸门</strong>。它是生产级 Agent 与 Demo 的分水岭。</p>
+          </div>
+        </div>
+
+        <p><strong>应用场景映射</strong>：把这四个角色套到真实业务上，答案很清晰——</p>
+
+        <table class="arch-table">
+          <thead>
+            <tr><th>场景</th><th>业务例子</th><th>主用角色</th><th>说明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="mono">简单问答</td><td>客服闲聊、通用咨询</td><td>Prompt</td><td class="dim">一条好指令 + 输出规范就够</td></tr>
+            <tr><td class="mono">知识库问答</td><td>企业文档问答、政策解读</td><td>Prompt + Context</td><td class="dim">RAG 检索与切片质量决定答案</td></tr>
+            <tr><td class="mono">多步业务任务</td><td>工单自动处理、调研报告自动产出</td><td>Prompt + Context + Loop + Tool</td><td class="dim">需要编排、调用工具、自我校验</td></tr>
+            <tr><td class="mono">可改数据的生产 Agent</td><td>自动开票、订单变更、批量更新</td><td>全 4 角色 + Harness</td><td class="dim">必须上权限、审计、审批闸门</td></tr>
+            <tr><td class="mono">自主长时任务</td><td>全天候监控、批量内容生产</td><td>全 4 角色 + Memory</td><td class="dim">长期运行最依赖终止条件与护栏</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="surround">三、周边配套：决定能否上生产的四块拼图</h2>
+
+        <p>四个核心角色解决「怎么造出来」。但一个系统能不能<strong>上线、维持、规模化</strong>，还要靠四个配套方向。它们在原框架里往往被当成「加分项」，实际上在生产环境是<strong>必选项</strong>。</p>
+
+        <div class="role-step">
+          <div class="num" style="border-color:#2ee6a8;color:#2ee6a8;">E</div>
+          <div class="body">
+            <h3>LLM Evaluation · 评估工程师（质检层）</h3>
+            <p>核心产出：评测集、评估指标、自动化评测流水线 + LLM-as-Judge 打分器。要回答「这个 Agent 答得好不好」。解决幻觉、错误传播、稳定性回归问题。关键工具是 Golden Set（标注好的标准答案）与 G-Eval / Judge 模型，接入 CI 做<strong>回归门禁</strong>——每次改 Prompt、换模型、调检索都要过一遍评测，否则你根本不知道改动到底变好还是变坏。</p>
+          </div>
+        </div>
+
+        <div class="role-step">
+          <div class="num" style="border-color:#2ee6a8;color:#2ee6a8;">T</div>
+          <div class="body">
+            <h3>Tool Engineer · 工具工程师（外部能力层）</h3>
+            <p>核心产出：Agent 可调用的工具函数 + 工具 Schema（入参出参契约）+ 异常捕获。工具是 Agent 的「手脚」，MCP（Model Context Protocol）是标准化的「手脚市场」。与 Loop 的边界要分清：<strong>Loop 决定「什么时候调」，Tool 保证「工具本身好用」</strong>。工具描述不清、返回不可靠，会直接拖垮 Agent 决策。</p>
+          </div>
+        </div>
+
+        <div class="role-step">
+          <div class="num" style="border-color:#2ee6a8;color:#2ee6a8;">O</div>
+          <div class="body">
+            <h3>Observability · 可观测工程师（观测层）</h3>
+            <p>核心产出：全链路追踪 + Token 用量埋点 + 工具调用日志 + 可视化面板。生产排障的起点。要区分两件事：<strong>Harness 记的是「安全审计日志」，Trace 记的是「运行细节日志」（排障 + 成本分析）</strong>。Langfuse、LangSmith 就是这个方向的主流工具，能直接看到哪一步 token 爆了、哪次调用失败、任务卡在哪个循环。</p>
+          </div>
+        </div>
+
+        <div class="role-step">
+          <div class="num" style="border-color:#2ee6a8;color:#2ee6a8;">$</div>
+          <div class="body">
+            <h3>Cost Engineer · 成本工程师（成本层）</h3>
+            <p>核心产出：Token 成本优化、Prompt 缓存、模型路由、用量配额。常见手法：<strong>简单请求走小模型、复杂请求走大模型</strong>（模型分级路由）、语义缓存命中重复请求、上下文瘦身减少重复历史、批处理摊薄调用。一个会跳舞的 ReAct 循环能烧掉大把 token，成本控制不是财务问题，是架构问题。</p>
+          </div>
+        </div>
+
+        <div class="callout">
+          <strong>还有一圈「更底层」角色</strong>：Model/LLM 模型工程师（改权重、做推理服务）、Embedding 工程师、Vector 向量库工程师（检索底座）、Alignment 对齐工程师（内容安全、防越狱）、MLOps 工程师（GPU、容器、部署）。它们与上面角色的分工区别：<strong>前四角色不动模型权重，只搭模型外面的系统</strong>。
+        </div>
+
+        <h2 id="landing">四、怎么落地：按规模分级的团队配置</h2>
+
+        <p>落地第一问不是「招什么角色」，而是「现在的体量需要哪几层」。原框架给了一条非常实用的分级路线，我们用表格把它固化：</p>
+
+        <table class="arch-table">
+          <thead>
+            <tr><th>项目规模</th><th>覆盖角色</th><th>典型形态</th><th>要不要独立岗位</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="mono">小项目</td><td>Prompt + Context</td><td class="dim">简单 RAG 问答 Demo</td><td class="dim">一人全包即可</td></tr>
+            <tr><td class="mono">中型 Agent</td><td>Prompt + Context + Loop + Tool</td><td class="dim">自动多步任务（只读、不碰真实业务）</td><td class="dim">2-3 人分担</td></tr>
+            <tr><td class="mono">生产级 Agent</td><td>再加 Harness + Trace + Eval</td><td class="dim">可修改业务数据、有真实用户</td><td class="dim">至少 1 个专职工程维护护栏与评测</td></tr>
+            <tr><td class="mono">自研模型场景</td><td>再增 Model / Embedding / MLOps</td><td class="dim">私有化部署、微调自有模型</td><td class="dim">拆成独立小团队</td></tr>
+          </tbody>
+        </table>
+
+        <p>一个很真实的行业现状：<strong>多数角色在小团队里都是「一人兼任」</strong>——一个 Agent 工程师同时兼顾 Prompt + Context + 基础 Loop；只有大厂或复杂企业项目，才把这些拆成独立岗位。所以「角色」更大的意义是<strong>责任清单</strong>：你可以让一个人干，但不能让任何一块责任没人认领。</p>
+
+        <p><strong>落地自检清单</strong>（生产上线前逐项打勾）：</p>
+        <ul>
+          <li>Prompt 是否纳入版本管理（改过回得去，能对比 diff）？</li>
+          <li>Context：检索有评测、切片有策略、窗口超限有压缩兜底？</li>
+          <li>Loop：有轮数 / 预算上限、失败重试、明确终止条件？</li>
+          <li>Harness：写操作有权限审批、全动作有审计日志？</li>
+          <li>Eval：有 Golden Set + 自动化评测，接进了 CI 并做了回归门禁？</li>
+          <li>Trace：能定位到「哪轮、哪个工具、多少 token」？</li>
+          <li>Cost：重复请求有缓存、简单请求路由到小模型？</li>
+        </ul>
+
+        <h2 id="value">五、价值：从「能 Demo」到「能交付」</h2>
+
+        <p>这套角色体系真正的价值，是把 AI 应用从「概率玩具」变成「工程资产」。横向看有五个维度：</p>
+
+        <table class="arch-table">
+          <thead>
+            <tr><th>价值维度</th><th>由谁提供</th><th>落地后的可见改变</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="mono">可靠性</td><td>Loop + Eval</td><td class="dim">失败会重试、结果有评测回归，不再「时灵时不灵」</td></tr>
+            <tr><td class="mono">可控性</td><td>Loop 终止条件 + Harness 闸门</td><td class="dim">该停就停、危险动作有人批准，能解释为什么这么做</td></tr>
+            <tr><td class="mono">安全性</td><td>Harness + Alignment</td><td class="dim">越权被打断、数据不泄漏、全程可审计追责</td></tr>
+            <tr><td class="mono">成本</td><td>Cost + Trace</td><td class="dim">token 看得见、省得下，单位任务的边际成本明显下降</td></tr>
+            <tr><td class="mono">可维护性</td><td>Trace + 版本化 Prompt</td><td class="dim">排障有依据、改动可回滚，团队能持续演进而非推倒重来</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout-warn">
+          <strong>价值的反面教材</strong>：为什么 93% 的 AI 项目卡在 POC 到生产这最后一公里？因为 Demo 只需要「模型聪明一次」，生产需要「工程可靠一万次」。四个核心角色 + 四个配套方向，缺的每一块，最终都会以生产事故、成本失控或不可维护的形式加倍还回来。
+        </div>
+
+        <h2 id="problems">六、落地高频问题与最佳解法</h2>
+
+        <p>下面 8 个问题是把这套体系落到生产时最高频踩的坑，每个都配了「先讲成因、再给最佳解」的答案。</p>
+
+        <h3 id="p1">问题 1：Prompt 不稳定、不可复现</h3>
+        <p><strong>成因</strong>：模型是随机的，同一段 Prompt 有时好有时坏；Prompt 散落在代码里，改动无记录，出问题回不去。</p>
+        <p><strong>最佳解</strong>：把 Prompt 当代码管——<strong>版本化 + 评测回归</strong>。Prompt 抽成独立配置文件纳入 Git；配套一组 Golden Set，任何修改先跑评测，分数不降才允许合并；对稳定性敏感的场景（结构化输出、工具调用）适当降低 temperature，并用 JSON Mode / Function Call 而非「用嘴说格式」。</p>
+
+        <h3 id="p2">问题 2：上下文爆炸、超窗口</h3>
+        <p><strong>成因</strong>：多轮对话、长文档一次全塞，很快顶穿 Context Window；塞进去还有大量无关信息稀释注意力。</p>
+        <p><strong>最佳解</strong>：Context 的分层策略——<strong>先过滤再压缩</strong>。第一层用 RAG 只检索相关片段；第二层对越界部分做窗口压缩（重要信息摘要、次要信息丢弃、结构化替换）；日常会话用短期记忆，项目级用向量库长期记忆，按需召回。宁可少喂，不要硬塞。</p>
+
+        <h3 id="p3">问题 3：Agent 死循环 / 幻觉放荡 / 失败重试失控</h3>
+        <p><strong>成因</strong>：没有终止条件。Agent 会为了一个错误目标反复调自己、反复重试、甚至编造「已成功」，token 烧完、任务还卡着。</p>
+        <p><strong>最佳解</strong>：Loop 工程师的三道硬闸——<strong>轮数上限、预算上限、收敛判定</strong>。轮数到达即停；每轮累计 token/成本到阈值强制中断；引入校验器（Checker / Evaluator）判断「是否真的完成、是否在重复空转」，进入死循环就切换策略而非继续烧钱。退出后保留现场日志，方便排查。</p>
+
+        <h3 id="p4">问题 4：工具调用失败引发连锁失败</h3>
+        <p><strong>成因</strong>：工具 Schema 不清晰、返回格式不对、下游 API 抖动，一次失败导致整条 Agent 链崩掉。</p>
+        <p><strong>最佳解</strong>：把工具当一等公民治理——<strong>清晰的 Schema + 幂等 + 优雅降级</strong>。每个工具的入参出参写成机器可读的 Schema 并写清楚错误语义；工具本身做成幂等，失败可安全重试；单工具失败不炸整条链，提供 fallback 或跳过并记录，让 Loop 决定「换工具还是换策略」。</p>
+
+        <h3 id="p5">问题 5：越权操作、数据泄漏</h3>
+        <p><strong>成因</strong>：Agent 有了读写能力但没有边界，一条错误指令就能改数据、删记录、发消息。</p>
+        <p><strong>最佳解</strong>：Harness 的最小权限 + 审批闸门。<strong>默认 deny</strong>，只放开业务必需的权限；高风险动作（写库、删除、外发、转账）全部走人工审批闸门；所有动作写审计日志（谁、何时、调了什么、结果如何），可追踪可追责。越权问题要在系统层拦截，不依赖模型「自觉」。</p>
+
+        <h3 id="p6">问题 6：没有评测，改动好坏全靠感觉</h3>
+        <p><strong>成因</strong>：改一个 Prompt、换一个模型，是变好还是变坏没人说得清，因为根本没有「答案」和「打分」。</p>
+        <p><strong>最佳解</strong>：建立 Evaluation 流水线——<strong>Golden Set + LLM-as-Judge</strong>。先标注一批标准问答作为基准；用 G-Eval / Judge 模型对输出自动打分（兼顾正确性、忠实度、格式）；把评测接进 CI，任何改动必须过回归门禁。没有评测门禁的改动，和盲改没区别。</p>
+
+        <h3 id="p7">问题 7：黑盒排障，出问题一头雾水</h3>
+        <p><strong>成因</strong>：没有链路追踪，只知道「任务失败了」，不知道卡在哪个循环、哪个工具、烧了多少 token。</p>
+        <p><strong>最佳解</strong>：一上来就埋点。<strong>每一轮 LLM 调用、每次工具调用、每次重试都打点</strong>，带上 Trace ID 串联；用 Langfuse / LangSmith 做可视化，能定位「哪一步 token 爆了 / 哪次调用失败 / 卡在哪个循环」。观测不是上线后再补，是从第一行代码就开始做。</p>
+
+        <h3 id="p8">问题 8：成本失控，跑一晚上账单吓死人</h3>
+        <p><strong>成因</strong>：自主 Agent、反思循环都是烧钱大户，又缺成本视角的架构设计，账单失控。</p>
+        <p><strong>最佳解</strong>：Cost 的三大杠杆——<strong>缓存、路由、瘦身</strong>。重复/相似请求用语义缓存命中；按任务难度路由，简单请求走小模型、复杂才走大模型；上下文反复瘦身，历史用摘要替代原文；再叠加预算上限做硬止损。成本问题在架构层治，比在财务层治有效得多。</p>
+
+        <div class="callout">
+          <strong>问题与角色对照速查</strong>：Prompt 不稳定 → <span style="color:#00f0ff">Prompt + Eval（版本化 + 回归）</span>；上下文爆 → <span style="color:#00f0ff">Context（过滤 + 压缩）</span>；死循环 / 重试失控 → <span style="color:#2ee6a8">Loop（终止条件 + 校验）</span>；工具连锁失败 → <span style="color:#2ee6a8">Tool（Schema + 幂等）</span>；越权泄漏 → <span style="color:#ff4466">Harness（最小权限 + 审批）</span>；没评测 → <span style="color:#ff4466">Eval（Golden Set + Judge）</span>；排障难 → <span style="color:#ff4466">Trace（全链路埋点）</span>；成本失控 → <span style="color:#ff4466">Cost（缓存 + 路由 + 瘦身）</span>。
+        </div>
+
+        <h2 id="think">七、思考：从「看角色」到「看责任」</h2>
+
+        <p>这套框架最有价值的地方，不是给你一张「岗位表」，而是给你一个<strong>责任地图</strong>。小团队一个人能跨界，大公司一个人盯一层，但每一层责任都必须有人认领：指令、材料、编排、围栏、质检、工具、观测、成本——缺一不可。</p>
+
+        <p>展望下一步：随着 Agent 越来越自主，<strong>围栏（Harness）和观测（Trace）会继续向「自治安全」演进</strong>——从「人类审批每一个动作」走向「系统自动识别风险 + 分级放权 + 事后审计」；<strong>Context 会走向更深的个性化与记忆治理</strong>（记什么、忘什么、何时移除）；<strong>Eval 会从「题海打分」走向「持续在线评测与在线学习」</strong>。角色会变，但「用工程把大模型的能力变成可控交付物」这一主线不会变。</p>
+
+        <div class="callout">
+          <strong>一句话收尾</strong>：别纠结自己该叫「Prompt 工程师」还是「Context 工程师」——去数一数，你负责的那条 Agent，八个责任格子是不是都有人填上了。
+        </div>
+
+        <h2 id="refs">延伸阅读</h2>
+        <ul>
+          <li>本站前作：<a href="article-42.html">AI凭什么自己干活，8大架构一次讲透</a>——单智能体范式 × 多智能体协作拓扑的完整架构地图</li>
+          <li>本站前作：<a href="article-19.html">AI Harness：驯服大模型的六柱驾驭体系</a>——Harness 围栏工程的角色定位与落地实操</li>
+          <li>本站前作：<a href="article-40.html">OpenAI开源Codex引擎，Agent产品随便造</a>——Harness 的产品化拆解（沙箱 × 审批双闸门）</li>
+          <li>本站前作：<a href="article-36.html">主子Agent动态编排怎么实现？5阶段全链路实战</a>——Loop 循环编排的工程落地</li>
+          <li>本站前作：<a href="article-24.html">93%的AI项目卡在最后一公里，这样破局</a>——评估门控部署与 Eval 落地的实战视角</li>
+        </ul>
+      </div>
+      <nav class="article-nav" id="articleNav"></nav>
+    </article>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; 2024-2026 朱天伟 | Smart Open. Built with care.</p>
+    </div>
+  </footer>
+
+  <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
+  <script src="../../js/article.js"></script>
+  <script src="../../js/preview-rail.js"></script>
+</body>
+</html>
