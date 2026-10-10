@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用6层架构搭建可落地的企业级Agent平台 - 朱天伟 | Smart Open</title>
+  <meta name="description" content="从零构建企业级智能体平台的完整设计蓝图：六层总体架构 + 两根治理纵柱，拆解 ReAct 运行时、Supervisor 多智能体协作、Function Call/REST/MCP/Skill 四形态工具网关、RAG 知识库与分层记忆、可观测闭环，附市面四大流派成熟度评估、开源技术选型组合、90 天 MVP 路线图与 8 条生产避坑清单。">
+  <link rel="canonical" href="https://blog.sopenai.cn/articles/detail/article-45.html">
+  <meta name="author" content="朱天伟">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <meta name="applicable-device" content="pc,mobile">
+  <meta name="keywords" content="企业级Agent平台,智能体平台,AI Agent,ReAct,多智能体协作,Function Call,REST API,MCP,Skill,RAG,Agent记忆,可观测性,Langfuse,OpenTelemetry,技术选型,MVP">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Smart Open">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:title" content="用6层架构搭建可落地的企业级Agent平台">
+  <meta property="og:description" content="六层架构 + 两根治理纵柱：ReAct 运行时、多智能体协作、四形态工具网关、知识库与记忆、可观测闭环，附选型表与 90 天 MVP 路线图。">
+  <meta property="og:url" content="https://blog.sopenai.cn/articles/detail/article-45.html">
+  <meta property="og:image" content="https://blog.sopenai.cn/assets/img/article-45-og.jpg">
+  <meta property="article:published_time" content="2026-10-09">
+  <meta property="article:modified_time" content="2026-10-09">
+  <meta property="article:author" content="朱天伟">
+  <meta property="article:tag" content="Agent 平台">
+  <meta property="article:tag" content="Multi-Agent">
+  <meta property="article:tag" content="可观测性">
+  <meta property="article:tag" content="技术选型">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="用6层架构搭建可落地的企业级Agent平台">
+  <meta name="twitter:description" content="ReAct 运行时、多智能体协作、四形态工具网关、知识库与记忆、可观测闭环：企业级 Agent 平台的完整设计蓝图。">
+
+  <link rel="icon" type="image/png" href="../../favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/main.css?v=2">
+  <link rel="stylesheet" href="../../css/article.css?v=2">
+  <link rel="stylesheet" href="../../css/preview-rail.css">
+  <style>
+    .arch-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85rem; }
+    .arch-table th { background: var(--bg-secondary); color: var(--accent); padding: 12px 14px; text-align: left; border-bottom: 2px solid var(--divider); font-family: var(--font-mono); font-size: 0.8rem; }
+    .arch-table td { padding: 10px 14px; border-bottom: 1px solid var(--divider); color: var(--text-primary); vertical-align: top; }
+    .arch-table tr:hover td { background: var(--bg-secondary); }
+    .mono { font-family: var(--font-mono); color: var(--accent); }
+    .arch-table .mono { font-size: 0.78rem; white-space: nowrap; }
+    .arch-table .dim { color: var(--text-secondary); }
+    .arch-table .good { color: #2ee6a8; }
+    .arch-table .warn { color: #ff4466; }
+    .callout { background: rgba(0,240,255,0.05); border: 1px solid var(--divider); border-left: 3px solid var(--accent); border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.6; }
+    .callout strong { color: var(--accent); }
+    .callout-warn { background: rgba(255,68,102,0.05); border: 1px solid var(--divider); border-left: 3px solid #ff4466; border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.6; }
+    .callout-warn strong { color: #ff4466; }
+    .tldr ul { margin: 10px 0 0; padding-left: 20px; }
+    .tldr li { margin: 6px 0; }
+    .tldr li::marker { color: var(--accent); }
+    .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+    .pros-cons .pc { border: 1px solid var(--divider); border-radius: 10px; padding: 14px 18px; font-size: 0.85rem; line-height: 1.7; background: var(--bg-secondary); }
+    .pros-cons .good { border-left: 3px solid #2ee6a8; }
+    .pros-cons .bad { border-left: 3px solid #ff4466; }
+    .pros-cons .pc-title { font-family: var(--font-mono); font-size: 0.75rem; margin-bottom: 6px; }
+    .pros-cons .good .pc-title { color: #2ee6a8; }
+    .pros-cons .bad .pc-title { color: #ff4466; }
+    .markdown-body table { display: block; overflow-x: auto; }
+    .codeblock { background: #0b0e14; border: 1px solid var(--divider); border-radius: 10px; padding: 16px 18px; margin: 16px 0; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.7; color: var(--text-primary); overflow-x: auto; white-space: pre; }
+    .codeblock .cm { color: #7a7a85; }
+    .codeblock .kw { color: #c792ea; }
+    .codeblock .st { color: #2ee6a8; }
+    .codeblock .fn { color: #00f0ff; }
+    @media (max-width: 768px) {
+      .arch-table { font-size: 0.78rem; }
+      .arch-table th, .arch-table td { padding: 8px 10px; }
+      .pros-cons { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav" id="nav">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-brand"><img src="../../assets/img/logo.png" alt="Smart Open" class="nav-logo"><span>Smart Open</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="切换导航">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../../index.html#about">关于</a></li>
+        <li><a href="../../index.html#projects">项目</a></li>
+        <li><a href="../../index.html#skills">技能</a></li>
+        <li><a href="../../index.html#experience">经历</a></li>
+        <li><a href="../index.html">文章</a></li>
+        <li><a href="../../trending/index.html">趋势</a></li>
+        <li><a href="../../index.html#contact">联系</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="article-hero">
+    <div class="article-hero-content">
+      <h1 class="article-title">用6层架构搭建可落地的企业级Agent平台</h1>
+      <div class="article-meta">
+        <span class="article-date">2026-10-09</span>
+        <div class="article-tags">
+          <span class="tag">Agent 平台</span>
+          <span class="tag">Multi-Agent</span>
+          <span class="tag">可观测性</span>
+          <span class="tag">技术选型</span>
+        </div>
+      </div>
+    </div>
+    <div class="article-hero-bg" style="background-image: url('../../assets/img/article-45-og.jpg')"></div>
+    <div class="article-hero-overlay"></div>
+  </section>
+
+  <div class="article-container">
+    <aside class="article-sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">目录</h3>
+        <nav class="article-toc" id="articleToc"></nav>
+      </div>
+    </aside>
+
+    <article class="article-content">
+      <div class="markdown-body">
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-45-og.jpg" alt="企业级智能体平台概念图：中央发光大脑核心，周围环绕协作智能体光球与工具、知识、记忆、观测全息面板">
+          <figcaption>企业级 Agent 平台的终态画面：一个调度核心，围着它的是工具、知识库、记忆与可观测面板——本文把这六层逐一拆开</figcaption>
+        </figure>
+
+        <div class="callout tldr">
+          <strong>TL;DR</strong>
+          <ul>
+            <li><strong>先说结论</strong>：2026 年的 Agent 市场，「跑通 Demo」已经不是瓶颈，「管住生产」才是。买平台还是建平台，取决于你的差异化在业务流还是在智能体本身</li>
+            <li><strong>一套骨架管全程</strong>：六层总体架构（接入 / 运行时 / 编排 / 能力 / 模型 / 基础设施）+ 可观测与安全治理两根纵柱，MVP 与终态共用同一张图，只是每层厚度不同</li>
+            <li><strong>三个决定生死的模块</strong>：ReAct 运行时的护栏设计、工具层「Function Call / REST / MCP / Skill」四形态统一网关治理、可观测的「埋点→评估→回滚」闭环——缺一个都上不了生产</li>
+            <li><strong>90 天可落地</strong>：三阶段各 4 周，每阶段结束必须有一个「可运行的东西」，拒绝大爆炸式交付</li>
+          </ul>
+        </div>
+
+        <h2 id="section-1">先看市面：四大流派的落地与成熟度</h2>
+        <p>动手建平台之前，必须先回答一个问题：市面上这些框架和平台，到底成熟到什么程度了？哪些坑已经被踩平，哪些坑还得自己跳？把 2026 年的玩家摆开看，大致是四个流派：</p>
+
+        <table class="arch-table">
+          <thead>
+            <tr><th>流派</th><th>代表产品</th><th>成熟度</th><th>适合谁</th><th>短板</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>低代码平台型</strong></td>
+              <td class="mono">Coze / Dify / n8n</td>
+              <td class="good">生产就绪度高</td>
+              <td class="dim">中小团队快速搭知识库问答、内部助手、轻量自动化</td>
+              <td class="dim">深度定制受限，复杂编排和精细治理做不了</td>
+            </tr>
+            <tr>
+              <td><strong>代码框架型</strong></td>
+              <td class="mono">LangGraph / CrewAI / AutoGen / OpenAI Agents SDK</td>
+              <td class="good">工业级稳定性（LangGraph）</td>
+              <td class="dim">有专职算法工程团队、要突破功能瓶颈的大型研发组织</td>
+              <td class="dim">研发与运维人力开销大，权限、审计等企业件基本要自研</td>
+            </tr>
+            <tr>
+              <td><strong>云托管服务型</strong></td>
+              <td class="mono">Bedrock AgentCore / Vertex AI Agents / 百炼</td>
+              <td class="good">快速验证成熟</td>
+              <td class="dim">已深度绑定某朵云、要内置连接器与合规审计日志的企业</td>
+              <td class="dim">厂商锁定，规模化后 API 成本显著上升，数据出域受限</td>
+            </tr>
+            <tr>
+              <td><strong>合规私有化型</strong></td>
+              <td class="mono">360智语 / 各政企定制平台</td>
+              <td class="good">高保密场景成熟</td>
+              <td class="dim">党政军、央国企、金融能源等强监管行业</td>
+              <td class="dim">无开源版本，实施成本高，技术迭代跟随厂商</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>一个反复出现的横评结论是：<strong>赛道已经「分层落地」，没有最好的框架，只有最合适的工程路径</strong>。零基础求快上 Coze，中小团队要私有化选 Dify，复杂流程深度自研用 LangGraph，强监管行业买合规平台。</p>
+
+        <h3 id="section-1-1">1.1 Demo 到生产之间隔着什么</h3>
+        <p>几乎所有团队都会撞上同一堵墙：周末用 LangGraph 拼出一个惊艳的 Demo，上线三个月后没人说得清它为什么答错、这个月花了多少钱、哪个环节在拖慢。横评里被反复点名的差距有五个：</p>
+        <ul>
+          <li><strong>状态管理</strong>：长程交互需要结构化 Session 追踪，靠上下文窗口硬扛必然溢出</li>
+          <li><strong>可观测</strong>：Agent 是多步随机系统，没有 Trace 就等于蒙眼运营</li>
+          <li><strong>成本</strong>：Token 消耗、重试放大、多智能体的对话开销，没有预算闸门就是无底洞</li>
+          <li><strong>安全</strong>：工具执行要容器隔离，外部接口要防注入，数据出境要守红线</li>
+          <li><strong>评估</strong>：模型换代、Prompt 改动之后，没有回归评估集就不敢发布</li>
+        </ul>
+
+        <div class="callout">
+          <strong>买还是建的判据</strong>：如果你的差异化在「业务流程 + 数据」，直接用 Dify/Coze 这类平台，把精力花在知识库和工具上；如果差异化在「智能体行为本身」（自定义推理策略、多智能体编排、深度嵌入存量系统），才值得建平台——而且建的是<strong>平台</strong>，不是又一个 workflow。下面六层架构就是按这个前提展开的。
+        </div>
+
+        <h2 id="section-2">总体架构：六层模型 + 两根纵柱</h2>
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-45-arch.svg" alt="企业级 Agent 平台六层总体架构图：接入层、Agent运行时、多智能体编排、能力层、模型层、基础设施，右侧可观测性与安全治理两根纵柱">
+          <figcaption>六层总体架构：纵向是请求流（接入→运行时→编排→能力→模型→基础设施），横向两根纵柱（可观测性、安全治理）贯穿全栈</figcaption>
+        </figure>
+
+        <p>这张图同时是 MVP 的施工图和终态的蓝图——区别只在每层的「厚度」。逐层说职责与关键设计决策：</p>
+        <ul>
+          <li><strong>L1 接入层</strong>：Web 控制台（对话、调试、管理三合一）、IM 集成（飞书/钉钉/企微机器人）、OpenAPI + SDK。设计要点：所有入口收敛为同一种「会话」抽象，流式输出用 SSE，长任务用 WebSocket 或回调</li>
+          <li><strong>L2 Agent 运行时</strong>：平台的心脏。ReAct 引擎、会话状态机（Session / Turn / Step 三级）、Checkpoint 断点恢复。设计要点：运行时对上层协议无感、对下层模型无感，只管「一次推理循环怎么跑」</li>
+          <li><strong>L3 编排层</strong>：单 Agent 不够时才有意义。Supervisor（主管分解）、Router（意图路由）、Pipeline / Handoff（流水线与移交）。设计要点：编排是运行时的组合器，不是另一套引擎</li>
+          <li><strong>L4 能力层</strong>：工具网关（Function Call / REST / MCP / Skill 四形态统一接入 + Registry + 沙箱）、知识库（RAG）、记忆（分层记忆）。设计要点：三类能力都以「服务」形式暴露，禁止业务代码绕过网关直连工具</li>
+          <li><strong>L5 模型层</strong>：模型网关（LiteLLM 统一协议）、多厂商路由与降级、Token 预算与配额。设计要点：应用永远调用「逻辑模型名」（如 <span class="mono">smart / fast / cheap</span>），物理模型映射收在网关里，换模型不改代码</li>
+          <li><strong>L6 基础设施</strong>：K8s/Docker、PostgreSQL + pgvector、Redis、对象存储。设计要点：MVP 阶段一个 Postgres 打三份工（业务库 + 向量库 + Trace 存储），别过早上分布式</li>
+        </ul>
+        <p>两根纵柱是「企业级」三个字的真正含义：<strong>可观测性</strong>（Trace / Metrics / Eval，第 7 节展开）决定你敢不敢上线，<strong>安全治理</strong>（RBAC、审计、合规、沙箱）决定你能不能过审。它们不是某一层，而是每一层都要交代的横切面。</p>
+
+        <h2 id="section-3">单智能体运行时：把 ReAct 做成引擎</h2>
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-45-react.svg" alt="ReAct 执行循环图：上下文组装、LLM Thought、Action 工具执行、Observation 回写构成闭环，带记忆读写与 Trace 上报">
+          <figcaption>ReAct 执行循环：Thought → Action → Observation 的闭环，配护栏（迭代上限 / 超时 / 预算熔断）与全链路遥测</figcaption>
+        </figure>
+
+        <p>ReAct（Reason + Act）不是什么新东西，但把它从「一个 Prompt 模式」做成「一个引擎」，是平台和玩具的分水岭。核心循环不到 40 行：</p>
+
+        <div class="codeblock"><span class="cm"># runtime.py — ReAct 引擎骨架（简化）</span>
+<span class="kw">async def</span> <span class="fn">run_turn</span>(session: Session, budget: Budget):
+    <span class="kw">for</span> step <span class="kw">in</span> range(MAX_ITERS):                      <span class="cm"># 护栏一：迭代上限</span>
+        ctx = <span class="kw">await</span> assemble_context(                    <span class="cm"># 上下文组装</span>
+            system_prompt = session.agent.prompt,
+            history     = session.trim_and_summarize(),   <span class="cm"># 截断窗口+历史摘要</span>
+            memory      = <span class="kw">await</span> mem.retrieve(session.q),  <span class="cm"># 记忆读取</span>
+            knowledge   = <span class="kw">await</span> rag.retrieve(session.q),  <span class="cm"># 知识检索</span>
+        )
+        msg = <span class="kw">await</span> llm.chat(ctx, tools=session.agent.tools, timeout=LLM_TIMEOUT)  <span class="cm"># 护栏二：超时</span>
+        budget.charge(msg.usage)
+        <span class="kw">if</span> budget.exceeded():                           <span class="cm"># 护栏三：Token 预算熔断</span>
+            <span class="kw">return</span> degrade(session, <span class="st">"budget exhausted"</span>)
+        <span class="kw">if</span> not msg.tool_calls:
+            <span class="kw">return</span> finish(session, msg)                   <span class="cm"># 无工具调用 → 最终答案</span>
+        obs = <span class="kw">await</span> tool_gateway.execute(msg.tool_calls)  <span class="cm"># 沙箱内执行，结果截断</span>
+        session.append(msg, obs)                          <span class="cm"># Observation 回写</span>
+        <span class="kw">await</span> checkpoint(session)                         <span class="cm"># 每步落盘，可恢复可重放</span>
+    <span class="kw">return</span> degrade(session, <span class="st">"max_iters reached"</span>)</div>
+
+        <p>骨架之外，决定生产质量的是四个设计决策：</p>
+        <ul>
+          <li><strong>三级状态模型</strong>：Session（一次会话）→ Turn（一次用户输入触发的完整循环）→ Step（一次推理迭代）。评估、计费、审计、重放全部挂在 Step 上，粒度不够就查不清问题</li>
+          <li><strong>上下文工程优先于模型升级</strong>：历史超窗时用「截断 + 摘要」而不是无脑塞满；检索结果进上下文前做去重与相关性截断，这是延迟和成本的第一杠杆</li>
+          <li><strong>护栏必须是引擎内建</strong>：<span class="mono">max_iters</span>、单步超时、Token 预算、循环检测（同一工具同一参数连续调用即熔断）。靠 Prompt 里写「请不要重复调用」是管不住的</li>
+          <li><strong>Checkpoint 每一步落盘</strong>：长任务跑 20 分钟挂了，能从断点恢复和从头重跑，是两个量级的产品体验</li>
+        </ul>
+
+        <h2 id="section-4">多智能体协作：先忍住，再出手</h2>
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-45-multiagent.svg" alt="多智能体协作架构图：Supervisor 分解路由汇总，研究/数据分析/编码/审核四个子智能体执行，Handoff 横向移交，共享黑板">
+          <figcaption>Supervisor 拓扑 + 共享黑板：主管分解调度，子智能体专业化执行，结果聚合交付，上下文经黑板共享</figcaption>
+        </figure>
+
+        <p>横评数据里有一条冷静的共识：多智能体的 Token 开销和调试复杂度都是成倍增长的（AutoGen 类「多角色对话」方案尤其烧钱）。所以第一原则是：<strong>单 Agent + 好工具能解决的，绝不上多 Agent</strong>。确实需要时，按场景选拓扑：</p>
+
+        <table class="arch-table">
+          <thead>
+            <tr><th>拓扑</th><th>运转方式</th><th>适用场景</th><th>代价</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="mono">Supervisor</td><td>主管分解任务、分派子 Agent、汇总结果</td><td class="dim">异构任务（研究+数据+编码），需要统一出口质量</td><td class="dim">主管成为瓶颈与成本大头</td></tr>
+            <tr><td class="mono">Pipeline</td><td>固定顺序流水线，上一环输出即下一环输入</td><td class="dim">流程确定的生产任务（撰稿→审校→合规）</td><td class="dim">灵活性最差，环节失败要整链重跑</td></tr>
+            <tr><td class="mono">Router</td><td>前置路由按意图分发给专家 Agent</td><td class="dim">多业务域共用入口（客服分诊）</td><td class="dim">路由错了后面全错，需持续调路由</td></tr>
+            <tr><td class="mono">Swarm / Handoff</td><td>Agent 之间点对点移交控制权与上下文</td><td class="dim">探索型协作、职责边界模糊的任务</td><td class="warn">最难调试，环路风险最高，生产慎用</td></tr>
+          </tbody>
+        </table>
+
+        <p>工程要点三条：</p>
+        <ul>
+          <li><strong>上下文隔离</strong>：子 Agent 只拿自己任务相关的上下文切片，禁止全员共享整段对话——这既是成本控制，也是防止互相污染推理</li>
+          <li><strong>共享黑板</strong>：跨 Agent 的事实与中间产物写入黑板（本质是一张带版本的状态表 + 消息总线），交接用结构化 Handoff 载荷（任务、上下文引用、验收标准），不要用自然语言口口相传</li>
+          <li><strong>协议选择</strong>：同进程编排用 LangGraph 的 subgraph / Command 机制即可；跨团队、跨进程的 Agent 互操作盯住 A2A 类开放协议，但 2026 年它仍在早期，内部系统不必强上</li>
+        </ul>
+
+        <h2 id="section-5">工具层：四种工具形态，一个网关</h2>
+        <p>聊工具层很容易条件反射地只想到 MCP，但企业现实里的工具形态远比这丰富：存量系统本来就是 REST 接口，模型厂商原生自带 Function Call，Skill 生态在 2026 年成了第二类能力形态，MCP 则是新增 Agent 工具的事实标准。成熟平台不押注单一形态，而是把四种形态收敛进同一个网关：</p>
+
+        <table class="arch-table">
+          <thead>
+            <tr><th>形态</th><th>本质</th><th>典型场景</th><th>优势</th><th>短板</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Function Call</strong></td>
+              <td class="dim">模型原生工具调用（JSON Schema 声明）</td>
+              <td class="dim">会话内轻量动作：查订单、算汇率、生成结构化输出</td>
+              <td class="good">零协议开销，所有主流模型兼容</td>
+              <td class="dim">schema 散在各厂商 API 里，没有统一注册与授权</td>
+            </tr>
+            <tr>
+              <td><strong>HTTP REST / OpenAPI</strong></td>
+              <td class="dim">把存量企业接口包装成工具</td>
+              <td class="dim">对接 OA / CRM / 工单 / 库存等已有系统</td>
+              <td class="good">目标系统零改造，OpenAPI spec 可自动导入为工具定义</td>
+              <td class="dim">接口为人设计：返回体大、字段冗余，截断与裁剪要自己做</td>
+            </tr>
+            <tr>
+              <td><strong>MCP</strong></td>
+              <td class="dim">Client-Server 工具协议</td>
+              <td class="dim">生态化接入：搜索、数据库、浏览器、云服务、官方行业包</td>
+              <td class="good">标准化发现 / 鉴权 / 流式，生态最活跃</td>
+              <td class="dim">协议本身不管治理，网关、限流、审计仍要自建</td>
+            </tr>
+            <tr>
+              <td><strong>Skill</strong></td>
+              <td class="dim">指令 + 脚本 + 资源的能力包</td>
+              <td class="dim">流程化能力：文档生成、代码评审规范、领域方法论</td>
+              <td class="good">给 Agent 注入「程序性记忆」，跨团队复用</td>
+              <td class="dim">占用上下文，效果必须靠评估验证</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>四种形态在网关里收敛为一套治理模型：</p>
+        <ul>
+          <li><strong>Tool Registry 统一抽象</strong>：Function Call 的 schema、REST 的 OpenAPI 文档、MCP server 的工具列表、Skill 包的元数据，注册进同一张表——风险等级、权限要求、超时、限流、计费维度。运行时按 Agent 声明的工具白名单暴露，LLM 永远看不到未授权工具的 schema，也不需要知道调用背后是 REST 还是 MCP，执行器（executor）按形态适配；一次响应里的多个 tool_calls 并行执行、设并发上限，否则串行等待会把延迟乘倍数放大</li>
+          <li><strong>Tool 与 Skill 互补</strong>：Tool 是「一次调用」，Skill 是「怎么做一串事」。skills.sh 生态爆发（find-skills 安装量已破 3.8M）之后，Skill 事实上成了工具之外的第二类能力，平台要提供 Skill 的安装、版本管理与启用审计，而不是让每个人往项目里手拷 markdown</li>
+          <li><strong>沙箱执行</strong>：代码执行、文件操作类工具一律进容器沙箱，网络白名单 + 资源限额 + 执行时限。这是横评里「沙箱安全需额外配置」这个坑的标准解法</li>
+          <li><strong>结果治理</strong>：工具返回值先截断/摘要再进上下文（一个搜索工具返回 50KB HTML 是最常见的成本炸弹）；工具报错要作为 Observation 回写给模型换策略，而不是抛异常打断整个 Turn；重试只对幂等调用开放（GET 或带幂等键的写），无幂等键的写操作自动重试会制造重复下单、重复发消息——比失败更糟的事故</li>
+          <li><strong>注入防线</strong>：工具返回的内容是「数据」不是「指令」，在 Prompt 组装时用分隔符与系统指令隔离，并对高危工具（写操作、支付、发消息）加人工审批闸门</li>
+          <li><strong>凭证代持</strong>：工具所需的 API Key / OAuth 令牌由网关侧保管（Vault / KMS），只在真正发起调用的那一刻注入，绝不进 Prompt、模型上下文或日志——凭证一旦进入上下文，就等于交给了一个不可控方</li>
+        </ul>
+        <div class="callout">
+          <strong>一个判断</strong>：工具层做没做好，看一条就够——新增一个工具需要改几处代码？正确答案是 0 处：REST 用 OpenAPI spec 导入、MCP 挂 server、Skill 传包、Function Call 交 schema，注册 + 配权限，完成。
+        </div>
+
+        <h2 id="section-6">知识库与记忆：RAG 打底，分层记忆升级</h2>
+        <p>知识库解决「组织知道什么」，记忆解决「这个 Agent 和用户之间发生过什么」。两者常被混为一谈，工程上必须分开建设。</p>
+        <h3 id="section-6-1">6.1 RAG 流水线</h3>
+        <p>标准五段：<strong>解析 → 切分 → 嵌入 → 混合检索 → 重排</strong>。2026 年的务实组合：文档解析用带版面理解的解析器（表格/图片是重灾区），切分按语义结构（标题层级）而非固定字数，检索用向量 + BM25 混合，再叠一跳 cross-encoder 重排，向量库 MVP 直接用 pgvector。腾讯 WeKnora 这类「原始文档一键变可查询 RAG + 自维护 Wiki」的产品形态值得参考——把知识库做成有维护闭环的资产，而不是一次性索引。还有一条企业红线：<strong>检索必须按提问者身份做文档级权限过滤</strong>（ACL 跟着 query 走，而不是跟着文档入库走），否则知识库会成为全公司最大的越权泄露面——模型会替问不到的人，把答案说出来。</p>
+        <h3 id="section-6-2">6.2 四层记忆模型</h3>
+        <table class="arch-table">
+          <thead>
+            <tr><th>记忆层</th><th>载体</th><th>生命周期</th><th>典型操作</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>工作记忆</strong></td><td class="dim">当前上下文窗口</td><td class="dim">单 Turn</td><td class="mono">trim() / summarize()</td></tr>
+            <tr><td><strong>情景记忆</strong></td><td class="dim">会话历史 + 摘要（Postgres）</td><td class="dim">跨会话</td><td class="mono">append() / recall()</td></tr>
+            <tr><td><strong>语义记忆</strong></td><td class="dim">事实与偏好（向量库 + 实体图）</td><td class="dim">长期</td><td class="mono">store() / retrieve() / forget()</td></tr>
+            <tr><td><strong>程序性记忆</strong></td><td class="dim">Skill / 工具使用经验</td><td class="dim">长期</td><td class="mono">consolidate() / promote()</td></tr>
+          </tbody>
+        </table>
+        <p>趋势上，Agent Memory 已经从论文走进排行榜：记忆系统（hindsight）、会话记忆插件（claude-mem）连续数周霸榜 GitHub Trending，「会学习的记忆」正在成为运行时的标配组件。落地建议：MVP 先做情景记忆（会话摘要持久化）+ 语义记忆（用户偏好、项目事实的抽取与检索，Mem0 模式：LLM 负责从对话里抽取、去重、更新事实），程序性记忆放到平台二期再碰——它需要评估体系先行，否则「学到的经验」无法验证好坏。</p>
+
+        <h2 id="section-7">可观测性：从埋点到回滚的闭环</h2>
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-45-obs.svg" alt="可观测闭环图：Agent运行时经OTLP采集网关入Trace存储，分流到指标大盘、明细树、在线评估，经告警与版本管理反哺运行时">
+          <figcaption>可观测闭环：遥测数据流进、三条消费路径、两条反馈回路（bad case 回流评估集、新版本灰度/回滚）</figcaption>
+        </figure>
+
+        <p>「Agent 上线三天翻车了都不知道哪步错的」——这是今年技术博客里出现频率最高的标题之一。可观测不是加个日志，而是建一条从埋点到回滚的闭环链路：</p>
+        <ul>
+          <li><strong>埋点</strong>：按 OpenTelemetry GenAI 语义约定打 span，层级严格对应 <span class="mono">Session → Turn → Step → (LLM call / Tool call / Retrieval)</span>。LangGraph 等框架自带 instrumentation，自研运行时用 OTel SDK 手工埋，一个 Step 都不能少</li>
+          <li><strong>采集与存储</strong>：OTLP 网关批处理上报，指标可以降采样，但 Trace 要全量落库（ClickHouse 规模化 / Postgres MVP）+ TTL 分级留存——采样一旦落在 span 层，bad case 就会随机丢失，事后无从归因。Prompt/Completion 全文脱敏后存，没有原文等于没埋点</li>
+          <li><strong>消费三路径</strong>：指标大盘（成功率、P95 延迟、Token 成本、平均迭代数——Agent 的四个黄金信号）；Trace 明细树（逐 Step 下钻，回答「它为什么这么答」）；在线评估（抽样流量跑 LLM-as-Judge + 规则断言）</li>
+          <li><strong>反馈两回路</strong>：bad case 一键回流成评估集样本；新版本（Prompt / 模型 / 工具）必须先过评估集回归，再灰度，再全量，出问题一键回滚到上一版 Prompt</li>
+        </ul>
+        <div class="callout">
+          <strong>选型</strong>：Langfuse 是当前开源方案的事实标准（自托管友好、Trace + Eval + Prompt 管理一体），重资产场景可看 Phoenix + OTel Collector 自建。判断标准只有一条：<strong>能不能在 5 分钟内从一条用户差评定位到具体哪个 Step 的哪个 span</strong>。
+        </div>
+
+        <h2 id="section-8">技术选型：一套开源组合拳</h2>
+        <p>把前面所有模块落到具体的名字上。原则：每层选「社区已验证 + 可替换」的件，任何一项都有 Plan B：</p>
+
+        <table class="arch-table">
+          <thead>
+            <tr><th>层</th><th>MVP（1-3 人，4-8 周）</th><th>演进（团队化生产）</th><th>替换判据</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>接入</td><td class="mono">FastAPI + SSE</td><td class="mono">+ WebSocket / IM bot SDK</td><td class="dim">需要长任务推送时</td></tr>
+            <tr><td>运行时</td><td class="mono">自研 ReAct 引擎（约 200 行）</td><td class="mono">LangGraph（状态机+checkpoint 现成）</td><td class="dim">分支/并行/恢复语义复杂到自研维护不动时</td></tr>
+            <tr><td>编排</td><td class="mono">Supervisor 单拓扑</td><td class="mono">LangGraph subgraph / Command</td><td class="dim">第二拓扑有真实需求时再加</td></tr>
+            <tr><td>工具</td><td class="mono">静态注册表 + FC/REST/MCP 混挂</td><td class="mono">Tool Registry + 容器沙箱 + 审批闸门</td><td class="dim">接入写操作工具那天</td></tr>
+            <tr><td>知识库</td><td class="mono">pgvector + 混合检索</td><td class="mono">Qdrant / Milvus + rerank 模型</td><td class="dim">向量 &gt; 千万或召回质量到瓶颈</td></tr>
+            <tr><td>记忆</td><td class="mono">会话摘要表 + 事实表</td><td class="mono">Mem0 模式（LLM 抽取-去重-更新）</td><td class="dim">跨会话个性化成为刚需</td></tr>
+            <tr><td>模型</td><td class="mono">LiteLLM 网关</td><td class="mono">+ 多厂商路由 / 降级 / 预算配额</td><td class="dim">第二个模型供应商接入时</td></tr>
+            <tr><td>观测</td><td class="mono">Langfuse 自托管</td><td class="mono">OTel Collector + ClickHouse + Eval 流水线</td><td class="dim">Trace 量级过亿 span/天</td></tr>
+            <tr><td>部署</td><td class="mono">Docker Compose 单机</td><td class="mono">K8s + HPA + 队列（Redis/Stream）</td><td class="dim">并发长任务排队成为常态</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout-warn">
+          <strong>两个反模式</strong>：① 一上来就「全自研框架」——运行时、编排、观测全部自己写，12 个月后你在维护一个只有内部人看得懂的框架，这是 LangChain 式碎片化教训的反面极端；② 反过来，把 6 个框架各取一部分缝合（LangGraph 的图 + CrewAI 的角色 + AutoGen 的对话 + 自研记忆 + 自研观测），复杂度乘法叠加，谁也说不清一次失败该找谁。<strong>每层一个主件，能一鱼多吃就不多鱼</strong>。
+        </div>
+
+        <h2 id="section-9">90 天 MVP：三阶段路线图</h2>
+        <figure class="article-inline-image">
+          <img src="../../assets/img/article-45-roadmap.svg" alt="90天MVP落地路线图：阶段一单智能体地基，阶段二知识库记忆与多智能体，阶段三评估治理与上线，M1 Demo、M2试点、M3 GA三个里程碑">
+          <figcaption>90 天三阶段：每 4 周一个可运行里程碑，M1 内部 Demo → M2 试点上线 → M3 正式 GA</figcaption>
+        </figure>
+
+        <ul>
+          <li><strong>阶段一（W1-W4）打地基</strong>：FastAPI + 自研 ReAct 循环 + 3 个工具（Function Call / REST 包装 / MCP server 各一）+ Langfuse 埋点 + Postgres 会话表。验收：一个能查资料、调工具、带 Trace 的单 Agent，内部 Demo 日人人可玩</li>
+          <li><strong>阶段二（W5-W8）上能力</strong>：RAG 流水线接入部门文档、会话摘要持久化 + 事实记忆、Supervisor 编排两个专家子 Agent。验收：真实业务问题端到端解决率可量化（先定基线，比如 60%）</li>
+          <li><strong>阶段三（W9-W12）补治理</strong>：评估集（≥200 条真实 case）+ LLM-as-Judge 回归、RBAC 与工具审批闸门、Token 预算与配额、LiteLLM 双厂商路由降级、Docker→K8s 部署。验收：一次模型切换在评估集上验证后灰度上线，全程未改行业务代码</li>
+        </ul>
+        <p>三条纪律比计划本身更重要：<strong>每阶段末必须「可运行、可演示、可回退」</strong>；<strong>评估集从第一周就开始积累</strong>（bad case 随手归档，别等第三阶段补）；<strong>可观测先于功能</strong>——任何新能力上线时它的 span 必须已经在报。</p>
+
+        <h2 id="section-10">避坑指南：生产环境最常见的 8 个坑</h2>
+        <table class="arch-table">
+          <thead>
+            <tr><th>#</th><th>坑</th><th>症状</th><th>对策</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td><strong>成本失控</strong></td><td class="dim">月底账单 surprise，单会话 Token 无上限</td><td class="dim">Turn 级预算熔断 + 逻辑模型分级路由 + 结果截断</td></tr>
+            <tr><td>2</td><td><strong>上下文溢出</strong></td><td class="dim">长会话答非所问、延迟暴涨</td><td class="dim">截断窗口 + 滚动摘要，检索结果相关性截断</td></tr>
+            <tr><td>3</td><td><strong>循环卡死</strong></td><td class="dim">同一工具反复调用，迭代数打满</td><td class="dim">max_iters + 重复调用检测熔断 + 降级话术</td></tr>
+            <tr><td>4</td><td><strong>注入攻击</strong></td><td class="dim">工具返回内容劫持 Agent 行为</td><td class="dim">数据/指令分隔 + 高危工具人工审批 + 沙箱</td></tr>
+            <tr><td>5</td><td><strong>评估缺位</strong></td><td class="dim">换模型后质量下滑一周才被发现</td><td class="dim">评估集回归作为发布门禁，LLM-as-Judge 抽样在线跑</td></tr>
+            <tr><td>6</td><td><strong>框架锁定</strong></td><td class="dim">业务逻辑与某框架 API 深度耦合</td><td class="dim">业务只依赖平台的 Agent/Tool/Memory 抽象接口</td></tr>
+            <tr><td>7</td><td><strong>伪多智能体</strong></td><td class="dim">三个 Agent 干一件事，成本×3 质量没变</td><td class="dim">先单 Agent + 好工具，指标不达标再拆</td></tr>
+            <tr><td>8</td><td><strong>合规裸奔</strong></td><td class="dim">审计问「这条回答怎么来的」答不出</td><td class="dim">Trace 全留存 + Prompt 版本化 + 数据出域白名单</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="section-11">结语：平台化是把 Agent 能力产品化</h2>
+        <p>回到最初的问题：为什么要「建平台」而不是「用框架」？框架解决的是「一个 Agent 怎么跑」，平台解决的是「一百个 Agent 怎么被开发、被信任、被运营」。六层架构里真正难的从来不是 ReAct 循环那 40 行代码，而是三件工程化的事：<strong>让每一步可追溯</strong>（可观测闭环）、<strong>让每一次变更可验证</strong>（评估门禁）、<strong>让每一个能力可复用</strong>（工具与记忆的服务化）。这三件事做到，Demo 和生产之间的那堵墙，才算真正翻过去。</p>
+
+        <h2 id="refs">延伸阅读</h2>
+        <ul>
+          <li>本站前作：<a href="article-42.html">AI凭什么自己干活，8大架构一次讲透</a>——ReAct 等 8 大 Agent 架构与多智能体拓扑的完整地图</li>
+          <li>本站前作：<a href="article-43.html">从Prompt到Loop：AI工程师的四级进化与落地实践</a>——本文「模型外工程」视角的角色分工版</li>
+          <li>本站前作：<a href="article-36.html">主子Agent动态编排怎么实现？5阶段全链路实战</a>——Supervisor 编排的落地细节</li>
+          <li>本站前作：<a href="article-24.html">93%的AI项目卡在最后一公里，这样破局</a>——评估门控部署的实战视角</li>
+          <li>趋势参考：本周<a href="../../trending/index.html">趋势发现</a>——Agent 记忆（claude-mem / hindsight）与官方行业 Skill 包的霸榜动态</li>
+        </ul>
+      </div>
+      <nav class="article-nav" id="articleNav"></nav>
+    </article>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; 2024-2026 朱天伟 | Smart Open. Built with care.</p>
+    </div>
+  </footer>
+
+  <script src="../../js/main.js"></script>
+  <script src="../articles-data.js"></script>
+  <script src="../../js/article.js"></script>
+  <script src="../../js/preview-rail.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 560" font-family="Inter, 'Segoe UI', 'Microsoft YaHei', sans-serif">
+<rect x="0" y="0" width="1100" height="560" fill="#12121a"/>
+<defs><marker id="aBlue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#58a6ff"/></marker><marker id="aOrange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#ff9f43"/></marker><marker id="aGreen" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#2ee6a8"/></marker><marker id="aGray" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#9aa0a6"/></marker><marker id="aPurple" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#c792ea"/></marker></defs>
+<text x="40" y="40" font-size="18" font-weight="700" fill="#e8e8ec">可观测闭环：从埋点到回滚</text>
+<text x="40" y="60" font-size="12" fill="#7a7a85">Trace 树 → 指标 / 明细 / 评估 → 告警与版本治理 → 反哺运行时</text>
+<rect x="40" y="170" width="160" height="90" rx="8" fill="#1c1c26" stroke="#2a2a35" stroke-width="1"/>
+<text x="120.0" y="221.0" font-size="13" font-weight="600" fill="#e8e8ec" text-anchor="middle">Agent 运行时</text>
+<text x="120.0" y="239.0" font-size="10.5" fill="#7a7a85" text-anchor="middle">OTel SDK 埋点</text>
+<rect x="260" y="170" width="140" height="90" rx="8" fill="#1c1c26" stroke="#2a2a35" stroke-width="1"/>
+<text x="330.0" y="221.0" font-size="13" font-weight="600" fill="#e8e8ec" text-anchor="middle">OTLP 采集网关</text>
+<text x="330.0" y="239.0" font-size="10.5" fill="#7a7a85" text-anchor="middle">批处理 · 采样</text>
+<rect x="460" y="170" width="150" height="90" rx="8" fill="#1c1c26" stroke="#2a2a35" stroke-width="1"/>
+<text x="535.0" y="221.0" font-size="13" font-weight="600" fill="#e8e8ec" text-anchor="middle">Trace 存储</text>
+<text x="535.0" y="239.0" font-size="10.5" fill="#7a7a85" text-anchor="middle">ClickHouse / PG</text>
+<rect x="680" y="60" width="170" height="70" rx="8" fill="#1c1c26" stroke="#2a2a35" stroke-width="1"/>
+<text x="765.0" y="101.0" font-size="13" font-weight="600" fill="#e8e8ec" text-anchor="middle">指标大盘</text>
+<text x="765.0" y="119.0" font-size="10.5" fill="#7a7a85" text-anchor="middle">成本 · 延迟 · 成功率</text>
+<rect x="680" y="170" width="170" height="70" rx="8" fill="#1c1c26" stroke="#2a2a35" stroke-width="1"/>
+<text x="765.0" y="211.0" font-size="13" font-weight="600" fill="#e8e8ec" text-anchor="middle">Trace 明细树</text>
+<text x="765.0" y="229.0" font-size="10.5" fill="#7a7a85" text-anchor="middle">Session→Turn→Step</text>
+<rect x="680" y="280" width="170" height="80" rx="8" fill="#1c1c26" stroke="#2a2a35" stroke-width="1"/>
+<text x="765.0" y="326.0" font-size="13" font-weight="600" fill="#e8e8ec" text-anchor="middle">在线评估</text>
+<text x="765.0" y="344.0" font-size="10.5" fill="#7a7a85" text-anchor="middle">LLM-as-Judge · 数据集回归</text>
+<rect x="920" y="280" width="150" height="80" rx="8" fill="#1c1c26" stroke="#2a2a35" stroke-width="1"/>
+<text x="995.0" y="326.0" font-size="13" font-weight="600" fill="#e8e8ec" text-anchor="middle">告警 / 熔断</text>
+<text x="995.0" y="344.0" font-size="10.5" fill="#7a7a85" text-anchor="middle">预算 · 错误率</text>
+<rect x="680" y="400" width="170" height="80" rx="8" fill="#1c1c26" stroke="#2a2a35" stroke-width="1"/>
+<text x="765.0" y="446.0" font-size="13" font-weight="600" fill="#e8e8ec" text-anchor="middle">Prompt / 版本管理</text>
+<text x="765.0" y="464.0" font-size="10.5" fill="#7a7a85" text-anchor="middle">灰度 · 回滚</text>
+<path d="M 200,215 L 258,215" fill="none" stroke="#58a6ff" stroke-width="1.8" marker-end="url(#aBlue)"/>
+<text x="229" y="205" font-size="11" fill="#58a6ff" text-anchor="middle">span 流</text>
+<path d="M 400,215 L 458,215" fill="none" stroke="#58a6ff" stroke-width="1.8" marker-end="url(#aBlue)"/>
+<path d="M 610,205 L 645,205 L 645,95 L 678,95" fill="none" stroke="#58a6ff" stroke-width="1.8" marker-end="url(#aBlue)"/>
+<path d="M 610,215 L 678,215" fill="none" stroke="#58a6ff" stroke-width="1.8" marker-end="url(#aBlue)"/>
+<path d="M 610,225 L 645,225 L 645,320 L 678,320" fill="none" stroke="#58a6ff" stroke-width="1.8" marker-end="url(#aBlue)"/>
+<path d="M 850,320 L 918,320" fill="none" stroke="#ff9f43" stroke-width="1.8" marker-end="url(#aOrange)"/>
+<text x="884" y="310" font-size="11" fill="#ff9f43" text-anchor="middle">超阈值</text>
+<path d="M 765,360 L 765,398" fill="none" stroke="#c792ea" stroke-width="1.8" marker-end="url(#aPurple)"/>
+<text x="830" y="385" font-size="11" fill="#c792ea" text-anchor="middle">bad case 回流</text>
+<path d="M 678,440 L 120,440 L 120,262" fill="none" stroke="#c792ea" stroke-width="1.8" marker-end="url(#aPurple)"/>
+<text x="400" y="430" font-size="11" fill="#c792ea" text-anchor="middle">新版本灰度下发</text>
+<path d="M 995,360 L 995,505 L 230,505 L 230,262" fill="none" stroke="#c792ea" stroke-width="1.8" marker-end="url(#aPurple)"/>
+<text x="620" y="495" font-size="11" fill="#c792ea" text-anchor="middle">回滚 / 降级指令</text>
+<line x1="40" y1="536" x2="68" y2="536" stroke="#58a6ff" stroke-width="2"/>
+<text x="76" y="540" font-size="11" fill="#7a7a85">遥测数据流</text>
+<line x1="40" y1="556" x2="68" y2="556" stroke="#ff9f43" stroke-width="2"/>
+<text x="76" y="560" font-size="11" fill="#7a7a85">触发告警</text>
+<line x1="40" y1="576" x2="68" y2="576" stroke="#c792ea" stroke-width="2"/>
+<text x="76" y="580" font-size="11" fill="#7a7a85">反馈闭环</text>
+</svg>

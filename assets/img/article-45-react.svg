@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 660" font-family="Inter, 'Segoe UI', 'Microsoft YaHei', sans-serif">
+<rect x="0" y="0" width="960" height="660" fill="#12121a"/>
+<defs><marker id="aBlue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#58a6ff"/></marker><marker id="aOrange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#ff9f43"/></marker><marker id="aGreen" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#2ee6a8"/></marker><marker id="aGray" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#9aa0a6"/></marker><marker id="aPurple" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#c792ea"/></marker></defs>
+<text x="40" y="40" font-size="18" font-weight="700" fill="#e8e8ec">单智能体运行时：ReAct 执行循环</text>
+<text x="40" y="60" font-size="12" fill="#7a7a85">Thought → Action → Observation 闭环，带护栏与全链路遥测</text>
+<rect x="180" y="140" width="640" height="340" rx="10" fill="none" stroke="#2a2a35" stroke-dasharray="6,4"/>
+<text x="192" y="162" font-size="13" font-weight="600" fill="#00f0ff">Agent Runtime</text>
+<text x="808" y="164" font-size="11" fill="#7a7a85" text-anchor="end">护栏：max_iters · 超时 · Token 预算熔断</text>
+<rect x="40" y="260" width="110" height="90" rx="8" fill="#1c1c26" stroke="#2a2a35" stroke-width="1"/>
+<text x="95.0" y="310.0" font-size="13" font-weight="600" fill="#e8e8ec" text-anchor="middle">用户请求</text>
+<rect x="250" y="170" width="160" height="60" rx="8" fill="#1c1c26" stroke="#2a2a35" stroke-width="1"/>
+<text x="330.0" y="206.0" font-size="13" font-weight="600" fill="#e8e8ec" text-anchor="middle">上下文组装</text>
+<text x="330.0" y="224.0" font-size="10.5" fill="#7a7a85" text-anchor="middle">Prompt + 历史 + 检索</text>
+<rect x="250" y="260" width="160" height="90" rx="8" fill="#1c1c26" stroke="#00f0ff" stroke-width="2"/>
+<text x="330.0" y="310.0" font-size="13" font-weight="600" fill="#e8e8ec" text-anchor="middle">LLM · Thought</text>
+<rect x="590" y="260" width="170" height="90" rx="8" fill="#1c1c26" stroke="#2a2a35" stroke-width="1"/>
+<text x="675.0" y="311.0" font-size="13" font-weight="600" fill="#e8e8ec" text-anchor="middle">Action · 工具执行</text>
+<text x="675.0" y="329.0" font-size="10.5" fill="#7a7a85" text-anchor="middle">MCP / REST / Skill / FC</text>
+<rect x="420" y="390" width="160" height="60" rx="8" fill="#1c1c26" stroke="#2a2a35" stroke-width="1"/>
+<text x="500.0" y="425.0" font-size="13" font-weight="600" fill="#e8e8ec" text-anchor="middle">Observation 回写</text>
+<rect x="590" y="170" width="170" height="60" rx="8" fill="#1c1c26" stroke="#2a2a35" stroke-width="1" stroke-dasharray="5,4"/>
+<text x="675.0" y="206.0" font-size="13" font-weight="600" fill="#e8e8ec" text-anchor="middle">Trace 上报</text>
+<text x="675.0" y="224.0" font-size="10.5" fill="#7a7a85" text-anchor="middle">OTel 遥测</text>
+<ellipse cx="330" cy="560" rx="80" ry="16" fill="#1c1c26" stroke="#2a2a35"/><path d="M 250,560 L 250,600 A 80,16 0 0 0 410,600 L 410,560" fill="#1c1c26" stroke="#2a2a35"/><ellipse cx="330" cy="560" rx="80" ry="16" fill="none" stroke="#2a2a35"/>
+<text x="330" y="588" font-size="13" font-weight="600" fill="#e8e8ec" text-anchor="middle">记忆 / 知识库</text>
+<path d="M 150,290 L 248,290" fill="none" stroke="#58a6ff" stroke-width="1.8" marker-end="url(#aBlue)"/>
+<text x="200" y="282" font-size="11" fill="#58a6ff" text-anchor="middle">问题</text>
+<path d="M 95,260 L 95,200 L 248,200" fill="none" stroke="#58a6ff" stroke-width="1.8" marker-end="url(#aBlue)"/>
+<path d="M 248,330 L 152,330" fill="none" stroke="#2ee6a8" stroke-width="1.8" marker-end="url(#aGreen)"/>
+<text x="200" y="348" font-size="11" fill="#2ee6a8" text-anchor="middle">最终答案</text>
+<path d="M 330,230 L 330,258" fill="none" stroke="#58a6ff" stroke-width="1.8" marker-end="url(#aBlue)"/>
+<path d="M 410,305 L 588,305" fill="none" stroke="#ff9f43" stroke-width="1.8" marker-end="url(#aOrange)"/>
+<text x="500" y="296" font-size="11" fill="#ff9f43" text-anchor="middle">Action</text>
+<path d="M 675,350 L 675,420 L 582,420" fill="none" stroke="#58a6ff" stroke-width="1.8" marker-end="url(#aBlue)"/>
+<text x="660" y="410" font-size="11" fill="#58a6ff" text-anchor="middle">结果</text>
+<path d="M 420,420 L 330,420 L 330,352" fill="none" stroke="#c792ea" stroke-width="1.8" marker-end="url(#aPurple)"/>
+<text x="250" y="412" font-size="11" fill="#c792ea" text-anchor="middle">下一轮 Thought（≤N）</text>
+<path d="M 675,260 L 675,232" fill="none" stroke="#9aa0a6" stroke-width="1.8" stroke-dasharray="5,4" marker-end="url(#aGray)"/>
+<path d="M 410,560 L 500,560 L 500,452" fill="none" stroke="#2ee6a8" stroke-width="1.8" marker-end="url(#aGreen)"/>
+<text x="455" y="552" font-size="11" fill="#2ee6a8" text-anchor="middle">retrieve()</text>
+<path d="M 460,452 L 460,520 L 410,520" fill="none" stroke="#2ee6a8" stroke-width="1.8" stroke-dasharray="5,4" marker-end="url(#aGreen)"/>
+<text x="418" y="492" font-size="11" fill="#2ee6a8" text-anchor="middle">store()</text>
+<line x1="60" y1="626" x2="88" y2="626" stroke="#58a6ff" stroke-width="2"/>
+<text x="96" y="630" font-size="11" fill="#7a7a85">请求 / 结果</text>
+<line x1="60" y1="646" x2="88" y2="646" stroke="#ff9f43" stroke-width="2"/>
+<text x="96" y="650" font-size="11" fill="#7a7a85">控制触发</text>
+<line x1="60" y1="666" x2="88" y2="666" stroke="#c792ea" stroke-width="2"/>
+<text x="96" y="670" font-size="11" fill="#7a7a85">推理循环</text>
+<line x1="60" y1="686" x2="88" y2="686" stroke="#2ee6a8" stroke-width="2"/>
+<text x="96" y="690" font-size="11" fill="#7a7a85">记忆读写</text>
+<line x1="60" y1="706" x2="88" y2="706" stroke="#9aa0a6" stroke-width="2" stroke-dasharray="5,4"/>
+<text x="96" y="710" font-size="11" fill="#7a7a85">异步遥测</text>
+</svg>
