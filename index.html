@@ -612,6 +612,22 @@
   <script src="js/main.js"></script>
   <script src="js/typewriter.js"></script>
   <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <script>
+    (function() {
+      var BASE = 98242;
+      var el = document.getElementById('busuanzi_value_site_pv');
+      if (!el) return;
+      function apply() {
+        if (el.dataset.offset) return;
+        var n = parseInt(el.textContent, 10);
+        if (isNaN(n)) return;
+        el.dataset.offset = '1';
+        el.textContent = n + BASE;
+      }
+      new MutationObserver(apply).observe(el, { childList: true, characterData: true, subtree: true });
+      apply();
+    })();
+  </script>
   <script src="js/particles.js"></script>
   <script src="trending/trending-data.js"></script>
   <script src="js/trending-preview.js"></script>
