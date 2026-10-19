@@ -1,242 +1,242 @@
 /* ========================================
    Trending Data - update weekly
-   数据调研日期：2026-10-12（本周 10-06 ~ 10-12）
+   数据调研日期：2026-10-19（本周 10-13 ~ 10-19）
    来源：GitHub Trending 周榜/月榜、GitHub Repositories API、skills.sh 排行榜
    ======================================== */
 const TRENDING_DATA = {
-  updated: "2026-10-12",
+  updated: "2026-10-19",
   weekly: [
     {
       rank: 1,
       name: "morluto/rea",
       url: "https://github.com/morluto/rea",
       lang: "TypeScript",
-      desc: "让 Agent 逆向工程任意软件：从应用行为到原生二进制，无需源码即可解释功能原理与证据边界，本周爆增 40k+ stars",
-      stars: "161.3k"
+      desc: "让 Agent 逆向工程任意软件：从应用行为到原生二进制，无需源码即可解释功能原理，本周再增 16万+ stars 累计 326.5k，连续三周霸榜",
+      stars: "326.5k"
     },
     {
       rank: 2,
-      name: "boykopovar/AnyPS5",
-      url: "https://github.com/boykopovar/AnyPS5",
-      lang: "C++",
-      desc: "PS5 游戏文件自动转换工具，让其原生运行在 Linux 与 Windows 上，连续两周霸榜，本周再增 8.8k stars",
-      stars: "26.8k"
-    },
-    {
-      rank: 3,
-      name: "mattpocock/skills",
-      url: "https://github.com/mattpocock/skills",
-      lang: "Shell",
-      desc: "「真实工程师」Agent Skills 技能集，本周新增 4.4k stars，skills.sh Top10 仍占 3 席",
-      stars: "286.2k"
-    },
-    {
-      rank: 4,
       name: "storytold/artcraft",
       url: "https://github.com/storytold/artcraft",
       lang: "Rust",
-      desc: "面向艺术家与电影人的 AI 图像/视频创作引擎：先 3D 布景再生成，角色与机位可复现",
-      stars: "24.0k"
+      desc: "面向艺术家与电影人的 AI 创作引擎：先 3D 布景再生成，角色与机位可复现，本周 +16.4k stars 冲上榜眼",
+      stars: "33.0k"
+    },
+    {
+      rank: 3,
+      name: "boykopovar/AnyPS5",
+      url: "https://github.com/boykopovar/AnyPS5",
+      lang: "C++",
+      desc: "PS5 游戏文件自动转换工具，让其原生运行在 Linux 与 Windows 上，连续四周在榜，本周再增 14.2k stars",
+      stars: "43.5k"
+    },
+    {
+      rank: 4,
+      name: "anthropics/claude-plugins-official",
+      url: "https://github.com/anthropics/claude-plugins-official",
+      lang: "Python",
+      desc: "Anthropic 官方维护的高质量 Claude Code 插件目录，Agent 插件生态有了官方精选入口",
+      stars: "42.9k"
     },
     {
       rank: 5,
       name: "cathrynlavery/diagram-design",
       url: "https://github.com/cathrynlavery/diagram-design",
       lang: "HTML",
-      desc: "编辑级图表设计 Skill，44 种图表类型，自包含 HTML+SVG 输出，拒绝 Mermaid 垃圾图",
-      stars: "50.2k"
+      desc: "编辑级图表设计 Skill，44 种图表类型，自包含 HTML+SVG 输出，拒绝 Mermaid 垃圾图，本周 +7.9k stars",
+      stars: "57.9k"
     },
     {
       rank: 6,
-      name: "tester-army/e2e",
-      url: "https://github.com/tester-army/e2e",
-      lang: "TypeScript",
-      desc: "面向 Web 与移动应用的下一代 e2e 测试框架，AI 编码时代的测试新基建",
-      stars: "8.4k"
+      name: "NationalSecurityAgency/ghidra",
+      url: "https://github.com/NationalSecurityAgency/ghidra",
+      lang: "Java",
+      desc: "NSA 开源逆向工程框架，受 rea 带火的「Agent 逆向工程」热潮带动重新上榜，本周 +7.6k stars",
+      stars: "91.1k"
     },
     {
       rank: 7,
-      name: "DuarteSantos8/openGym",
-      url: "https://github.com/DuarteSantos8/openGym",
-      lang: "JavaScript",
-      desc: "私有健康监测仪表盘：训练计划编排、运动记录与体能状态追踪，本周再增 1.7k stars",
-      stars: "10.0k"
-    },
-    {
-      rank: 8,
-      name: "Panniantong/Agent-Reach",
-      url: "https://github.com/Panniantong/Agent-Reach",
-      lang: "Python",
-      desc: "让 AI Agent 用一条命令行指令浏览并查询主流社交媒体，Agent 触达外部信息层的代表",
-      stars: "95.5k"
-    },
-    {
-      rank: 9,
       name: "heygen-com/hyperframes",
       url: "https://github.com/heygen-com/hyperframes",
       lang: "TypeScript",
-      desc: "写 HTML 直接渲染可播放视频文件，为 AI Agent 工作流优化的视频生成框架",
-      stars: "60.3k"
+      desc: "写 HTML 直接渲染可播放视频文件，为 AI Agent 工作流优化的视频生成框架，配套 Skill 双席冲进 skills.sh Top10",
+      stars: "67.0k"
+    },
+    {
+      rank: 8,
+      name: "MadsLorentzen/ai-job-search",
+      url: "https://github.com/MadsLorentzen/ai-job-search",
+      lang: "Python",
+      desc: "基于 Claude Code 的 AI 求职框架：岗位评估、简历定制、求职信撰写、面试准备一条龙，fork 即自持，本周 +5.7k stars",
+      stars: "54.2k"
+    },
+    {
+      rank: 9,
+      name: "mksglu/context-mode",
+      url: "https://github.com/mksglu/context-mode",
+      lang: "TypeScript",
+      desc: "AI 编码 Agent 的上下文窗口优化层：工具输出沙箱化压缩 98%，会话记忆持久化，经 MCP + hooks 覆盖 17 个平台",
+      stars: "30.9k"
     },
     {
       rank: 10,
-      name: "thedotmack/claude-mem",
-      url: "https://github.com/thedotmack/claude-mem",
+      name: "cursor/plugins",
+      url: "https://github.com/cursor/plugins",
       lang: "TypeScript",
-      desc: "跨编码会话的长期项目记忆 Agent 插件，自动总结过往动作加速后续任务，累计逼近 100k stars",
-      stars: "99.2k"
+      desc: "Cursor 插件规范与官方插件集，IDE 原生 Agent 生态正式开荒，本周新上榜 +1.7k stars",
+      stars: "12.9k"
     }
   ],
   monthly: [
     {
       rank: 1,
-      name: "bilawalsidhu/gods-eye-view",
-      url: "https://github.com/bilawalsidhu/gods-eye-view",
-      lang: "JavaScript",
-      desc: "浏览器中的间谍卫星模拟器，基于真实开源空间数据与照片级 3D 地球（本月 +30.2k）"
-    },
-    {
-      rank: 2,
-      name: "tt-a1i/archify",
-      url: "https://github.com/tt-a1i/archify",
-      lang: "JavaScript",
-      desc: "把任意想法、计划或代码库变成精美交互式架构图表的 Agent Skill（本月 +28.8k）"
-    },
-    {
-      rank: 3,
-      name: "DietrichGebert/ponytail",
-      url: "https://github.com/DietrichGebert/ponytail",
-      lang: "JavaScript",
-      desc: "让 AI Agent 像房间里最懒的资深工程师一样思考：能不写的代码就不写（本月 +28.6k）"
-    },
-    {
-      rank: 4,
-      name: "ayghri/i-have-adhd",
-      url: "https://github.com/ayghri/i-have-adhd",
-      lang: "Python",
-      desc: "专治编码 Agent 把答案埋进长篇输出的 Skill，ADHD 友好排版，结论直给（本月 +27.1k）"
-    },
-    {
-      rank: 5,
-      name: "affaan-m/ECC",
-      url: "https://github.com/affaan-m/ECC",
-      lang: "JavaScript",
-      desc: "Agent 运行框架的性能优化系统：记忆、安全与研究驱动的开发方式，累计 277.5k stars（本月 +25.1k）"
-    },
-    {
-      rank: 6,
-      name: "vectorize-io/hindsight",
-      url: "https://github.com/vectorize-io/hindsight",
-      lang: "Python",
-      desc: "会学习的 Agent 记忆框架，持续保留上下文信息，月榜稳定在前列（本月 +23.8k）"
-    },
-    {
-      rank: 7,
-      name: "alibaba/open-code-review",
-      url: "https://github.com/alibaba/open-code-review",
-      lang: "Go",
-      desc: "阿里混合架构代码评审：确定性流水线 + LLM Agent，行级精确评论与多语言规则集（本月 +22.4k）"
-    },
-    {
-      rank: 8,
       name: "paperclipai/paperclip",
       url: "https://github.com/paperclipai/paperclip",
       lang: "TypeScript",
-      desc: "开源的工作场景 Agent 管理应用，团队统一调度与监控多个 Agent 的入口级产品（本月 +18.2k）"
+      desc: "开源的工作场景 Agent 管理应用，团队统一调度与监控多个 Agent 的入口级产品，累计破 100k（本月 +23.3k）"
     },
     {
-      rank: 9,
+      rank: 2,
+      name: "debpalash/VoiceStudio",
+      url: "https://github.com/debpalash/VoiceStudio",
+      lang: "Python",
+      desc: "完全本地运行的开源 ElevenLabs 替代：声音克隆、语音设计、视频配音、听写与转写，覆盖 646 种语言（本月 +42.0k）"
+    },
+    {
+      rank: 3,
       name: "heygen-com/hyperframes",
       url: "https://github.com/heygen-com/hyperframes",
       lang: "TypeScript",
-      desc: "写 HTML 直接渲染可播放视频文件，为 AI Agent 工作流优化的视频生成框架（本月 +13.6k）"
+      desc: "写 HTML 直接渲染可播放视频文件，为 AI Agent 工作流优化的视频生成框架（本月 +15.4k）"
+    },
+    {
+      rank: 4,
+      name: "anthropics/financial-services",
+      url: "https://github.com/anthropics/financial-services",
+      lang: "Python",
+      desc: "Anthropic 官方金融服务场景插件与工具集，垂直行业官方套件成新趋势（本月 +5.5k）"
+    },
+    {
+      rank: 5,
+      name: "vectorize-io/hindsight",
+      url: "https://github.com/vectorize-io/hindsight",
+      lang: "Python",
+      desc: "会学习的 Agent 记忆框架，持续保留上下文信息，月榜稳定在前列（本月 +27.6k）"
+    },
+    {
+      rank: 6,
+      name: "cloudflare/security-audit-skill",
+      url: "https://github.com/cloudflare/security-audit-skill",
+      lang: "JavaScript",
+      desc: "Cloudflare 官方编码 Agent 安全审计 Skill：多阶段漏洞扫描，上线一月破 30k stars（本月 +19.1k）"
+    },
+    {
+      rank: 7,
+      name: "agent-substrate/substrate",
+      url: "https://github.com/agent-substrate/substrate",
+      lang: "Go",
+      desc: "Agent Substrate 核心系统：面向大规模 Agent 部署的基础设施内核，新势力冲进月榜（本月 +3.5k）"
+    },
+    {
+      rank: 8,
+      name: "mksglu/context-mode",
+      url: "https://github.com/mksglu/context-mode",
+      lang: "TypeScript",
+      desc: "AI 编码 Agent 上下文窗口优化：工具输出沙箱化、会话记忆持久化、跨 17 平台路由（本月 +7.3k）"
+    },
+    {
+      rank: 9,
+      name: "NVIDIA/OpenShell",
+      url: "https://github.com/NVIDIA/OpenShell",
+      lang: "Rust",
+      desc: "安全私有的自主 Agent 运行时，英伟达下场 Agent 沙箱执行层（本月 +8.0k）"
     },
     {
       rank: 10,
-      name: "JustVugg/colibri",
-      url: "https://github.com/JustVugg/colibri",
-      lang: "C",
-      desc: "纯 C 零依赖，在自有硬件上运行前沿 MoE 大模型，专家权重直接从磁盘流式加载（本月 +13.2k）"
+      name: "affaan-m/ECC",
+      url: "https://github.com/affaan-m/ECC",
+      lang: "JavaScript",
+      desc: "Agent 运行框架的性能优化系统：记忆、安全与研究驱动的开发方式，累计 283.5k stars（本月 +23.1k）"
     }
   ],
   skills: [
     {
       rank: 1,
       name: "find-skills",
-      installs: "2.5M",
+      installs: "3.9M",
       source: "vercel-labs/skills",
-      desc: "按任务发现并安装 Agent Skills，生态发现层的基础设施，安装量断层领先"
+      desc: "按任务发现并安装 Agent Skills，生态发现层的基础设施，安装量断层领先（上周 2.5M）"
     },
     {
       rank: 2,
-      name: "frontend-design",
-      installs: "660.2K",
-      source: "anthropics/skills",
-      desc: "Anthropic 官方前端设计 Skill，高质量 UI 生成的事实标准"
+      name: "grill-me",
+      installs: "1.4M",
+      source: "mattpocock/skills",
+      desc: "用高强度追问打磨计划与设计，动手前先与 Agent 对齐需求，从 542K 一周冲到 1.4M"
     },
     {
       rank: 3,
-      name: "vercel-react-best-practices",
-      installs: "549.1K",
-      source: "vercel-labs/agent-skills",
-      desc: "Vercel 官方 React 最佳实践 Skill，新仓库两个 Skill 一周冲进 Top6"
-    },
-    {
-      rank: 4,
-      name: "grill-me",
-      installs: "542.0K",
-      source: "mattpocock/skills",
-      desc: "用高强度追问打磨计划与设计，动手前先与 Agent 对齐需求"
-    },
-    {
-      rank: 5,
-      name: "agent-browser",
-      installs: "540.7K",
-      source: "vercel-labs/agent-browser",
-      desc: "给 Agent 的浏览器自动化能力，网页操作类任务的基础组件"
-    },
-    {
-      rank: 6,
-      name: "web-design-guidelines",
-      installs: "461.3K",
-      source: "vercel-labs/agent-skills",
-      desc: "Vercel 官方 Web 界面设计规范 Skill，与 frontend-design 形成设计双雄"
-    },
-    {
-      rank: 7,
       name: "grill-with-docs",
-      installs: "456.5K",
+      installs: "1.2M",
       source: "mattpocock/skills",
       desc: "grill-me 的工程增强版：追问同时构建项目共享语言，内联更新术语表与 ADR 文档"
     },
     {
+      rank: 4,
+      name: "agent-browser",
+      installs: "1.2M",
+      source: "vercel-labs/agent-browser",
+      desc: "给 Agent 的浏览器自动化能力，网页操作类任务的基础组件"
+    },
+    {
+      rank: 5,
+      name: "improve-codebase-architecture",
+      installs: "1.1M",
+      source: "mattpocock/skills",
+      desc: "扫描代码库寻找模块深化机会并给出改进候选，官方建议每隔几天跑一次"
+    },
+    {
+      rank: 6,
+      name: "tdd",
+      installs: "1.1M",
+      source: "mattpocock/skills",
+      desc: "测试驱动开发纪律 Skill：先写失败用例再实现，把工程流程固化进 Agent"
+    },
+    {
+      rank: 7,
+      name: "hyperframes-cli",
+      installs: "1.1M",
+      source: "heygen-com/hyperframes",
+      desc: "HeyGen 视频生成框架的 CLI 入口 Skill，与主 Skill 双双卡位 Top10，新爆款生态位"
+    },
+    {
       rank: 8,
-      name: "microsoft-foundry",
-      installs: "451.5K",
-      source: "microsoft/azure-skills",
-      desc: "微软官方 Azure Skills 仓库的领衔 Skill，整仓安装量已超 6.2M，大厂批量进场"
+      name: "hyperframes",
+      installs: "1.1M",
+      source: "heygen-com/hyperframes",
+      desc: "让 Agent 写 HTML 直接产出可播放视频，AI 视频工作流的 Skill 化封装"
     },
     {
       rank: 9,
-      name: "azure-ai",
-      installs: "448.2K",
-      source: "microsoft/azure-skills",
-      desc: "微软 Azure AI 场景 Skill，官方插件包覆盖部署、Foundry、迁移等全链路"
+      name: "setup-matt-pocock-skills",
+      installs: "1.0M",
+      source: "mattpocock/skills",
+      desc: "mattpocock 技能套件的引导安装与配置 Skill，一人仓库独占 Top10 六席"
     },
     {
       rank: 10,
-      name: "improve-codebase-architecture",
-      installs: "448.2K",
+      name: "handoff",
+      installs: "1.0M",
       source: "mattpocock/skills",
-      desc: "扫描代码库寻找模块深化机会并给出改进候选，官方建议每隔几天跑一次"
+      desc: "跨会话上下文交接 Skill：把当前工作打包移交下一个 Agent 会话，长任务不断片"
     }
   ],
   skillRepos: [
-    { name: "obra/superpowers", stars: "296.4K+", desc: "Agentic Skills 框架与软件开发方法论，稳居 Skill 集合仓库第一" },
-    { name: "mattpocock/skills", stars: "286.2K+", desc: "面向真实工程师的技能集，持续霸榜 skills.sh（Top10 占 3 席）" },
-    { name: "anthropics/skills", stars: "180.3K+", desc: "Anthropic 官方 Agent Skills 公共仓库，持续更新 claude-api 等 Skill" },
-    { name: "vercel-labs/skills", stars: "33.9K+", desc: "开放的 Agent Skills 安装工具（npx skills），生态分发入口" },
-    { name: "tech-leads-club/agent-skills", stars: "7.0K+", desc: "面向专业 AI 编码 Agent 的安全校验 Skill 注册表" },
-    { name: "microsoft/azure-skills", stars: "1.6K+", desc: "微软官方 Azure 场景 Agent 插件包，上线后安装量狂飙至 6.2M，大厂生态卡位" }
+    { name: "obra/superpowers", stars: "301.8K+", desc: "Agentic Skills 框架与软件开发方法论，首个破 30 万的 Skill 集合仓库" },
+    { name: "mattpocock/skills", stars: "296.5K+", desc: "面向真实工程师的技能集，skills.sh Top10 独占六席，个人仓库对抗大厂生态" },
+    { name: "anthropics/skills", stars: "182.1K+", desc: "Anthropic 官方 Agent Skills 公共仓库，配合 claude-plugins-official 官方目录双线推进" },
+    { name: "vercel-labs/skills", stars: "35.5K+", desc: "开放的 Agent Skills 安装工具（npx skills），生态分发入口" },
+    { name: "cloudflare/security-audit-skill", stars: "31.3K+", desc: "Cloudflare 官方安全审计 Skill，上线一月破 3 万 star，大厂单点爆款样本" },
+    { name: "tech-leads-club/agent-skills", stars: "7.1K+", desc: "面向专业 AI 编码 Agent 的安全校验 Skill 注册表" }
   ]
 };

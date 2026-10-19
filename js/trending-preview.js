@@ -21,8 +21,9 @@
     var pct = Math.round(aiCount / data.weekly.length * 100);
     insightEl.innerHTML =
       '<strong>本周观察</strong>：GitHub Trending 中 AI/Agent 相关项目占比约 <strong>' + pct + '%</strong>，' +
-      'AI 生产力正从编码扩展到教育、科学与媒体生成。<strong>skills-101/superpowers</strong> 的 AI 视频/图像/数字人技能包近四周安装领先，' +
-      '<strong>obra/superpowers</strong> 仍以 280.9K+ Stars 稳居 Skill 集合仓库第一。';
+      'Agent 逆向工程工具 <strong>rea</strong> 连续三周霸榜、累计突破 32 万 stars，并带动 <strong>ghidra</strong> 重新上榜；' +
+      '<strong>anthropics/claude-plugins-official</strong> 与 <strong>cursor/plugins</strong> 同期冲榜，官方插件入口密集开张。' +
+      '<strong>mattpocock/skills</strong> 在 skills.sh Top10 独占六席，<strong>obra/superpowers</strong> 以 301.8K+ Stars 成为首个破 30 万的 Skill 集合仓库。';
   }
 
   /* --- Render Top 3 weekly projects --- */
