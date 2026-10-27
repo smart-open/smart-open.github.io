@@ -21,9 +21,9 @@
     var pct = Math.round(aiCount / data.weekly.length * 100);
     insightEl.innerHTML =
       '<strong>本周观察</strong>：GitHub Trending 中 AI/Agent 相关项目占比约 <strong>' + pct + '%</strong>，' +
-      'Agent 逆向工程工具 <strong>rea</strong> 连续三周霸榜、累计突破 32 万 stars，并带动 <strong>ghidra</strong> 重新上榜；' +
-      '<strong>anthropics/claude-plugins-official</strong> 与 <strong>cursor/plugins</strong> 同期冲榜，官方插件入口密集开张。' +
-      '<strong>mattpocock/skills</strong> 在 skills.sh Top10 独占六席，<strong>obra/superpowers</strong> 以 301.8K+ Stars 成为首个破 30 万的 Skill 集合仓库。';
+      '本周几乎全榜皆 Agent：开源编码 Agent <strong>opencode</strong> 重回榜首，<strong>orca</strong>（Agent 舰队）与 <strong>graphify</strong>（代码库知识图谱）补齐调度与理解两块拼图；' +
+      '<strong>andrej-karpathy-skills</strong> 单个 CLAUDE.md 文件冲上 22 万 star 诠释「少即是多」，<strong>cloudflare/security-audit-skill</strong> 周增 16.5k 登顶涨星王。' +
+      'Skills 双雄并立：<strong>mattpocock/skills</strong>（304.2K+）逼近 <strong>obra/superpowers</strong>（305.7K+），双双破 30 万，<strong>find-skills</strong> 以 4.1M 安装量断层领先。';
   }
 
   /* --- Render Top 3 weekly projects --- */
