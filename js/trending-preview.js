@@ -21,9 +21,9 @@
     var pct = Math.round(aiCount / data.weekly.length * 100);
     insightEl.innerHTML =
       '<strong>本周观察</strong>：GitHub Trending 中 AI/Agent 相关项目占比约 <strong>' + pct + '%</strong>，' +
-      '本周几乎全榜皆 Agent：开源编码 Agent <strong>opencode</strong> 重回榜首，<strong>orca</strong>（Agent 舰队）与 <strong>graphify</strong>（代码库知识图谱）补齐调度与理解两块拼图；' +
-      '<strong>andrej-karpathy-skills</strong> 单个 CLAUDE.md 文件冲上 22 万 star 诠释「少即是多」，<strong>cloudflare/security-audit-skill</strong> 周增 16.5k 登顶涨星王。' +
-      'Skills 双雄并立：<strong>mattpocock/skills</strong>（304.2K+）逼近 <strong>obra/superpowers</strong>（305.7K+），双双破 30 万，<strong>find-skills</strong> 以 4.1M 安装量断层领先。';
+      '本周主线是「反 AI 垃圾设计」：<strong>hallmark</strong>（反 AI 设计 Skill）首登周榜首，<strong>impeccable</strong> 以 +12.0k 登顶涨星王；' +
+      '<strong>claude-mem</strong>（跨会话持久记忆）冲上周榜第二，<strong>jetbrains/thinkrail</strong> 代表大厂亲自下场「氛围编程」IDE。' +
+      'Skills 生态：<strong>find-skills</strong> 以 4.2M 安装量断层领先，<strong>obra/superpowers</strong>（310.9K+）与 <strong>mattpocock/skills</strong>（309.6K+）榜首之争仅差 1.3k。';
   }
 
   /* --- Render Top 3 weekly projects --- */
