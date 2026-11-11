@@ -21,9 +21,9 @@
     var pct = Math.round(aiCount / data.weekly.length * 100);
     insightEl.innerHTML =
       '<strong>本周观察</strong>：GitHub Trending 中 AI/Agent 相关项目占比约 <strong>' + pct + '%</strong>，' +
-      '本周主线是「反 AI 垃圾设计」：<strong>hallmark</strong>（反 AI 设计 Skill）首登周榜首，<strong>impeccable</strong> 以 +12.0k 登顶涨星王；' +
-      '<strong>claude-mem</strong>（跨会话持久记忆）冲上周榜第二，<strong>jetbrains/thinkrail</strong> 代表大厂亲自下场「氛围编程」IDE。' +
-      'Skills 生态：<strong>find-skills</strong> 以 4.2M 安装量断层领先，<strong>obra/superpowers</strong>（310.9K+）与 <strong>mattpocock/skills</strong>（309.6K+）榜首之争仅差 1.3k。';
+      '本周最大黑马是 <strong>storytold/craft-anything</strong>：rea 团队新作「让 Agent 理解任意软件并动手复刻」，上线九天冲到 28.3k stars；' +
+      '<strong>deepseek-ai/dsh-superagent-prototype</strong> 代表大模型厂商亲自下场做超级智能体，<strong>cloudflare/security-audit-skill</strong> 周增 21.5k 成涨星王。' +
+      'Skills 生态：<strong>find-skills</strong> 以 4.3M 安装量断层领先，<strong>heygen-com/hyperframes</strong> 四席瓜分 Top10，<strong>janestreet/agent_skills</strong> 上线一周即上榜。';
   }
 
   /* --- Render Top 3 weekly projects --- */
